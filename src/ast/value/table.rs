@@ -26,9 +26,9 @@ impl HasRawValue for TableKey {
 
 #[derive(Clone, Debug)]
 pub struct TableField {
-    key: TableKey,
-    value: Option<TableFieldValue>,
-    r#type: TypeDefinition,
+    pub key: TableKey,
+    pub value: Option<TableFieldValue>,
+    pub r#type: TypeDefinition,
 }
 impl Display for TableField {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

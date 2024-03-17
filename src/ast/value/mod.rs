@@ -2,12 +2,11 @@ mod function;
 mod simple;
 mod table;
 
-use std::fmt::Display;
+use std::fmt::{Debug, Display};
 
 pub use function::*;
 pub use simple::*;
 pub use table::*;
-use tree_sitter::Node;
 
 use super::HasRawValue;
 
@@ -32,11 +31,11 @@ impl HasRawValue for Value {
     }
 }
 
-impl From<Node<'_>> for Value {
-    fn from(value: Node) -> Self {
-        Value::SimpleValue(SimpleValue::default())
-    }
-}
+// impl From<Node<'_>> for Value {
+//     fn from(value: Node) -> Self {
+//         Value::SimpleValue(SimpleValue::default())
+//     }
+// }
 impl From<String> for Value {
     fn from(value: String) -> Self {
         Value::SimpleValue(SimpleValue { value })
