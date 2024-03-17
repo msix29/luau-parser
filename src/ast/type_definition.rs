@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use super::AstNode;
+use super::{AstNode, HasRawValue};
 
 #[derive(Clone, Debug)]
 pub struct TypeDefinition {
@@ -23,17 +23,20 @@ impl Display for TypeDefinition {
     }
 }
 
-impl AstNode for TypeDefinition {
+impl HasRawValue for TypeDefinition {
     fn get_raw_value(&self) -> String {
+        let prefix = if self.is_exported { "export" } else { "" };
         let start = if self.type_name.is_empty() {
             String::from("")
         } else {
             format!("type {} = ", self.type_name)
         };
 
-        format!("{}{}", start, "<PLACEHOLDER_VALUE>")
+        format!("{}{}{}", prefix, start, "<PLACEHOLDER_VALUE>")
     }
+}
 
+impl AstNode for TypeDefinition {
     #[allow(unused_variables)]
     fn try_from_node<'a>(
         node: tree_sitter::Node<'a>,

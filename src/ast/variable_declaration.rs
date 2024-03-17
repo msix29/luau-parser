@@ -1,7 +1,7 @@
 use std::fmt::Display;
 use tree_sitter::{Node, TreeCursor};
 
-use super::{type_definition::TypeDefinition, AstNode};
+use super::{type_definition::TypeDefinition, AstNode, HasRawValue};
 
 #[derive(Clone, Debug, Default)]
 pub struct VariableDeclaration {
@@ -15,11 +15,13 @@ impl Display for VariableDeclaration {
     }
 }
 
-impl AstNode for VariableDeclaration {
+impl HasRawValue for VariableDeclaration {
     fn get_raw_value(&self) -> String {
         format!("local {}", self.variable_name)
     }
+}
 
+impl AstNode for VariableDeclaration {
     fn try_from_node<'a>(
         node: Node<'a>,
         cursor: &mut TreeCursor<'a>,

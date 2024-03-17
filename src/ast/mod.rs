@@ -1,5 +1,6 @@
 pub mod location;
 pub mod position;
+pub mod value;
 pub mod variable_declaration;
 pub mod type_definition;
 
@@ -8,12 +9,15 @@ use tree_sitter::{Node, TreeCursor};
 
 use self::{location::Location, type_definition::TypeDefinition, variable_declaration::VariableDeclaration};
 
-pub trait AstNode: Display + Sized {
+pub trait HasRawValue: Display {
     fn get_raw_value(&self) -> String;
+}
+
+pub trait AstNode: HasRawValue + Sized {
     fn try_from_node<'a>(node: Node<'a>, cursor: &mut TreeCursor<'a>, code_bytes: &[u8]) -> Option<Vec<Self>>;
 }
 
-pub trait HasLocation {
+pub trait HasLocation: AstNode {
     fn get_location(&self) -> Location;
 }
 
