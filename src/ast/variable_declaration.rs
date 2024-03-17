@@ -17,7 +17,11 @@ impl Display for VariableDeclaration {
 
 impl HasRawValue for VariableDeclaration {
     fn get_raw_value(&self) -> String {
-        format!("local {}", self.variable_name)
+        format!(
+            "local {}: {}",
+            self.variable_name,
+            self.variable_type.get_raw_value()
+        )
     }
 }
 
