@@ -35,7 +35,7 @@ impl AstNode for VariableDeclaration {
             return None;
         }
 
-        let all_names = node.child(1).unwrap();
+        let all_names = node.child_by_field_name("names").unwrap();
         let mut variables = Vec::new();
 
         for child in all_names.children(cursor).step_by(2) {

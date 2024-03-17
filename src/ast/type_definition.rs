@@ -3,7 +3,7 @@ use std::fmt::Display;
 use tree_sitter::Node;
 
 use super::{
-    value::{TableField, TableKey, TableValue, Value},
+    value::{FunctionParameter, TableField, TableKey, TableValue, Value},
     AstNode, HasRawValue,
 };
 
@@ -17,9 +17,9 @@ fn from_singleton_type(node: Node, code_bytes: &[u8]) -> Value {
     }
 }
 
-fn build_table(node: Node, code_bytes: &[u8]) -> TableValue {
+fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
     let mut fields: Vec<TableField> = Vec::new();
-    let Some(passed_node) = node.child(1) else {
+    let Some(passed_node) = node.child_by_field_name("fields") else {
         return TableValue { fields };
     };
     match passed_node.kind() {
@@ -41,14 +41,14 @@ fn build_table(node: Node, code_bytes: &[u8]) -> TableValue {
                     "tableProperty" => {
                         fields.push(TableField {
                             key: TableKey::String(
-                                node.child(0)
+                                node.child_by_field_name("key")
                                     .unwrap()
                                     .utf8_text(code_bytes)
                                     .unwrap()
                                     .to_string(),
                             ),
                             r#type: TypeDefinition::from((
-                                node.child(2).unwrap(),
+                                node.child_by_field_name("type").unwrap(),
                                 code_bytes,
                                 false,
                             )),
@@ -58,12 +58,12 @@ fn build_table(node: Node, code_bytes: &[u8]) -> TableValue {
                     "tableIndexer" => {
                         fields.push(TableField {
                             key: TableKey::Type(TypeDefinition::from((
-                                node.child(1).unwrap(),
+                                node.child_by_field_name("key").unwrap(),
                                 code_bytes,
                                 false,
                             ))),
                             r#type: TypeDefinition::from((
-                                node.child(4).unwrap(),
+                                node.child_by_field_name("type").unwrap(),
                                 code_bytes,
                                 false,
                             )),
@@ -80,13 +80,25 @@ fn build_table(node: Node, code_bytes: &[u8]) -> TableValue {
     TableValue { fields }
 }
 
+fn _build_function_parameters(_node: Node, _code_bytes: &[u8]) -> Vec<FunctionParameter> {
+    Vec::new()
+}
+
+fn _build_function_type(node: Node, code_bytes: &[u8]) {
+    let _parameters = if let Some(node) = node.child_by_field_name("parameters") {
+        _build_function_parameters(node, code_bytes)
+    } else {
+        Vec::new()
+    };
+}
+
 fn from_simple_type(node: Node, code_bytes: &[u8]) -> Value {
     match node.kind() {
         "nil" => Value::from("nil"),
         "singletonType" => from_singleton_type(node, code_bytes),
         "name" => Value::from(node.utf8_text(code_bytes).unwrap()), //TODO: indexing from a table.
         "typeof" => Value::from("typeof<T>(...)"),                  //TODO: typeof(<expression>)
-        "tableType" => Value::TableValue(build_table(node, code_bytes)),
+        "tableType" => Value::TableValue(build_table_type(node, code_bytes)),
         "simpleType" => from_simple_type(node.child(0).unwrap(), code_bytes),
         "functionType" => Value::from("(...) -> (...)"),
         "(" => from_simple_type(node.child(1).unwrap(), code_bytes),
@@ -132,11 +144,10 @@ impl HasRawValue for TypeValue {
 }
 impl From<(Node<'_>, &[u8])> for TypeValue {
     fn from((node, code_bytes): (Node<'_>, &[u8])) -> Self {
-        let actual_type = node.named_child(0).unwrap();
-        let main_type = actual_type.child(0).unwrap();
+        let simple_type = node.child_by_field_name("simpleType").unwrap();
 
         TypeValue {
-            r#type: from_simple_type(main_type, code_bytes),
+            r#type: from_simple_type(simple_type, code_bytes),
             ..Default::default()
         }
     }
@@ -191,6 +202,7 @@ impl AstNode for TypeDefinition {
         if node.kind() != "typeDeclaration" {
             return None;
         }
+
         Some(vec![TypeDefinition::from((node, code_bytes, true))])
     }
 }
@@ -198,17 +210,18 @@ impl AstNode for TypeDefinition {
 impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
     fn from((node, code_bytes, is_definition): (Node, &[u8], bool)) -> Self {
         if is_definition {
-            let i = if node.child(0).unwrap().kind() == "export" {
-                2
-            } else {
-                1
-            };
-            let type_name = node.child(i).unwrap().utf8_text(code_bytes).unwrap();
-
             TypeDefinition {
-                type_name: type_name.to_string(),
-                is_exported: i == 2,
-                type_value: TypeValue::from((node.child(i + 2).unwrap(), code_bytes)),
+                type_name: node
+                    .child_by_field_name("typeName")
+                    .unwrap()
+                    .utf8_text(code_bytes)
+                    .unwrap()
+                    .to_string(),
+                is_exported: node.child_by_field_name("export").is_some(),
+                type_value: TypeValue::from((
+                    node.child_by_field_name("type").unwrap(),
+                    code_bytes,
+                )),
             }
         } else {
             TypeDefinition {
