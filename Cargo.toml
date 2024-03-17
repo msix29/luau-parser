@@ -1,0 +1,8 @@
+[package]
+name = "parser"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tree-sitter = "0.22.1"
+tree-sitter-luau = { path = "../grammar" }
