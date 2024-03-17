@@ -1,12 +1,13 @@
+mod function;
 mod simple;
 mod table;
-mod function;
 
 use std::fmt::Display;
 
+pub use function::*;
 pub use simple::*;
 pub use table::*;
-pub use function::*;
+use tree_sitter::Node;
 
 use super::HasRawValue;
 
@@ -14,14 +15,13 @@ use super::HasRawValue;
 pub enum Value {
     SimpleValue(SimpleValue),
     FunctionValue(FunctionValue),
-    TableValue(TableValue)
+    TableValue(TableValue),
 }
 impl Display for Value {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&self.get_raw_value())
     }
 }
-
 impl HasRawValue for Value {
     fn get_raw_value(&self) -> String {
         match self {
@@ -29,5 +29,27 @@ impl HasRawValue for Value {
             Value::FunctionValue(value) => value.get_raw_value(),
             Value::TableValue(value) => value.get_raw_value(),
         }
+    }
+}
+
+impl From<Node<'_>> for Value {
+    fn from(value: Node) -> Self {
+        Value::SimpleValue(SimpleValue::default())
+    }
+}
+impl From<String> for Value {
+    fn from(value: String) -> Self {
+        Value::SimpleValue(SimpleValue { value })
+    }
+}
+impl From<&str> for Value {
+    fn from(value: &str) -> Self {
+        Value::SimpleValue(SimpleValue { value: value.to_string() })
+    }
+}
+
+impl Default for Value {
+    fn default() -> Self {
+        Value::SimpleValue(SimpleValue::default())
     }
 }

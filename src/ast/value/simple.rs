@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use crate::ast::HasRawValue;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct SimpleValue {
     pub value: String,
 }

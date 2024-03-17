@@ -69,7 +69,7 @@ impl HasRawValue for TableFieldValue {
 
 #[derive(Clone, Debug)]
 pub struct TableValue {
-    fields: &'static [TableField],
+    pub fields: Vec<TableField>,
 }
 impl Display for TableValue {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

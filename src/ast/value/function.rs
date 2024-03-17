@@ -35,8 +35,8 @@ impl HasRawValue for FunctionReturn {
 
 #[derive(Clone, Debug)]
 pub struct FunctionValue {
-    pub parameters: &'static [FunctionParameter],
-    pub returns: &'static [FunctionReturn],
+    pub parameters: Vec<FunctionParameter>,
+    pub returns: Vec<FunctionReturn>,
 }
 impl Display for FunctionValue {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
