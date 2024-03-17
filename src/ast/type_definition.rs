@@ -2,8 +2,12 @@ use std::fmt::Display;
 
 use tree_sitter::Node;
 
+use crate::ast::name::NormalizedName;
+
 use super::{
-    value::{FunctionParameter, TableField, TableKey, TableValue, Value},
+    value::{
+        FunctionParameter, FunctionReturn, FunctionValue, TableField, TableKey, TableValue, Value,
+    },
     AstNode, HasRawValue,
 };
 
@@ -80,16 +84,62 @@ fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
     TableValue { fields }
 }
 
-fn _build_function_parameters(_node: Node, _code_bytes: &[u8]) -> Vec<FunctionParameter> {
-    Vec::new()
+fn build_function_parameters(node: Node, code_bytes: &[u8]) -> Vec<FunctionParameter> {
+    let mut parameters = Vec::new();
+
+    if let Some(parameters_node) = node.child_by_field_name("parameters") {
+        for i in 0..parameters_node.child_count() {
+            let parameter = parameters_node.child(i).unwrap();
+            let normalized_name = NormalizedName::from((parameter, code_bytes));
+            parameters.push(FunctionParameter {
+                name: normalized_name.name,
+                r#type: normalized_name.r#type.unwrap_or(TypeDefinition::default()),
+            });
+        }
+    }
+
+    parameters
 }
 
-fn _build_function_type(node: Node, code_bytes: &[u8]) {
-    let _parameters = if let Some(node) = node.child_by_field_name("parameters") {
-        _build_function_parameters(node, code_bytes)
+fn build_function_returns(node: Node, code_bytes: &[u8]) -> Vec<FunctionReturn> {
+    let mut returns = Vec::new();
+
+    println!("{:?}", node);
+
+    match node.kind() {
+        "(" => {
+            for i in 0..node.child_count() {
+                returns.push(FunctionReturn {
+                    r#type: TypeDefinition::from((node.child(i).unwrap(), code_bytes, false)),
+                });
+            }
+        }
+        "type" => returns.push(FunctionReturn {
+            r#type: TypeDefinition::from((node, code_bytes, false)),
+        }),
+        _ => (),
+    }
+
+    returns
+}
+
+fn build_function_type(node: Node, code_bytes: &[u8]) -> FunctionValue {
+    let parameters = if let Some(node) = node.child_by_field_name("parameters") {
+        build_function_parameters(node, code_bytes)
     } else {
         Vec::new()
     };
+
+    FunctionValue {
+        parameters,
+        returns: build_function_returns(
+            node.child_by_field_name("returns")
+                .unwrap()
+                .child(0)
+                .unwrap(),
+            code_bytes,
+        ),
+    }
 }
 
 fn from_simple_type(node: Node, code_bytes: &[u8]) -> Value {
@@ -100,7 +150,7 @@ fn from_simple_type(node: Node, code_bytes: &[u8]) -> Value {
         "typeof" => Value::from("typeof<T>(...)"),                  //TODO: typeof(<expression>)
         "tableType" => Value::TableValue(build_table_type(node, code_bytes)),
         "simpleType" => from_simple_type(node.child(0).unwrap(), code_bytes),
-        "functionType" => Value::from("(...) -> (...)"),
+        "functionType" => Value::FunctionValue(build_function_type(node, code_bytes)),
         "(" => from_simple_type(node.child(1).unwrap(), code_bytes),
         _ => Value::from("any"), // Should never be matched when done.
     }

@@ -5,15 +5,14 @@ use crate::ast::{
 };
 
 fn print_all(node: Node, code: &str) {
+    if true {
+        return;
+    }
     println!(
         "{:?}\n\t{}",
         node,
         &code[node.start_byte()..node.end_byte()]
     );
-    if node.kind() == "variableDeclaration" {
-        println!("Children count: {}", node.child_count());
-        // println!("varialbe, string: {:?}", node.child_by_field_name("expression").unwrap());
-    }
 
     for i in 0..node.child_count() {
         print_all(node.child(i).unwrap(), code);

@@ -1,8 +1,9 @@
 pub mod location;
 pub mod position;
+pub mod variable_declaration;
 pub mod type_definition;
 pub mod value;
-pub mod variable_declaration;
+pub mod name;
 
 use std::fmt::Display;
 use tree_sitter::{Node, TreeCursor};

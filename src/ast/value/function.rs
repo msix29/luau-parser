@@ -4,8 +4,8 @@ use crate::ast::{type_definition::TypeDefinition, HasRawValue};
 
 #[derive(Clone, Debug)]
 pub struct FunctionParameter {
-    name: String,
-    r#type: TypeDefinition,
+    pub name: String,
+    pub r#type: TypeDefinition,
 }
 impl Display for FunctionParameter {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -20,7 +20,7 @@ impl HasRawValue for FunctionParameter {
 
 #[derive(Clone, Debug)]
 pub struct FunctionReturn {
-    r#type: TypeDefinition,
+    pub r#type: TypeDefinition,
 }
 impl Display for FunctionReturn {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
