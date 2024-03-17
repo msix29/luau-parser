@@ -1,11 +1,12 @@
 use std::fmt::Display;
 use tree_sitter::{Node, TreeCursor};
 
-use super::AstNode;
+use super::{type_definition::TypeDefinition, AstNode};
 
 #[derive(Clone, Debug, Default)]
 pub struct VariableDeclaration {
     variable_name: String,
+    variable_type: TypeDefinition,
 }
 
 impl Display for VariableDeclaration {
@@ -24,17 +25,17 @@ impl AstNode for VariableDeclaration {
         cursor: &mut TreeCursor<'a>,
         code_bytes: &[u8],
     ) -> Option<Vec<Self>> {
-        let statement = node.child(0).unwrap();
-        if statement.kind() != "variableDeclaration" {
+        if node.kind() != "variableDeclaration" {
             return None;
         }
 
-        let all_names = statement.child(1).unwrap();
+        let all_names = node.child(1).unwrap();
         let mut variables = Vec::new();
 
         for child in all_names.children(cursor).step_by(2) {
             variables.push(VariableDeclaration {
                 variable_name: child.utf8_text(code_bytes).unwrap().to_string(),
+                variable_type: TypeDefinition::default(),
             });
         }
         Some(variables)

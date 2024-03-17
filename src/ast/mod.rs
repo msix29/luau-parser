@@ -1,11 +1,12 @@
 pub mod location;
 pub mod position;
 pub mod variable_declaration;
+pub mod type_definition;
 
 use std::fmt::Display;
 use tree_sitter::{Node, TreeCursor};
 
-use self::{location::Location, variable_declaration::VariableDeclaration};
+use self::{location::Location, type_definition::TypeDefinition, variable_declaration::VariableDeclaration};
 
 pub trait AstNode: Display + Sized {
     fn get_raw_value(&self) -> String;
@@ -19,6 +20,7 @@ pub trait HasLocation {
 #[derive(Clone, Debug)]
 pub enum Token {
     VariableDeclaration(VariableDeclaration),
+    TypeDefinition(TypeDefinition),
 }
 
 #[derive(Clone, Debug, Default)]
