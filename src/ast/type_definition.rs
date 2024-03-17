@@ -11,7 +11,7 @@ pub struct TypeDefinition {
 impl Default for TypeDefinition {
     fn default() -> Self {
         TypeDefinition {
-            type_name: "".to_string(),
+            type_name: "any".to_string(),
             is_exported: false,
         }
     }
@@ -25,6 +25,10 @@ impl Display for TypeDefinition {
 
 impl HasRawValue for TypeDefinition {
     fn get_raw_value(&self) -> String {
+        if self.type_name == "any" {
+            return "any".to_string();
+        }
+        
         let prefix = if self.is_exported { "export" } else { "" };
         let start = if self.type_name.is_empty() {
             String::from("")
