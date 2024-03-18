@@ -1,3 +1,16 @@
+//! # Shared types
+//!
+//! Module holding types that'll be used everywhere around the parser and most likely
+//! outside it too, like in a formatter or a lsp.
+//!
+//! ## Note
+//!
+//! This file only contains the definitions for items, for actual implementations,
+//! check the files under `src/ast`. Each type will have it's implementation in
+//! the same location, ex. types in `shared_types/value/function.rs` will have
+//! their implementations in `ast/value/function.rs`.
+//!
+
 mod location;
 mod name;
 mod position;

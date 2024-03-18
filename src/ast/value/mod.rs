@@ -2,16 +2,10 @@ mod function;
 mod simple;
 mod table;
 
-use std::fmt::{Debug, Display};
+use std::fmt::Display;
 
-use crate::prelude::{FunctionValue, HasRawValue, SimpleValue, TableValue};
+use crate::prelude::{Value, HasRawValue, SimpleValue};
 
-#[derive(Clone, Debug)]
-pub enum Value {
-    SimpleValue(SimpleValue),
-    FunctionValue(FunctionValue),
-    TableValue(TableValue),
-}
 impl Display for Value {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&self.get_raw_value())

@@ -1,54 +1,29 @@
+//! # Value
+//!
+//! Possible values to hold Luau datatypes.
+//!
+
 mod function;
 mod simple;
 mod table;
 
-use std::fmt::{Debug, Display};
+use std::fmt::Debug;
 
 pub use function::*;
 pub use simple::*;
 pub use table::*;
 
-use super::HasRawValue;
-
+/// Enum representing one of the _major_ data types in Luau, being table, function, or
+/// "simple". Simple is just anything that can be represented as a string, and in Luau,
+/// that's just non-functions and non-tables!
 #[derive(Clone, Debug)]
 pub enum Value {
+    /// A simple value.
     SimpleValue(SimpleValue),
+
+    /// A function.
     FunctionValue(FunctionValue),
+
+    /// A table.
     TableValue(TableValue),
-}
-impl Display for Value {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&self.get_raw_value())
-    }
-}
-impl HasRawValue for Value {
-    fn get_raw_value(&self) -> String {
-        match self {
-            Value::SimpleValue(value) => value.get_raw_value(),
-            Value::FunctionValue(value) => value.get_raw_value(),
-            Value::TableValue(value) => value.get_raw_value(),
-        }
-    }
-}
-
-// impl From<Node<'_>> for Value {
-//     fn from(value: Node) -> Self {
-//         Value::SimpleValue(SimpleValue::default())
-//     }
-// }
-impl From<String> for Value {
-    fn from(value: String) -> Self {
-        Value::SimpleValue(SimpleValue { value })
-    }
-}
-impl From<&str> for Value {
-    fn from(value: &str) -> Self {
-        Value::SimpleValue(SimpleValue { value: value.to_string() })
-    }
-}
-
-impl Default for Value {
-    fn default() -> Self {
-        Value::SimpleValue(SimpleValue::default())
-    }
 }
