@@ -1,8 +1,5 @@
 use std::fmt::Display;
-
 use tree_sitter::Node;
-
-use crate::ast::name::NormalizedName;
 
 use super::{
     value::{
@@ -10,6 +7,7 @@ use super::{
     },
     AstNode, HasRawValue,
 };
+use crate::ast::name::NormalizedName;
 
 fn from_singleton_type(node: Node, code_bytes: &[u8]) -> Value {
     match node.kind() {
@@ -93,6 +91,7 @@ fn build_function_parameters(node: Node, code_bytes: &[u8]) -> Vec<FunctionParam
             let normalized_name = NormalizedName::from((parameter, code_bytes));
             parameters.push(FunctionParameter {
                 name: normalized_name.name,
+                is_variadic: false,
                 r#type: normalized_name.r#type.unwrap_or(TypeDefinition::default()),
             });
         }
@@ -104,18 +103,18 @@ fn build_function_parameters(node: Node, code_bytes: &[u8]) -> Vec<FunctionParam
 fn build_function_returns(node: Node, code_bytes: &[u8]) -> Vec<FunctionReturn> {
     let mut returns = Vec::new();
 
-    println!("{:?}", node);
-
     match node.kind() {
         "(" => {
             for i in 0..node.child_count() {
                 returns.push(FunctionReturn {
                     r#type: TypeDefinition::from((node.child(i).unwrap(), code_bytes, false)),
+                    is_variadic: false,
                 });
             }
         }
         "type" => returns.push(FunctionReturn {
             r#type: TypeDefinition::from((node, code_bytes, false)),
+            is_variadic: false,
         }),
         _ => (),
     }
@@ -171,6 +170,9 @@ impl HasRawValue for TypeValue {
     fn get_raw_value(&self) -> String {
         let mut main_type = self.r#type.get_raw_value();
 
+        // According to Luau rules, `&` and `|` can't be joined in one type, you must do
+        // `( ... & ...) | ...` for it to work, which is why this is an `if-else if` instead
+        // of 2 `if` statements.
         if !self.and_types.is_empty() {
             let and_types = self
                 .and_types
@@ -185,8 +187,8 @@ impl HasRawValue for TypeValue {
                 .iter()
                 .map(|r#type| r#type.get_raw_value())
                 .collect::<Vec<String>>()
-                .join(" & ");
-            main_type = format!("({} & {})", main_type, or_types)
+                .join(" | ");
+            main_type = format!("({} | {})", main_type, or_types)
         }
 
         main_type.to_string()
@@ -205,9 +207,9 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
 
 #[derive(Clone, Debug)]
 pub struct TypeDefinition {
-    type_name: String,
-    is_exported: bool,
-    type_value: TypeValue,
+    pub type_name: String,
+    pub is_exported: bool,
+    pub type_value: TypeValue,
 }
 
 impl Default for TypeDefinition {
@@ -243,10 +245,9 @@ impl HasRawValue for TypeDefinition {
 }
 
 impl AstNode for TypeDefinition {
-    #[allow(unused_variables)]
     fn try_from_node<'a>(
         node: tree_sitter::Node<'a>,
-        cursor: &mut tree_sitter::TreeCursor<'a>,
+        _cursor: &mut tree_sitter::TreeCursor<'a>,
         code_bytes: &[u8],
     ) -> Option<Vec<Self>> {
         if node.kind() != "typeDeclaration" {

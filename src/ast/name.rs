@@ -25,6 +25,7 @@ impl From<(Node<'_>, &[u8])> for NormalizedName {
                 is_type_optional: false, //TODO
             }
         } else {
+            //TODO: `name` by itself.
             NormalizedName::default()
         }
     }
