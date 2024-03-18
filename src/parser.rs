@@ -17,6 +17,9 @@ fn print_all(node: Node, code: &str) {
     }
 }
 
+/// Parses Luau code into an AST.
+/// This function will be replaced with a full parser which implements caching and other
+/// mechanisms for a performance boost.
 pub fn parse(code: &str) -> Ast<'_> {
     let mut parser = tree_sitter::Parser::new();
     parser
