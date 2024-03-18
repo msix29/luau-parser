@@ -1,4 +1,9 @@
 pub mod ast;
-mod parser;
+pub mod parser;
+pub mod types;
 
-pub use parser::*;
+pub mod prelude {
+    pub use crate::ast::*;
+    pub use crate::parser::*;
+    pub use crate::types::*;
+}
