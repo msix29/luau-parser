@@ -1,3 +1,5 @@
+//! Implements helper trait for _[variable declarations](VariableDeclaration)_.
+
 use std::fmt::Display;
 use tree_sitter::{Node, TreeCursor};
 

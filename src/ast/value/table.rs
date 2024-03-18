@@ -1,3 +1,7 @@
+//! Implements helper traits for _[table fields](TableField)_,
+//! _[table field values](TableFieldValue)_, _[table keys](TableKey)_, and the
+//! _[table values](TableValue)_ in the _[value enum](crate::prelude::Value)_
+
 use std::fmt::Display;
 
 use crate::prelude::{HasRawValue, TableField, TableFieldValue, TableKey, TableValue};

@@ -1,3 +1,10 @@
+//! # Type Definition
+//!
+//! This module does the work of the whole type checker, from building
+//! _[type definitions](TypeDefinition)_ from _[nodes](Node)_, to implementing helper
+//! traits for both _[type definitions](TypeDefinition)_ and _[type values](TypeValue)_.
+//!
+
 use std::fmt::Display;
 use tree_sitter::Node;
 
@@ -151,6 +158,7 @@ fn from_simple_type(node: Node, code_bytes: &[u8]) -> Value {
         _ => Value::from("any"), // Should never be matched when done.
     }
 }
+
 impl Display for TypeValue {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&self.get_raw_value())

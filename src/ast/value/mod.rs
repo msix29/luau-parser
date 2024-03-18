@@ -1,10 +1,13 @@
+//! Implements helper trait for the _[value enum](Value)_ and loads in other modules for
+//! each corresponding entry in the enum.
+
 mod function;
 mod simple;
 mod table;
 
 use std::fmt::Display;
 
-use crate::prelude::{Value, HasRawValue, SimpleValue};
+use crate::prelude::{HasRawValue, SimpleValue, Value};
 
 impl Display for Value {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

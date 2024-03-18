@@ -1,3 +1,7 @@
+//! Implements helper traits for _[function parameters](FunctionParameter)_,
+//! _[function returns](FunctionReturn)_, and _[value](FunctionValue)_ in the
+//! _[value enum](crate::prelude::Value)_.
+
 use std::fmt::Display;
 
 use crate::prelude::{FunctionParameter, FunctionReturn, FunctionValue, HasRawValue};

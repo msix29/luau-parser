@@ -1,3 +1,5 @@
+//! Implements helper traits for _[normalized names](NormalizedName)_.
+
 use tree_sitter::Node;
 
 use crate::prelude::{TypeDefinition, NormalizedName};

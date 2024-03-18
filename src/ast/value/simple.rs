@@ -1,3 +1,6 @@
+//! Implements helper traits for _[simple value](SimpleValue)_ in the
+//! _[value enum](crate::prelude::Value)_.
+
 use std::fmt::Display;
 
 use crate::prelude::{HasRawValue, SimpleValue};
