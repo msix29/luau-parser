@@ -1,13 +1,7 @@
 use std::fmt::Display;
 
-use crate::ast::{type_definition::TypeDefinition, HasRawValue};
+use crate::prelude::{FunctionParameter, FunctionReturn, FunctionValue, HasRawValue};
 
-#[derive(Clone, Debug)]
-pub struct FunctionParameter {
-    pub name: String,
-    pub r#type: TypeDefinition,
-    pub is_variadic: bool,
-}
 impl Display for FunctionParameter {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&self.get_raw_value())
@@ -19,11 +13,6 @@ impl HasRawValue for FunctionParameter {
     }
 }
 
-#[derive(Clone, Debug)]
-pub struct FunctionReturn {
-    pub r#type: TypeDefinition,
-    pub is_variadic: bool,
-}
 impl Display for FunctionReturn {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&self.get_raw_value())
@@ -35,11 +24,6 @@ impl HasRawValue for FunctionReturn {
     }
 }
 
-#[derive(Clone, Debug)]
-pub struct FunctionValue {
-    pub parameters: Vec<FunctionParameter>,
-    pub returns: Vec<FunctionReturn>,
-}
 impl Display for FunctionValue {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&self.get_raw_value())

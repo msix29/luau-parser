@@ -1,13 +1,6 @@
 use tree_sitter::Node;
 
-use super::type_definition::TypeDefinition;
-
-#[derive(Clone, Debug, Default)]
-pub struct NormalizedName {
-    pub name: String,
-    pub r#type: Option<TypeDefinition>,
-    pub is_type_optional: bool,
-}
+use crate::prelude::{TypeDefinition, NormalizedName};
 
 impl From<(Node<'_>, &[u8])> for NormalizedName {
     fn from((node, code_bytes): (Node<'_>, &[u8])) -> Self {

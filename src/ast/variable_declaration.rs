@@ -1,13 +1,7 @@
 use std::fmt::Display;
 use tree_sitter::{Node, TreeCursor};
 
-use super::{type_definition::TypeDefinition, AstNode, HasRawValue};
-
-#[derive(Clone, Debug, Default)]
-pub struct VariableDeclaration {
-    variable_name: String,
-    variable_type: TypeDefinition,
-}
+use crate::prelude::{AstNode, HasRawValue, TypeDefinition, VariableDeclaration};
 
 impl Display for VariableDeclaration {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

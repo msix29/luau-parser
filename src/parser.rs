@@ -1,8 +1,6 @@
 use tree_sitter::Node;
 
-use crate::ast::{
-    type_definition::TypeDefinition, variable_declaration::VariableDeclaration, Ast, AstNode, Token,
-};
+use crate::prelude::{Ast, AstNode, Token, TypeDefinition, VariableDeclaration};
 
 fn print_all(node: Node, code: &str) {
     if true {

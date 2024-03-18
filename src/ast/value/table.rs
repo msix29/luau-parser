@@ -1,14 +1,7 @@
-use std::fmt::{Debug, Display};
+use std::fmt::Display;
 
-use crate::ast::{type_definition::TypeDefinition, HasRawValue};
-use super::Value;
+use crate::prelude::{HasRawValue, TableField, TableFieldValue, TableKey, TableValue};
 
-#[derive(Clone, Debug)]
-pub enum TableKey {
-    String(String),
-    Value(Value),
-    Type(TypeDefinition),
-}
 impl Display for TableKey {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&self.get_raw_value())
@@ -24,12 +17,6 @@ impl HasRawValue for TableKey {
     }
 }
 
-#[derive(Clone, Debug)]
-pub struct TableField {
-    pub key: TableKey,
-    pub value: Option<TableFieldValue>,
-    pub r#type: TypeDefinition,
-}
 impl Display for TableField {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&self.get_raw_value())
@@ -51,11 +38,6 @@ impl HasRawValue for TableField {
     }
 }
 
-#[derive(Clone, Debug)]
-pub enum TableFieldValue {
-    Value(Value),
-    Type(TypeDefinition),
-}
 impl Display for TableFieldValue {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&self.get_raw_value())
@@ -67,10 +49,6 @@ impl HasRawValue for TableFieldValue {
     }
 }
 
-#[derive(Clone, Debug)]
-pub struct TableValue {
-    pub fields: Vec<TableField>,
-}
 impl Display for TableValue {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&self.get_raw_value())

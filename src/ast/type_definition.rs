@@ -1,13 +1,10 @@
 use std::fmt::Display;
 use tree_sitter::Node;
 
-use super::{
-    value::{
-        FunctionParameter, FunctionReturn, FunctionValue, TableField, TableKey, TableValue, Value,
-    },
-    AstNode, HasRawValue,
+use crate::prelude::{
+    AstNode, FunctionParameter, FunctionReturn, FunctionValue, HasRawValue, NormalizedName,
+    TableField, TableKey, TableValue, TypeDefinition, TypeValue, Value,
 };
-use crate::ast::name::NormalizedName;
 
 fn from_singleton_type(node: Node, code_bytes: &[u8]) -> Value {
     match node.kind() {
@@ -154,13 +151,6 @@ fn from_simple_type(node: Node, code_bytes: &[u8]) -> Value {
         _ => Value::from("any"), // Should never be matched when done.
     }
 }
-
-#[derive(Clone, Debug, Default)]
-pub struct TypeValue {
-    r#type: Value,
-    and_types: &'static [Value],
-    or_types: &'static [Value],
-}
 impl Display for TypeValue {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&self.get_raw_value())
@@ -203,13 +193,6 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
             ..Default::default()
         }
     }
-}
-
-#[derive(Clone, Debug)]
-pub struct TypeDefinition {
-    pub type_name: String,
-    pub is_exported: bool,
-    pub type_value: TypeValue,
 }
 
 impl Default for TypeDefinition {

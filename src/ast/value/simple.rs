@@ -1,11 +1,6 @@
 use std::fmt::Display;
 
-use crate::ast::HasRawValue;
-
-#[derive(Clone, Debug, Default)]
-pub struct SimpleValue {
-    pub value: String,
-}
+use crate::prelude::{HasRawValue, SimpleValue};
 
 impl Display for SimpleValue {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

@@ -4,7 +4,11 @@ mod table;
 
 use std::fmt::{Debug, Display};
 
-use crate::prelude::{FunctionValue, HasRawValue, SimpleValue, TableValue};
+pub use function::*;
+pub use simple::*;
+pub use table::*;
+
+use super::HasRawValue;
 
 #[derive(Clone, Debug)]
 pub enum Value {
@@ -39,9 +43,7 @@ impl From<String> for Value {
 }
 impl From<&str> for Value {
     fn from(value: &str) -> Self {
-        Value::SimpleValue(SimpleValue {
-            value: value.to_string(),
-        })
+        Value::SimpleValue(SimpleValue { value: value.to_string() })
     }
 }
 
