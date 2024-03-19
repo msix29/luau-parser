@@ -91,6 +91,7 @@ impl Parser<'_> {
             return self.cache.get(&uri).unwrap().0.to_owned();
         }
 
+        #[cfg(not(feature = "cache"))]
         ast
     }
 
