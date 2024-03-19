@@ -13,10 +13,10 @@ pub struct TypeValue {
     pub r#type: Value,
 
     /// All types following the [main type](TypeValue::r#type) with `&` between them.
-    pub and_types: &'static [Value],
+    pub and_types: Vec<Value>,
 
     /// All types following the [main type](TypeValue::r#type) with `|` between them.
-    pub or_types: &'static [Value],
+    pub or_types: Vec<Value>,
 }
 
 /// A struct for a type definition. Holds needed data to be able to write it back as valid
