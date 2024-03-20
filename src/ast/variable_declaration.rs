@@ -3,7 +3,7 @@
 use std::fmt::Display;
 use tree_sitter::{Node, TreeCursor};
 
-use crate::prelude::{AstNode, HasRawValue, TypeDefinition, VariableDeclaration};
+use crate::prelude::{AstNode, HasRawValue, TypeDefinition, Value, VariableDeclaration};
 
 impl Display for VariableDeclaration {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -31,13 +31,32 @@ impl AstNode for VariableDeclaration {
             return None;
         }
 
-        let all_names = node.child_by_field_name("names").unwrap();
         let mut variables = Vec::new();
 
-        for child in all_names.children(cursor).step_by(2) {
+        // We do this to free `cursor` so it can be used under it
+        let _temp = node
+            .children_by_field_name("names", cursor)
+            .collect::<Vec<Node>>();
+        let bindings = _temp.iter();
+
+        let values = Value::from_nodes(node.children_by_field_name("values", cursor), code_bytes);
+
+        for (i, binding) in bindings.step_by(2).enumerate() {
+            let (value, r#type) = if let Some(value) = values.get(i) {
+                value.clone()
+            } else {
+                (Value::from("nil"), Some(TypeDefinition::from("nil")))
+            };
+
             variables.push(VariableDeclaration {
-                variable_name: child.utf8_text(code_bytes).unwrap().to_string(),
-                variable_type: TypeDefinition::default(),
+                variable_name: binding
+                    .child(0)
+                    .unwrap()
+                    .utf8_text(code_bytes)
+                    .unwrap()
+                    .to_string(),
+                variable_type: r#type.unwrap_or(TypeDefinition::default()),
+                variable_value: value,
             });
         }
         Some(variables)
