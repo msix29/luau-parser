@@ -58,7 +58,6 @@ impl Parser<'_> {
         let mut cursor = tree.walk();
         for i in 0..root.child_count() {
             let node = root.child(i).unwrap();
-            // let Some(node) = node.child(0) else { continue };
 
             if let Some(mut variable_declarations) =
                 VariableDeclaration::try_from_node(node, &mut cursor, code_bytes)
