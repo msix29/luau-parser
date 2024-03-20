@@ -192,6 +192,7 @@ impl HasRawValue for TypeValue {
         main_type.to_string()
     }
 }
+
 impl From<(Node<'_>, &[u8])> for TypeValue {
     fn from((node, code_bytes): (Node<'_>, &[u8])) -> Self {
         let simple_type = node.child_by_field_name("simpleType").unwrap();
@@ -202,6 +203,23 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
         }
     }
 }
+impl From<&str> for TypeValue {
+    fn from(name: &str) -> Self {
+        TypeValue {
+            r#type: Value::from(name),
+            ..Default::default()
+        }
+    }
+}
+impl From<Value> for TypeValue {
+    fn from(value: Value) -> Self {
+        TypeValue {
+            r#type: value,
+            ..Default::default()
+        }
+    }
+}
+
 
 impl Default for TypeDefinition {
     fn default() -> Self {
@@ -271,6 +289,26 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
                 is_exported: false,
                 type_value: TypeValue::from((node, code_bytes)),
             }
+        }
+    }
+}
+
+impl From<&str> for TypeDefinition {
+    fn from(type_name: &str) -> Self {
+        TypeDefinition {
+            type_name: type_name.to_string(),
+            is_exported: false,
+            type_value: TypeValue::from(type_name),
+        }
+    }
+}
+
+impl From<Value> for TypeDefinition {
+    fn from(value: Value) -> Self {
+        TypeDefinition {
+            type_name: "".to_string(),
+            is_exported: false,
+            type_value: TypeValue::from(value),
         }
     }
 }
