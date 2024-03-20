@@ -10,9 +10,9 @@ use tree_sitter::Tree;
 use crate::prelude::{Ast, AstNode, Token, TypeDefinition, VariableDeclaration};
 
 fn print_all(node: Node, code: &str) {
-    if true {
-        return;
-    }
+    // if true {
+    //     return;
+    // }
     println!(
         "{:?}\n\t{}",
         node,
@@ -58,7 +58,7 @@ impl Parser<'_> {
         let mut cursor = tree.walk();
         for i in 0..root.child_count() {
             let child = root.child(i).unwrap();
-            let node = child.child(0).unwrap();
+            let Some(node) = child.child(0) else { continue };
 
             if let Some(mut variable_declarations) =
                 VariableDeclaration::try_from_node(node, &mut cursor, code_bytes)
@@ -81,7 +81,11 @@ impl Parser<'_> {
 
         // TODO: Remove
         // For debugging purposes.
-        print_all(root, code);
+        if false {
+            // Disabled for now, printing full tree may be enough.
+            print_all(root, code);
+        }
+        println!("{}", &root.to_sexp());
         drop(cursor);
 
         #[cfg(feature = "cache")]
