@@ -24,7 +24,7 @@ impl From<(Node<'_>, &[u8])> for NormalizedName {
                     .to_string(),
                 r#type: node
                     .child(2)
-                    .map(|type_node| TypeDefinition::from((type_node, code_bytes, false))),
+                    .map(|type_node| Box::new(TypeDefinition::from((type_node, code_bytes, false)))),
                 is_type_optional: false, //TODO
                 spaces_after,
             }

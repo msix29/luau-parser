@@ -92,8 +92,8 @@ impl AstNode for VariableDeclaration {
                 } else {
                     None
                 },
-                variable_name: NormalizedName::from((binding.child(0).unwrap(), code_bytes)),
-                variable_value: value,
+                variable_name: Box::new(NormalizedName::from((binding.child(0).unwrap(), code_bytes))),
+                variable_value: Box::new(value),
             });
         }
         Some(variables)

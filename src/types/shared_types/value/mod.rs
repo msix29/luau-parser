@@ -34,11 +34,11 @@ pub enum PossibleValues {
 #[derive(Clone, Debug, Default)]
 pub struct Value {
     /// The actual value.
-    pub value: PossibleValues,
+    pub value: Box<PossibleValues>,
 
     /// The `::` operator.
     pub operator: Option<SingleToken>,
 
     /// The type of the value, always `None` except if the value had a typecast (`::`).
-    pub r#type: Option<TypeDefinition>,
+    pub r#type: Option<Box<TypeDefinition>>,
 }

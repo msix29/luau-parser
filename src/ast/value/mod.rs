@@ -55,7 +55,7 @@ impl Default for PossibleValues {
 impl From<String> for Value {
     fn from(value: String) -> Self {
         Value {
-            value: PossibleValues::SimpleValue(SimpleValue { value }),
+            value: Box::new(PossibleValues::SimpleValue(SimpleValue { value })),
             operator: None,
             r#type: None,
         }
@@ -64,9 +64,9 @@ impl From<String> for Value {
 impl From<&str> for Value {
     fn from(value: &str) -> Self {
         Value {
-            value: PossibleValues::SimpleValue(SimpleValue {
+            value: Box::new(PossibleValues::SimpleValue(SimpleValue {
                 value: value.to_string(),
-            }),
+            })),
             operator: None,
             r#type: None,
         }
@@ -92,7 +92,9 @@ impl Value {
                 "table" => {
                     //TODO: Fill it
                     values.push(Value {
-                        value: PossibleValues::TableValue(TableValue { fields: Vec::new() }),
+                        value: Box::new(PossibleValues::TableValue(TableValue {
+                            fields: Box::new(Vec::new()),
+                        })),
                         operator: None,
                         r#type: None,
                     })
@@ -106,11 +108,11 @@ impl Value {
                     );
                     let result = temp_result.iter().map(|value| Value {
                         value: value.value.clone(),
-                        r#type: Some(TypeDefinition::from((
+                        r#type: Some(Box::new(TypeDefinition::from((
                             node.child_by_field_name("cast").unwrap(),
                             code_bytes,
                             false,
-                        ))),
+                        )))),
                         operator: Some(SingleToken::from((
                             node.child_by_field_name("op").unwrap(),
                             code_bytes,

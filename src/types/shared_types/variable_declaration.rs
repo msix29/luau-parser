@@ -7,12 +7,12 @@ pub struct VariableDeclaration {
     pub local_token: Option<SingleToken>,
 
     /// The name of the variable.
-    pub variable_name: NormalizedName,
+    pub variable_name: Box<NormalizedName>,
 
     /// The `=`.
     pub equal_token: Option<SingleToken>,
 
     /// The _[value](Value)_ of the variable. This may be an empty string if this value
     /// is returned from a function.
-    pub variable_value: Value,
+    pub variable_value: Box<Value>,
 }

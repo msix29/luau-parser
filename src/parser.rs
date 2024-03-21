@@ -59,14 +59,15 @@ impl Parser<'_> {
         for i in 0..root.child_count() {
             let node = root.child(i).unwrap();
 
-            if let Some(mut variable_declarations) =
+            if let Some(variable_declarations) =
                 VariableDeclaration::try_from_node(node, &mut cursor, code_bytes)
             {
                 ast.tokens.extend(
                     variable_declarations
-                        .iter_mut()
+                        .iter()
                         .map(|v| Token::VariableDeclaration(v.clone())),
                 );
+                drop(variable_declarations);
             } else if let Some(mut type_declarations) =
                 TypeDefinition::try_from_node(node, &mut cursor, code_bytes)
             {
@@ -75,6 +76,7 @@ impl Parser<'_> {
                         .iter_mut()
                         .map(|v| Token::TypeDefinition(v.clone())),
                 );
+                drop(type_declarations);
             }
         }
 

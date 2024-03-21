@@ -10,7 +10,7 @@ use tree_sitter::Node;
 
 use crate::prelude::{
     AstNode, FunctionParameter, FunctionReturn, FunctionValue, HasRawValue, NormalizedName,
-    TableField, TableKey, TableValue, TypeDefinition, TypeValue, PossibleValues,
+    PossibleValues, TableField, TableKey, TableValue, TypeDefinition, TypeValue,
 };
 
 fn from_singleton_type(node: Node, code_bytes: &[u8]) -> PossibleValues {
@@ -26,13 +26,15 @@ fn from_singleton_type(node: Node, code_bytes: &[u8]) -> PossibleValues {
 fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
     let mut fields: Vec<TableField> = Vec::new();
     let Some(passed_node) = node.child_by_field_name("fields") else {
-        return TableValue { fields };
+        return TableValue {
+            fields: Box::new(fields),
+        };
     };
     match passed_node.kind() {
         "type" => {
             fields.push(TableField {
-                key: TableKey::String("[number]".to_string()),
-                r#type: TypeDefinition::from((passed_node, code_bytes, false)),
+                key: Box::new(TableKey::String("[number]".to_string())),
+                r#type: Box::new(TypeDefinition::from((passed_node, code_bytes, false))),
                 value: None,
             });
         }
@@ -46,33 +48,33 @@ fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
                     "fieldsep" => continue,
                     "tableProperty" => {
                         fields.push(TableField {
-                            key: TableKey::String(
+                            key: Box::new(TableKey::String(
                                 node.child_by_field_name("key")
                                     .unwrap()
                                     .utf8_text(code_bytes)
                                     .unwrap()
                                     .to_string(),
-                            ),
-                            r#type: TypeDefinition::from((
+                            )),
+                            r#type: Box::new(TypeDefinition::from((
                                 node.child_by_field_name("type").unwrap(),
                                 code_bytes,
                                 false,
-                            )),
+                            ))),
                             value: None,
                         });
                     }
                     "tableIndexer" => {
                         fields.push(TableField {
-                            key: TableKey::Type(TypeDefinition::from((
+                            key: Box::new(TableKey::Type(TypeDefinition::from((
                                 node.child_by_field_name("key").unwrap(),
                                 code_bytes,
                                 false,
-                            ))),
-                            r#type: TypeDefinition::from((
+                            )))),
+                            r#type: Box::new(TypeDefinition::from((
                                 node.child_by_field_name("type").unwrap(),
                                 code_bytes,
                                 false,
-                            )),
+                            ))),
                             value: None,
                         });
                     }
@@ -83,7 +85,9 @@ fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
         _ => (),
     }
 
-    TableValue { fields }
+    TableValue {
+        fields: Box::new(fields),
+    }
 }
 
 fn build_function_parameters(node: Node, code_bytes: &[u8]) -> Vec<FunctionParameter> {
@@ -96,7 +100,9 @@ fn build_function_parameters(node: Node, code_bytes: &[u8]) -> Vec<FunctionParam
             parameters.push(FunctionParameter {
                 name: normalized_name.name,
                 is_variadic: false,
-                r#type: normalized_name.r#type.unwrap_or(TypeDefinition::default()),
+                r#type: normalized_name
+                    .r#type
+                    .unwrap_or(Box::<TypeDefinition>::default()),
             });
         }
     }
@@ -111,13 +117,13 @@ fn build_function_returns(node: Node, code_bytes: &[u8]) -> Vec<FunctionReturn> 
         "(" => {
             for i in 0..node.child_count() {
                 returns.push(FunctionReturn {
-                    r#type: TypeDefinition::from((node.child(i).unwrap(), code_bytes, false)),
+                    r#type: Box::new(TypeDefinition::from((node.child(i).unwrap(), code_bytes, false))),
                     is_variadic: false,
                 });
             }
         }
         "type" => returns.push(FunctionReturn {
-            r#type: TypeDefinition::from((node, code_bytes, false)),
+            r#type: Box::new(TypeDefinition::from((node, code_bytes, false))),
             is_variadic: false,
         }),
         _ => (),
@@ -134,14 +140,14 @@ fn build_function_type(node: Node, code_bytes: &[u8]) -> FunctionValue {
     };
 
     FunctionValue {
-        parameters,
-        returns: build_function_returns(
+        parameters: Box::new(parameters),
+        returns: Box::new(build_function_returns(
             node.child_by_field_name("returns")
                 .unwrap()
                 .child(0)
                 .unwrap(),
             code_bytes,
-        ),
+        )),
     }
 }
 
@@ -149,7 +155,7 @@ fn from_simple_type(node: Node, code_bytes: &[u8]) -> PossibleValues {
     match node.kind() {
         "singleton" => from_singleton_type(node, code_bytes),
         "namedtype" => PossibleValues::from(node.utf8_text(code_bytes).unwrap()), //TODO: indexing from a table.
-        "typeof" => PossibleValues::from("typeof<T>(...)"),                  //TODO: typeof(<expression>)
+        "typeof" => PossibleValues::from("typeof<T>(...)"), //TODO: typeof(<expression>)
         "tableType" => PossibleValues::TableValue(build_table_type(node, code_bytes)),
         "simpleType" => from_simple_type(node.child(0).unwrap(), code_bytes),
         "functionType" => PossibleValues::FunctionValue(build_function_type(node, code_bytes)),
@@ -197,7 +203,7 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
         // let simple_type = simple_type.child_by_field_name("simpleType").unwrap();
 
         TypeValue {
-            r#type: from_simple_type(simple_type, code_bytes),
+            r#type: Box::new(from_simple_type(simple_type, code_bytes)),
             ..Default::default()
         }
     }
@@ -205,7 +211,7 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
 impl From<&str> for TypeValue {
     fn from(name: &str) -> Self {
         TypeValue {
-            r#type: PossibleValues::from(name),
+            r#type: Box::new(PossibleValues::from(name)),
             ..Default::default()
         }
     }
@@ -213,19 +219,18 @@ impl From<&str> for TypeValue {
 impl From<PossibleValues> for TypeValue {
     fn from(value: PossibleValues) -> Self {
         TypeValue {
-            r#type: value,
+            r#type: Box::new(value),
             ..Default::default()
         }
     }
 }
-
 
 impl Default for TypeDefinition {
     fn default() -> Self {
         TypeDefinition {
             type_name: "any".to_string(),
             is_exported: false,
-            type_value: TypeValue::default(),
+            type_value: Box::<TypeValue>::default(),
         }
     }
 }
@@ -277,16 +282,16 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
                     .unwrap()
                     .to_string(),
                 is_exported: node.child_by_field_name("export").is_some(),
-                type_value: TypeValue::from((
+                type_value: Box::new(TypeValue::from((
                     node.child_by_field_name("type").unwrap(),
                     code_bytes,
-                )),
+                ))),
             }
         } else {
             TypeDefinition {
                 type_name: "".to_string(),
                 is_exported: false,
-                type_value: TypeValue::from((node, code_bytes)),
+                type_value: Box::new(TypeValue::from((node, code_bytes))),
             }
         }
     }
@@ -297,7 +302,7 @@ impl From<&str> for TypeDefinition {
         TypeDefinition {
             type_name: type_name.to_string(),
             is_exported: false,
-            type_value: TypeValue::from(type_name),
+            type_value: Box::new(TypeValue::from(type_name)),
         }
     }
 }
@@ -307,7 +312,7 @@ impl From<PossibleValues> for TypeDefinition {
         TypeDefinition {
             type_name: "".to_string(),
             is_exported: false,
-            type_value: TypeValue::from(value),
+            type_value: Box::new(TypeValue::from(value)),
         }
     }
 }

@@ -38,9 +38,9 @@ pub enum TableKey {
 /// only be present if this is an actual table and not type definition for the table.
 #[derive(Clone, Debug)]
 pub struct TableField {
-    pub key: TableKey,
-    pub value: Option<TableFieldValue>,
-    pub r#type: TypeDefinition,
+    pub key: Box<TableKey>,
+    pub value: Option<Box<TableFieldValue>>,
+    pub r#type: Box<TypeDefinition>,
 }
 
 /// A possible value for a _[table field](TableField)_.
@@ -58,5 +58,5 @@ pub enum TableFieldValue {
 #[derive(Clone, Debug)]
 pub struct TableValue {
     /// The actual _[fields](TableField)_ of the table.
-    pub fields: Vec<TableField>,
+    pub fields: Box<Vec<TableField>>,
 }

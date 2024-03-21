@@ -17,7 +17,7 @@ pub struct NormalizedName {
     pub name: String,
 
     /// The type that was with this name, defined with the `: type` syntax.
-    pub r#type: Option<TypeDefinition>,
+    pub r#type: Option<Box<TypeDefinition>>,
 
     /// Whether or not the type had the `?` at the end of it, meaning it can be `nil`.
     pub is_type_optional: bool,

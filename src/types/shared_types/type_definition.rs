@@ -10,13 +10,13 @@ use crate::prelude::PossibleValues;
 #[derive(Clone, Debug, Default)]
 pub struct TypeValue {
     /// The first value in the type, not the final type.
-    pub r#type: PossibleValues,
+    pub r#type: Box<PossibleValues>,
 
     /// All types following the [main type](TypeValue::r#type) with `&` between them.
-    pub and_types: Vec<PossibleValues>,
+    pub and_types: Vec<Box<TypeDefinition>>,
 
     /// All types following the [main type](TypeValue::r#type) with `|` between them.
-    pub or_types: Vec<PossibleValues>,
+    pub or_types: Vec<Box<TypeDefinition>>,
 }
 
 /// A struct for a type definition. Holds needed data to be able to write it back as valid
@@ -43,5 +43,5 @@ pub struct TypeDefinition {
     pub is_exported: bool,
 
     /// The _[actual definition](TypeValue)_ of the type.
-    pub type_value: TypeValue,
+    pub type_value: Box<TypeValue>,
 }

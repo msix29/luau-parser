@@ -7,7 +7,7 @@ pub struct FunctionParameter {
     pub name: String,
 
     /// The _[type](TypeDefinition)_ of the parameter.
-    pub r#type: TypeDefinition,
+    pub r#type: Box<TypeDefinition>,
 
     /// Whether or not this parameter is variadic.
     pub is_variadic: bool,
@@ -17,7 +17,7 @@ pub struct FunctionParameter {
 #[derive(Clone, Debug)]
 pub struct FunctionReturn {
     /// The _[type](TypeDefinition)_ of the return.
-    pub r#type: TypeDefinition,
+    pub r#type: Box<TypeDefinition>,
 
     /// Whether or not this return is variadic.
     pub is_variadic: bool,
@@ -27,8 +27,8 @@ pub struct FunctionReturn {
 #[derive(Clone, Debug)]
 pub struct FunctionValue {
     /// All _[parameters](FunctionParameter)_ of the function.
-    pub parameters: Vec<FunctionParameter>,
+    pub parameters: Box<Vec<FunctionParameter>>,
 
     /// All _[returns](FunctionReturn)_ of the function
-    pub returns: Vec<FunctionReturn>,
+    pub returns: Box<Vec<FunctionReturn>>,
 }
