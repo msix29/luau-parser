@@ -4,7 +4,7 @@ use std::fmt::Display;
 use tree_sitter::{Node, TreeCursor};
 
 use crate::prelude::{
-    AstNode, HasRawValue, NormalizedName, SingleToken, Value, VariableDeclaration,
+    AstNode, HasRawValue, NormalizedName, PrettyPrint, SingleToken, Value, VariableDeclaration,
 };
 
 impl Display for VariableDeclaration {
@@ -15,7 +15,40 @@ impl Display for VariableDeclaration {
 
 impl HasRawValue for VariableDeclaration {
     fn get_raw_value(&self) -> String {
-        format!("local {}", self.variable_name)
+        let local = self
+            .local_token
+            .as_ref()
+            .map(|token| token.pretty_print_leading())
+            .unwrap_or("".to_string());
+
+        format!("{} {}", local, self.variable_name)
+    }
+}
+
+impl PrettyPrint for VariableDeclaration {
+    fn pretty_print(&self) -> String {
+        let local = self
+            .local_token
+            .as_ref()
+            .map(|token| token.pretty_print())
+            .unwrap_or("".to_string());
+
+        format!(
+            "{}{}{}{}",
+            local,
+            self.variable_name.pretty_print_trailing(),
+            self.equal_token
+                .as_ref()
+                .map(|token| token.pretty_print())
+                .unwrap_or("".to_string()),
+            self.variable_value
+        )
+    }
+    fn pretty_print_leading(&self) -> String {
+        todo!()
+    }
+    fn pretty_print_trailing(&self) -> String {
+        todo!()
     }
 }
 
@@ -50,6 +83,13 @@ impl AstNode for VariableDeclaration {
                 local_token: if i == 0 {
                     // Only the first variable has the keyword "local" before it.
                     Some(SingleToken::from((node.child(0).unwrap(), code_bytes)))
+                } else {
+                    None
+                },
+                equal_token: if i == 0 {
+                    // Only the first variable has the requal sign.
+                    node.child_by_field_name("equal")
+                        .map(|equal| SingleToken::from((equal, code_bytes)))
                 } else {
                     None
                 },

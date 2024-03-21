@@ -5,7 +5,7 @@ use std::fmt::Display;
 use tree_sitter::Node;
 
 use crate::{
-    prelude::{HasRawValue, NormalizedName, TypeDefinition},
+    prelude::{HasRawValue, NormalizedName, PrettyPrint, TypeDefinition},
     utils::get_spaces,
 };
 
@@ -31,10 +31,7 @@ impl From<(Node<'_>, &[u8])> for NormalizedName {
         } else {
             NormalizedName {
                 spaces_before,
-                name: node
-                    .utf8_text(code_bytes)
-                    .unwrap()
-                    .to_string(),
+                name: node.utf8_text(code_bytes).unwrap().to_string(),
                 r#type: None,
                 is_type_optional: true,
                 spaces_after,
@@ -56,5 +53,17 @@ impl HasRawValue for NormalizedName {
         } else {
             self.name.to_string()
         }
+    }
+}
+
+impl PrettyPrint for NormalizedName {
+    fn pretty_print(&self) -> String {
+        format!("{}{}{}", self.spaces_before, self.get_raw_value(), self.spaces_after)
+    }
+    fn pretty_print_leading(&self) -> String {
+        format!("{}{}", self.spaces_before, self.get_raw_value())
+    }
+    fn pretty_print_trailing(&self) -> String {
+        format!("{}{}", self.get_raw_value(), self.spaces_after)
     }
 }

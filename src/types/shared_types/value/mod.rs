@@ -13,7 +13,7 @@ pub use function::*;
 pub use simple::*;
 pub use table::*;
 
-use super::TypeDefinition;
+use super::{SingleToken, TypeDefinition};
 
 /// Enum representing one of the _major_ data types in Luau, being table, function, or
 /// "simple". Simple is just anything that can be represented as a string, and in Luau,
@@ -35,6 +35,9 @@ pub enum PossibleValues {
 pub struct Value {
     /// The actual value.
     pub value: PossibleValues,
+
+    /// The `::` operator.
+    pub operator: Option<SingleToken>,
 
     /// The type of the value, always `None` except if the value had a typecast (`::`).
     pub r#type: Option<TypeDefinition>,
