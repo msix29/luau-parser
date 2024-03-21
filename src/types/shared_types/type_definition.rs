@@ -3,20 +3,20 @@
 //! Module containg definition for type definitions.
 //!
 
-use crate::prelude::Value;
+use crate::prelude::PossibleValues;
 
 /// A struct holding values of a type, including it's `&` and `|` (intersection and union)
 /// types.
 #[derive(Clone, Debug, Default)]
 pub struct TypeValue {
     /// The first value in the type, not the final type.
-    pub r#type: Value,
+    pub r#type: PossibleValues,
 
     /// All types following the [main type](TypeValue::r#type) with `&` between them.
-    pub and_types: Vec<Value>,
+    pub and_types: Vec<PossibleValues>,
 
     /// All types following the [main type](TypeValue::r#type) with `|` between them.
-    pub or_types: Vec<Value>,
+    pub or_types: Vec<PossibleValues>,
 }
 
 /// A struct for a type definition. Holds needed data to be able to write it back as valid

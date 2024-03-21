@@ -1,5 +1,3 @@
-use crate::prelude::TypeDefinition;
-
 use super::{NormalizedName, SingleToken, Value};
 
 /// A struct holding data for variable declarations.
@@ -10,9 +8,6 @@ pub struct VariableDeclaration {
 
     /// The name of the variable.
     pub variable_name: NormalizedName,
-
-    /// The _[type](TypeDefinition)_ of the variable.
-    pub variable_type: TypeDefinition,
 
     /// The _[value](Value)_ of the variable. This may be an empty string if this value
     /// is returned from a function.

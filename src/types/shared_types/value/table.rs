@@ -1,4 +1,4 @@
-use crate::prelude::{TypeDefinition, Value};
+use crate::prelude::{TypeDefinition, PossibleValues};
 
 /// A possible key entry in a table. The key is usually a string, but it can be a value
 /// (from an expression) in tables or a type in type definitions.
@@ -27,7 +27,7 @@ pub enum TableKey {
     String(String),
 
     /// An expression, can only be used in definitions and not in types.
-    Value(Value),
+    Value(PossibleValues),
 
     /// A type definition, can only be used in other types and not definitions.
     Type(TypeDefinition),
@@ -48,7 +48,7 @@ pub struct TableField {
 pub enum TableFieldValue {
     /// A _[value](Value)_, aka result of an expression, can be found in declarations of
     /// tables as variables and not types only.
-    Value(Value),
+    Value(PossibleValues),
 
     /// A _[type](TypeDefinition)_, can be found in tyepe definitions only.
     Type(TypeDefinition),

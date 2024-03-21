@@ -10,16 +10,16 @@ use tree_sitter::Node;
 
 use crate::prelude::{
     AstNode, FunctionParameter, FunctionReturn, FunctionValue, HasRawValue, NormalizedName,
-    TableField, TableKey, TableValue, TypeDefinition, TypeValue, Value,
+    TableField, TableKey, TableValue, TypeDefinition, TypeValue, PossibleValues,
 };
 
-fn from_singleton_type(node: Node, code_bytes: &[u8]) -> Value {
+fn from_singleton_type(node: Node, code_bytes: &[u8]) -> PossibleValues {
     match node.kind() {
-        "string" => Value::from(node.utf8_text(code_bytes).unwrap()),
-        "name" => Value::from("<other value here>"), // TODO: Look for it.
-        "false" => Value::from("false"),
-        "true" => Value::from("true"),
-        _ => Value::from("any"), // Should never be matched when done.
+        "string" => PossibleValues::from(node.utf8_text(code_bytes).unwrap()),
+        "name" => PossibleValues::from("<other value here>"), // TODO: Look for it.
+        "false" => PossibleValues::from("false"),
+        "true" => PossibleValues::from("true"),
+        _ => PossibleValues::from("any"), // Should never be matched when done.
     }
 }
 
@@ -145,16 +145,16 @@ fn build_function_type(node: Node, code_bytes: &[u8]) -> FunctionValue {
     }
 }
 
-fn from_simple_type(node: Node, code_bytes: &[u8]) -> Value {
+fn from_simple_type(node: Node, code_bytes: &[u8]) -> PossibleValues {
     match node.kind() {
         "singleton" => from_singleton_type(node, code_bytes),
-        "namedtype" => Value::from(node.utf8_text(code_bytes).unwrap()), //TODO: indexing from a table.
-        "typeof" => Value::from("typeof<T>(...)"),                  //TODO: typeof(<expression>)
-        "tableType" => Value::TableValue(build_table_type(node, code_bytes)),
+        "namedtype" => PossibleValues::from(node.utf8_text(code_bytes).unwrap()), //TODO: indexing from a table.
+        "typeof" => PossibleValues::from("typeof<T>(...)"),                  //TODO: typeof(<expression>)
+        "tableType" => PossibleValues::TableValue(build_table_type(node, code_bytes)),
         "simpleType" => from_simple_type(node.child(0).unwrap(), code_bytes),
-        "functionType" => Value::FunctionValue(build_function_type(node, code_bytes)),
+        "functionType" => PossibleValues::FunctionValue(build_function_type(node, code_bytes)),
         "wraptype" => from_simple_type(node.child(1).unwrap(), code_bytes),
-        _ => Value::from("any"), // Should never be matched when done.
+        _ => PossibleValues::from("any"), // Should never be matched when done.
     }
 }
 
@@ -205,13 +205,13 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
 impl From<&str> for TypeValue {
     fn from(name: &str) -> Self {
         TypeValue {
-            r#type: Value::from(name),
+            r#type: PossibleValues::from(name),
             ..Default::default()
         }
     }
 }
-impl From<Value> for TypeValue {
-    fn from(value: Value) -> Self {
+impl From<PossibleValues> for TypeValue {
+    fn from(value: PossibleValues) -> Self {
         TypeValue {
             r#type: value,
             ..Default::default()
@@ -302,8 +302,8 @@ impl From<&str> for TypeDefinition {
     }
 }
 
-impl From<Value> for TypeDefinition {
-    fn from(value: Value) -> Self {
+impl From<PossibleValues> for TypeDefinition {
+    fn from(value: PossibleValues) -> Self {
         TypeDefinition {
             type_name: "".to_string(),
             is_exported: false,
