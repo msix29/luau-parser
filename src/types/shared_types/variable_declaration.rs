@@ -1,10 +1,13 @@
 use crate::prelude::TypeDefinition;
 
-use super::Value;
+use super::{SingleToken, Value};
 
 /// A struct holding data for variable declarations.
 #[derive(Clone, Debug, Default)]
 pub struct VariableDeclaration {
+    /// The keyword `local`.
+    pub local_token: Option<SingleToken>,
+
     /// The name of the variable.
     pub variable_name: String,
 

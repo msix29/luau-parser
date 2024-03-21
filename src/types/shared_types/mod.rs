@@ -14,6 +14,7 @@
 mod location;
 mod name;
 mod position;
+mod token;
 mod type_definition;
 mod value;
 mod variable_declaration;
@@ -21,6 +22,7 @@ mod variable_declaration;
 pub use location::*;
 pub use name::*;
 pub use position::*;
+pub use token::*;
 pub use type_definition::*;
 pub use value::*;
 pub use variable_declaration::*;

@@ -3,7 +3,9 @@
 use std::fmt::Display;
 use tree_sitter::{Node, TreeCursor};
 
-use crate::prelude::{AstNode, HasRawValue, TypeDefinition, Value, VariableDeclaration};
+use crate::prelude::{
+    AstNode, HasRawValue, SingleToken, TypeDefinition, Value, VariableDeclaration,
+};
 
 impl Display for VariableDeclaration {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -49,6 +51,12 @@ impl AstNode for VariableDeclaration {
             };
 
             variables.push(VariableDeclaration {
+                local_token: if i == 0 {
+                    // Only the first variable has the keyword "local" before it.
+                    Some(SingleToken::from((node.child(0).unwrap(), code_bytes)))
+                } else {
+                    None
+                },
                 variable_name: binding
                     .child(0)
                     .unwrap()
