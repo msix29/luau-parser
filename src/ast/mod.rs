@@ -4,6 +4,7 @@
 //! helpful traits for AST-related structs.
 //!
 
+pub mod expression;
 pub mod name;
 pub mod token;
 pub mod type_definition;

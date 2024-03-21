@@ -4,7 +4,7 @@ use std::fmt::Display;
 use tree_sitter::{Node, TreeCursor};
 
 use crate::prelude::{
-    AstNode, HasRawValue, NormalizedName, Print, SingleToken, Value, VariableDeclaration,
+    AstNode, Expression, HasRawValue, NormalizedName, Print, SingleToken, VariableDeclaration
 };
 
 impl Display for VariableDeclaration {
@@ -69,13 +69,13 @@ impl AstNode for VariableDeclaration {
             .collect::<Vec<Node>>();
         let bindings = _temp.iter();
 
-        let values = Value::from_nodes(node.children_by_field_name("values", cursor), code_bytes);
+        let expressions = Expression::from_nodes(node.children_by_field_name("values", cursor), code_bytes);
 
         for (i, binding) in bindings.step_by(2).enumerate() {
-            let value = if let Some(value) = values.get(i) {
-                value.clone()
+            let expression = if let Some(expression) = expressions.get(i) {
+                expression.clone()
             } else {
-                Value::from("nil")
+                Box::new(Expression::from("nil"))
             };
 
             variables.push(VariableDeclaration {
@@ -93,7 +93,7 @@ impl AstNode for VariableDeclaration {
                     None
                 },
                 variable_name: Box::new(NormalizedName::from((binding.child(0).unwrap(), code_bytes))),
-                variable_value: Box::new(value),
+                variable_value: expression,
             });
         }
         Some(variables)

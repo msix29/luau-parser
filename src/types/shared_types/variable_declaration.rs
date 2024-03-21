@@ -1,4 +1,4 @@
-use super::{NormalizedName, SingleToken, Value};
+use super::{Expression, NormalizedName, SingleToken};
 
 /// A struct holding data for variable declarations.
 #[derive(Clone, Debug, Default)]
@@ -12,7 +12,7 @@ pub struct VariableDeclaration {
     /// The `=`.
     pub equal_token: Option<SingleToken>,
 
-    /// The _[value](Value)_ of the variable. This may be an empty string if this value
-    /// is returned from a function.
-    pub variable_value: Box<Value>,
+    /// The _[expression](Expression)_ of the variable. This may be an empty string if this
+    /// value was returned from a function.
+    pub variable_value: Box<Expression>,
 }

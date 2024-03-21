@@ -9,17 +9,16 @@ use std::fmt::Display;
 use tree_sitter::Node;
 
 use crate::prelude::{
-    AstNode, FunctionParameter, FunctionReturn, FunctionValue, HasRawValue, NormalizedName,
-    PossibleValues, TableField, TableKey, TableValue, TypeDefinition, TypeValue,
+    AstNode, Expression, FunctionParameter, FunctionReturn, FunctionValue, HasRawValue, NormalizedName, TableField, TableKey, TableValue, TypeDefinition, TypeValue
 };
 
-fn from_singleton_type(node: Node, code_bytes: &[u8]) -> PossibleValues {
+fn from_singleton_type(node: Node, code_bytes: &[u8]) -> Expression {
     match node.kind() {
-        "string" => PossibleValues::from(node.utf8_text(code_bytes).unwrap()),
-        "name" => PossibleValues::from("<other value here>"), // TODO: Look for it.
-        "false" => PossibleValues::from("false"),
-        "true" => PossibleValues::from("true"),
-        _ => PossibleValues::from("any"), // Should never be matched when done.
+        "string" => Expression::from(node.utf8_text(code_bytes).unwrap()),
+        "name" => Expression::from("<other value here>"), // TODO: Look for it.
+        "false" => Expression::from("false"),
+        "true" => Expression::from("true"),
+        _ => Expression::from("any"), // Should never be matched when done.
     }
 }
 
@@ -151,16 +150,16 @@ fn build_function_type(node: Node, code_bytes: &[u8]) -> FunctionValue {
     }
 }
 
-fn from_simple_type(node: Node, code_bytes: &[u8]) -> PossibleValues {
+fn from_simple_type(node: Node, code_bytes: &[u8]) -> Expression {
     match node.kind() {
         "singleton" => from_singleton_type(node, code_bytes),
-        "namedtype" => PossibleValues::from(node.utf8_text(code_bytes).unwrap()), //TODO: indexing from a table.
-        "typeof" => PossibleValues::from("typeof<T>(...)"), //TODO: typeof(<expression>)
-        "tableType" => PossibleValues::TableValue(build_table_type(node, code_bytes)),
+        "namedtype" => Expression::from(node.utf8_text(code_bytes).unwrap()), //TODO: indexing from a table.
+        "typeof" => Expression::from("typeof<T>(...)"), //TODO: typeof(<expression>)
+        "tableType" => Expression::Table(build_table_type(node, code_bytes)),
         "simpleType" => from_simple_type(node.child(0).unwrap(), code_bytes),
-        "functionType" => PossibleValues::FunctionValue(build_function_type(node, code_bytes)),
+        "functionType" => Expression::Function(build_function_type(node, code_bytes)),
         "wraptype" => from_simple_type(node.child(1).unwrap(), code_bytes),
-        _ => PossibleValues::from("any"), // Should never be matched when done.
+        _ => Expression::from("any"), // Should never be matched when done.
     }
 }
 
@@ -211,13 +210,13 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
 impl From<&str> for TypeValue {
     fn from(name: &str) -> Self {
         TypeValue {
-            r#type: Box::new(PossibleValues::from(name)),
+            r#type: Box::new(Expression::from(name)),
             ..Default::default()
         }
     }
 }
-impl From<PossibleValues> for TypeValue {
-    fn from(value: PossibleValues) -> Self {
+impl From<Expression> for TypeValue {
+    fn from(value: Expression) -> Self {
         TypeValue {
             r#type: Box::new(value),
             ..Default::default()
@@ -307,8 +306,8 @@ impl From<&str> for TypeDefinition {
     }
 }
 
-impl From<PossibleValues> for TypeDefinition {
-    fn from(value: PossibleValues) -> Self {
+impl From<Expression> for TypeDefinition {
+    fn from(value: Expression) -> Self {
         TypeDefinition {
             type_name: "".to_string(),
             is_exported: false,
