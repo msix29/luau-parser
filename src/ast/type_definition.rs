@@ -147,14 +147,13 @@ fn build_function_type(node: Node, code_bytes: &[u8]) -> FunctionValue {
 
 fn from_simple_type(node: Node, code_bytes: &[u8]) -> Value {
     match node.kind() {
-        "nil" => Value::from("nil"),
-        "singletonType" => from_singleton_type(node, code_bytes),
-        "name" => Value::from(node.utf8_text(code_bytes).unwrap()), //TODO: indexing from a table.
+        "singleton" => from_singleton_type(node, code_bytes),
+        "namedtype" => Value::from(node.utf8_text(code_bytes).unwrap()), //TODO: indexing from a table.
         "typeof" => Value::from("typeof<T>(...)"),                  //TODO: typeof(<expression>)
         "tableType" => Value::TableValue(build_table_type(node, code_bytes)),
         "simpleType" => from_simple_type(node.child(0).unwrap(), code_bytes),
         "functionType" => Value::FunctionValue(build_function_type(node, code_bytes)),
-        "(" => from_simple_type(node.child(1).unwrap(), code_bytes),
+        "wraptype" => from_simple_type(node.child(1).unwrap(), code_bytes),
         _ => Value::from("any"), // Should never be matched when done.
     }
 }
@@ -194,8 +193,8 @@ impl HasRawValue for TypeValue {
 }
 
 impl From<(Node<'_>, &[u8])> for TypeValue {
-    fn from((node, code_bytes): (Node<'_>, &[u8])) -> Self {
-        let simple_type = node.child_by_field_name("simpleType").unwrap();
+    fn from((simple_type, code_bytes): (Node<'_>, &[u8])) -> Self {
+        // let simple_type = simple_type.child_by_field_name("simpleType").unwrap();
 
         TypeValue {
             r#type: from_simple_type(simple_type, code_bytes),
