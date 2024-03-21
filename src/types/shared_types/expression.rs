@@ -1,7 +1,7 @@
-use super::{FunctionValue, SimpleValue, SingleToken, TableValue};
+use super::{FunctionValue, SimpleValue, SingleToken, TableValue, TypeDefinition};
 
 #[derive(Clone, Debug)]
-pub enum ExpressionInner {
+pub enum Expression {
     Nil(SimpleValue),
     Boolean(SimpleValue),
     Number(SimpleValue),
@@ -19,27 +19,21 @@ pub enum ExpressionInner {
         right: Box<Expression>,
     },
     Cast {
-        operator: SingleToken,
         expression: Box<Expression>,
+        operator: SingleToken,
+        cast_to: Box<TypeDefinition>,
     },
     IfExpression {
         if_token: SingleToken,
         condition: Box<Expression>,
         then_token: SingleToken,
-        if_expression: Box<Expression>,
+        else_if_expressions: Box<Vec<ElseIfExpression>>,
         else_token: SingleToken,
         else_expression: Box<Expression>,
     },
 }
 
-pub struct ElseIfExpression {
-    pub else_if_token: SingleToken,
-    pub condition: Expression,
-    pub then_token: SingleToken,
-    pub expression: Expression,
-}
-
-impl Default for ExpressionInner {
+impl Default for Expression {
     fn default() -> Self {
         Self::Nil(SimpleValue {
             value: "nil".to_string(),
@@ -47,7 +41,10 @@ impl Default for ExpressionInner {
     }
 }
 
-#[derive(Clone, Debug, Default)]
-pub struct Expression {
-    pub inner: ExpressionInner,
+#[derive(Clone, Debug)]
+pub struct ElseIfExpression {
+    pub else_if_token: SingleToken,
+    pub condition: Expression,
+    pub then_token: SingleToken,
+    pub expression: Expression,
 }
