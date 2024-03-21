@@ -34,6 +34,17 @@ pub trait HasRawValue: Display {
     fn get_raw_value(&self) -> String;
 }
 
+pub trait PrettyPrint: Display {
+    /// Prints the whole token including all surrounding spaces.
+    fn pretty_print(&self) -> String;
+
+    /// Prints the token with only trailing spaces.
+    fn pretty_print_trailing(&self) -> String;
+
+    /// Prints the token with only leading spaces.
+    fn pretty_print_leading(&self) -> String;
+}
+
 pub trait AstNode: HasRawValue + Sized {
     fn try_from_node<'a>(
         node: Node<'a>,
