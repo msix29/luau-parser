@@ -1,6 +1,6 @@
 use crate::prelude::TypeDefinition;
 
-use super::{SingleToken, Value};
+use super::{NormalizedName, SingleToken, Value};
 
 /// A struct holding data for variable declarations.
 #[derive(Clone, Debug, Default)]
@@ -9,7 +9,7 @@ pub struct VariableDeclaration {
     pub local_token: Option<SingleToken>,
 
     /// The name of the variable.
-    pub variable_name: String,
+    pub variable_name: NormalizedName,
 
     /// The _[type](TypeDefinition)_ of the variable.
     pub variable_type: TypeDefinition,

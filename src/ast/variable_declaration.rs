@@ -4,7 +4,7 @@ use std::fmt::Display;
 use tree_sitter::{Node, TreeCursor};
 
 use crate::prelude::{
-    AstNode, HasRawValue, SingleToken, TypeDefinition, Value, VariableDeclaration,
+    AstNode, HasRawValue, NormalizedName, SingleToken, TypeDefinition, Value, VariableDeclaration,
 };
 
 impl Display for VariableDeclaration {
@@ -15,11 +15,7 @@ impl Display for VariableDeclaration {
 
 impl HasRawValue for VariableDeclaration {
     fn get_raw_value(&self) -> String {
-        format!(
-            "local {}: {}",
-            self.variable_name,
-            self.variable_type.get_raw_value()
-        )
+        format!("local {}: {}", self.variable_name, self.variable_type)
     }
 }
 
@@ -57,12 +53,7 @@ impl AstNode for VariableDeclaration {
                 } else {
                     None
                 },
-                variable_name: binding
-                    .child(0)
-                    .unwrap()
-                    .utf8_text(code_bytes)
-                    .unwrap()
-                    .to_string(),
+                variable_name: NormalizedName::from((binding.child(0).unwrap(), code_bytes)),
                 variable_type: r#type.unwrap_or(TypeDefinition::default()),
                 variable_value: value,
             });
