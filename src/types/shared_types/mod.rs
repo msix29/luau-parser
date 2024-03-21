@@ -11,6 +11,7 @@
 //! their implementations in `ast/value/function.rs`.
 //!
 
+mod expression;
 mod location;
 mod name;
 mod position;
@@ -19,6 +20,7 @@ mod type_definition;
 mod value;
 mod variable_declaration;
 
+pub use expression::*;
 pub use location::*;
 pub use name::*;
 pub use position::*;

@@ -64,7 +64,6 @@ impl AstNode for VariableDeclaration {
 
         let mut variables = Vec::new();
 
-        // We do this to free `cursor` so it can be used under it
         let _temp = node
             .children_by_field_name("names", cursor)
             .collect::<Vec<Node>>();
