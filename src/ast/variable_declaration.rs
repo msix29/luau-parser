@@ -4,7 +4,7 @@ use std::fmt::Display;
 use tree_sitter::{Node, TreeCursor};
 
 use crate::prelude::{
-    AstNode, HasRawValue, NormalizedName, PrettyPrint, SingleToken, Value, VariableDeclaration,
+    AstNode, HasRawValue, NormalizedName, Print, SingleToken, Value, VariableDeclaration,
 };
 
 impl Display for VariableDeclaration {
@@ -18,36 +18,36 @@ impl HasRawValue for VariableDeclaration {
         let local = self
             .local_token
             .as_ref()
-            .map(|token| token.pretty_print_leading())
+            .map(|token| token.print_leading())
             .unwrap_or("".to_string());
 
         format!("{} {}", local, self.variable_name)
     }
 }
 
-impl PrettyPrint for VariableDeclaration {
-    fn pretty_print(&self) -> String {
+impl Print for VariableDeclaration {
+    fn print(&self) -> String {
         let local = self
             .local_token
             .as_ref()
-            .map(|token| token.pretty_print())
+            .map(|token| token.print())
             .unwrap_or("".to_string());
 
         format!(
             "{}{}{}{}",
             local,
-            self.variable_name.pretty_print_trailing(),
+            self.variable_name.print_trailing(),
             self.equal_token
                 .as_ref()
-                .map(|token| token.pretty_print())
+                .map(|token| token.print())
                 .unwrap_or("".to_string()),
             self.variable_value
         )
     }
-    fn pretty_print_leading(&self) -> String {
+    fn print_leading(&self) -> String {
         todo!()
     }
-    fn pretty_print_trailing(&self) -> String {
+    fn print_trailing(&self) -> String {
         todo!()
     }
 }

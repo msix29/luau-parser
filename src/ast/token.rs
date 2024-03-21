@@ -3,7 +3,7 @@ use std::fmt::{Debug, Display};
 use tree_sitter::Node;
 
 use crate::{
-    impl_pretty_print, prelude::{HasRawValue, SingleToken}, utils::get_spaces
+    impl_print, prelude::{HasRawValue, SingleToken}, utils::get_spaces
 };
 
 impl HasRawValue for SingleToken {
@@ -44,4 +44,4 @@ impl From<(Node<'_>, &[u8])> for SingleToken {
     }
 }
 
-impl_pretty_print!(SingleToken, word);
+impl_print!(SingleToken, word);
