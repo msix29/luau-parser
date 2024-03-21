@@ -2,39 +2,41 @@ use std::fmt::Display;
 
 use tree_sitter::Node;
 
-use crate::prelude::{Expression, HasRawValue, SingleToken, TableValue, TypeDefinition};
+use crate::{
+    prelude::{Expression, ExpressionInner, HasRawValue, Print, SingleToken, TableValue, TypeDefinition},
+    utils::get_spaces,
+};
 
-impl Display for Expression {
+impl Display for ExpressionInner {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&self.get_raw_value())
     }
 }
-
-impl HasRawValue for Expression {
+impl HasRawValue for ExpressionInner {
     fn get_raw_value(&self) -> String {
         match self {
-            Expression::Nil(_) => todo!(),
-            Expression::Boolean(_) => todo!(),
-            Expression::Number(_) => todo!(),
-            Expression::String(_) => todo!(),
-            Expression::Function(_) => todo!(),
-            Expression::Prefixexp => todo!(),
-            Expression::Table(_) => todo!(),
-            Expression::Unary {
+            ExpressionInner::Nil(_) => todo!(),
+            ExpressionInner::Boolean(_) => todo!(),
+            ExpressionInner::Number(_) => todo!(),
+            ExpressionInner::String(_) => todo!(),
+            ExpressionInner::Function(_) => todo!(),
+            ExpressionInner::Prefixexp => todo!(),
+            ExpressionInner::Table(_) => todo!(),
+            ExpressionInner::Unary {
                 operator,
                 expression,
             } => todo!(),
-            Expression::Binary {
+            ExpressionInner::Binary {
                 left,
                 operator,
                 right,
             } => todo!(),
-            Expression::Cast {
+            ExpressionInner::Cast {
                 expression,
                 operator,
                 cast_to,
             } => todo!(),
-            Expression::IfExpression {
+            ExpressionInner::IfExpression {
                 if_token,
                 condition,
                 then_token,
@@ -45,8 +47,7 @@ impl HasRawValue for Expression {
         }
     }
 }
-
-impl From<&str> for Expression {
+impl From<&str> for ExpressionInner {
     fn from(value: &str) -> Self {
         //TODO: Handle other cases.
         Self::String(crate::prelude::SimpleValue {
@@ -54,46 +55,45 @@ impl From<&str> for Expression {
         })
     }
 }
-
-impl Expression {
+impl ExpressionInner {
     pub fn from_nodes<'a>(
         nodes_iter: impl Iterator<Item = Node<'a>>,
         code_bytes: &[u8],
-    ) -> Vec<Box<Expression>> {
+    ) -> Vec<Box<ExpressionInner>> {
         let mut values = Vec::new();
 
         for node in nodes_iter {
             match node.kind() {
-                "nil" => values.push(Box::new(Expression::from("nil"))),
-                "boolean" => values.push(Box::new(Expression::from(
+                "nil" => values.push(Box::new(ExpressionInner::from("nil"))),
+                "boolean" => values.push(Box::new(ExpressionInner::from(
                     node.utf8_text(code_bytes).unwrap(),
                 ))),
-                "number" => values.push(Box::new(Expression::from(
+                "number" => values.push(Box::new(ExpressionInner::from(
                     node.utf8_text(code_bytes).unwrap(),
                 ))),
-                "string" => values.push(Box::new(Expression::from(
+                "string" => values.push(Box::new(ExpressionInner::from(
                     node.utf8_text(code_bytes).unwrap(),
                 ))),
-                "string_interp" => values.push(Box::new(Expression::from(
+                "string_interp" => values.push(Box::new(ExpressionInner::from(
                     node.utf8_text(code_bytes).unwrap(),
                 ))),
                 "anon_fn" => todo!(),
                 "prefixexp" => todo!(),
                 "table" => {
                     //TODO: Fill it
-                    values.push(Box::new(Expression::Table(TableValue {
+                    values.push(Box::new(ExpressionInner::Table(TableValue {
                         fields: Box::new(Vec::new()),
                     })));
                 }
                 "unexp" => println!("unexp"),
                 "binexp" => println!("binexp"),
                 "cast" => {
-                    let temp_result = Expression::from_nodes(
+                    let temp_result = ExpressionInner::from_nodes(
                         node.children_by_field_name("arg", &mut node.walk()),
                         code_bytes,
                     );
                     let result = temp_result.iter().map(|expression| {
-                        Box::new(Expression::Cast {
+                        Box::new(ExpressionInner::Cast {
                             expression: expression.clone(),
                             cast_to: Box::new(TypeDefinition::from((
                                 node.child_by_field_name("cast").unwrap(),
@@ -114,5 +114,55 @@ impl Expression {
         }
 
         values
+    }
+}
+
+impl From<(Node<'_>, ExpressionInner, &[u8])> for Expression {
+    fn from((node, expression_inner, code_bytes): (Node<'_>, ExpressionInner, &[u8])) -> Self {
+        let (spaces_before, spaces_after) = get_spaces(node, code_bytes);
+
+        Self {
+            spaces_before,
+            inner: Box::new(expression_inner),
+            spaces_after,
+        }
+    }
+}
+impl From<ExpressionInner> for Expression {
+    fn from(expression_inner: ExpressionInner) -> Self {
+        Self {
+            inner: Box::new(expression_inner),
+            ..Default::default()
+        }
+    }
+}
+impl From<Box<ExpressionInner>> for Expression {
+    fn from(expression_inner: Box<ExpressionInner>) -> Self {
+        Self {
+            inner: Box::new(*expression_inner),
+            ..Default::default()
+        }
+    }
+}
+
+impl Display for Expression {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.get_raw_value())
+    }
+}
+impl HasRawValue for Expression {
+    fn get_raw_value(&self) -> String {
+        self.inner.get_raw_value()
+    }
+}
+impl Print for Expression {
+    fn print(&self) -> String {
+        format!("{}{}{}", self.spaces_before, self.inner, self.spaces_after)
+    }
+    fn print_leading(&self) -> String {
+        format!("{}{}", self.spaces_before, self.inner)
+    }
+    fn print_trailing(&self) -> String {
+        format!("{}{}", self.inner, self.spaces_after)
     }
 }

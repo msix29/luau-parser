@@ -9,16 +9,17 @@ use std::fmt::Display;
 use tree_sitter::Node;
 
 use crate::prelude::{
-    AstNode, Expression, FunctionParameter, FunctionReturn, FunctionValue, HasRawValue, NormalizedName, TableField, TableKey, TableValue, TypeDefinition, TypeValue
+    AstNode, ExpressionInner, FunctionParameter, FunctionReturn, FunctionValue, HasRawValue,
+    NormalizedName, TableField, TableKey, TableValue, TypeDefinition, TypeValue,
 };
 
-fn from_singleton_type(node: Node, code_bytes: &[u8]) -> Expression {
+fn from_singleton_type(node: Node, code_bytes: &[u8]) -> ExpressionInner {
     match node.kind() {
-        "string" => Expression::from(node.utf8_text(code_bytes).unwrap()),
-        "name" => Expression::from("<other value here>"), // TODO: Look for it.
-        "false" => Expression::from("false"),
-        "true" => Expression::from("true"),
-        _ => Expression::from("any"), // Should never be matched when done.
+        "string" => ExpressionInner::from(node.utf8_text(code_bytes).unwrap()),
+        "name" => ExpressionInner::from("<other value here>"), // TODO: Look for it.
+        "false" => ExpressionInner::from("false"),
+        "true" => ExpressionInner::from("true"),
+        _ => ExpressionInner::from("any"), // Should never be matched when done.
     }
 }
 
@@ -116,7 +117,11 @@ fn build_function_returns(node: Node, code_bytes: &[u8]) -> Vec<FunctionReturn> 
         "(" => {
             for i in 0..node.child_count() {
                 returns.push(FunctionReturn {
-                    r#type: Box::new(TypeDefinition::from((node.child(i).unwrap(), code_bytes, false))),
+                    r#type: Box::new(TypeDefinition::from((
+                        node.child(i).unwrap(),
+                        code_bytes,
+                        false,
+                    ))),
                     is_variadic: false,
                 });
             }
@@ -150,16 +155,16 @@ fn build_function_type(node: Node, code_bytes: &[u8]) -> FunctionValue {
     }
 }
 
-fn from_simple_type(node: Node, code_bytes: &[u8]) -> Expression {
+fn from_simple_type(node: Node, code_bytes: &[u8]) -> ExpressionInner {
     match node.kind() {
         "singleton" => from_singleton_type(node, code_bytes),
-        "namedtype" => Expression::from(node.utf8_text(code_bytes).unwrap()), //TODO: indexing from a table.
-        "typeof" => Expression::from("typeof<T>(...)"), //TODO: typeof(<expression>)
-        "tableType" => Expression::Table(build_table_type(node, code_bytes)),
+        "namedtype" => ExpressionInner::from(node.utf8_text(code_bytes).unwrap()), //TODO: indexing from a table.
+        "typeof" => ExpressionInner::from("typeof<T>(...)"), //TODO: typeof(<expression>)
+        "tableType" => ExpressionInner::Table(build_table_type(node, code_bytes)),
         "simpleType" => from_simple_type(node.child(0).unwrap(), code_bytes),
-        "functionType" => Expression::Function(build_function_type(node, code_bytes)),
+        "functionType" => ExpressionInner::Function(build_function_type(node, code_bytes)),
         "wraptype" => from_simple_type(node.child(1).unwrap(), code_bytes),
-        _ => Expression::from("any"), // Should never be matched when done.
+        _ => ExpressionInner::from("any"), // Should never be matched when done.
     }
 }
 
@@ -199,10 +204,15 @@ impl HasRawValue for TypeValue {
 
 impl From<(Node<'_>, &[u8])> for TypeValue {
     fn from((simple_type, code_bytes): (Node<'_>, &[u8])) -> Self {
-        // let simple_type = simple_type.child_by_field_name("simpleType").unwrap();
-
         TypeValue {
-            r#type: Box::new(from_simple_type(simple_type, code_bytes)),
+            r#type: Box::new(
+                (
+                    simple_type,
+                    from_simple_type(simple_type, code_bytes),
+                    code_bytes,
+                )
+                    .into(),
+            ),
             ..Default::default()
         }
     }
@@ -210,15 +220,15 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
 impl From<&str> for TypeValue {
     fn from(name: &str) -> Self {
         TypeValue {
-            r#type: Box::new(Expression::from(name)),
+            r#type: Box::new(ExpressionInner::from(name).into()),
             ..Default::default()
         }
     }
 }
-impl From<Expression> for TypeValue {
-    fn from(value: Expression) -> Self {
+impl From<ExpressionInner> for TypeValue {
+    fn from(value: ExpressionInner) -> Self {
         TypeValue {
-            r#type: Box::new(value),
+            r#type: Box::new(value.into()),
             ..Default::default()
         }
     }
@@ -306,8 +316,8 @@ impl From<&str> for TypeDefinition {
     }
 }
 
-impl From<Expression> for TypeDefinition {
-    fn from(value: Expression) -> Self {
+impl From<ExpressionInner> for TypeDefinition {
+    fn from(value: ExpressionInner) -> Self {
         TypeDefinition {
             type_name: "".to_string(),
             is_exported: false,
