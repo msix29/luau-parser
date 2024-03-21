@@ -87,7 +87,7 @@ impl AstNode for VariableDeclaration {
                     None
                 },
                 equal_token: if i == 0 {
-                    // Only the first variable has the requal sign.
+                    // Only the first variable has the equal sign.
                     node.child_by_field_name("equal")
                         .map(|equal| SingleToken::from((equal, code_bytes)))
                 } else {
