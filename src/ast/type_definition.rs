@@ -9,8 +9,9 @@ use std::fmt::Display;
 use tree_sitter::Node;
 
 use crate::prelude::{
-    AstNode, ExpressionInner, FunctionParameter, FunctionReturn, FunctionValue, HasRawValue,
-    NormalizedName, TableField, TableKey, TableValue, TypeDefinition, TypeValue,
+    AstNode, Expression, ExpressionInner, FunctionParameter, FunctionReturn, FunctionValue,
+    HasRawValue, NormalizedName, SingleToken, TableField, TableKey, TableValue, TypeDefinition,
+    TypeValue,
 };
 
 fn from_singleton_type(node: Node, code_bytes: &[u8]) -> ExpressionInner {
@@ -24,58 +25,89 @@ fn from_singleton_type(node: Node, code_bytes: &[u8]) -> ExpressionInner {
 }
 
 fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
-    let mut fields: Vec<TableField> = Vec::new();
-    let Some(passed_node) = node.child_by_field_name("fields") else {
+    let Some(fields_list) = node
+        .child_by_field_name("fields")
+        .map(|node| node.child(0).unwrap())
+    else {
         return TableValue {
-            fields: Box::new(fields),
+            fields: Box::<Vec<TableField>>::default(),
         };
     };
-    match passed_node.kind() {
+    let separators = fields_list
+        .children_by_field_name("sep", &mut node.walk())
+        .collect::<Vec<Node>>();
+    let mut table_fields: Vec<TableField> = Vec::new();
+    match fields_list.kind() {
         "type" => {
-            fields.push(TableField {
+            table_fields.push(TableField {
                 key: Box::new(TableKey::String("[number]".to_string())),
-                r#type: Box::new(TypeDefinition::from((passed_node, code_bytes, false))),
+                equal_or_colon: None,
+                r#type: Box::new(TypeDefinition::from((fields_list, code_bytes, false))),
                 value: None,
+                separator: None,
             });
         }
         "propList" => {
-            let mut i = 0;
-            let length = passed_node.child_count();
-            while i < length {
-                let node = passed_node.child(i).unwrap().child(0).unwrap();
-                i += 1;
-                match node.kind() {
-                    "fieldsep" => continue,
+            for (i, field) in fields_list
+                .children_by_field_name("field", &mut fields_list.walk())
+                .enumerate()
+            {
+                let separator = separators
+                    .get(i)
+                    .map(|separator| SingleToken::from((*separator, code_bytes)));
+
+                match field.kind() {
                     "tableProperty" => {
-                        fields.push(TableField {
+                        table_fields.push(TableField {
                             key: Box::new(TableKey::String(
-                                node.child_by_field_name("key")
+                                field
+                                    .child(0)
                                     .unwrap()
                                     .utf8_text(code_bytes)
                                     .unwrap()
                                     .to_string(),
                             )),
+                            equal_or_colon: Some(SingleToken::from((
+                                field.child(1).unwrap(),
+                                code_bytes,
+                            ))),
                             r#type: Box::new(TypeDefinition::from((
-                                node.child_by_field_name("type").unwrap(),
+                                field.child(2).unwrap(),
                                 code_bytes,
                                 false,
                             ))),
                             value: None,
+                            separator,
                         });
                     }
                     "tableIndexer" => {
-                        fields.push(TableField {
-                            key: Box::new(TableKey::Type(TypeDefinition::from((
-                                node.child_by_field_name("key").unwrap(),
+                        table_fields.push(TableField {
+                            key: Box::new(TableKey::Type {
+                                open_square_brackets: SingleToken::from((
+                                    field.child(0).unwrap(),
+                                    code_bytes,
+                                )),
+                                r#type: Box::new(TypeDefinition::from((
+                                    field.child(1).unwrap(),
+                                    code_bytes,
+                                    false,
+                                ))),
+                                close_square_brackets: SingleToken::from((
+                                    field.child(2).unwrap(),
+                                    code_bytes,
+                                )),
+                            }),
+                            equal_or_colon: Some(SingleToken::from((
+                                field.child(3).unwrap(),
                                 code_bytes,
-                                false,
-                            )))),
+                            ))),
                             r#type: Box::new(TypeDefinition::from((
-                                node.child_by_field_name("type").unwrap(),
+                                field.child(4).unwrap(),
                                 code_bytes,
                                 false,
                             ))),
                             value: None,
+                            separator,
                         });
                     }
                     _ => (),
@@ -86,7 +118,7 @@ fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
     }
 
     TableValue {
-        fields: Box::new(fields),
+        fields: Box::new(table_fields),
     }
 }
 
@@ -161,9 +193,9 @@ fn from_simple_type(node: Node, code_bytes: &[u8]) -> ExpressionInner {
         "namedtype" => ExpressionInner::from(node.utf8_text(code_bytes).unwrap()), //TODO: indexing from a table.
         "typeof" => ExpressionInner::from("typeof<T>(...)"), //TODO: typeof(<expression>)
         "tableType" => ExpressionInner::Table(build_table_type(node, code_bytes)),
-        "simpleType" => from_simple_type(node.child(0).unwrap(), code_bytes),
         "functionType" => ExpressionInner::Function(build_function_type(node, code_bytes)),
         "wraptype" => from_simple_type(node.child(1).unwrap(), code_bytes),
+        // "untype"
         _ => ExpressionInner::from("any"), // Should never be matched when done.
     }
 }
@@ -203,16 +235,14 @@ impl HasRawValue for TypeValue {
 }
 
 impl From<(Node<'_>, &[u8])> for TypeValue {
-    fn from((simple_type, code_bytes): (Node<'_>, &[u8])) -> Self {
+    fn from((node, code_bytes): (Node<'_>, &[u8])) -> Self {
+        //TODO: & and | types.
         TypeValue {
-            r#type: Box::new(
-                (
-                    simple_type,
-                    from_simple_type(simple_type, code_bytes),
-                    code_bytes,
-                )
-                    .into(),
-            ),
+            r#type: Box::new(Expression::from((
+                node,
+                from_simple_type(node, code_bytes),
+                code_bytes,
+            ))),
             ..Default::default()
         }
     }
@@ -233,12 +263,22 @@ impl From<ExpressionInner> for TypeValue {
         }
     }
 }
+impl From<Box<ExpressionInner>> for TypeValue {
+    fn from(value: Box<ExpressionInner>) -> Self {
+        TypeValue {
+            r#type: Box::new(value.into()),
+            ..Default::default()
+        }
+    }
+}
 
 impl Default for TypeDefinition {
     fn default() -> Self {
         TypeDefinition {
+            export_keyword: None,
+            type_keyword: None,
             type_name: "any".to_string(),
-            is_exported: false,
+            equal_sign: None,
             type_value: Box::<TypeValue>::default(),
         }
     }
@@ -255,7 +295,11 @@ impl HasRawValue for TypeDefinition {
             return "any".to_string();
         }
 
-        let prefix = if self.is_exported { "export " } else { "" };
+        let prefix = self
+            .export_keyword
+            .as_ref()
+            .map_or_else(|| "".to_string(), |export| export.get_raw_value());
+
         let start = if self.type_name.is_empty() {
             String::from("")
         } else {
@@ -269,10 +313,10 @@ impl HasRawValue for TypeDefinition {
 impl AstNode for TypeDefinition {
     fn try_from_node<'a>(
         node: tree_sitter::Node<'a>,
-        _cursor: &mut tree_sitter::TreeCursor<'a>,
+        _: &mut tree_sitter::TreeCursor<'a>,
         code_bytes: &[u8],
     ) -> Option<Vec<Self>> {
-        if node.kind() != "typeDeclaration" {
+        if node.kind() != "typeDefinition" {
             return None;
         }
 
@@ -284,13 +328,21 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
     fn from((node, code_bytes, is_definition): (Node, &[u8], bool)) -> Self {
         if is_definition {
             TypeDefinition {
+                export_keyword: node
+                    .child_by_field_name("export")
+                    .map(|node| SingleToken::from((node, code_bytes))),
+                type_keyword: node
+                    .child_by_field_name("typeKeyword")
+                    .map(|node| SingleToken::from((node, code_bytes))),
                 type_name: node
                     .child_by_field_name("typeName")
                     .unwrap()
                     .utf8_text(code_bytes)
                     .unwrap()
                     .to_string(),
-                is_exported: node.child_by_field_name("export").is_some(),
+                equal_sign: node
+                    .child_by_field_name("equal")
+                    .map(|node| SingleToken::from((node, code_bytes))),
                 type_value: Box::new(TypeValue::from((
                     node.child_by_field_name("type").unwrap(),
                     code_bytes,
@@ -298,8 +350,10 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
             }
         } else {
             TypeDefinition {
+                export_keyword: None,
+                type_keyword: None,
                 type_name: "".to_string(),
-                is_exported: false,
+                equal_sign: None,
                 type_value: Box::new(TypeValue::from((node, code_bytes))),
             }
         }
@@ -309,8 +363,10 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
 impl From<&str> for TypeDefinition {
     fn from(type_name: &str) -> Self {
         TypeDefinition {
+            export_keyword: None,
+            type_keyword: None,
             type_name: type_name.to_string(),
-            is_exported: false,
+            equal_sign: None,
             type_value: Box::new(TypeValue::from(type_name)),
         }
     }
@@ -319,9 +375,23 @@ impl From<&str> for TypeDefinition {
 impl From<ExpressionInner> for TypeDefinition {
     fn from(value: ExpressionInner) -> Self {
         TypeDefinition {
+            export_keyword: None,
+            type_keyword: None,
             type_name: "".to_string(),
-            is_exported: false,
+            equal_sign: None,
             type_value: Box::new(TypeValue::from(value)),
+        }
+    }
+}
+
+impl From<Box<ExpressionInner>> for TypeDefinition {
+    fn from(value: Box<ExpressionInner>) -> Self {
+        TypeDefinition {
+            export_keyword: None,
+            type_keyword: None,
+            type_name: "".to_string(),
+            equal_sign: None,
+            type_value: Box::from(TypeValue::from(value)),
         }
     }
 }

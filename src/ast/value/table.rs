@@ -15,8 +15,26 @@ impl HasRawValue for TableKey {
     fn get_raw_value(&self) -> String {
         match self {
             TableKey::String(key) => key.to_string(),
-            TableKey::Expression(key) => key.get_raw_value(),
-            TableKey::Type(key) => key.get_raw_value(),
+            TableKey::Expression {
+                open_square_brackets,
+                expression,
+                close_square_brackets,
+            } => format!(
+                "{}{}{}",
+                open_square_brackets,
+                expression.get_raw_value(),
+                close_square_brackets
+            ),
+            TableKey::Type{
+                open_square_brackets,
+                r#type,
+                close_square_brackets,
+            } => format!(
+                "{}{}{}",
+                open_square_brackets,
+                r#type.get_raw_value(),
+                close_square_brackets
+            ),
         }
     }
 }

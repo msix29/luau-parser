@@ -4,8 +4,8 @@ use tree_sitter::Node;
 
 use crate::{
     prelude::{
-        ElseIfExpression, Expression, ExpressionInner, HasRawValue, Print, SingleToken, TableValue,
-        TypeDefinition,
+        ElseIfExpression, Expression, ExpressionInner, HasRawValue, Print, SingleToken, TableField,
+        TableFieldValue, TableKey, TableValue, TypeDefinition,
     },
     utils::get_spaces,
 };
@@ -110,9 +110,59 @@ impl ExpressionInner {
                 "anon_fn" => todo!(),
                 "prefixexp" => todo!(),
                 "table" => {
-                    //TODO: Fill it
+                    let mut index = 0;
+                    let field_list = node.child_by_field_name("fieldList").unwrap();
+                    let separators = field_list
+                        .children_by_field_name("sep", &mut node.walk())
+                        .collect::<Vec<Node>>();
+
                     values.push(Box::new(ExpressionInner::Table(TableValue {
-                        fields: Box::new(Vec::new()),
+                        fields: Box::new(
+                            field_list
+                                .children_by_field_name("field", &mut node.walk())
+                                .enumerate()
+                                .map(|(i, node)| {
+                                    let key = if let Some(key) = node.child_by_field_name("keyName")
+                                    {
+                                        TableKey::String(
+                                            key.utf8_text(code_bytes).unwrap().to_string(),
+                                        )
+                                    } else if let Some(key) = node.child_by_field_name("keyExp") {
+                                        TableKey::Expression {
+                                            open_square_brackets: SingleToken::from((
+                                                key.prev_sibling().unwrap(),
+                                                code_bytes,
+                                            )),
+                                            expression: Box::new(Expression::from((
+                                                key, code_bytes,
+                                            ))),
+                                            close_square_brackets: SingleToken::from((
+                                                key.next_sibling().unwrap(),
+                                                code_bytes,
+                                            )),
+                                        }
+                                    } else {
+                                        index += 1;
+                                        TableKey::String(index.to_string())
+                                    };
+                                    let value = Expression::from((
+                                        node.child_by_field_name("value").unwrap(),
+                                        code_bytes,
+                                    ));
+                                    TableField {
+                                        key: Box::new(key),
+                                        equal_or_colon: node
+                                            .child_by_field_name("equal")
+                                            .map(|node| SingleToken::from((node, code_bytes))),
+                                        r#type: Box::new(TypeDefinition::from(value.inner.clone())),
+                                        value: Some(Box::new(TableFieldValue::Expression(value))),
+                                        separator: separators
+                                            .get(i)
+                                            .map(|node| SingleToken::from((*node, code_bytes))),
+                                    }
+                                })
+                                .collect::<Vec<TableField>>(),
+                        ),
                     })));
                 }
                 "unexp" => values.push(Box::new(ExpressionInner::UnaryExpression {
@@ -239,7 +289,7 @@ impl From<ExpressionInner> for Expression {
 impl From<Box<ExpressionInner>> for Expression {
     fn from(expression_inner: Box<ExpressionInner>) -> Self {
         Self {
-            inner: Box::new(*expression_inner),
+            inner: expression_inner,
             ..Default::default()
         }
     }

@@ -5,6 +5,8 @@
 
 use crate::prelude::Expression;
 
+use super::SingleToken;
+
 /// A struct holding values of a type, including it's `&` and `|` (intersection and union)
 /// types.
 #[derive(Clone, Debug, Default)]
@@ -23,6 +25,8 @@ pub struct TypeValue {
 /// luau.
 #[derive(Clone, Debug)]
 pub struct TypeDefinition {
+    pub export_keyword: Option<SingleToken>,
+    pub type_keyword: Option<SingleToken>,
     /// The name of the type. Will always be an empty string if this is a type with no
     /// prior definition, like:
     ///
@@ -36,11 +40,7 @@ pub struct TypeDefinition {
     /// In the 3 cases (`foo`, `bar`, and `qux`), they all have types with no names.
     pub type_name: String,
 
-    /// Whether or not this type was exported (had `export` keyword before it).
-    /// ```lua
-    /// export type Foo = { number }
-    /// ```
-    pub is_exported: bool,
+    pub equal_sign: Option<SingleToken>,
 
     /// The _[actual definition](TypeValue)_ of the type.
     pub type_value: Box<TypeValue>,
