@@ -25,11 +25,11 @@ impl HasRawValue for ExpressionInner {
             ExpressionInner::Function(value) => value.get_raw_value(),
             ExpressionInner::Prefixexp => todo!(),
             ExpressionInner::Table(value) => value.get_raw_value(),
-            ExpressionInner::Unary {
+            ExpressionInner::UnaryExpression {
                 operator,
                 expression,
             } => format!("{}{}", operator.get_raw_value(), expression.get_raw_value()),
-            ExpressionInner::Binary {
+            ExpressionInner::BinaryExpression {
                 left,
                 operator,
                 right,
@@ -115,11 +115,29 @@ impl ExpressionInner {
                         fields: Box::new(Vec::new()),
                     })));
                 }
-                "unexp" => println!("unexp"),
-                "binexp" => values.push(Box::new(ExpressionInner::Binary {
-                    left: todo!(),
-                    operator: todo!(),
-                    right: todo!(),
+                "unexp" => values.push(Box::new(ExpressionInner::UnaryExpression {
+                    operator: SingleToken::from((
+                        node.child_by_field_name("op").unwrap(),
+                        code_bytes,
+                    )),
+                    expression: Box::new(Expression::from((
+                        node.child_by_field_name("arg").unwrap(),
+                        code_bytes,
+                    ))),
+                })),
+                "binexp" => values.push(Box::new(ExpressionInner::BinaryExpression {
+                    left: Box::new(Expression::from((
+                        node.child_by_field_name("arg0").unwrap(),
+                        code_bytes,
+                    ))),
+                    operator: SingleToken::from((
+                        node.child_by_field_name("op").unwrap(),
+                        code_bytes,
+                    )),
+                    right: Box::new(Expression::from((
+                        node.child_by_field_name("arg1").unwrap(),
+                        code_bytes,
+                    ))),
                 })),
                 "cast" => {
                     let mut cursor = node.walk();
