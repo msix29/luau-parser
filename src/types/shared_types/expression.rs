@@ -9,11 +9,11 @@ pub enum ExpressionInner {
     Function(FunctionValue),
     Prefixexp, //TODO:
     Table(TableValue),
-    Unary {
+    UnaryExpression {
         operator: SingleToken,
         expression: Box<Expression>,
     },
-    Binary {
+    BinaryExpression {
         left: Box<Expression>,
         operator: SingleToken,
         right: Box<Expression>,
