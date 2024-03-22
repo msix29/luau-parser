@@ -26,7 +26,7 @@ pub fn get_spaces(node: Node, code_bytes: &[u8]) -> (String, String) {
         get_text_from_bytes(code_bytes, node.end_byte(), next_parent.start_byte())
     } else {
         // Trailing spaces till the end of the file
-        get_text_from_bytes(code_bytes, 0, node.start_byte())
+        get_text_from_bytes(code_bytes, node.start_byte(), code_bytes.len() - 1)
     };
 
     (before.to_string(), after.to_string())
