@@ -8,7 +8,7 @@ use crate::{
 
 impl HasRawValue for SingleToken {
     fn get_raw_value(&self) -> String {
-        format!("{}{}{}", self.spaces_before, self.word, self.spaces_after)
+        self.word.to_string()
     }
 }
 impl Display for SingleToken {

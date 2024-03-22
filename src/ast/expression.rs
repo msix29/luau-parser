@@ -3,7 +3,10 @@ use std::fmt::Display;
 use tree_sitter::Node;
 
 use crate::{
-    prelude::{Expression, ExpressionInner, HasRawValue, Print, SingleToken, TableValue, TypeDefinition},
+    prelude::{
+        ElseIfExpression, Expression, ExpressionInner, HasRawValue, Print, SingleToken, TableValue,
+        TypeDefinition,
+    },
     utils::get_spaces,
 };
 
@@ -15,27 +18,40 @@ impl Display for ExpressionInner {
 impl HasRawValue for ExpressionInner {
     fn get_raw_value(&self) -> String {
         match self {
-            ExpressionInner::Nil(_) => todo!(),
-            ExpressionInner::Boolean(_) => todo!(),
-            ExpressionInner::Number(_) => todo!(),
-            ExpressionInner::String(_) => todo!(),
-            ExpressionInner::Function(_) => todo!(),
+            ExpressionInner::Nil => "nil".to_string(),
+            ExpressionInner::Boolean(value) => value.get_raw_value(),
+            ExpressionInner::Number(value) => value.get_raw_value(),
+            ExpressionInner::String(value) => value.get_raw_value(),
+            ExpressionInner::Function(value) => value.get_raw_value(),
             ExpressionInner::Prefixexp => todo!(),
-            ExpressionInner::Table(_) => todo!(),
+            ExpressionInner::Table(value) => value.get_raw_value(),
             ExpressionInner::Unary {
                 operator,
                 expression,
-            } => todo!(),
+            } => format!("{}{}", operator.get_raw_value(), expression.get_raw_value()),
             ExpressionInner::Binary {
                 left,
                 operator,
                 right,
-            } => todo!(),
+            } => format!(
+                "{} {} {}",
+                left.get_raw_value(),
+                operator.get_raw_value(),
+                right.get_raw_value()
+            ),
+
             ExpressionInner::Cast {
                 expression,
                 operator,
                 cast_to,
-            } => todo!(),
+            } => {
+                format!(
+                    "{} {} {}",
+                    expression,
+                    operator.get_raw_value(),
+                    cast_to.get_raw_value()
+                )
+            }
             ExpressionInner::IfExpression {
                 if_token,
                 condition,
@@ -43,7 +59,21 @@ impl HasRawValue for ExpressionInner {
                 else_if_expressions,
                 else_token,
                 else_expression,
-            } => todo!(),
+            } => {
+                format!(
+                    "{} {} {} {} {} {}",
+                    if_token.get_raw_value(),
+                    condition.get_raw_value(),
+                    then_token.get_raw_value(),
+                    else_if_expressions
+                        .iter()
+                        .map(|expression| expression.get_raw_value())
+                        .collect::<Vec<String>>()
+                        .join(" "),
+                    else_token.get_raw_value(),
+                    else_expression.get_raw_value(),
+                )
+            }
         }
     }
 }
@@ -86,15 +116,16 @@ impl ExpressionInner {
                     })));
                 }
                 "unexp" => println!("unexp"),
-                "binexp" => println!("binexp"),
+                "binexp" => values.push(Box::new(ExpressionInner::Binary {
+                    left: todo!(),
+                    operator: todo!(),
+                    right: todo!(),
+                })),
                 "cast" => {
-                    let temp_result = ExpressionInner::from_nodes(
-                        node.children_by_field_name("arg", &mut node.walk()),
-                        code_bytes,
-                    );
-                    let result = temp_result.iter().map(|expression| {
+                    let mut cursor = node.walk();
+                    let result = node.children_by_field_name("arg", &mut cursor).map(|node| {
                         Box::new(ExpressionInner::Cast {
-                            expression: expression.clone(),
+                            expression: Box::new(Expression::from((node, code_bytes))),
                             cast_to: Box::new(TypeDefinition::from((
                                 node.child_by_field_name("cast").unwrap(),
                                 code_bytes,
@@ -108,7 +139,40 @@ impl ExpressionInner {
                     });
                     values.extend(result);
                 }
-                "ifexp" => println!("ifexp"),
+                "ifexp" => values.push(Box::new(ExpressionInner::IfExpression {
+                    if_token: SingleToken::from((node.child(0).unwrap(), code_bytes)),
+                    condition: Box::new(Expression::from((node.child(1).unwrap(), code_bytes))),
+                    then_token: SingleToken::from((node.child(2).unwrap(), code_bytes)),
+
+                    else_if_expressions: Box::new(
+                        node.children_by_field_name("elseif", &mut node.walk())
+                            .map(|node| ElseIfExpression {
+                                else_if_token: SingleToken::from((
+                                    node.child(0).unwrap(),
+                                    code_bytes,
+                                )),
+                                condition: Box::new(Expression::from((
+                                    node.child(1).unwrap(),
+                                    code_bytes,
+                                ))),
+                                then_token: SingleToken::from((node.child(2).unwrap(), code_bytes)),
+                                expression: Box::new(Expression::from((
+                                    node.child(3).unwrap(),
+                                    code_bytes,
+                                ))),
+                            })
+                            .collect::<Vec<ElseIfExpression>>(),
+                    ),
+
+                    else_token: SingleToken::from((
+                        node.child_by_field_name("else").unwrap(),
+                        code_bytes,
+                    )),
+                    else_expression: Box::new(Expression::from((
+                        node.child_by_field_name("elseExpression").unwrap(),
+                        code_bytes,
+                    ))),
+                })),
                 _ => (),
             }
         }
@@ -117,6 +181,24 @@ impl ExpressionInner {
     }
 }
 
+impl From<(Node<'_>, &[u8])> for ExpressionInner {
+    fn from((value, code_bytes): (Node<'_>, &[u8])) -> Self {
+        //TODO
+        ExpressionInner::Nil
+    }
+}
+
+impl From<(Node<'_>, &[u8])> for Expression {
+    fn from((node, code_bytes): (Node<'_>, &[u8])) -> Self {
+        let (spaces_before, spaces_after) = get_spaces(node, code_bytes);
+
+        Self {
+            spaces_before,
+            inner: Box::new(ExpressionInner::from((node, code_bytes))),
+            spaces_after,
+        }
+    }
+}
 impl From<(Node<'_>, ExpressionInner, &[u8])> for Expression {
     fn from((node, expression_inner, code_bytes): (Node<'_>, ExpressionInner, &[u8])) -> Self {
         let (spaces_before, spaces_after) = get_spaces(node, code_bytes);
@@ -164,5 +246,22 @@ impl Print for Expression {
     }
     fn print_trailing(&self) -> String {
         format!("{}{}", self.inner, self.spaces_after)
+    }
+}
+
+impl Display for ElseIfExpression {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.get_raw_value())
+    }
+}
+impl HasRawValue for ElseIfExpression {
+    fn get_raw_value(&self) -> String {
+        format!(
+            "{} {} {} {}",
+            self.else_if_token.get_raw_value(),
+            self.condition.get_raw_value(),
+            self.then_token.get_raw_value(),
+            self.expression.get_raw_value(),
+        )
     }
 }
