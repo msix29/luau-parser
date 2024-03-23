@@ -117,6 +117,10 @@ impl ExpressionInner {
                         .collect::<Vec<Node>>();
 
                     values.push(Box::new(ExpressionInner::Table(TableValue {
+                        opening_brackets: SingleToken::from((
+                            node.child_by_field_name("opening_brackets").unwrap(),
+                            code_bytes,
+                        )),
                         fields: Box::new(
                             field_list
                                 .children_by_field_name("field", &mut node.walk())
@@ -163,6 +167,10 @@ impl ExpressionInner {
                                 })
                                 .collect::<Vec<TableField>>(),
                         ),
+                        closing_brackets: SingleToken::from((
+                            node.child_by_field_name("opening_brackets").unwrap(),
+                            code_bytes,
+                        )),
                     })));
                 }
                 "unexp" => values.push(Box::new(ExpressionInner::UnaryExpression {
@@ -267,6 +275,10 @@ impl From<(Node<'_>, &[u8])> for ExpressionInner {
                     .collect::<Vec<Node>>();
 
                 return ExpressionInner::Table(TableValue {
+                    opening_brackets: SingleToken::from((
+                        node.child_by_field_name("opening_brackets").unwrap(),
+                        code_bytes,
+                    )),
                     fields: Box::new(
                         field_list
                             .children_by_field_name("field", &mut node.walk())
@@ -310,6 +322,10 @@ impl From<(Node<'_>, &[u8])> for ExpressionInner {
                             })
                             .collect::<Vec<TableField>>(),
                     ),
+                    closing_brackets: SingleToken::from((
+                        node.child_by_field_name("opening_brackets").unwrap(),
+                        code_bytes,
+                    )),
                 });
             }
             "unexp" => {

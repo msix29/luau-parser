@@ -25,12 +25,23 @@ fn from_singleton_type(node: Node, code_bytes: &[u8]) -> ExpressionInner {
 }
 
 fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
+    let opening_brackets = SingleToken::from((
+        node.child_by_field_name("opening_brackets").unwrap(),
+        code_bytes,
+    ));
+    let closing_brackets = SingleToken::from((
+        node.child_by_field_name("opening_brackets").unwrap(),
+        code_bytes,
+    ));
+    
     let Some(fields_list) = node
         .child_by_field_name("fields")
         .map(|node| node.child(0).unwrap())
     else {
         return TableValue {
+            opening_brackets,
             fields: Box::<Vec<TableField>>::default(),
+            closing_brackets,
         };
     };
     let separators = fields_list
@@ -118,7 +129,9 @@ fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
     }
 
     TableValue {
+        opening_brackets,
         fields: Box::new(table_fields),
+        closing_brackets,
     }
 }
 

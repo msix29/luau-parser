@@ -67,6 +67,8 @@ pub enum TableFieldValue {
 /// Struct for table _[expression](Expression)_ enum.
 #[derive(Clone, Debug)]
 pub struct TableValue {
+    pub opening_brackets: SingleToken,
     /// The actual _[fields](TableField)_ of the table.
     pub fields: Box<Vec<TableField>>,
+    pub closing_brackets: SingleToken,
 }
