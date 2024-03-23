@@ -250,9 +250,150 @@ impl ExpressionInner {
 }
 
 impl From<(Node<'_>, &[u8])> for ExpressionInner {
-    fn from((value, code_bytes): (Node<'_>, &[u8])) -> Self {
-        //TODO
-        ExpressionInner::Nil
+    fn from((node, code_bytes): (Node<'_>, &[u8])) -> Self {
+        match node.kind() {
+            "nil" => ExpressionInner::from("nil"),
+            "boolean" => ExpressionInner::from(node.utf8_text(code_bytes).unwrap()),
+            "number" => ExpressionInner::from(node.utf8_text(code_bytes).unwrap()),
+            "string" => ExpressionInner::from(node.utf8_text(code_bytes).unwrap()),
+            "string_interp" => ExpressionInner::from(node.utf8_text(code_bytes).unwrap()),
+            "anon_fn" => todo!(),
+            "prefixexp" => todo!(),
+            "table" => {
+                let mut index = 0;
+                let field_list = node.child_by_field_name("fieldList").unwrap();
+                let separators = field_list
+                    .children_by_field_name("sep", &mut node.walk())
+                    .collect::<Vec<Node>>();
+
+                return ExpressionInner::Table(TableValue {
+                    fields: Box::new(
+                        field_list
+                            .children_by_field_name("field", &mut node.walk())
+                            .enumerate()
+                            .map(|(i, node)| {
+                                let key = if let Some(key) = node.child_by_field_name("keyName") {
+                                    TableKey::String(key.utf8_text(code_bytes).unwrap().to_string())
+                                } else if let Some(key) = node.child_by_field_name("keyExp") {
+                                    TableKey::Expression {
+                                        open_square_brackets: SingleToken::from((
+                                            key.prev_sibling().unwrap(),
+                                            code_bytes,
+                                        )),
+                                        expression: Box::new(Expression::from((key, code_bytes))),
+                                        close_square_brackets: SingleToken::from((
+                                            key.next_sibling().unwrap(),
+                                            code_bytes,
+                                        )),
+                                    }
+                                } else {
+                                    index += 1;
+                                    TableKey::String(index.to_string())
+                                };
+
+                                let value = Expression::from((
+                                    node.child_by_field_name("value").unwrap(),
+                                    code_bytes,
+                                ));
+
+                                TableField {
+                                    key: Box::new(key),
+                                    equal_or_colon: node
+                                        .child_by_field_name("equal")
+                                        .map(|node| SingleToken::from((node, code_bytes))),
+                                    r#type: Box::new(TypeDefinition::from(value.inner.clone())),
+                                    value: Some(Box::new(TableFieldValue::Expression(value))),
+                                    separator: separators
+                                        .get(i)
+                                        .map(|node| SingleToken::from((*node, code_bytes))),
+                                }
+                            })
+                            .collect::<Vec<TableField>>(),
+                    ),
+                });
+            }
+            "unexp" => {
+                return ExpressionInner::UnaryExpression {
+                    operator: SingleToken::from((
+                        node.child_by_field_name("op").unwrap(),
+                        code_bytes,
+                    )),
+                    expression: Box::new(Expression::from((
+                        node.child_by_field_name("arg").unwrap(),
+                        code_bytes,
+                    ))),
+                }
+            }
+            "binexp" => {
+                return ExpressionInner::BinaryExpression {
+                    left: Box::new(Expression::from((
+                        node.child_by_field_name("arg0").unwrap(),
+                        code_bytes,
+                    ))),
+                    operator: SingleToken::from((
+                        node.child_by_field_name("op").unwrap(),
+                        code_bytes,
+                    )),
+                    right: Box::new(Expression::from((
+                        node.child_by_field_name("arg1").unwrap(),
+                        code_bytes,
+                    ))),
+                }
+            }
+            "cast" => {
+                let arg = node.child_by_field_name("arg").unwrap();
+
+                ExpressionInner::Cast {
+                    expression: Box::new(Expression::from((arg, code_bytes))),
+                    cast_to: Box::new(TypeDefinition::from((
+                        node.child_by_field_name("cast").unwrap(),
+                        code_bytes,
+                        false,
+                    ))),
+                    operator: SingleToken::from((
+                        node.child_by_field_name("op").unwrap(),
+                        code_bytes,
+                    )),
+                }
+            }
+            "ifexp" => {
+                return ExpressionInner::IfExpression {
+                    if_token: SingleToken::from((node.child(0).unwrap(), code_bytes)),
+                    condition: Box::new(Expression::from((node.child(1).unwrap(), code_bytes))),
+                    then_token: SingleToken::from((node.child(2).unwrap(), code_bytes)),
+
+                    else_if_expressions: Box::new(
+                        node.children_by_field_name("elseif", &mut node.walk())
+                            .map(|node| ElseIfExpression {
+                                else_if_token: SingleToken::from((
+                                    node.child(0).unwrap(),
+                                    code_bytes,
+                                )),
+                                condition: Box::new(Expression::from((
+                                    node.child(1).unwrap(),
+                                    code_bytes,
+                                ))),
+                                then_token: SingleToken::from((node.child(2).unwrap(), code_bytes)),
+                                expression: Box::new(Expression::from((
+                                    node.child(3).unwrap(),
+                                    code_bytes,
+                                ))),
+                            })
+                            .collect::<Vec<ElseIfExpression>>(),
+                    ),
+
+                    else_token: SingleToken::from((
+                        node.child_by_field_name("else").unwrap(),
+                        code_bytes,
+                    )),
+                    else_expression: Box::new(Expression::from((
+                        node.child_by_field_name("elseExpression").unwrap(),
+                        code_bytes,
+                    ))),
+                }
+            }
+            _ => todo!(), // This case will never be met, Rust just doesn't know.
+        }
     }
 }
 
