@@ -116,7 +116,7 @@ impl ExpressionInner {
                         code_bytes,
                     ))),
                     function_name: FunctionName::Anonymous,
-                    parameters: Arc::new(build_function_parameters(node, code_bytes)),
+                    parameters: Arc::new(build_function_parameters(node, code_bytes, false)),
                     returns: Arc::new(build_function_returns(node, code_bytes)),
                     body: todo!(),
                     end_keyword: todo!(),

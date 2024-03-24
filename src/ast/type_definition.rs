@@ -138,6 +138,7 @@ fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
 pub fn build_function_parameters(
     parameters_node: Node,
     code_bytes: &[u8],
+    is_type: bool,
 ) -> Vec<FunctionParameter> {
     let mut parameters = Vec::new();
 
@@ -152,10 +153,17 @@ pub fn build_function_parameters(
                 is_variadic: false,
                 r#type,
             });
+        } else if !is_type {
+            parameters.push(FunctionParameter {
+                name: normalized_name.name,
+                is_variadic: false,
+                r#type: Arc::new(TypeDefinition::from("any")),
+            });
         } else {
-            // Pretty sure this isn't in the spec, but if the name is missing, then it's
-            // the type and the name is empty, but for the sake of making it "better",
-            // we use `_`, which is globally known as a placeholder.
+            // Pretty sure this isn't in the spec, but if the name is missing in a type
+            // definition of a function, then it's the type and the name is empty, but for
+            // the sake of making it "better", we use `_`, which is globally known as a
+            // placeholder.
             parameters.push(FunctionParameter {
                 name: "_".to_string(),
                 is_variadic: false,
@@ -194,7 +202,7 @@ pub fn build_function_returns(node: Node, code_bytes: &[u8]) -> Vec<FunctionRetu
 
 //TODO: Make it work
 fn build_function_type(node: Node, code_bytes: &[u8]) -> FunctionValue {
-    let parameters = build_function_parameters(node, code_bytes);
+    let parameters = build_function_parameters(node, code_bytes, true);
 
     FunctionValue {
         local_keyword: None,
