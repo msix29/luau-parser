@@ -155,12 +155,6 @@ pub struct FunctionValue {
     /// The actual name of the function.
     pub function_name: FunctionName,
 
-    /// Exact location of the node.
-    pub location: Location,
-
-    /// Exact location of the function's name node (if any).
-    pub name_location: Option<Location>,
-
     /// All _[parameters](FunctionParameter)_ of the function.
     pub parameters: Arc<Vec<FunctionParameter>>,
 

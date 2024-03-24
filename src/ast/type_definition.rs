@@ -231,8 +231,6 @@ fn build_function_type(node: Node, code_bytes: &[u8]) -> FunctionValue {
         returns: Arc::new(build_function_returns(node, code_bytes)),
         body: Arc::new(Ast::default()),
         end_keyword: None,
-        name_location: None,
-        location: get_location(node),
     }
 }
 

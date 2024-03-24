@@ -127,7 +127,6 @@ impl From<(Node<'_>, &[u8])> for ExpressionInner {
                         code_bytes,
                     ))),
                     function_name: FunctionName::Anonymous,
-                    name_location: None,
                     parameters: Arc::new(build_function_parameters(node, code_bytes, false)),
                     returns: Arc::new(build_function_returns(node, code_bytes)),
                     body: Arc::new(Ast {
@@ -138,7 +137,6 @@ impl From<(Node<'_>, &[u8])> for ExpressionInner {
                         node.child_by_field_name("end").unwrap(),
                         code_bytes,
                     ))),
-                    location: get_location(node),
                 })
             }
             "var" => todo!("Finding other variables isn't done yet."),
