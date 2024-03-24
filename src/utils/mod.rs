@@ -5,7 +5,7 @@ fn get_text_from_bytes(bytes: &[u8], start: usize, end: usize) -> String {
 }
 
 /// Gets spaces before and after a **token**. This function assumes this token has a parent
-/// as it's only called for individual tokens (ex. `local` in `local foo`).
+/// as is only called for individual tokens (ex. `local` in `local foo`).
 pub fn get_spaces(node: Node, code_bytes: &[u8]) -> (String, String) {
     let before = if let Some(before) = node.prev_sibling() {
         // Leading spaces
