@@ -187,6 +187,7 @@ fn build_function_type(node: Node, code_bytes: &[u8]) -> FunctionValue {
     };
 
     FunctionValue {
+        local_keyword: None,
         function_keyword: None,
         parameters: Arc::new(parameters),
         returns: Arc::new(build_function_returns(
@@ -196,7 +197,8 @@ fn build_function_type(node: Node, code_bytes: &[u8]) -> FunctionValue {
                 .unwrap(),
             code_bytes,
         )),
-        body: Arc::new(Ast::default())
+        body: Arc::new(Ast::default()),
+        end_keyword: None,
     }
 }
 
