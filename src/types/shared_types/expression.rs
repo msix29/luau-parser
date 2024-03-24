@@ -2,6 +2,11 @@ use std::sync::Arc;
 
 use super::{FunctionValue, SimpleValue, SingleToken, TableValue, TypeDefinition};
 
+#[derive(Clone, Debug)]
+pub enum Var {
+    Name(String),
+}
+
 /// An enum representing all possible values for an expression.
 #[derive(Clone, Debug, Default)]
 pub enum ExpressionInner {
@@ -21,8 +26,22 @@ pub enum ExpressionInner {
 
     /// An **anonymous** function.
     Function(FunctionValue),
-    
-    Prefixexp, //TODO:
+
+    ExpressionWrap {
+        /// The `{` character.
+        opening_brackets: SingleToken,
+
+        /// The actual _[expression](Expression)_ being wrapped.
+        expression: Arc<Expression>,
+
+        // The `}` character.
+        closing_brackets: SingleToken,
+    },
+
+    Var(Var),
+
+    //TODO:
+    // FunctionCall {},
 
     /// A Table `{...}`.
     Table(TableValue),

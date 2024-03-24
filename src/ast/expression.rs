@@ -26,7 +26,13 @@ impl HasRawValue for ExpressionInner {
             ExpressionInner::Number(value) => value.get_raw_value(),
             ExpressionInner::String(value) => value.get_raw_value(),
             ExpressionInner::Function(value) => value.get_raw_value(),
-            ExpressionInner::Prefixexp => todo!(),
+            #[allow(unused)] //TODO: Remove.
+            ExpressionInner::ExpressionWrap {
+                opening_brackets,
+                expression,
+                closing_brackets,
+            } => todo!(),
+            ExpressionInner::Var(_) => todo!(),
             ExpressionInner::Table(value) => value.get_raw_value(),
             ExpressionInner::UnaryExpression {
                 operator,
@@ -135,9 +141,13 @@ impl ExpressionInner {
                         ))),
                     })))
                 }
-                "var" => todo!(),
-                "functionCall" => todo!(),
-                "exp_wrap" => todo!(),
+                "var" => todo!("Finding other variables isn't done yet."),
+                "functionCall" => todo!("Finding other variables isn't done yet."),
+                "exp_wrap" => values.push(Arc::new(ExpressionInner::ExpressionWrap {
+                    opening_brackets: SingleToken::from((node.child(0).unwrap(), code_bytes)),
+                    expression: Arc::new(Expression::from((node.child(1).unwrap(), code_bytes))),
+                    closing_brackets: SingleToken::from((node.child(2).unwrap(), code_bytes)),
+                })),
                 "table" => {
                     let mut index = 0;
                     let field_list = node.child_by_field_name("fieldList").unwrap();
