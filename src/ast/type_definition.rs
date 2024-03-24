@@ -183,12 +183,11 @@ pub fn build_function_returns(node: Node, code_bytes: &[u8]) -> Vec<FunctionRetu
             r#type: Arc::new(TypeDefinition::from((r#type, code_bytes, false))),
             is_variadic: false,
         })
-    } else {
-        let node = node.child_by_field_name("returns").unwrap();
-        for i in 0..node.child_count() {
+    } else if let Some(returns_node) = node.child_by_field_name("returns") {
+        for i in 0..returns_node.child_count() {
             returns.push(FunctionReturn {
                 r#type: Arc::new(TypeDefinition::from((
-                    node.child(i).unwrap(),
+                    returns_node.child(i).unwrap(),
                     code_bytes,
                     false,
                 ))),
