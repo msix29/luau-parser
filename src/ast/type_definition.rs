@@ -30,7 +30,7 @@ fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
         code_bytes,
     ));
     let closing_brackets = SingleToken::from((
-        node.child_by_field_name("opening_brackets").unwrap(),
+        node.child_by_field_name("closing_brackets").unwrap(),
         code_bytes,
     ));
 
