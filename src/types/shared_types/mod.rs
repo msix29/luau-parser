@@ -29,7 +29,7 @@ pub use type_definition::*;
 pub use value::*;
 pub use variable_declaration::*;
 
-use std::fmt::Display;
+use std::{fmt::Display, sync::Arc};
 use tree_sitter::{Node, TreeCursor};
 
 pub trait HasRawValue: Display {
@@ -68,5 +68,8 @@ pub enum Token {
 #[derive(Clone, Debug, Default)]
 pub struct Ast<'a> {
     pub uri: &'a str,
-    pub tokens: Vec<Token>,
+    pub tokens: Arc<Vec<Token>>,
 }
+
+unsafe impl Send for Ast<'_> {}
+unsafe impl Sync for Ast<'_> {}

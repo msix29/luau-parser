@@ -3,6 +3,8 @@
 //! Module containg definition for type definitions.
 //!
 
+use std::sync::Arc;
+
 use crate::prelude::Expression;
 
 use super::SingleToken;
@@ -12,13 +14,13 @@ use super::SingleToken;
 #[derive(Clone, Debug, Default)]
 pub struct TypeValue {
     /// The first value in the type, not the final type.
-    pub r#type: Box<Expression>,
+    pub r#type: Arc<Expression>,
 
     /// All types following the [main type](TypeValue::r#type) with `&` between them.
-    pub and_types: Vec<Box<TypeDefinition>>,
+    pub and_types: Vec<Arc<TypeDefinition>>,
 
     /// All types following the [main type](TypeValue::r#type) with `|` between them.
-    pub or_types: Vec<Box<TypeDefinition>>,
+    pub or_types: Vec<Arc<TypeDefinition>>,
 }
 
 /// A struct for a type definition. Holds needed data to be able to write it back as valid
@@ -43,5 +45,5 @@ pub struct TypeDefinition {
     pub equal_sign: Option<SingleToken>,
 
     /// The _[actual definition](TypeValue)_ of the type.
-    pub type_value: Box<TypeValue>,
+    pub type_value: Arc<TypeValue>,
 }

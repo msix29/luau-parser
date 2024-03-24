@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::prelude::{Expression, SingleToken, TypeDefinition};
 
 /// A possible key entry in a table. The key is usually a string, but it can be a value
@@ -29,14 +31,14 @@ pub enum TableKey {
     /// An expression, can only be used in definitions and not in types.
     Expression {
         open_square_brackets: SingleToken,
-        expression: Box<Expression>,
+        expression: Arc<Expression>,
         close_square_brackets: SingleToken,
     },
 
     /// A type definition, can only be used in other types and not definitions.
     Type {
         open_square_brackets: SingleToken,
-        r#type: Box<TypeDefinition>,
+        r#type: Arc<TypeDefinition>,
         close_square_brackets: SingleToken,
     },
 }
@@ -46,10 +48,10 @@ pub enum TableKey {
 /// only be present if this is an actual table and not type definition for the table.
 #[derive(Clone, Debug)]
 pub struct TableField {
-    pub key: Box<TableKey>,
+    pub key: Arc<TableKey>,
     pub equal_or_colon: Option<SingleToken>,
-    pub value: Option<Box<TableFieldValue>>,
-    pub r#type: Box<TypeDefinition>,
+    pub value: Option<Arc<TableFieldValue>>,
+    pub r#type: Arc<TypeDefinition>,
     pub separator: Option<SingleToken>,
 }
 
@@ -69,6 +71,6 @@ pub enum TableFieldValue {
 pub struct TableValue {
     pub opening_brackets: SingleToken,
     /// The actual _[fields](TableField)_ of the table.
-    pub fields: Box<Vec<TableField>>,
+    pub fields: Arc<Vec<TableField>>,
     pub closing_brackets: SingleToken,
 }

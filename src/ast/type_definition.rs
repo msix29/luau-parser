@@ -5,7 +5,7 @@
 //! traits for both _[type definitions](TypeDefinition)_ and _[type values](TypeValue)_.
 //!
 
-use std::fmt::Display;
+use std::{fmt::Display, sync::Arc};
 use tree_sitter::Node;
 
 use crate::prelude::{
@@ -33,14 +33,14 @@ fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
         node.child_by_field_name("opening_brackets").unwrap(),
         code_bytes,
     ));
-    
+
     let Some(fields_list) = node
         .child_by_field_name("fields")
         .map(|node| node.child(0).unwrap())
     else {
         return TableValue {
             opening_brackets,
-            fields: Box::<Vec<TableField>>::default(),
+            fields: Arc::<Vec<TableField>>::default(),
             closing_brackets,
         };
     };
@@ -51,9 +51,9 @@ fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
     match fields_list.kind() {
         "type" => {
             table_fields.push(TableField {
-                key: Box::new(TableKey::String("[number]".to_string())),
+                key: Arc::new(TableKey::String("[number]".to_string())),
                 equal_or_colon: None,
-                r#type: Box::new(TypeDefinition::from((fields_list, code_bytes, false))),
+                r#type: Arc::new(TypeDefinition::from((fields_list, code_bytes, false))),
                 value: None,
                 separator: None,
             });
@@ -70,7 +70,7 @@ fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
                 match field.kind() {
                     "tableProperty" => {
                         table_fields.push(TableField {
-                            key: Box::new(TableKey::String(
+                            key: Arc::new(TableKey::String(
                                 field
                                     .child(0)
                                     .unwrap()
@@ -82,7 +82,7 @@ fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
                                 field.child(1).unwrap(),
                                 code_bytes,
                             ))),
-                            r#type: Box::new(TypeDefinition::from((
+                            r#type: Arc::new(TypeDefinition::from((
                                 field.child(2).unwrap(),
                                 code_bytes,
                                 false,
@@ -93,12 +93,12 @@ fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
                     }
                     "tableIndexer" => {
                         table_fields.push(TableField {
-                            key: Box::new(TableKey::Type {
+                            key: Arc::new(TableKey::Type {
                                 open_square_brackets: SingleToken::from((
                                     field.child(0).unwrap(),
                                     code_bytes,
                                 )),
-                                r#type: Box::new(TypeDefinition::from((
+                                r#type: Arc::new(TypeDefinition::from((
                                     field.child(1).unwrap(),
                                     code_bytes,
                                     false,
@@ -112,7 +112,7 @@ fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
                                 field.child(3).unwrap(),
                                 code_bytes,
                             ))),
-                            r#type: Box::new(TypeDefinition::from((
+                            r#type: Arc::new(TypeDefinition::from((
                                 field.child(4).unwrap(),
                                 code_bytes,
                                 false,
@@ -130,7 +130,7 @@ fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
 
     TableValue {
         opening_brackets,
-        fields: Box::new(table_fields),
+        fields: Arc::new(table_fields),
         closing_brackets,
     }
 }
@@ -147,7 +147,7 @@ fn build_function_parameters(node: Node, code_bytes: &[u8]) -> Vec<FunctionParam
                 is_variadic: false,
                 r#type: normalized_name
                     .r#type
-                    .unwrap_or(Box::<TypeDefinition>::default()),
+                    .unwrap_or(Arc::<TypeDefinition>::default()),
             });
         }
     }
@@ -162,7 +162,7 @@ fn build_function_returns(node: Node, code_bytes: &[u8]) -> Vec<FunctionReturn> 
         "(" => {
             for i in 0..node.child_count() {
                 returns.push(FunctionReturn {
-                    r#type: Box::new(TypeDefinition::from((
+                    r#type: Arc::new(TypeDefinition::from((
                         node.child(i).unwrap(),
                         code_bytes,
                         false,
@@ -172,7 +172,7 @@ fn build_function_returns(node: Node, code_bytes: &[u8]) -> Vec<FunctionReturn> 
             }
         }
         "type" => returns.push(FunctionReturn {
-            r#type: Box::new(TypeDefinition::from((node, code_bytes, false))),
+            r#type: Arc::new(TypeDefinition::from((node, code_bytes, false))),
             is_variadic: false,
         }),
         _ => (),
@@ -189,8 +189,8 @@ fn build_function_type(node: Node, code_bytes: &[u8]) -> FunctionValue {
     };
 
     FunctionValue {
-        parameters: Box::new(parameters),
-        returns: Box::new(build_function_returns(
+        parameters: Arc::new(parameters),
+        returns: Arc::new(build_function_returns(
             node.child_by_field_name("returns")
                 .unwrap()
                 .child(0)
@@ -251,7 +251,7 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
     fn from((node, code_bytes): (Node<'_>, &[u8])) -> Self {
         //TODO: & and | types.
         TypeValue {
-            r#type: Box::new(Expression::from((
+            r#type: Arc::new(Expression::from((
                 node,
                 from_simple_type(node, code_bytes),
                 code_bytes,
@@ -263,7 +263,7 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
 impl From<&str> for TypeValue {
     fn from(name: &str) -> Self {
         TypeValue {
-            r#type: Box::new(ExpressionInner::from(name).into()),
+            r#type: Arc::new(ExpressionInner::from(name).into()),
             ..Default::default()
         }
     }
@@ -271,15 +271,15 @@ impl From<&str> for TypeValue {
 impl From<ExpressionInner> for TypeValue {
     fn from(value: ExpressionInner) -> Self {
         TypeValue {
-            r#type: Box::new(value.into()),
+            r#type: Arc::new(value.into()),
             ..Default::default()
         }
     }
 }
-impl From<Box<ExpressionInner>> for TypeValue {
-    fn from(value: Box<ExpressionInner>) -> Self {
+impl From<Arc<ExpressionInner>> for TypeValue {
+    fn from(value: Arc<ExpressionInner>) -> Self {
         TypeValue {
-            r#type: Box::new(value.into()),
+            r#type: Arc::new(Expression::from(value.clone())),
             ..Default::default()
         }
     }
@@ -292,7 +292,7 @@ impl Default for TypeDefinition {
             type_keyword: None,
             type_name: "any".to_string(),
             equal_sign: None,
-            type_value: Box::<TypeValue>::default(),
+            type_value: Arc::<TypeValue>::default(),
         }
     }
 }
@@ -356,7 +356,7 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
                 equal_sign: node
                     .child_by_field_name("equal")
                     .map(|node| SingleToken::from((node, code_bytes))),
-                type_value: Box::new(TypeValue::from((
+                type_value: Arc::new(TypeValue::from((
                     node.child_by_field_name("type").unwrap(),
                     code_bytes,
                 ))),
@@ -367,7 +367,7 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
                 type_keyword: None,
                 type_name: "".to_string(),
                 equal_sign: None,
-                type_value: Box::new(TypeValue::from((node, code_bytes))),
+                type_value: Arc::new(TypeValue::from((node, code_bytes))),
             }
         }
     }
@@ -380,7 +380,7 @@ impl From<&str> for TypeDefinition {
             type_keyword: None,
             type_name: type_name.to_string(),
             equal_sign: None,
-            type_value: Box::new(TypeValue::from(type_name)),
+            type_value: Arc::new(TypeValue::from(type_name)),
         }
     }
 }
@@ -392,19 +392,19 @@ impl From<ExpressionInner> for TypeDefinition {
             type_keyword: None,
             type_name: "".to_string(),
             equal_sign: None,
-            type_value: Box::new(TypeValue::from(value)),
+            type_value: Arc::new(TypeValue::from(value)),
         }
     }
 }
 
-impl From<Box<ExpressionInner>> for TypeDefinition {
-    fn from(value: Box<ExpressionInner>) -> Self {
+impl From<Arc<ExpressionInner>> for TypeDefinition {
+    fn from(value: Arc<ExpressionInner>) -> Self {
         TypeDefinition {
             export_keyword: None,
             type_keyword: None,
             type_name: "".to_string(),
             equal_sign: None,
-            type_value: Box::from(TypeValue::from(value)),
+            type_value: Arc::from(TypeValue::from(value)),
         }
     }
 }

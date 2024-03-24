@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use super::{Expression, NormalizedName, SingleToken};
 
 /// A struct holding data for variable declarations.
@@ -7,12 +9,12 @@ pub struct VariableDeclaration {
     pub local_token: Option<SingleToken>,
 
     /// The name of the variable.
-    pub variable_name: Box<NormalizedName>,
+    pub variable_name: Arc<NormalizedName>,
 
     /// The `=`.
     pub equal_token: Option<SingleToken>,
 
     /// The _[expression](Expression)_ of the variable. This may be an empty string if this
     /// value was returned from a function.
-    pub variable_value: Box<Expression>,
+    pub variable_value: Arc<Expression>,
 }

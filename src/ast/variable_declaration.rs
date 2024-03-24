@@ -1,6 +1,6 @@
 //! Implements helper trait for _[variable declarations](VariableDeclaration)_.
 
-use std::fmt::Display;
+use std::{fmt::Display, sync::Arc};
 use tree_sitter::{Node, TreeCursor};
 
 use crate::prelude::{
@@ -75,7 +75,7 @@ impl AstNode for VariableDeclaration {
             let expression = if let Some(expression) = expressions.get(i) {
                 expression.clone()
             } else {
-                Box::new(ExpressionInner::from("nil"))
+                Arc::new(ExpressionInner::from("nil"))
             };
 
             variables.push(VariableDeclaration {
@@ -92,8 +92,8 @@ impl AstNode for VariableDeclaration {
                 } else {
                     None
                 },
-                variable_name: Box::new(NormalizedName::from((binding.child(0).unwrap(), code_bytes))),
-                variable_value: Box::new(expression.into()),
+                variable_name: Arc::new(NormalizedName::from((binding.child(0).unwrap(), code_bytes))),
+                variable_value: Arc::new(expression.into()),
             });
         }
         Some(variables)

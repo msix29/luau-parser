@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use super::{FunctionValue, SimpleValue, SingleToken, TableValue, TypeDefinition};
 
 #[derive(Clone, Debug)]
@@ -11,25 +13,25 @@ pub enum ExpressionInner {
     Table(TableValue),
     UnaryExpression {
         operator: SingleToken,
-        expression: Box<Expression>,
+        expression: Arc<Expression>,
     },
     BinaryExpression {
-        left: Box<Expression>,
+        left: Arc<Expression>,
         operator: SingleToken,
-        right: Box<Expression>,
+        right: Arc<Expression>,
     },
     Cast {
-        expression: Box<Expression>,
+        expression: Arc<Expression>,
         operator: SingleToken,
-        cast_to: Box<TypeDefinition>,
+        cast_to: Arc<TypeDefinition>,
     },
     IfExpression {
         if_token: SingleToken,
-        condition: Box<Expression>,
+        condition: Arc<Expression>,
         then_token: SingleToken,
-        else_if_expressions: Box<Vec<ElseIfExpression>>,
+        else_if_expressions: Arc<Vec<ElseIfExpression>>,
         else_token: SingleToken,
-        else_expression: Box<Expression>,
+        else_expression: Arc<Expression>,
     },
 }
 
@@ -42,14 +44,14 @@ impl Default for ExpressionInner {
 #[derive(Clone, Debug)]
 pub struct ElseIfExpression {
     pub else_if_token: SingleToken,
-    pub condition: Box<Expression>,
+    pub condition: Arc<Expression>,
     pub then_token: SingleToken,
-    pub expression: Box<Expression>,
+    pub expression: Arc<Expression>,
 }
 
 #[derive(Clone, Debug, Default)]
 pub struct Expression {
     pub spaces_before: String,
-    pub inner: Box<ExpressionInner>,
+    pub inner: Arc<ExpressionInner>,
     pub spaces_after: String,
 }

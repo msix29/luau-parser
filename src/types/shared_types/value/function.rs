@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::prelude::TypeDefinition;
 
 /// A single parameter that a function accepts.
@@ -7,7 +9,7 @@ pub struct FunctionParameter {
     pub name: String,
 
     /// The _[type](TypeDefinition)_ of the parameter.
-    pub r#type: Box<TypeDefinition>,
+    pub r#type: Arc<TypeDefinition>,
 
     /// Whether or not this parameter is variadic.
     pub is_variadic: bool,
@@ -17,7 +19,7 @@ pub struct FunctionParameter {
 #[derive(Clone, Debug)]
 pub struct FunctionReturn {
     /// The _[type](TypeDefinition)_ of the return.
-    pub r#type: Box<TypeDefinition>,
+    pub r#type: Arc<TypeDefinition>,
 
     /// Whether or not this return is variadic.
     pub is_variadic: bool,
@@ -27,8 +29,8 @@ pub struct FunctionReturn {
 #[derive(Clone, Debug)]
 pub struct FunctionValue {
     /// All _[parameters](FunctionParameter)_ of the function.
-    pub parameters: Box<Vec<FunctionParameter>>,
+    pub parameters: Arc<Vec<FunctionParameter>>,
 
     /// All _[returns](FunctionReturn)_ of the function
-    pub returns: Box<Vec<FunctionReturn>>,
+    pub returns: Arc<Vec<FunctionReturn>>,
 }

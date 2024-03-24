@@ -2,6 +2,7 @@
 use std::collections::HashMap;
 #[cfg(not(feature = "cache"))]
 use std::marker::PhantomData;
+use std::sync::Arc;
 
 use tree_sitter::Node;
 #[cfg(feature = "cache")]
@@ -33,7 +34,7 @@ pub struct Parser<'a> {
     _unused: PhantomData<Ast<'a>>,
 }
 
-impl Parser<'_> {
+impl<'a> Parser<'a> {
     pub fn new() -> Self {
         Parser {
             #[cfg(feature = "cache")]
@@ -44,14 +45,14 @@ impl Parser<'_> {
     }
 
     /// Parses Luau code into an AST.
-    pub fn parse(&mut self, code: &str, #[cfg(feature = "cache")] uri: &str) -> Ast<'_> {
+    pub fn parse(&mut self, code: &str, #[cfg(feature = "cache")] uri: &'a str) -> Ast<'_> {
         let mut parser = tree_sitter::Parser::new();
         parser
             .set_language(&tree_sitter_luau::language())
             .expect("Error loading Luau grammar");
         let tree = parser.parse(code, None).unwrap();
 
-        let mut ast = Ast::default();
+        let mut tokens = Vec::default();
         let code_bytes = code.as_bytes();
 
         let root = tree.root_node();
@@ -62,7 +63,7 @@ impl Parser<'_> {
             if let Some(variable_declarations) =
                 VariableDeclaration::try_from_node(node, &mut cursor, code_bytes)
             {
-                ast.tokens.extend(
+                tokens.extend(
                     variable_declarations
                         .iter()
                         .map(|v| Token::VariableDeclaration(v.clone())),
@@ -71,7 +72,7 @@ impl Parser<'_> {
             } else if let Some(mut type_declarations) =
                 TypeDefinition::try_from_node(node, &mut cursor, code_bytes)
             {
-                ast.tokens.extend(
+                tokens.extend(
                     type_declarations
                         .iter_mut()
                         .map(|v| Token::TypeDefinition(v.clone())),
@@ -89,10 +90,16 @@ impl Parser<'_> {
         println!("{}", &root.to_sexp());
         drop(cursor);
 
+        let ast = Ast {
+            tokens: Arc::new(tokens),
+            uri,
+        };
+
         #[cfg(feature = "cache")]
         {
             let uri = uri.to_string();
             self.cache.insert(uri.to_string(), (ast, tree));
+
             return self.cache.get(&uri).unwrap().0.to_owned();
         }
 

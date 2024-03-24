@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::{fmt::Display, sync::Arc};
 
 use tree_sitter::Node;
 
@@ -89,22 +89,22 @@ impl ExpressionInner {
     pub fn from_nodes<'a>(
         nodes_iter: impl Iterator<Item = Node<'a>>,
         code_bytes: &[u8],
-    ) -> Vec<Box<ExpressionInner>> {
+    ) -> Vec<Arc<ExpressionInner>> {
         let mut values = Vec::new();
 
         for node in nodes_iter {
             match node.kind() {
-                "nil" => values.push(Box::new(ExpressionInner::from("nil"))),
-                "boolean" => values.push(Box::new(ExpressionInner::from(
+                "nil" => values.push(Arc::new(ExpressionInner::from("nil"))),
+                "boolean" => values.push(Arc::new(ExpressionInner::from(
                     node.utf8_text(code_bytes).unwrap(),
                 ))),
-                "number" => values.push(Box::new(ExpressionInner::from(
+                "number" => values.push(Arc::new(ExpressionInner::from(
                     node.utf8_text(code_bytes).unwrap(),
                 ))),
-                "string" => values.push(Box::new(ExpressionInner::from(
+                "string" => values.push(Arc::new(ExpressionInner::from(
                     node.utf8_text(code_bytes).unwrap(),
                 ))),
-                "string_interp" => values.push(Box::new(ExpressionInner::from(
+                "string_interp" => values.push(Arc::new(ExpressionInner::from(
                     node.utf8_text(code_bytes).unwrap(),
                 ))),
                 "anon_fn" => todo!(),
@@ -116,12 +116,12 @@ impl ExpressionInner {
                         .children_by_field_name("sep", &mut node.walk())
                         .collect::<Vec<Node>>();
 
-                    values.push(Box::new(ExpressionInner::Table(TableValue {
+                    values.push(Arc::new(ExpressionInner::Table(TableValue {
                         opening_brackets: SingleToken::from((
                             node.child_by_field_name("opening_brackets").unwrap(),
                             code_bytes,
                         )),
-                        fields: Box::new(
+                        fields: Arc::new(
                             field_list
                                 .children_by_field_name("field", &mut node.walk())
                                 .enumerate()
@@ -137,7 +137,7 @@ impl ExpressionInner {
                                                 key.prev_sibling().unwrap(),
                                                 code_bytes,
                                             )),
-                                            expression: Box::new(Expression::from((
+                                            expression: Arc::new(Expression::from((
                                                 key, code_bytes,
                                             ))),
                                             close_square_brackets: SingleToken::from((
@@ -154,12 +154,12 @@ impl ExpressionInner {
                                         code_bytes,
                                     ));
                                     TableField {
-                                        key: Box::new(key),
+                                        key: Arc::new(key),
                                         equal_or_colon: node
                                             .child_by_field_name("equal")
                                             .map(|node| SingleToken::from((node, code_bytes))),
-                                        r#type: Box::new(TypeDefinition::from(value.inner.clone())),
-                                        value: Some(Box::new(TableFieldValue::Expression(value))),
+                                        r#type: Arc::new(TypeDefinition::from(value.inner.clone())),
+                                        value: Some(Arc::new(TableFieldValue::Expression(value))),
                                         separator: separators
                                             .get(i)
                                             .map(|node| SingleToken::from((*node, code_bytes))),
@@ -173,18 +173,18 @@ impl ExpressionInner {
                         )),
                     })));
                 }
-                "unexp" => values.push(Box::new(ExpressionInner::UnaryExpression {
+                "unexp" => values.push(Arc::new(ExpressionInner::UnaryExpression {
                     operator: SingleToken::from((
                         node.child_by_field_name("op").unwrap(),
                         code_bytes,
                     )),
-                    expression: Box::new(Expression::from((
+                    expression: Arc::new(Expression::from((
                         node.child_by_field_name("arg").unwrap(),
                         code_bytes,
                     ))),
                 })),
-                "binexp" => values.push(Box::new(ExpressionInner::BinaryExpression {
-                    left: Box::new(Expression::from((
+                "binexp" => values.push(Arc::new(ExpressionInner::BinaryExpression {
+                    left: Arc::new(Expression::from((
                         node.child_by_field_name("arg0").unwrap(),
                         code_bytes,
                     ))),
@@ -192,7 +192,7 @@ impl ExpressionInner {
                         node.child_by_field_name("op").unwrap(),
                         code_bytes,
                     )),
-                    right: Box::new(Expression::from((
+                    right: Arc::new(Expression::from((
                         node.child_by_field_name("arg1").unwrap(),
                         code_bytes,
                     ))),
@@ -200,9 +200,9 @@ impl ExpressionInner {
                 "cast" => {
                     let mut cursor = node.walk();
                     let result = node.children_by_field_name("arg", &mut cursor).map(|node| {
-                        Box::new(ExpressionInner::Cast {
-                            expression: Box::new(Expression::from((node, code_bytes))),
-                            cast_to: Box::new(TypeDefinition::from((
+                        Arc::new(ExpressionInner::Cast {
+                            expression: Arc::new(Expression::from((node, code_bytes))),
+                            cast_to: Arc::new(TypeDefinition::from((
                                 node.child_by_field_name("cast").unwrap(),
                                 code_bytes,
                                 false,
@@ -215,24 +215,24 @@ impl ExpressionInner {
                     });
                     values.extend(result);
                 }
-                "ifexp" => values.push(Box::new(ExpressionInner::IfExpression {
+                "ifexp" => values.push(Arc::new(ExpressionInner::IfExpression {
                     if_token: SingleToken::from((node.child(0).unwrap(), code_bytes)),
-                    condition: Box::new(Expression::from((node.child(1).unwrap(), code_bytes))),
+                    condition: Arc::new(Expression::from((node.child(1).unwrap(), code_bytes))),
                     then_token: SingleToken::from((node.child(2).unwrap(), code_bytes)),
 
-                    else_if_expressions: Box::new(
+                    else_if_expressions: Arc::new(
                         node.children_by_field_name("elseif", &mut node.walk())
                             .map(|node| ElseIfExpression {
                                 else_if_token: SingleToken::from((
                                     node.child(0).unwrap(),
                                     code_bytes,
                                 )),
-                                condition: Box::new(Expression::from((
+                                condition: Arc::new(Expression::from((
                                     node.child(1).unwrap(),
                                     code_bytes,
                                 ))),
                                 then_token: SingleToken::from((node.child(2).unwrap(), code_bytes)),
-                                expression: Box::new(Expression::from((
+                                expression: Arc::new(Expression::from((
                                     node.child(3).unwrap(),
                                     code_bytes,
                                 ))),
@@ -244,7 +244,7 @@ impl ExpressionInner {
                         node.child_by_field_name("else").unwrap(),
                         code_bytes,
                     )),
-                    else_expression: Box::new(Expression::from((
+                    else_expression: Arc::new(Expression::from((
                         node.child_by_field_name("elseExpression").unwrap(),
                         code_bytes,
                     ))),
@@ -279,7 +279,7 @@ impl From<(Node<'_>, &[u8])> for ExpressionInner {
                         node.child_by_field_name("opening_brackets").unwrap(),
                         code_bytes,
                     )),
-                    fields: Box::new(
+                    fields: Arc::new(
                         field_list
                             .children_by_field_name("field", &mut node.walk())
                             .enumerate()
@@ -292,7 +292,7 @@ impl From<(Node<'_>, &[u8])> for ExpressionInner {
                                             key.prev_sibling().unwrap(),
                                             code_bytes,
                                         )),
-                                        expression: Box::new(Expression::from((key, code_bytes))),
+                                        expression: Arc::new(Expression::from((key, code_bytes))),
                                         close_square_brackets: SingleToken::from((
                                             key.next_sibling().unwrap(),
                                             code_bytes,
@@ -309,12 +309,12 @@ impl From<(Node<'_>, &[u8])> for ExpressionInner {
                                 ));
 
                                 TableField {
-                                    key: Box::new(key),
+                                    key: Arc::new(key),
                                     equal_or_colon: node
                                         .child_by_field_name("equal")
                                         .map(|node| SingleToken::from((node, code_bytes))),
-                                    r#type: Box::new(TypeDefinition::from(value.inner.clone())),
-                                    value: Some(Box::new(TableFieldValue::Expression(value))),
+                                    r#type: Arc::new(TypeDefinition::from(value.inner.clone())),
+                                    value: Some(Arc::new(TableFieldValue::Expression(value))),
                                     separator: separators
                                         .get(i)
                                         .map(|node| SingleToken::from((*node, code_bytes))),
@@ -334,7 +334,7 @@ impl From<(Node<'_>, &[u8])> for ExpressionInner {
                         node.child_by_field_name("op").unwrap(),
                         code_bytes,
                     )),
-                    expression: Box::new(Expression::from((
+                    expression: Arc::new(Expression::from((
                         node.child_by_field_name("arg").unwrap(),
                         code_bytes,
                     ))),
@@ -342,7 +342,7 @@ impl From<(Node<'_>, &[u8])> for ExpressionInner {
             }
             "binexp" => {
                 return ExpressionInner::BinaryExpression {
-                    left: Box::new(Expression::from((
+                    left: Arc::new(Expression::from((
                         node.child_by_field_name("arg0").unwrap(),
                         code_bytes,
                     ))),
@@ -350,7 +350,7 @@ impl From<(Node<'_>, &[u8])> for ExpressionInner {
                         node.child_by_field_name("op").unwrap(),
                         code_bytes,
                     )),
-                    right: Box::new(Expression::from((
+                    right: Arc::new(Expression::from((
                         node.child_by_field_name("arg1").unwrap(),
                         code_bytes,
                     ))),
@@ -360,8 +360,8 @@ impl From<(Node<'_>, &[u8])> for ExpressionInner {
                 let arg = node.child_by_field_name("arg").unwrap();
 
                 ExpressionInner::Cast {
-                    expression: Box::new(Expression::from((arg, code_bytes))),
-                    cast_to: Box::new(TypeDefinition::from((
+                    expression: Arc::new(Expression::from((arg, code_bytes))),
+                    cast_to: Arc::new(TypeDefinition::from((
                         node.child_by_field_name("cast").unwrap(),
                         code_bytes,
                         false,
@@ -375,22 +375,22 @@ impl From<(Node<'_>, &[u8])> for ExpressionInner {
             "ifexp" => {
                 return ExpressionInner::IfExpression {
                     if_token: SingleToken::from((node.child(0).unwrap(), code_bytes)),
-                    condition: Box::new(Expression::from((node.child(1).unwrap(), code_bytes))),
+                    condition: Arc::new(Expression::from((node.child(1).unwrap(), code_bytes))),
                     then_token: SingleToken::from((node.child(2).unwrap(), code_bytes)),
 
-                    else_if_expressions: Box::new(
+                    else_if_expressions: Arc::new(
                         node.children_by_field_name("elseif", &mut node.walk())
                             .map(|node| ElseIfExpression {
                                 else_if_token: SingleToken::from((
                                     node.child(0).unwrap(),
                                     code_bytes,
                                 )),
-                                condition: Box::new(Expression::from((
+                                condition: Arc::new(Expression::from((
                                     node.child(1).unwrap(),
                                     code_bytes,
                                 ))),
                                 then_token: SingleToken::from((node.child(2).unwrap(), code_bytes)),
-                                expression: Box::new(Expression::from((
+                                expression: Arc::new(Expression::from((
                                     node.child(3).unwrap(),
                                     code_bytes,
                                 ))),
@@ -402,7 +402,7 @@ impl From<(Node<'_>, &[u8])> for ExpressionInner {
                         node.child_by_field_name("else").unwrap(),
                         code_bytes,
                     )),
-                    else_expression: Box::new(Expression::from((
+                    else_expression: Arc::new(Expression::from((
                         node.child_by_field_name("elseExpression").unwrap(),
                         code_bytes,
                     ))),
@@ -419,7 +419,7 @@ impl From<(Node<'_>, &[u8])> for Expression {
 
         Self {
             spaces_before,
-            inner: Box::new(ExpressionInner::from((node, code_bytes))),
+            inner: Arc::new(ExpressionInner::from((node, code_bytes))),
             spaces_after,
         }
     }
@@ -430,7 +430,7 @@ impl From<(Node<'_>, ExpressionInner, &[u8])> for Expression {
 
         Self {
             spaces_before,
-            inner: Box::new(expression_inner),
+            inner: Arc::new(expression_inner),
             spaces_after,
         }
     }
@@ -438,13 +438,13 @@ impl From<(Node<'_>, ExpressionInner, &[u8])> for Expression {
 impl From<ExpressionInner> for Expression {
     fn from(expression_inner: ExpressionInner) -> Self {
         Self {
-            inner: Box::new(expression_inner),
+            inner: Arc::new(expression_inner),
             ..Default::default()
         }
     }
 }
-impl From<Box<ExpressionInner>> for Expression {
-    fn from(expression_inner: Box<ExpressionInner>) -> Self {
+impl From<Arc<ExpressionInner>> for Expression {
+    fn from(expression_inner: Arc<ExpressionInner>) -> Self {
         Self {
             inner: expression_inner,
             ..Default::default()
