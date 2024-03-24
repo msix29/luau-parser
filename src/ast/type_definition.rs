@@ -419,19 +419,6 @@ impl From<(&str, Node<'_>)> for TypeDefinition {
     }
 }
 
-impl From<ExpressionInner> for TypeDefinition {
-    fn from(value: ExpressionInner) -> Self {
-        TypeDefinition {
-            export_keyword: None,
-            type_keyword: None,
-            type_name: "".to_string(),
-            equal_sign: None,
-            type_value: Arc::new(TypeValue::from(value)),
-            name_location: None,
-        }
-    }
-}
-
 impl From<(Arc<ExpressionInner>, Node<'_>)> for TypeDefinition {
     fn from((value, node): (Arc<ExpressionInner>, Node<'_>)) -> Self {
         TypeDefinition {
