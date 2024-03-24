@@ -27,8 +27,12 @@ pub struct TypeValue {
 /// luau.
 #[derive(Clone, Debug)]
 pub struct TypeDefinition {
+    /// The `export` keyword.
     pub export_keyword: Option<SingleToken>,
+
+    /// The `type` keyword.
     pub type_keyword: Option<SingleToken>,
+
     /// The name of the type. Will always be an empty string if this is a type with no
     /// prior definition, like:
     ///
@@ -42,6 +46,7 @@ pub struct TypeDefinition {
     /// In the 3 cases (`foo`, `bar`, and `qux`), they all have types with no names.
     pub type_name: String,
 
+    /// The `=` sign between the name and the actual value of the type.
     pub equal_sign: Option<SingleToken>,
 
     /// The _[actual definition](TypeValue)_ of the type.

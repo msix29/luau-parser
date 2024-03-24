@@ -32,10 +32,14 @@ pub use variable_declaration::*;
 use std::{fmt::Display, sync::Arc};
 use tree_sitter::{Node, TreeCursor};
 
+/// A trait for a token that can be represented in a more abstract form for the user to see,
+/// without maintaing original styling.
 pub trait HasRawValue: Display {
+    /// Get the lossy _raw value_ of this token. For lossless, see _[print](Print)_.
     fn get_raw_value(&self) -> String;
 }
 
+/// A trait to print the token as-is, while preserving all user spaces and styling.
 pub trait Print: Display {
     /// Prints the whole token including all surrounding spaces.
     fn print(&self) -> String;
@@ -47,7 +51,17 @@ pub trait Print: Display {
     fn print_leading(&self) -> String;
 }
 
-pub trait AstNode: HasRawValue + Sized {
+/// A trait to tell Rust that this item is an `AstNode`.
+pub trait AstNode: HasRawValue /* + Print */ + Sized {
+    /// Try creating this _[ast node](AstNode)_ from a _[treesitter node](Node)_. This
+    /// returns a `Vec<Self>` instead of `Self` as
+    /// _[variable declarations](VariableDeclaration)_ can be chained like:
+    ///
+    /// ```lua
+    /// local foo, bar, qux
+    /// ```
+    ///
+    /// For all other tokens, you are guaranteed that `vec.len() == 1`.
     fn try_from_node<'a>(
         node: Node<'a>,
         cursor: &mut TreeCursor<'a>,
@@ -55,19 +69,44 @@ pub trait AstNode: HasRawValue + Sized {
     ) -> Option<Vec<Self>>;
 }
 
+/// A trait for letting the compiler know that this _[ast node](AstNode)_ has a location
+/// that the user can interact with. Nodes creating new scapes like if statements don't
+/// have a location, while a function does as it's treated just like a variable.
 pub trait HasLocation: AstNode {
     fn get_location(&self) -> Location;
 }
 
+/// All possible tokens in an _[ast](Ast)_.
 #[derive(Clone, Debug)]
 pub enum Token {
+    /// A variable declaration.
+    ///
+    /// ```lua
+    /// local foo = bar
+    /// local bar = function()
+    /// end
+    /// local qux = {}
+    /// ```
     VariableDeclaration(VariableDeclaration),
+
+    /// A type definition.
+    ///
+    /// ```lua
+    /// type Foo = Bar<string, number>
+    /// export type Bar<P, R> = (param: P) -> R
+    /// type qux = {}
+    /// ```
     TypeDefinition(TypeDefinition),
 }
 
+/// A struct representing a scope in a file. This ast is lossless, meaning it can be
+/// printed back to the code it was created from without losing any details.
 #[derive(Clone, Debug, Default)]
 pub struct Ast {
+    /// The path pointing to the file that this _[ast](Ast)_ represents, if any.
     pub uri: Option<String>,
+
+    /// The tokens in the **main scope** of this file.
     pub tokens: Arc<Vec<Token>>,
 }
 

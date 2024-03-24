@@ -30,15 +30,25 @@ pub enum TableKey {
 
     /// An expression, can only be used in definitions and not in types.
     Expression {
+        /// The `[` character.
         open_square_brackets: SingleToken,
+
+        /// The actual expression between the `[...]`.
         expression: Arc<Expression>,
+
+        /// The `]` character.
         close_square_brackets: SingleToken,
     },
 
     /// A type definition, can only be used in other types and not definitions.
     Type {
+        /// The `[` character.
         open_square_brackets: SingleToken,
+
+        /// The actual type between the `[...]`.
         r#type: Arc<TypeDefinition>,
+
+        /// The `]` character.
         close_square_brackets: SingleToken,
     },
 }
@@ -48,10 +58,20 @@ pub enum TableKey {
 /// only be present if this is an actual table and not type definition for the table.
 #[derive(Clone, Debug)]
 pub struct TableField {
+    /// The key of this field.
     pub key: Arc<TableKey>,
+
+    /// The `=` or `:` tokens, it's `=` in variables and `:` in types.
     pub equal_or_colon: Option<SingleToken>,
+
+    /// The value of the variable, only exists if this table is a variable.
     pub value: Option<Arc<TableFieldValue>>,
+
+    /// The type of this field, this is always present regardless of the field type.
     pub r#type: Arc<TypeDefinition>,
+
+    /// The (optional) separator between the current field and the next, this is always
+    /// `Some` except if the user didn't add a trailing `,` or `;` with the last field.
     pub separator: Option<SingleToken>,
 }
 
@@ -62,15 +82,19 @@ pub enum TableFieldValue {
     /// only.
     Expression(Expression),
 
-    /// A _[type](TypeDefinition)_, can be found in tyepe definitions only.
+    /// A _[type](TypeDefinition)_, can be found in type definitions only.
     Type(TypeDefinition),
 }
 
 /// Struct for table _[expression](Expression)_ enum.
 #[derive(Clone, Debug)]
 pub struct TableValue {
+    /// The `{` character.
     pub opening_brackets: SingleToken,
+
     /// The actual _[fields](TableField)_ of the table.
     pub fields: Arc<Vec<TableField>>,
+
+    // The `}` character.
     pub closing_brackets: SingleToken,
 }
