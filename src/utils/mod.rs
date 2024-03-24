@@ -1,5 +1,7 @@
 use tree_sitter::Node;
 
+use crate::prelude::{Location, Position};
+
 fn get_text_from_bytes(bytes: &[u8], start: usize, end: usize) -> String {
     std::str::from_utf8(&bytes[start..end]).unwrap().to_string()
 }
@@ -30,4 +32,20 @@ pub fn get_spaces(node: Node, code_bytes: &[u8]) -> (String, String) {
     };
 
     (before.to_string(), after.to_string())
+}
+
+pub fn get_location(node: Node) -> Location {
+    let start = node.start_position();
+    let end = node.end_position();
+
+    Location {
+        start: Position {
+            character: start.column as u16,
+            line: start.row as u16,
+        },
+        end: Position {
+            line: end.row as u16,
+            character: end.column as u16,
+        },
+    }
 }

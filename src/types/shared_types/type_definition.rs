@@ -7,7 +7,7 @@ use std::sync::Arc;
 
 use crate::prelude::Expression;
 
-use super::SingleToken;
+use super::{Location, SingleToken};
 
 /// A struct holding values of a type, including it's `&` and `|` (intersection and union)
 /// types.
@@ -46,9 +46,15 @@ pub struct TypeDefinition {
     /// In the 3 cases (`foo`, `bar`, and `qux`), they all have types with no names.
     pub type_name: String,
 
+    /// Exact location of the type name.
+    pub name_location: Option<Location>,
+
     /// The `=` sign between the name and the actual value of the type.
     pub equal_sign: Option<SingleToken>,
 
     /// The _[actual definition](TypeValue)_ of the type.
     pub type_value: Arc<TypeValue>,
+
+    /// Exact location of the type definition.
+    pub location: Location,
 }

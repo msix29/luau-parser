@@ -1,3 +1,5 @@
+use super::Location;
+
 /// A struct represnting a single token, aka a single word.
 #[derive(Clone)]
 pub struct SingleToken {
@@ -9,4 +11,7 @@ pub struct SingleToken {
 
     /// All the spaces after the word.
     pub spaces_after: String,
+
+    /// Exact location of the word, excluding spaces.
+    pub location: Location,
 }

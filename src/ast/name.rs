@@ -6,7 +6,7 @@ use tree_sitter::Node;
 
 use crate::{
     prelude::{HasRawValue, NormalizedName, Print, SingleToken, TypeDefinition},
-    utils::get_spaces,
+    utils::{get_location, get_spaces},
 };
 
 impl From<(Node<'_>, &[u8])> for NormalizedName {
@@ -15,6 +15,7 @@ impl From<(Node<'_>, &[u8])> for NormalizedName {
 
         if let Some(type_node) = node.child(2) {
             NormalizedName {
+                location: get_location(node),
                 spaces_before,
                 name: node
                     .child(0)
@@ -35,6 +36,7 @@ impl From<(Node<'_>, &[u8])> for NormalizedName {
                 colon: None,
                 r#type: None,
                 spaces_after,
+                location: get_location(node),
             }
         }
     }

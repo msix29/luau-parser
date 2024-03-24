@@ -75,7 +75,7 @@ impl AstNode for VariableDeclaration {
             let expression = if let Some(expression) = expressions.get(i) {
                 expression.clone()
             } else {
-                Arc::new(ExpressionInner::from("nil"))
+                Arc::new(ExpressionInner::from(("nil", node)))
             };
 
             variables.push(VariableDeclaration {
@@ -94,6 +94,7 @@ impl AstNode for VariableDeclaration {
                 },
                 variable_name: Arc::new(NormalizedName::from((binding.child(0).unwrap(), code_bytes))),
                 variable_value: Arc::new(expression.into()),
+                ..Default::default()
             });
         }
         Some(variables)

@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::prelude::{Ast, SingleToken, TypeDefinition};
+use crate::prelude::{Ast, Location, SingleToken, TypeDefinition};
 
 use super::TableKey;
 
@@ -15,6 +15,9 @@ pub struct FunctionParameter {
 
     /// Whether or not this parameter is variadic.
     pub is_variadic: bool,
+
+    /// Exact location of the parmeter
+    pub location: Location,
 }
 
 /// A single return that a function has.
@@ -25,6 +28,9 @@ pub struct FunctionReturn {
 
     /// Whether or not this return is variadic.
     pub is_variadic: bool,
+
+    /// Exact location of the return.
+    pub location: Location,
 }
 
 /// A struct representing a function name.
@@ -148,6 +154,12 @@ pub struct FunctionValue {
 
     /// The actual name of the function.
     pub function_name: FunctionName,
+
+    /// Exact location of the node.
+    pub location: Location,
+
+    /// Exact location of the function's name node (if any).
+    pub name_location: Option<Location>,
 
     /// All _[parameters](FunctionParameter)_ of the function.
     pub parameters: Arc<Vec<FunctionParameter>>,

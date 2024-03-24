@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::prelude::{Expression, SingleToken, TypeDefinition};
+use crate::prelude::{Expression, Location, SingleToken, TypeDefinition};
 
 /// A possible key entry in a table. The key is usually a string, but it can be a value
 /// (from an expression) in tables or a type in type definitions.
@@ -61,11 +61,17 @@ pub struct TableField {
     /// The key of this field.
     pub key: Arc<TableKey>,
 
+    /// Exact location of the key. Will be `None` if the key was unspecified.
+    pub key_location: Option<Location>,
+
     /// The `=` or `:` tokens, it's `=` in variables and `:` in types.
     pub equal_or_colon: Option<SingleToken>,
 
     /// The value of the variable, only exists if this table is a variable.
     pub value: Option<Arc<TableFieldValue>>,
+
+    /// Exact location of the value.
+    pub value_location: Location,
 
     /// The type of this field, this is always present regardless of the field type.
     pub r#type: Arc<TypeDefinition>,
@@ -73,6 +79,9 @@ pub struct TableField {
     /// The (optional) separator between the current field and the next, this is always
     /// `Some` except if the user didn't add a trailing `,` or `;` with the last field.
     pub separator: Option<SingleToken>,
+
+    /// Exact location of the full field.
+    pub location: Location,
 }
 
 /// A possible value for a _[table field](TableField)_.
@@ -97,4 +106,7 @@ pub struct TableValue {
 
     // The `}` character.
     pub closing_brackets: SingleToken,
+
+    /// Exact location of the full table
+    pub location: Location,
 }

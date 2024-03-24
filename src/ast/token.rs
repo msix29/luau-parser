@@ -3,7 +3,9 @@ use std::fmt::{Debug, Display};
 use tree_sitter::Node;
 
 use crate::{
-    impl_print, prelude::{HasRawValue, SingleToken}, utils::get_spaces
+    impl_print,
+    prelude::{HasRawValue, SingleToken},
+    utils::{get_location, get_spaces},
 };
 
 impl HasRawValue for SingleToken {
@@ -21,15 +23,6 @@ impl Debug for SingleToken {
         f.write_str(&format!("Word ({})", &self.get_raw_value()))
     }
 }
-impl Default for SingleToken {
-    fn default() -> Self {
-        Self {
-            spaces_before: "".to_string(),
-            word: "".to_string(),
-            spaces_after: "".to_string(),
-        }
-    }
-}
 
 impl From<(Node<'_>, &[u8])> for SingleToken {
     fn from((node, code_bytes): (Node<'_>, &[u8])) -> Self {
@@ -40,6 +33,7 @@ impl From<(Node<'_>, &[u8])> for SingleToken {
             spaces_before,
             word,
             spaces_after,
+            location: get_location(node),
         }
     }
 }

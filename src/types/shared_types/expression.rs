@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use super::{FunctionValue, SimpleValue, SingleToken, TableValue, TypeDefinition};
+use super::{FunctionValue, Location, SimpleValue, SingleToken, TableValue, TypeDefinition};
 
 #[derive(Clone, Debug)]
 pub enum Var {
@@ -149,4 +149,7 @@ pub struct Expression {
 
     /// All spaces after the expression.
     pub spaces_after: String,
+
+    /// Exact location of the node
+    pub location: Location,
 }

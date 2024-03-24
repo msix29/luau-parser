@@ -8,19 +8,22 @@
 use std::{fmt::Display, sync::Arc};
 use tree_sitter::Node;
 
-use crate::prelude::{
-    Ast, AstNode, Expression, ExpressionInner, FunctionName, FunctionParameter, FunctionReturn,
-    FunctionValue, HasRawValue, NormalizedName, SingleToken, TableField, TableKey, TableValue,
-    TypeDefinition, TypeValue,
+use crate::{
+    prelude::{
+        Ast, AstNode, Expression, ExpressionInner, FunctionName, FunctionParameter, FunctionReturn,
+        FunctionValue, HasRawValue, NormalizedName, SingleToken, TableField, TableKey, TableValue,
+        TypeDefinition, TypeValue,
+    },
+    utils::get_location,
 };
 
 fn from_singleton_type(node: Node, code_bytes: &[u8]) -> ExpressionInner {
     match node.kind() {
-        "string" => ExpressionInner::from(node.utf8_text(code_bytes).unwrap()),
-        "name" => ExpressionInner::from("<other value here>"), // TODO: Look for it.
-        "false" => ExpressionInner::from("false"),
-        "true" => ExpressionInner::from("true"),
-        _ => ExpressionInner::from("any"), // Should never be matched when done.
+        "string" => ExpressionInner::from((node.utf8_text(code_bytes).unwrap(), node)),
+        "name" => ExpressionInner::from(("<other value here>", node)), // TODO: Look for it.
+        "false" => ExpressionInner::from(("false", node)),
+        "true" => ExpressionInner::from(("true", node)),
+        _ => ExpressionInner::from(("any", node)), // Should never be matched when done.
     }
 }
 
@@ -42,6 +45,7 @@ fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
             opening_brackets,
             fields: Arc::<Vec<TableField>>::default(),
             closing_brackets,
+            location: get_location(node),
         };
     };
     let separators = fields_list
@@ -56,6 +60,9 @@ fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
                 r#type: Arc::new(TypeDefinition::from((fields_list, code_bytes, false))),
                 value: None,
                 separator: None,
+                location: get_location(node),
+                key_location: None,
+                value_location: get_location(node),
             });
         }
         "propList" => {
@@ -89,6 +96,10 @@ fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
                             ))),
                             value: None,
                             separator,
+                            //TODO
+                            location: get_location(node),
+                            key_location: Some(get_location(field.child(0).unwrap())),
+                            value_location: get_location(field.child(0).unwrap()),
                         });
                     }
                     "tableIndexer" => {
@@ -119,6 +130,10 @@ fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
                             ))),
                             value: None,
                             separator,
+                            //TODO
+                            location: get_location(node),
+                            key_location: Some(get_location(field.child(0).unwrap())),
+                            value_location: get_location(field.child(0).unwrap()),
                         });
                     }
                     _ => (),
@@ -132,6 +147,7 @@ fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
         opening_brackets,
         fields: Arc::new(table_fields),
         closing_brackets,
+        location: get_location(node),
     }
 }
 
@@ -152,12 +168,14 @@ pub fn build_function_parameters(
                 name: normalized_name.name,
                 is_variadic: false,
                 r#type,
+                location: get_location(parameter),
             });
         } else if !is_type {
             parameters.push(FunctionParameter {
                 name: normalized_name.name,
                 is_variadic: false,
-                r#type: Arc::new(TypeDefinition::from("any")),
+                r#type: Arc::new(TypeDefinition::from(("any", parameter))),
+                location: get_location(parameter),
             });
         } else {
             // Pretty sure this isn't in the spec, but if the name is missing in a type
@@ -167,7 +185,11 @@ pub fn build_function_parameters(
             parameters.push(FunctionParameter {
                 name: "_".to_string(),
                 is_variadic: false,
-                r#type: Arc::new(TypeDefinition::from(normalized_name.name.as_str())),
+                r#type: Arc::new(TypeDefinition::from((
+                    normalized_name.name.as_str(),
+                    parameter,
+                ))),
+                location: get_location(parameter),
             });
         }
     }
@@ -182,6 +204,7 @@ pub fn build_function_returns(node: Node, code_bytes: &[u8]) -> Vec<FunctionRetu
         returns.push(FunctionReturn {
             r#type: Arc::new(TypeDefinition::from((r#type, code_bytes, false))),
             is_variadic: false,
+            location: get_location(r#type),
         })
     } else if let Some(returns_node) = node.child_by_field_name("returns") {
         for i in 0..returns_node.child_count() {
@@ -192,6 +215,8 @@ pub fn build_function_returns(node: Node, code_bytes: &[u8]) -> Vec<FunctionRetu
                     false,
                 ))),
                 is_variadic: false,
+                //TODO
+                location: get_location(returns_node.child(i).unwrap()),
             });
         }
     }
@@ -211,19 +236,21 @@ fn build_function_type(node: Node, code_bytes: &[u8]) -> FunctionValue {
         returns: Arc::new(build_function_returns(node, code_bytes)),
         body: Arc::new(Ast::default()),
         end_keyword: None,
+        name_location: None,
+        location: get_location(node),
     }
 }
 
 fn from_simple_type(node: Node, code_bytes: &[u8]) -> ExpressionInner {
     match node.kind() {
         "singleton" => from_singleton_type(node, code_bytes),
-        "namedtype" => ExpressionInner::from(node.utf8_text(code_bytes).unwrap()), //TODO: indexing from a table.
-        "typeof" => ExpressionInner::from("typeof<T>(...)"), //TODO: typeof(<expression>)
+        "namedtype" => ExpressionInner::from((node.utf8_text(code_bytes).unwrap(), node)), //TODO: indexing from a table.
+        "typeof" => ExpressionInner::from(("typeof<T>(...)", node)), //TODO: typeof(<expression>)
         "tableType" => ExpressionInner::Table(build_table_type(node, code_bytes)),
         "functionType" => ExpressionInner::Function(build_function_type(node, code_bytes)),
         "wraptype" => from_simple_type(node.child(1).unwrap(), code_bytes),
         // "untype"
-        _ => ExpressionInner::from("any"), // Should never be matched when done.
+        _ => todo!("Why did this match? {}", node.to_sexp()), // Should never be matched when done.
     }
 }
 
@@ -274,10 +301,10 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
         }
     }
 }
-impl From<&str> for TypeValue {
-    fn from(name: &str) -> Self {
+impl From<(&str, Node<'_>)> for TypeValue {
+    fn from((name, node): (&str, Node<'_>)) -> Self {
         TypeValue {
-            r#type: Arc::new(ExpressionInner::from(name).into()),
+            r#type: Arc::new(ExpressionInner::from((name, node)).into()),
             ..Default::default()
         }
     }
@@ -295,18 +322,6 @@ impl From<Arc<ExpressionInner>> for TypeValue {
         TypeValue {
             r#type: Arc::new(Expression::from(value.clone())),
             ..Default::default()
-        }
-    }
-}
-
-impl Default for TypeDefinition {
-    fn default() -> Self {
-        TypeDefinition {
-            export_keyword: None,
-            type_keyword: None,
-            type_name: "any".to_string(),
-            equal_sign: None,
-            type_value: Arc::<TypeValue>::default(),
         }
     }
 }
@@ -374,11 +389,17 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
                     node.child_by_field_name("type").unwrap(),
                     code_bytes,
                 ))),
+                //TODO
+                name_location: Some(get_location(node)),
+                location: get_location(node),
             }
         } else {
             TypeDefinition {
                 export_keyword: None,
                 type_keyword: None,
+                //TODO
+                name_location: None,
+                location: get_location(node),
                 type_name: "".to_string(),
                 equal_sign: None,
                 type_value: Arc::new(TypeValue::from((node, code_bytes))),
@@ -387,14 +408,16 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
     }
 }
 
-impl From<&str> for TypeDefinition {
-    fn from(type_name: &str) -> Self {
+impl From<(&str, Node<'_>)> for TypeDefinition {
+    fn from((type_name, node): (&str, Node<'_>)) -> Self {
         TypeDefinition {
             export_keyword: None,
             type_keyword: None,
             type_name: type_name.to_string(),
             equal_sign: None,
-            type_value: Arc::new(TypeValue::from(type_name)),
+            type_value: Arc::new(TypeValue::from((type_name, node))),
+            location: get_location(node),
+            name_location: None,
         }
     }
 }
@@ -407,6 +430,18 @@ impl From<ExpressionInner> for TypeDefinition {
             type_name: "".to_string(),
             equal_sign: None,
             type_value: Arc::new(TypeValue::from(value)),
+            name_location: None,
+            // whatever
+            location: crate::prelude::Location {
+                start: crate::prelude::Position {
+                    line: 0,
+                    character: 0,
+                },
+                end: crate::prelude::Position {
+                    line: 0,
+                    character: 0,
+                },
+            },
         }
     }
 }
@@ -419,6 +454,18 @@ impl From<Arc<ExpressionInner>> for TypeDefinition {
             type_name: "".to_string(),
             equal_sign: None,
             type_value: Arc::from(TypeValue::from(value)),
+            name_location: None,
+            // whatever
+            location: crate::prelude::Location {
+                start: crate::prelude::Position {
+                    line: 0,
+                    character: 0,
+                },
+                end: crate::prelude::Position {
+                    line: 0,
+                    character: 0,
+                },
+            },
         }
     }
 }

@@ -8,7 +8,7 @@ use std::sync::Arc;
 
 use crate::prelude::TypeDefinition;
 
-use super::SingleToken;
+use super::{Location, SingleToken};
 
 /// A struct that provides a high level abstraction of `name` and `typedName` from the
 /// grammar for easier usability..
@@ -19,6 +19,9 @@ pub struct NormalizedName {
 
     /// The actual name.
     pub name: String,
+
+    /// Exact location of the name (excluding type).
+    pub location: Location,
 
     /// The type that was with this name, defined with the `: type` syntax.
     pub colon: Option<SingleToken>,
