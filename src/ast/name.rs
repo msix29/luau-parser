@@ -5,7 +5,7 @@ use std::{fmt::Display, sync::Arc};
 use tree_sitter::Node;
 
 use crate::{
-    prelude::{HasRawValue, NormalizedName, Print, TypeDefinition},
+    prelude::{HasRawValue, NormalizedName, Print, SingleToken, TypeDefinition},
     utils::get_spaces,
 };
 
@@ -13,7 +13,7 @@ impl From<(Node<'_>, &[u8])> for NormalizedName {
     fn from((node, code_bytes): (Node<'_>, &[u8])) -> Self {
         let (spaces_before, spaces_after) = get_spaces(node, code_bytes);
 
-        if node.kind() == "typedName" {
+        if let Some(type_node) = node.child(2) {
             NormalizedName {
                 spaces_before,
                 name: node
@@ -22,18 +22,18 @@ impl From<(Node<'_>, &[u8])> for NormalizedName {
                     .utf8_text(code_bytes)
                     .unwrap()
                     .to_string(),
-                r#type: node
-                    .child(2)
-                    .map(|type_node| Arc::new(TypeDefinition::from((type_node, code_bytes, false)))),
-                is_type_optional: false, //TODO
+                colon: Some(SingleToken::from((node.child(1).unwrap(), code_bytes))),
+                r#type: Some(Arc::new(TypeDefinition::from((
+                    type_node, code_bytes, false,
+                )))),
                 spaces_after,
             }
         } else {
             NormalizedName {
                 spaces_before,
                 name: node.utf8_text(code_bytes).unwrap().to_string(),
+                colon: None,
                 r#type: None,
-                is_type_optional: true,
                 spaces_after,
             }
         }
@@ -58,7 +58,12 @@ impl HasRawValue for NormalizedName {
 
 impl Print for NormalizedName {
     fn print(&self) -> String {
-        format!("{}{}{}", self.spaces_before, self.get_raw_value(), self.spaces_after)
+        format!(
+            "{}{}{}",
+            self.spaces_before,
+            self.get_raw_value(),
+            self.spaces_after
+        )
     }
     fn print_leading(&self) -> String {
         format!("{}{}", self.spaces_before, self.get_raw_value())

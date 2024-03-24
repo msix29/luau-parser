@@ -4,11 +4,13 @@ use tree_sitter::Node;
 
 use crate::{
     prelude::{
-        ElseIfExpression, Expression, ExpressionInner, HasRawValue, Print, SingleToken, TableField,
-        TableFieldValue, TableKey, TableValue, TypeDefinition,
+        ElseIfExpression, Expression, ExpressionInner, FunctionName, FunctionValue, HasRawValue,
+        Print, SingleToken, TableField, TableFieldValue, TableKey, TableValue, TypeDefinition,
     },
     utils::get_spaces,
 };
+
+use super::type_definition::{build_function_parameters, build_function_returns};
 
 impl Display for ExpressionInner {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -107,7 +109,18 @@ impl ExpressionInner {
                 "string_interp" => values.push(Arc::new(ExpressionInner::from(
                     node.utf8_text(code_bytes).unwrap(),
                 ))),
-                "anon_fn" => todo!(),
+                "anon_fn" => values.push(Arc::new(ExpressionInner::Function(FunctionValue {
+                    local_keyword: None,
+                    function_keyword: Some(SingleToken::from((
+                        node.child_by_field_name("function").unwrap(),
+                        code_bytes,
+                    ))),
+                    function_name: FunctionName::Anonymous,
+                    parameters: Arc::new(build_function_parameters(node, code_bytes)),
+                    returns: Arc::new(build_function_returns(node, code_bytes)),
+                    body: todo!(),
+                    end_keyword: todo!(),
+                }))),
                 "prefixexp" => todo!(),
                 "table" => {
                     let mut index = 0;

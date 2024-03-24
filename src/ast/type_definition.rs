@@ -9,7 +9,9 @@ use std::{fmt::Display, sync::Arc};
 use tree_sitter::Node;
 
 use crate::prelude::{
-    Ast, AstNode, Expression, ExpressionInner, FunctionName, FunctionParameter, FunctionReturn, FunctionValue, HasRawValue, NormalizedName, SingleToken, TableField, TableKey, TableValue, TypeDefinition, TypeValue
+    Ast, AstNode, Expression, ExpressionInner, FunctionName, FunctionParameter, FunctionReturn,
+    FunctionValue, HasRawValue, NormalizedName, SingleToken, TableField, TableKey, TableValue,
+    TypeDefinition, TypeValue,
 };
 
 fn from_singleton_type(node: Node, code_bytes: &[u8]) -> ExpressionInner {
@@ -133,19 +135,31 @@ fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
     }
 }
 
-fn build_function_parameters(node: Node, code_bytes: &[u8]) -> Vec<FunctionParameter> {
+pub fn build_function_parameters(
+    parameters_node: Node,
+    code_bytes: &[u8],
+) -> Vec<FunctionParameter> {
     let mut parameters = Vec::new();
 
-    if let Some(parameters_node) = node.child_by_field_name("parameters") {
-        for i in 0..parameters_node.child_count() {
-            let parameter = parameters_node.child(i).unwrap();
-            let normalized_name = NormalizedName::from((parameter, code_bytes));
+    for parameter in
+        parameters_node.children_by_field_name("parameter", &mut parameters_node.walk())
+    {
+        let normalized_name = NormalizedName::from((parameter, code_bytes));
+
+        if let Some(r#type) = normalized_name.r#type {
             parameters.push(FunctionParameter {
                 name: normalized_name.name,
                 is_variadic: false,
-                r#type: normalized_name
-                    .r#type
-                    .unwrap_or(Arc::<TypeDefinition>::default()),
+                r#type,
+            });
+        } else {
+            // Pretty sure this isn't in the spec, but if the name is missing, then it's
+            // the type and the name is empty, but for the sake of making it "better",
+            // we use `_`, which is globally known as a placeholder.
+            parameters.push(FunctionParameter {
+                name: "_".to_string(),
+                is_variadic: false,
+                r#type: Arc::new(TypeDefinition::from(normalized_name.name.as_str())),
             });
         }
     }
@@ -153,51 +167,41 @@ fn build_function_parameters(node: Node, code_bytes: &[u8]) -> Vec<FunctionParam
     parameters
 }
 
-fn build_function_returns(node: Node, code_bytes: &[u8]) -> Vec<FunctionReturn> {
+pub fn build_function_returns(node: Node, code_bytes: &[u8]) -> Vec<FunctionReturn> {
     let mut returns = Vec::new();
 
-    match node.kind() {
-        "(" => {
-            for i in 0..node.child_count() {
-                returns.push(FunctionReturn {
-                    r#type: Arc::new(TypeDefinition::from((
-                        node.child(i).unwrap(),
-                        code_bytes,
-                        false,
-                    ))),
-                    is_variadic: false,
-                });
-            }
-        }
-        "type" => returns.push(FunctionReturn {
-            r#type: Arc::new(TypeDefinition::from((node, code_bytes, false))),
+    if let Some(r#type) = node.child_by_field_name("return") {
+        returns.push(FunctionReturn {
+            r#type: Arc::new(TypeDefinition::from((r#type, code_bytes, false))),
             is_variadic: false,
-        }),
-        _ => (),
+        })
+    } else {
+        let node = node.child_by_field_name("returns").unwrap();
+        for i in 0..node.child_count() {
+            returns.push(FunctionReturn {
+                r#type: Arc::new(TypeDefinition::from((
+                    node.child(i).unwrap(),
+                    code_bytes,
+                    false,
+                ))),
+                is_variadic: false,
+            });
+        }
     }
 
     returns
 }
 
+//TODO: Make it work
 fn build_function_type(node: Node, code_bytes: &[u8]) -> FunctionValue {
-    let parameters = if let Some(node) = node.child_by_field_name("parameters") {
-        build_function_parameters(node, code_bytes)
-    } else {
-        Vec::new()
-    };
+    let parameters = build_function_parameters(node, code_bytes);
 
     FunctionValue {
         local_keyword: None,
         function_keyword: None,
         function_name: FunctionName::Anonymous,
         parameters: Arc::new(parameters),
-        returns: Arc::new(build_function_returns(
-            node.child_by_field_name("returns")
-                .unwrap()
-                .child(0)
-                .unwrap(),
-            code_bytes,
-        )),
+        returns: Arc::new(build_function_returns(node, code_bytes)),
         body: Arc::new(Ast::default()),
         end_keyword: None,
     }
