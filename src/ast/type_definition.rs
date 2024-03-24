@@ -207,16 +207,11 @@ pub fn build_function_returns(node: Node, code_bytes: &[u8]) -> Vec<FunctionRetu
             location: get_location(r#type),
         })
     } else if let Some(returns_node) = node.child_by_field_name("returns") {
-        for i in 0..returns_node.child_count() {
+        for r#return in returns_node.children(&mut returns_node.walk()) {
             returns.push(FunctionReturn {
-                r#type: Arc::new(TypeDefinition::from((
-                    returns_node.child(i).unwrap(),
-                    code_bytes,
-                    false,
-                ))),
+                r#type: Arc::new(TypeDefinition::from((r#return, code_bytes, false))),
                 is_variadic: false,
-                //TODO
-                location: get_location(returns_node.child(i).unwrap()),
+                location: get_location(r#return),
             });
         }
     }
