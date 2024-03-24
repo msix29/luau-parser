@@ -391,7 +391,6 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
                 ))),
                 //TODO
                 name_location: Some(get_location(node)),
-                location: get_location(node),
             }
         } else {
             TypeDefinition {
@@ -399,7 +398,6 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
                 type_keyword: None,
                 //TODO
                 name_location: None,
-                location: get_location(node),
                 type_name: "".to_string(),
                 equal_sign: None,
                 type_value: Arc::new(TypeValue::from((node, code_bytes))),
@@ -416,14 +414,13 @@ impl From<(&str, Node<'_>)> for TypeDefinition {
             type_name: type_name.to_string(),
             equal_sign: None,
             type_value: Arc::new(TypeValue::from((type_name, node))),
-            location: get_location(node),
             name_location: None,
         }
     }
 }
 
-impl From<(ExpressionInner, Node<'_>)> for TypeDefinition {
-    fn from((value, node): (ExpressionInner, Node<'_>)) -> Self {
+impl From<ExpressionInner> for TypeDefinition {
+    fn from(value: ExpressionInner) -> Self {
         TypeDefinition {
             export_keyword: None,
             type_keyword: None,
@@ -431,7 +428,6 @@ impl From<(ExpressionInner, Node<'_>)> for TypeDefinition {
             equal_sign: None,
             type_value: Arc::new(TypeValue::from(value)),
             name_location: None,
-            location: get_location(node),
         }
     }
 }
@@ -445,7 +441,6 @@ impl From<(Arc<ExpressionInner>, Node<'_>)> for TypeDefinition {
             equal_sign: None,
             type_value: Arc::from(TypeValue::from((value, node))),
             name_location: None,
-            location: get_location(node),
         }
     }
 }

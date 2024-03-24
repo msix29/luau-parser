@@ -54,7 +54,4 @@ pub struct TypeDefinition {
 
     /// The _[actual definition](TypeValue)_ of the type.
     pub type_value: Arc<TypeValue>,
-
-    /// Exact location of the type definition.
-    pub location: Location,
 }

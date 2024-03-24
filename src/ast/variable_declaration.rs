@@ -3,8 +3,12 @@
 use std::{fmt::Display, sync::Arc};
 use tree_sitter::{Node, TreeCursor};
 
-use crate::prelude::{
-    AstNode, Expression, ExpressionInner, HasRawValue, NormalizedName, Print, SingleToken, VariableDeclaration
+use crate::{
+    prelude::{
+        AstNode, Expression, ExpressionInner, HasRawValue, NormalizedName, Print, SingleToken,
+        VariableDeclaration,
+    },
+    utils::get_location,
 };
 
 impl Display for VariableDeclaration {
@@ -69,7 +73,8 @@ impl AstNode for VariableDeclaration {
             .collect::<Vec<Node>>();
         let bindings = _temp.iter();
 
-        let expressions = ExpressionInner::from_nodes(node.children_by_field_name("values", cursor), code_bytes);
+        let expressions =
+            ExpressionInner::from_nodes(node.children_by_field_name("values", cursor), code_bytes);
 
         for (i, binding) in bindings.step_by(2).enumerate() {
             let expression = if let Some(expression) = expressions.get(i) {
@@ -92,9 +97,12 @@ impl AstNode for VariableDeclaration {
                 } else {
                     None
                 },
-                variable_name: Arc::new(NormalizedName::from((binding.child(0).unwrap(), code_bytes))),
+                variable_name: Arc::new(NormalizedName::from((
+                    binding.child(0).unwrap(),
+                    code_bytes,
+                ))),
                 variable_value: Arc::new(Expression::from((expression, node))),
-                ..Default::default()
+                location: get_location(node),
             });
         }
         Some(variables)

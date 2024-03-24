@@ -11,9 +11,6 @@ pub struct VariableDeclaration {
     /// The name of the variable.
     pub variable_name: Arc<NormalizedName>,
 
-    /// Exact location of the node.
-    pub name_location: Location,
-
     /// The `=`.
     pub equal_token: Option<SingleToken>,
 
