@@ -23,6 +23,33 @@ fn print_all(node: Node, code: &str) {
     }
 }
 
+fn parse_block(body: Node, tokens: &mut Vec<Token>, full_code_bytes: &[u8]) {
+    let mut cursor = body.walk();
+    for i in 0..body.child_count() {
+        let node = body.child(i).unwrap();
+
+        if let Some(variable_declarations) =
+            VariableDeclaration::try_from_node(node, &mut cursor, full_code_bytes)
+        {
+            tokens.extend(
+                variable_declarations
+                    .iter()
+                    .map(|v| Token::VariableDeclaration(v.clone())),
+            );
+            drop(variable_declarations);
+        } else if let Some(mut type_declarations) =
+            TypeDefinition::try_from_node(node, &mut cursor, full_code_bytes)
+        {
+            tokens.extend(
+                type_declarations
+                    .iter_mut()
+                    .map(|v| Token::TypeDefinition(v.clone())),
+            );
+            drop(type_declarations);
+        }
+    }
+}
+
 /// A Luau parser.
 #[derive(Clone, Debug)]
 pub struct Parser {
@@ -50,30 +77,7 @@ impl Parser {
         let code_bytes = code.as_bytes();
 
         let root = tree.root_node();
-        let mut cursor = tree.walk();
-        for i in 0..root.child_count() {
-            let node = root.child(i).unwrap();
-
-            if let Some(variable_declarations) =
-                VariableDeclaration::try_from_node(node, &mut cursor, code_bytes)
-            {
-                tokens.extend(
-                    variable_declarations
-                        .iter()
-                        .map(|v| Token::VariableDeclaration(v.clone())),
-                );
-                drop(variable_declarations);
-            } else if let Some(mut type_declarations) =
-                TypeDefinition::try_from_node(node, &mut cursor, code_bytes)
-            {
-                tokens.extend(
-                    type_declarations
-                        .iter_mut()
-                        .map(|v| Token::TypeDefinition(v.clone())),
-                );
-                drop(type_declarations);
-            }
-        }
+        parse_block(root, &mut tokens, code_bytes);
 
         // TODO: Remove
         // For debugging purposes.
@@ -82,7 +86,6 @@ impl Parser {
             print_all(root, code);
         }
         println!("{}", &root.to_sexp());
-        drop(cursor);
 
         let ast = Ast {
             tokens: Arc::new(tokens),
