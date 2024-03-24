@@ -135,7 +135,9 @@ impl ExpressionInner {
                         ))),
                     })))
                 }
-                "prefixexp" => todo!(),
+                "var" => todo!(),
+                "functionCall" => todo!(),
+                "exp_wrap" => todo!(),
                 "table" => {
                     let mut index = 0;
                     let field_list = node.child_by_field_name("fieldList").unwrap();
