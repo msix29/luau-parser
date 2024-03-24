@@ -66,10 +66,10 @@ pub enum Token {
 }
 
 #[derive(Clone, Debug, Default)]
-pub struct Ast<'a> {
-    pub uri: &'a str,
+pub struct Ast {
+    pub uri: Option<String>,
     pub tokens: Arc<Vec<Token>>,
 }
 
-unsafe impl Send for Ast<'_> {}
-unsafe impl Sync for Ast<'_> {}
+unsafe impl Send for Ast {}
+unsafe impl Sync for Ast {}

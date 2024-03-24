@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::prelude::TypeDefinition;
+use crate::prelude::{Ast, SingleToken, TypeDefinition};
 
 /// A single parameter that a function accepts.
 #[derive(Clone, Debug)]
@@ -28,9 +28,13 @@ pub struct FunctionReturn {
 /// The actual value representing a function for the _[value](crate::prelude::Value)_ enum.
 #[derive(Clone, Debug)]
 pub struct FunctionValue {
+    pub function_keyword: Option<SingleToken>,
+
     /// All _[parameters](FunctionParameter)_ of the function.
     pub parameters: Arc<Vec<FunctionParameter>>,
 
     /// All _[returns](FunctionReturn)_ of the function
     pub returns: Arc<Vec<FunctionReturn>>,
+
+    pub body: Arc<Ast>
 }

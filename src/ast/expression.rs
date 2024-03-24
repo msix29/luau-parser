@@ -265,7 +265,9 @@ impl From<(Node<'_>, &[u8])> for ExpressionInner {
             "number" => ExpressionInner::from(node.utf8_text(code_bytes).unwrap()),
             "string" => ExpressionInner::from(node.utf8_text(code_bytes).unwrap()),
             "string_interp" => ExpressionInner::from(node.utf8_text(code_bytes).unwrap()),
-            "anon_fn" => todo!(),
+            "anon_fn" => {
+                todo!()
+            }
             "prefixexp" => todo!(),
             "table" => {
                 let mut index = 0;

@@ -9,9 +9,7 @@ use std::{fmt::Display, sync::Arc};
 use tree_sitter::Node;
 
 use crate::prelude::{
-    AstNode, Expression, ExpressionInner, FunctionParameter, FunctionReturn, FunctionValue,
-    HasRawValue, NormalizedName, SingleToken, TableField, TableKey, TableValue, TypeDefinition,
-    TypeValue,
+    Ast, AstNode, Expression, ExpressionInner, FunctionParameter, FunctionReturn, FunctionValue, HasRawValue, NormalizedName, SingleToken, TableField, TableKey, TableValue, TypeDefinition, TypeValue
 };
 
 fn from_singleton_type(node: Node, code_bytes: &[u8]) -> ExpressionInner {
@@ -189,6 +187,7 @@ fn build_function_type(node: Node, code_bytes: &[u8]) -> FunctionValue {
     };
 
     FunctionValue {
+        function_keyword: None,
         parameters: Arc::new(parameters),
         returns: Arc::new(build_function_returns(
             node.child_by_field_name("returns")
@@ -197,6 +196,7 @@ fn build_function_type(node: Node, code_bytes: &[u8]) -> FunctionValue {
                 .unwrap(),
             code_bytes,
         )),
+        body: Arc::new(Ast::default())
     }
 }
 
