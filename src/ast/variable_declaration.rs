@@ -4,7 +4,7 @@ use std::{fmt::Display, sync::Arc};
 use tree_sitter::{Node, TreeCursor};
 
 use crate::prelude::{
-    AstNode, ExpressionInner, HasRawValue, NormalizedName, Print, SingleToken, VariableDeclaration
+    AstNode, Expression, ExpressionInner, HasRawValue, NormalizedName, Print, SingleToken, VariableDeclaration
 };
 
 impl Display for VariableDeclaration {
@@ -93,7 +93,7 @@ impl AstNode for VariableDeclaration {
                     None
                 },
                 variable_name: Arc::new(NormalizedName::from((binding.child(0).unwrap(), code_bytes))),
-                variable_value: Arc::new(expression.into()),
+                variable_value: Arc::new(Expression::from((expression, node))),
                 ..Default::default()
             });
         }

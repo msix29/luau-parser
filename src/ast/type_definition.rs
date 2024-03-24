@@ -317,10 +317,10 @@ impl From<ExpressionInner> for TypeValue {
         }
     }
 }
-impl From<Arc<ExpressionInner>> for TypeValue {
-    fn from(value: Arc<ExpressionInner>) -> Self {
+impl From<(Arc<ExpressionInner>, Node<'_>)> for TypeValue {
+    fn from((value, node): (Arc<ExpressionInner>, Node<'_>)) -> Self {
         TypeValue {
-            r#type: Arc::new(Expression::from(value.clone())),
+            r#type: Arc::new(Expression::from((value.clone(), node))),
             ..Default::default()
         }
     }
@@ -422,8 +422,8 @@ impl From<(&str, Node<'_>)> for TypeDefinition {
     }
 }
 
-impl From<ExpressionInner> for TypeDefinition {
-    fn from(value: ExpressionInner) -> Self {
+impl From<(ExpressionInner, Node<'_>)> for TypeDefinition {
+    fn from((value, node): (ExpressionInner, Node<'_>)) -> Self {
         TypeDefinition {
             export_keyword: None,
             type_keyword: None,
@@ -431,41 +431,21 @@ impl From<ExpressionInner> for TypeDefinition {
             equal_sign: None,
             type_value: Arc::new(TypeValue::from(value)),
             name_location: None,
-            // whatever
-            location: crate::prelude::Location {
-                start: crate::prelude::Position {
-                    line: 0,
-                    character: 0,
-                },
-                end: crate::prelude::Position {
-                    line: 0,
-                    character: 0,
-                },
-            },
+            location: get_location(node),
         }
     }
 }
 
-impl From<Arc<ExpressionInner>> for TypeDefinition {
-    fn from(value: Arc<ExpressionInner>) -> Self {
+impl From<(Arc<ExpressionInner>, Node<'_>)> for TypeDefinition {
+    fn from((value, node): (Arc<ExpressionInner>, Node<'_>)) -> Self {
         TypeDefinition {
             export_keyword: None,
             type_keyword: None,
             type_name: "".to_string(),
             equal_sign: None,
-            type_value: Arc::from(TypeValue::from(value)),
+            type_value: Arc::from(TypeValue::from((value, node))),
             name_location: None,
-            // whatever
-            location: crate::prelude::Location {
-                start: crate::prelude::Position {
-                    line: 0,
-                    character: 0,
-                },
-                end: crate::prelude::Position {
-                    line: 0,
-                    character: 0,
-                },
-            },
+            location: get_location(node),
         }
     }
 }

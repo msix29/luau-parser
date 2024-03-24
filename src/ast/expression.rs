@@ -204,7 +204,10 @@ impl From<(Node<'_>, &[u8])> for ExpressionInner {
                                     equal_or_colon: node
                                         .child_by_field_name("equal")
                                         .map(|node| SingleToken::from((node, code_bytes))),
-                                    r#type: Arc::new(TypeDefinition::from(value.inner.clone())),
+                                    r#type: Arc::new(TypeDefinition::from((
+                                        value.inner.clone(),
+                                        node,
+                                    ))),
                                     value: Some(Arc::new(TableFieldValue::Expression(value))),
                                     separator: separators
                                         .get(i)
@@ -324,10 +327,11 @@ impl From<ExpressionInner> for Expression {
         }
     }
 }
-impl From<Arc<ExpressionInner>> for Expression {
-    fn from(expression_inner: Arc<ExpressionInner>) -> Self {
+impl From<(Arc<ExpressionInner>, Node<'_>)> for Expression {
+    fn from((expression_inner, node): (Arc<ExpressionInner>, Node<'_>)) -> Self {
         Self {
             inner: expression_inner,
+            location: get_location(node),
             ..Default::default()
         }
     }
