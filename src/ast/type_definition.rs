@@ -369,6 +369,8 @@ impl AstNode for TypeDefinition {
 impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
     fn from((node, code_bytes, is_definition): (Node, &[u8], bool)) -> Self {
         if is_definition {
+            let name_node = node.child_by_field_name("typeName").unwrap();
+
             TypeDefinition {
                 export_keyword: node
                     .child_by_field_name("export")
@@ -376,12 +378,7 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
                 type_keyword: node
                     .child_by_field_name("typeKeyword")
                     .map(|node| SingleToken::from((node, code_bytes))),
-                type_name: node
-                    .child_by_field_name("typeName")
-                    .unwrap()
-                    .utf8_text(code_bytes)
-                    .unwrap()
-                    .to_string(),
+                type_name: name_node.utf8_text(code_bytes).unwrap().to_string(),
                 equal_sign: node
                     .child_by_field_name("equal")
                     .map(|node| SingleToken::from((node, code_bytes))),
@@ -389,15 +386,13 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
                     node.child_by_field_name("type").unwrap(),
                     code_bytes,
                 ))),
-                //TODO
-                name_location: Some(get_location(node)),
+                name_location: Some(get_location(name_node)),
             }
         } else {
             TypeDefinition {
                 export_keyword: None,
                 type_keyword: None,
-                //TODO
-                name_location: None,
+                name_location: Some(get_location(node)),
                 type_name: "".to_string(),
                 equal_sign: None,
                 type_value: Arc::new(TypeValue::from((node, code_bytes))),
