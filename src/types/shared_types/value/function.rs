@@ -2,6 +2,8 @@ use std::sync::Arc;
 
 use crate::prelude::{Ast, SingleToken, TypeDefinition};
 
+use super::TableKey;
+
 /// A single parameter that a function accepts.
 #[derive(Clone, Debug)]
 pub struct FunctionParameter {
@@ -25,11 +27,24 @@ pub struct FunctionReturn {
     pub is_variadic: bool,
 }
 
+#[derive(Clone, Debug)]
+pub enum FunctionName {
+    Anonymous,
+    Name(SingleToken),
+    TableAccess {
+        table: SingleToken,
+        keys: Vec<TableKey>,
+        method: Option<SingleToken>,
+    }
+}
+
 /// The actual value representing a function for the _[value](crate::prelude::Value)_ enum.
 #[derive(Clone, Debug)]
 pub struct FunctionValue {
     pub local_keyword: Option<SingleToken>,
     pub function_keyword: Option<SingleToken>,
+
+    pub function_name: FunctionName,
 
     /// All _[parameters](FunctionParameter)_ of the function.
     pub parameters: Arc<Vec<FunctionParameter>>,
