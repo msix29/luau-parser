@@ -5,16 +5,16 @@ use tree_sitter::{Node, TreeCursor};
 
 use crate::prelude::{
     AstNode, Expression, ExpressionInner, HasRawValue, List, ListItem, NormalizedName, Print,
-    SingleToken, VariableDeclaration,
+    SingleToken, LocalAssignment,
 };
 
-impl Display for VariableDeclaration {
+impl Display for LocalAssignment {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&self.get_raw_value())
     }
 }
 
-impl HasRawValue for VariableDeclaration {
+impl HasRawValue for LocalAssignment {
     fn get_raw_value(&self) -> String {
         todo!()
         // let local = self
@@ -27,7 +27,7 @@ impl HasRawValue for VariableDeclaration {
     }
 }
 
-impl Print for VariableDeclaration {
+impl Print for LocalAssignment {
     fn print(&self) -> String {
         todo!()
         // let local = self
@@ -55,7 +55,7 @@ impl Print for VariableDeclaration {
     }
 }
 
-impl AstNode for VariableDeclaration {
+impl AstNode for LocalAssignment {
     fn try_from_node<'a>(
         node: Node<'a>,
         cursor: &mut TreeCursor<'a>,
@@ -94,7 +94,7 @@ impl AstNode for VariableDeclaration {
             })
             .collect::<Vec<ListItem<NormalizedName>>>();
 
-        Some(VariableDeclaration {
+        Some(LocalAssignment {
             local_token: SingleToken::from((node.child(0).unwrap(), code_bytes)),
             name_list: List { items: names },
             equal_token: node

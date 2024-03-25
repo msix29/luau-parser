@@ -6,7 +6,7 @@ use tree_sitter::Node;
 #[cfg(feature = "cache")]
 use tree_sitter::Tree;
 
-use crate::prelude::{Ast, AstNode, Token, TypeDefinition, VariableDeclaration};
+use crate::prelude::{Ast, AstNode, Token, TypeDefinition, LocalAssignment};
 
 fn print_all(node: Node, code: &str) {
     // if true {
@@ -29,7 +29,7 @@ pub fn parse_block(body: Node, tokens: &mut Vec<Token>, full_code_bytes: &[u8]) 
         let node = body.child(i).unwrap();
 
         if let Some(variable_declaration) =
-            VariableDeclaration::try_from_node(node, &mut cursor, full_code_bytes)
+            LocalAssignment::try_from_node(node, &mut cursor, full_code_bytes)
         {
             tokens.push(Token::VariableDeclaration(variable_declaration));
         } else if let Some(type_declaration) =

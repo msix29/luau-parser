@@ -2,7 +2,7 @@ use super::{Expression, List, NormalizedName, SingleToken};
 
 /// A struct holding data for variable declarations.
 #[derive(Clone, Debug, Default)]
-pub struct VariableDeclaration {
+pub struct LocalAssignment {
     /// The keyword `local`.
     pub local_token: SingleToken,
 
