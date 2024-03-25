@@ -5,8 +5,8 @@ use tree_sitter::Node;
 use crate::{
     prelude::{
         parse_block, Ast, ElseIfExpression, Expression, ExpressionInner, FunctionName,
-        FunctionValue, HasRawValue, List, ListItem, SingleToken, TableField, TableFieldValue,
-        TableKey, TableValue, TypeDefinition,
+        FunctionValue, HasRawValue, List, ListItem, PrefixExp, SingleToken, TableField,
+        TableFieldValue, TableKey, TableValue, TypeDefinition,
     },
     utils::get_location,
 };
@@ -28,12 +28,8 @@ impl HasRawValue for ExpressionInner {
             ExpressionInner::Number(value) => value.get_raw_value(),
             ExpressionInner::String(value) => value.get_raw_value(),
             ExpressionInner::Function(value) => value.get_raw_value(),
-            #[allow(unused)] //TODO: Remove.
-            ExpressionInner::ExpressionWrap {
-                opening_brackets,
-                expression,
-                closing_brackets,
-            } => todo!(),
+            ExpressionInner::FunctionCall(_) => todo!("function call"),
+            ExpressionInner::ExpressionWrap(_) => todo!(),
             ExpressionInner::Var(_) => todo!(),
             ExpressionInner::Table(value) => value.get_raw_value(),
             ExpressionInner::UnaryExpression {
@@ -164,11 +160,11 @@ impl From<(Node<'_>, &[u8])> for ExpressionInner {
             }
             "var" => todo!("Finding other variables isn't done yet."),
             "functionCall" => todo!("Finding other variables isn't done yet."),
-            "exp_wrap" => ExpressionInner::ExpressionWrap {
-                opening_brackets: SingleToken::from((node.child(0).unwrap(), code_bytes)),
+            "exp_wrap" => ExpressionInner::ExpressionWrap(PrefixExp::ExpressionWrap {
+                opening_parenthesis: SingleToken::from((node.child(0).unwrap(), code_bytes)),
                 expression: Arc::new(Expression::from((node.child(1).unwrap(), code_bytes))),
-                closing_brackets: SingleToken::from((node.child(2).unwrap(), code_bytes)),
-            },
+                closing_parenthesis: SingleToken::from((node.child(2).unwrap(), code_bytes)),
+            }),
             "table" => {
                 let mut index = 0;
                 let field_list = node.child_by_field_name("fieldList").unwrap();

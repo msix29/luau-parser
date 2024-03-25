@@ -1,10 +1,46 @@
 use std::sync::Arc;
 
-use super::{FunctionValue, Location, SimpleValue, SingleToken, TableValue, TypeDefinition};
+use super::{FunctionValue, List, Location, SimpleValue, SingleToken, TableValue, TypeDefinition};
 
 #[derive(Clone, Debug)]
 pub enum Var {
     Name(String),
+}
+
+#[derive(Clone, Debug)]
+pub enum FunctionCallInvoked {
+    Function(Arc<PrefixExp>),
+    TableMethod {
+        table: Arc<PrefixExp>,
+        colon: SingleToken,
+        method: String,
+    }
+}
+
+#[derive(Clone, Debug)]
+pub enum FunctionArguments {
+    String(SingleToken),
+    Table(TableValue),
+    List(List<Arc<Expression>>),
+}
+
+#[derive(Clone, Debug)]
+pub enum PrefixExp {
+    Var(Var),
+    FunctionCall {
+        invoked: FunctionCallInvoked,
+        arguments: FunctionArguments,
+    },
+    ExpressionWrap {
+        /// The `(` character.
+        opening_parenthesis: SingleToken,
+
+        /// The actual _[expression](Expression)_ being wrapped.
+        expression: Arc<Expression>,
+
+        // The `)` character.
+        closing_parenthesis: SingleToken,
+    },
 }
 
 /// An enum representing all possible values for an expression.
@@ -27,21 +63,16 @@ pub enum ExpressionInner {
     /// An **anonymous** function.
     Function(FunctionValue),
 
-    ExpressionWrap {
-        /// The `{` character.
-        opening_brackets: SingleToken,
+    /// A function call.
+    ///
+    /// ```lua
+    /// local foo = bar()
+    /// ```
+    FunctionCall(PrefixExp),
 
-        /// The actual _[expression](Expression)_ being wrapped.
-        expression: Arc<Expression>,
-
-        // The `}` character.
-        closing_brackets: SingleToken,
-    },
+    ExpressionWrap(PrefixExp),
 
     Var(Var),
-
-    //TODO:
-    // FunctionCall {},
 
     /// A Table `{...}`.
     Table(TableValue),
