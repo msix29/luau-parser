@@ -5,13 +5,15 @@ use tree_sitter::Node;
 use crate::{
     prelude::{
         parse_block, Ast, ElseIfExpression, Expression, ExpressionInner, FunctionName,
-        FunctionValue, HasRawValue, SingleToken, TableField, TableFieldValue, TableKey, TableValue,
-        TypeDefinition,
+        FunctionValue, HasRawValue, List, ListItem, SingleToken, TableField, TableFieldValue,
+        TableKey, TableValue, TypeDefinition,
     },
     utils::get_location,
 };
 
-use crate::prelude::type_definition::functions::{build_function_parameters, build_function_returns};
+use crate::prelude::type_definition::functions::{
+    build_function_parameters, build_function_returns,
+};
 
 impl Display for ExpressionInner {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -99,10 +101,31 @@ impl ExpressionInner {
     pub fn from_nodes<'a>(
         nodes_iter: impl Iterator<Item = Node<'a>>,
         code_bytes: &[u8],
-    ) -> Vec<Arc<ExpressionInner>> {
-        nodes_iter
-            .map(|node| Arc::new(ExpressionInner::from((node, code_bytes))))
-            .collect()
+    ) -> List<ExpressionInner> {
+        let nodes = nodes_iter.collect::<Vec<Node>>();
+        if nodes.is_empty() {
+            return List::default();
+        }
+
+        let last_index = nodes.len() - 1;
+
+        List {
+            items: nodes
+                .iter()
+                .enumerate()
+                .step_by(2)
+                .map(|(i, node)| {
+                    if i == last_index {
+                        ListItem::NonTrailing(ExpressionInner::from((*node, code_bytes)))
+                    } else {
+                        ListItem::Trailing {
+                            item: ExpressionInner::from((*node, code_bytes)),
+                            separator: SingleToken::from((nodes[i + 1], code_bytes)),
+                        }
+                    }
+                })
+                .collect(),
+        }
     }
 }
 

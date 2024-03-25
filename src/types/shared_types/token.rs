@@ -1,7 +1,7 @@
 use super::Location;
 
 /// A struct represnting a single token, aka a single word.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct SingleToken {
     /// All the spaces before the word.
     pub spaces_before: String,

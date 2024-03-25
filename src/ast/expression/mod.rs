@@ -34,10 +34,11 @@ impl From<(Node<'_>, ExpressionInner, &[u8])> for Expression {
         }
     }
 }
-impl From<ExpressionInner> for Expression {
-    fn from(expression_inner: ExpressionInner) -> Self {
+impl From<(ExpressionInner, Node<'_>)> for Expression {
+    fn from((expression_inner, node): (ExpressionInner, Node<'_>)) -> Self {
         Self {
             inner: Arc::new(expression_inner),
+            location: get_location(node),
             ..Default::default()
         }
     }

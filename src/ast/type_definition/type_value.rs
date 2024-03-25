@@ -55,15 +55,7 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
 impl From<(&str, Node<'_>)> for TypeValue {
     fn from((name, node): (&str, Node<'_>)) -> Self {
         TypeValue {
-            r#type: Arc::new(ExpressionInner::from((name, node)).into()),
-            ..Default::default()
-        }
-    }
-}
-impl From<ExpressionInner> for TypeValue {
-    fn from(value: ExpressionInner) -> Self {
-        TypeValue {
-            r#type: Arc::new(value.into()),
+            r#type: Arc::new((ExpressionInner::from((name, node)), node).into()),
             ..Default::default()
         }
     }
