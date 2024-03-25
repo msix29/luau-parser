@@ -104,7 +104,7 @@ pub struct TableValue {
     /// The actual _[fields](TableField)_ of the table.
     pub fields: Arc<Vec<TableField>>,
 
-    // The `}` character.
+    /// The `}` character.
     pub closing_brackets: SingleToken,
 
     /// Exact location of the full table
