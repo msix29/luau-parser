@@ -32,7 +32,7 @@ pub fn parse_block(body: Node, tokens: &mut Vec<Token>, full_code_bytes: &[u8]) 
             VariableDeclaration::try_from_node(node, &mut cursor, full_code_bytes)
         {
             tokens.push(Token::VariableDeclaration(variable_declaration));
-        } else if let Some(mut type_declaration) =
+        } else if let Some(type_declaration) =
             TypeDefinition::try_from_node(node, &mut cursor, full_code_bytes)
         {
             tokens.push(Token::TypeDefinition(type_declaration))
