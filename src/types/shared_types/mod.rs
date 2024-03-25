@@ -19,6 +19,7 @@ mod token;
 mod type_definition;
 mod value;
 mod variable_declaration;
+mod list;
 
 pub use expression::*;
 pub use location::*;
@@ -28,6 +29,7 @@ pub use token::*;
 pub use type_definition::*;
 pub use value::*;
 pub use variable_declaration::*;
+pub use list::*;
 
 use std::{fmt::Display, sync::Arc};
 use tree_sitter::{Node, TreeCursor};
