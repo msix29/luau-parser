@@ -47,12 +47,12 @@ impl AstNode for TypeDefinition {
         node: tree_sitter::Node<'a>,
         _: &mut tree_sitter::TreeCursor<'a>,
         code_bytes: &[u8],
-    ) -> Option<Vec<Self>> {
+    ) -> Option<Self> {
         if node.kind() != "typeDefinition" {
             return None;
         }
 
-        Some(vec![TypeDefinition::from((node, code_bytes, true))])
+        Some(TypeDefinition::from((node, code_bytes, true)))
     }
 }
 

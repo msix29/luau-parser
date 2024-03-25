@@ -68,7 +68,7 @@ pub trait AstNode: HasRawValue /* + Print */ + Sized {
         node: Node<'a>,
         cursor: &mut TreeCursor<'a>,
         code_bytes: &[u8],
-    ) -> Option<Vec<Self>>;
+    ) -> Option<Self>;
 }
 
 /// A trait for letting the compiler know that this _[ast node](AstNode)_ has a location

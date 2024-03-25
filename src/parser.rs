@@ -28,24 +28,14 @@ pub fn parse_block(body: Node, tokens: &mut Vec<Token>, full_code_bytes: &[u8]) 
     for i in 0..body.child_count() {
         let node = body.child(i).unwrap();
 
-        if let Some(variable_declarations) =
+        if let Some(variable_declaration) =
             VariableDeclaration::try_from_node(node, &mut cursor, full_code_bytes)
         {
-            tokens.extend(
-                variable_declarations
-                    .iter()
-                    .map(|v| Token::VariableDeclaration(v.clone())),
-            );
-            drop(variable_declarations);
-        } else if let Some(mut type_declarations) =
+            tokens.push(Token::VariableDeclaration(variable_declaration));
+        } else if let Some(mut type_declaration) =
             TypeDefinition::try_from_node(node, &mut cursor, full_code_bytes)
         {
-            tokens.extend(
-                type_declarations
-                    .iter_mut()
-                    .map(|v| Token::TypeDefinition(v.clone())),
-            );
-            drop(type_declarations);
+            tokens.push(Token::TypeDefinition(type_declaration))
         }
     }
 }

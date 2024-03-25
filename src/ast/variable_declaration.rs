@@ -60,12 +60,10 @@ impl AstNode for VariableDeclaration {
         node: Node<'a>,
         cursor: &mut TreeCursor<'a>,
         code_bytes: &[u8],
-    ) -> Option<Vec<Self>> {
+    ) -> Option<Self> {
         if node.kind() != "variableDeclaration" {
             return None;
         }
-
-        let mut variables = Vec::new();
 
         let expressions =
             ExpressionInner::from_nodes(node.children_by_field_name("value", cursor), code_bytes)
@@ -96,44 +94,13 @@ impl AstNode for VariableDeclaration {
             })
             .collect::<Vec<ListItem<NormalizedName>>>();
 
-        variables.push(VariableDeclaration {
+        Some(VariableDeclaration {
             local_token: SingleToken::from((node.child(0).unwrap(), code_bytes)),
             name_list: List { items: names },
             equal_token: node
                 .child_by_field_name("equal")
                 .map(|equal| SingleToken::from((equal, code_bytes))),
             expressions,
-        });
-
-        // for (i, binding) in bindings.step_by(2).enumerate() {
-        //     let expression = if let Some(expression) = expressions.get(i) {
-        //         expression.clone()
-        //     } else {
-        //         Arc::new(ExpressionInner::from(("nil", node)))
-        //     };
-
-        //     variables.push(VariableDeclaration {
-        //         local_token: if i == 0 {
-        //             // Only the first variable has the keyword "local" before it.
-        //             Some(SingleToken::from((node.child(0).unwrap(), code_bytes)))
-        //         } else {
-        //             None
-        //         },
-        //         equal_token: if i == 0 {
-        //             // Only the first variable has the equal sign.
-        //             node.child_by_field_name("equal")
-        //                 .map(|equal| SingleToken::from((equal, code_bytes)))
-        //         } else {
-        //             None
-        //         },
-        //         variable_name: Arc::new(NormalizedName::from((
-        //             binding.child(0).unwrap(),
-        //             code_bytes,
-        //         ))),
-        //         expressions: Arc::new(Expression::from((expression, node))),
-        //         location: get_location(node),
-        //     });
-        // }
-        Some(variables)
+        })
     }
 }
