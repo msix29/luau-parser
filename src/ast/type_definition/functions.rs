@@ -1,23 +1,16 @@
-//! # Type Definition
-//!
-//! This module does the work of the whole type checker, from building
-//! _[type definitions](TypeDefinition)_ from _[nodes](Node)_, to implementing helper
-//! traits for both _[type definitions](TypeDefinition)_ and _[type values](TypeValue)_.
-//!
+use std::sync::Arc;
 
-use std::{fmt::Display, sync::Arc};
 use tree_sitter::Node;
 
 use crate::{
     prelude::{
-        Ast, AstNode, Expression, ExpressionInner, FunctionName, FunctionParameter, FunctionReturn,
-        FunctionValue, HasRawValue, NormalizedName, SingleToken, TableField, TableKey, TableValue,
-        TypeDefinition, TypeValue,
+        Ast, ExpressionInner, FunctionName, FunctionParameter, FunctionReturn, FunctionValue,
+        NormalizedName, SingleToken, TableField, TableKey, TableValue, TypeDefinition,
     },
     utils::get_location,
 };
 
-fn from_singleton_type(node: Node, code_bytes: &[u8]) -> ExpressionInner {
+pub fn from_singleton_type(node: Node, code_bytes: &[u8]) -> ExpressionInner {
     match node.kind() {
         "string" => ExpressionInner::from((node.utf8_text(code_bytes).unwrap(), node)),
         "name" => ExpressionInner::from(("<other value here>", node)), // TODO: Look for it.
@@ -27,7 +20,7 @@ fn from_singleton_type(node: Node, code_bytes: &[u8]) -> ExpressionInner {
     }
 }
 
-fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
+pub fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
     let opening_brackets = SingleToken::from((
         node.child_by_field_name("opening_brackets").unwrap(),
         code_bytes,
@@ -220,7 +213,7 @@ pub fn build_function_returns(node: Node, code_bytes: &[u8]) -> Vec<FunctionRetu
 }
 
 //TODO: Make it work
-fn build_function_type(node: Node, code_bytes: &[u8]) -> FunctionValue {
+pub fn build_function_type(node: Node, code_bytes: &[u8]) -> FunctionValue {
     let parameters = build_function_parameters(node, code_bytes, true);
 
     FunctionValue {
@@ -234,7 +227,7 @@ fn build_function_type(node: Node, code_bytes: &[u8]) -> FunctionValue {
     }
 }
 
-fn from_simple_type(node: Node, code_bytes: &[u8]) -> ExpressionInner {
+pub fn from_simple_type(node: Node, code_bytes: &[u8]) -> ExpressionInner {
     match node.kind() {
         "singleton" => from_singleton_type(node, code_bytes),
         "namedtype" => ExpressionInner::from((node.utf8_text(code_bytes).unwrap(), node)), //TODO: indexing from a table.
@@ -244,178 +237,5 @@ fn from_simple_type(node: Node, code_bytes: &[u8]) -> ExpressionInner {
         "wraptype" => from_simple_type(node.child(1).unwrap(), code_bytes),
         // "untype"
         _ => todo!("Why did this match? {}", node.to_sexp()), // Should never be matched when done.
-    }
-}
-
-impl Display for TypeValue {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&self.get_raw_value())
-    }
-}
-impl HasRawValue for TypeValue {
-    fn get_raw_value(&self) -> String {
-        let mut main_type = self.r#type.get_raw_value();
-
-        // According to Luau rules, `&` and `|` can't be joined in one type, you must do
-        // `( ... & ...) | ...` for it to work, which is why this is an `if-else if` instead
-        // of 2 `if` statements.
-        if !self.and_types.is_empty() {
-            let and_types = self
-                .and_types
-                .iter()
-                .map(|r#type| r#type.get_raw_value())
-                .collect::<Vec<String>>()
-                .join(" & ");
-            main_type = format!("({} & {})", main_type, and_types)
-        } else if !self.or_types.is_empty() {
-            let or_types = self
-                .or_types
-                .iter()
-                .map(|r#type| r#type.get_raw_value())
-                .collect::<Vec<String>>()
-                .join(" | ");
-            main_type = format!("({} | {})", main_type, or_types)
-        }
-
-        main_type.to_string()
-    }
-}
-
-impl From<(Node<'_>, &[u8])> for TypeValue {
-    fn from((node, code_bytes): (Node<'_>, &[u8])) -> Self {
-        //TODO: & and | types.
-        TypeValue {
-            r#type: Arc::new(Expression::from((
-                node,
-                from_simple_type(node, code_bytes),
-                code_bytes,
-            ))),
-            ..Default::default()
-        }
-    }
-}
-impl From<(&str, Node<'_>)> for TypeValue {
-    fn from((name, node): (&str, Node<'_>)) -> Self {
-        TypeValue {
-            r#type: Arc::new(ExpressionInner::from((name, node)).into()),
-            ..Default::default()
-        }
-    }
-}
-impl From<ExpressionInner> for TypeValue {
-    fn from(value: ExpressionInner) -> Self {
-        TypeValue {
-            r#type: Arc::new(value.into()),
-            ..Default::default()
-        }
-    }
-}
-impl From<(Arc<ExpressionInner>, Node<'_>)> for TypeValue {
-    fn from((value, node): (Arc<ExpressionInner>, Node<'_>)) -> Self {
-        TypeValue {
-            r#type: Arc::new(Expression::from((value.clone(), node))),
-            ..Default::default()
-        }
-    }
-}
-
-impl Display for TypeDefinition {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&self.get_raw_value())
-    }
-}
-impl HasRawValue for TypeDefinition {
-    fn get_raw_value(&self) -> String {
-        if self.type_name == "any" {
-            return "any".to_string();
-        }
-
-        let prefix = self
-            .export_keyword
-            .as_ref()
-            .map_or_else(|| "".to_string(), |export| export.get_raw_value());
-
-        let start = if self.type_name.is_empty() {
-            String::from("")
-        } else {
-            format!("type {} = ", self.type_name)
-        };
-
-        format!("{}{}{}", prefix, start, self.type_value.get_raw_value())
-    }
-}
-
-impl AstNode for TypeDefinition {
-    fn try_from_node<'a>(
-        node: tree_sitter::Node<'a>,
-        _: &mut tree_sitter::TreeCursor<'a>,
-        code_bytes: &[u8],
-    ) -> Option<Vec<Self>> {
-        if node.kind() != "typeDefinition" {
-            return None;
-        }
-
-        Some(vec![TypeDefinition::from((node, code_bytes, true))])
-    }
-}
-
-impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
-    fn from((node, code_bytes, is_definition): (Node, &[u8], bool)) -> Self {
-        if is_definition {
-            let name_node = node.child_by_field_name("typeName").unwrap();
-
-            TypeDefinition {
-                export_keyword: node
-                    .child_by_field_name("export")
-                    .map(|node| SingleToken::from((node, code_bytes))),
-                type_keyword: node
-                    .child_by_field_name("typeKeyword")
-                    .map(|node| SingleToken::from((node, code_bytes))),
-                type_name: name_node.utf8_text(code_bytes).unwrap().to_string(),
-                equal_sign: node
-                    .child_by_field_name("equal")
-                    .map(|node| SingleToken::from((node, code_bytes))),
-                type_value: Arc::new(TypeValue::from((
-                    node.child_by_field_name("type").unwrap(),
-                    code_bytes,
-                ))),
-                name_location: Some(get_location(name_node)),
-            }
-        } else {
-            TypeDefinition {
-                export_keyword: None,
-                type_keyword: None,
-                name_location: Some(get_location(node)),
-                type_name: "".to_string(),
-                equal_sign: None,
-                type_value: Arc::new(TypeValue::from((node, code_bytes))),
-            }
-        }
-    }
-}
-
-impl From<(&str, Node<'_>)> for TypeDefinition {
-    fn from((type_name, node): (&str, Node<'_>)) -> Self {
-        TypeDefinition {
-            export_keyword: None,
-            type_keyword: None,
-            type_name: type_name.to_string(),
-            equal_sign: None,
-            type_value: Arc::new(TypeValue::from((type_name, node))),
-            name_location: None,
-        }
-    }
-}
-
-impl From<(Arc<ExpressionInner>, Node<'_>)> for TypeDefinition {
-    fn from((value, node): (Arc<ExpressionInner>, Node<'_>)) -> Self {
-        TypeDefinition {
-            export_keyword: None,
-            type_keyword: None,
-            type_name: "".to_string(),
-            equal_sign: None,
-            type_value: Arc::from(TypeValue::from((value, node))),
-            name_location: None,
-        }
     }
 }

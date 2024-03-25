@@ -5,13 +5,13 @@ use tree_sitter::Node;
 use crate::{
     prelude::{
         parse_block, Ast, ElseIfExpression, Expression, ExpressionInner, FunctionName,
-        FunctionValue, HasRawValue, Print, SingleToken, TableField, TableFieldValue, TableKey,
-        TableValue, TypeDefinition,
+        FunctionValue, HasRawValue, SingleToken, TableField, TableFieldValue, TableKey, TableValue,
+        TypeDefinition,
     },
-    utils::{get_location, get_spaces},
+    utils::get_location,
 };
 
-use super::type_definition::{build_function_parameters, build_function_returns};
+use crate::prelude::type_definition::functions::{build_function_parameters, build_function_returns};
 
 impl Display for ExpressionInner {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -290,86 +290,5 @@ impl From<(Node<'_>, &[u8])> for ExpressionInner {
                 node.to_sexp()
             ),
         }
-    }
-}
-
-impl From<(Node<'_>, &[u8])> for Expression {
-    fn from((node, code_bytes): (Node<'_>, &[u8])) -> Self {
-        let (spaces_before, spaces_after) = get_spaces(node, code_bytes);
-
-        Self {
-            location: get_location(node),
-            spaces_before,
-            inner: Arc::new(ExpressionInner::from((node, code_bytes))),
-            spaces_after,
-        }
-    }
-}
-impl From<(Node<'_>, ExpressionInner, &[u8])> for Expression {
-    fn from((node, expression_inner, code_bytes): (Node<'_>, ExpressionInner, &[u8])) -> Self {
-        let (spaces_before, spaces_after) = get_spaces(node, code_bytes);
-
-        Self {
-            location: get_location(node),
-            spaces_before,
-            inner: Arc::new(expression_inner),
-            spaces_after,
-        }
-    }
-}
-impl From<ExpressionInner> for Expression {
-    fn from(expression_inner: ExpressionInner) -> Self {
-        Self {
-            inner: Arc::new(expression_inner),
-            ..Default::default()
-        }
-    }
-}
-impl From<(Arc<ExpressionInner>, Node<'_>)> for Expression {
-    fn from((expression_inner, node): (Arc<ExpressionInner>, Node<'_>)) -> Self {
-        Self {
-            inner: expression_inner,
-            location: get_location(node),
-            ..Default::default()
-        }
-    }
-}
-
-impl Display for Expression {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&self.get_raw_value())
-    }
-}
-impl HasRawValue for Expression {
-    fn get_raw_value(&self) -> String {
-        self.inner.get_raw_value()
-    }
-}
-impl Print for Expression {
-    fn print(&self) -> String {
-        format!("{}{}{}", self.spaces_before, self.inner, self.spaces_after)
-    }
-    fn print_leading(&self) -> String {
-        format!("{}{}", self.spaces_before, self.inner)
-    }
-    fn print_trailing(&self) -> String {
-        format!("{}{}", self.inner, self.spaces_after)
-    }
-}
-
-impl Display for ElseIfExpression {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&self.get_raw_value())
-    }
-}
-impl HasRawValue for ElseIfExpression {
-    fn get_raw_value(&self) -> String {
-        format!(
-            "{} {} {} {}",
-            self.else_if_token.get_raw_value(),
-            self.condition.get_raw_value(),
-            self.then_token.get_raw_value(),
-            self.expression.get_raw_value(),
-        )
     }
 }
