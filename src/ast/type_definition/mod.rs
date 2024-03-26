@@ -8,39 +8,13 @@
 pub(crate) mod functions;
 mod type_value;
 
-use std::{fmt::Display, sync::Arc};
+use std::sync::Arc;
 use tree_sitter::Node;
 
 use crate::{
-    prelude::{AstNode, ExpressionInner, HasRawValue, SingleToken, TypeDefinition, TypeValue},
+    prelude::{AstNode, ExpressionInner, SingleToken, TypeDefinition, TypeValue},
     utils::get_location,
 };
-
-impl Display for TypeDefinition {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&self.get_raw_value())
-    }
-}
-impl HasRawValue for TypeDefinition {
-    fn get_raw_value(&self) -> String {
-        if self.type_name == "any" {
-            return "any".to_string();
-        }
-
-        let prefix = self
-            .export_keyword
-            .as_ref()
-            .map_or_else(|| "".to_string(), |export| export.get_raw_value());
-
-        let start = if self.type_name.is_empty() {
-            String::from("")
-        } else {
-            format!("type {} = ", self.type_name)
-        };
-
-        format!("{}{}{}", prefix, start, self.type_value.get_raw_value())
-    }
-}
 
 impl AstNode for TypeDefinition {
     fn try_from_node<'a>(
