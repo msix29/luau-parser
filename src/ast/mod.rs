@@ -10,3 +10,8 @@ pub mod name;
 pub mod token;
 pub mod type_definition;
 pub mod variable_declaration;
+
+use crate::prelude::Ast;
+
+unsafe impl Send for Ast {}
+unsafe impl Sync for Ast {}

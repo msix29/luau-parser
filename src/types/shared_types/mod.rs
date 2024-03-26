@@ -111,6 +111,3 @@ pub struct Ast {
     /// The tokens in the **main scope** of this file.
     pub tokens: Arc<Vec<Token>>,
 }
-
-unsafe impl Send for Ast {}
-unsafe impl Sync for Ast {}
