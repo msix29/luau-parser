@@ -1,13 +1,12 @@
 mod expression_inner;
-mod else_if_expression;
 mod handle_prefix_exp;
 
-use std::{fmt::Display, sync::Arc};
+use std::sync::Arc;
 
 use tree_sitter::Node;
 
 use crate::{
-    prelude::{Expression, ExpressionInner, HasRawValue, Print},
+    prelude::{Expression, ExpressionInner},
     utils::{get_location, get_spaces},
 };
 
@@ -51,27 +50,5 @@ impl From<(Arc<ExpressionInner>, Node<'_>)> for Expression {
             location: get_location(node),
             ..Default::default()
         }
-    }
-}
-
-impl Display for Expression {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&self.get_raw_value())
-    }
-}
-impl HasRawValue for Expression {
-    fn get_raw_value(&self) -> String {
-        self.inner.get_raw_value()
-    }
-}
-impl Print for Expression {
-    fn print(&self) -> String {
-        format!("{}{}{}", self.spaces_before, self.inner, self.spaces_after)
-    }
-    fn print_leading(&self) -> String {
-        format!("{}{}", self.spaces_before, self.inner)
-    }
-    fn print_trailing(&self) -> String {
-        format!("{}{}", self.inner, self.spaces_after)
     }
 }

@@ -1,12 +1,12 @@
-use std::{fmt::Display, sync::Arc};
+use std::sync::Arc;
 
 use tree_sitter::Node;
 
 use crate::{
     prelude::{
         parse_block, Ast, ElseIfExpression, Expression, ExpressionInner, FunctionName,
-        FunctionValue, HasRawValue, List, ListItem, PrefixExp, SingleToken, TableField,
-        TableFieldValue, TableKey, TableValue, TypeDefinition,
+        FunctionValue, List, ListItem, PrefixExp, SingleToken, TableField, TableFieldValue,
+        TableKey, TableValue, TypeDefinition,
     },
     utils::get_location,
 };
@@ -86,75 +86,6 @@ pub fn build_table(node: Node, code_bytes: &[u8]) -> TableValue {
     }
 }
 
-impl Display for ExpressionInner {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&self.get_raw_value())
-    }
-}
-impl HasRawValue for ExpressionInner {
-    fn get_raw_value(&self) -> String {
-        match self {
-            ExpressionInner::Nil => "nil".to_string(),
-            ExpressionInner::Boolean(value) => value.get_raw_value(),
-            ExpressionInner::Number(value) => value.get_raw_value(),
-            ExpressionInner::String(value) => value.get_raw_value(),
-            ExpressionInner::Function(value) => value.get_raw_value(),
-            ExpressionInner::FunctionCall(_) => todo!("function call"),
-            ExpressionInner::ExpressionWrap(_) => todo!(),
-            ExpressionInner::Var(_) => todo!(),
-            ExpressionInner::Table(value) => value.get_raw_value(),
-            ExpressionInner::UnaryExpression {
-                operator,
-                expression,
-            } => format!("{}{}", operator.get_raw_value(), expression.get_raw_value()),
-            ExpressionInner::BinaryExpression {
-                left,
-                operator,
-                right,
-            } => format!(
-                "{} {} {}",
-                left.get_raw_value(),
-                operator.get_raw_value(),
-                right.get_raw_value()
-            ),
-
-            ExpressionInner::Cast {
-                expression,
-                operator,
-                cast_to,
-            } => {
-                format!(
-                    "{} {} {}",
-                    expression,
-                    operator.get_raw_value(),
-                    cast_to.get_raw_value()
-                )
-            }
-            ExpressionInner::IfExpression {
-                if_token,
-                condition,
-                then_token,
-                else_if_expressions,
-                else_token,
-                else_expression,
-            } => {
-                format!(
-                    "{} {} {} {} {} {}",
-                    if_token.get_raw_value(),
-                    condition.get_raw_value(),
-                    then_token.get_raw_value(),
-                    else_if_expressions
-                        .iter()
-                        .map(|expression| expression.get_raw_value())
-                        .collect::<Vec<String>>()
-                        .join(" "),
-                    else_token.get_raw_value(),
-                    else_expression.get_raw_value(),
-                )
-            }
-        }
-    }
-}
 impl From<(&str, Node<'_>)> for ExpressionInner {
     fn from((value, node): (&str, Node<'_>)) -> Self {
         //TODO: Handle other cases.
@@ -201,7 +132,9 @@ impl From<PrefixExp> for ExpressionInner {
         match value {
             PrefixExp::Var(var) => ExpressionInner::Var(var),
             PrefixExp::FunctionCall(function_call) => ExpressionInner::FunctionCall(function_call),
-            PrefixExp::ExpressionWrap(expression_wrap) => ExpressionInner::ExpressionWrap(expression_wrap),
+            PrefixExp::ExpressionWrap(expression_wrap) => {
+                ExpressionInner::ExpressionWrap(expression_wrap)
+            }
         }
     }
 }
