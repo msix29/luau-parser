@@ -51,10 +51,15 @@ impl HasRawValue for TableField {
         } else {
             String::from("")
         };
+        let r#type = if let Some(r#type) = &self.r#type {
+            format!(": {}", r#type.get_raw_value())
+        } else {
+            String::from("")
+        };
         format!(
-            "{}: {}{}",
+            "{}{}{}",
             self.key.get_raw_value(),
-            self.r#type.get_raw_value(),
+            r#type,
             value,
         )
     }

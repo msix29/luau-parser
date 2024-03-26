@@ -74,7 +74,7 @@ pub struct TableField {
     pub value_location: Location,
 
     /// The type of this field, this is always present regardless of the field type.
-    pub r#type: Arc<TypeDefinition>,
+    pub r#type: Option<Arc<TypeDefinition>>,
 
     /// The (optional) separator between the current field and the next, this is always
     /// `Some` except if the user didn't add a trailing `,` or `;` with the last field.

@@ -4,14 +4,14 @@ use tree_sitter::Node;
 
 use crate::{
     prelude::{
-        ExpressionInner, FunctionParameter, List, ListItem, NormalizedName, SingleToken,
-        TableField, TableKey, TableValue, TypeDefinition, TypeValue,
+        FunctionParameter, List, ListItem, NormalizedName, SingleToken, TableField, TableKey,
+        TableValue, TypeDefinition, TypeValue,
     },
     utils::get_location,
 };
 
 pub fn from_singleton_type(node: Node, code_bytes: &[u8]) -> TypeValue {
-    TypeValue::Basic(SingleToken::from((node,code_bytes)))
+    TypeValue::Basic(SingleToken::from((node, code_bytes)))
     // match node.kind() {
     //     "string" => TypeValue::Basic(SingleToken::from((node.utf8_text(code_bytes).unwrap(), node))),
     //     "name" => TypeValue::Basic(SingleToken::from(("<other value here>", node))),
@@ -51,7 +51,11 @@ pub fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
             table_fields.push(TableField {
                 key: Arc::new(TableKey::String("[number]".to_string())),
                 equal_or_colon: None,
-                r#type: Arc::new(TypeDefinition::from((fields_list, code_bytes, false))),
+                r#type: Some(Arc::new(TypeDefinition::from((
+                    fields_list,
+                    code_bytes,
+                    false,
+                )))),
                 value: None,
                 separator: None,
                 location: get_location(node),
@@ -83,11 +87,11 @@ pub fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
                                 field.child(1).unwrap(),
                                 code_bytes,
                             ))),
-                            r#type: Arc::new(TypeDefinition::from((
+                            r#type: Some(Arc::new(TypeDefinition::from((
                                 field.child(2).unwrap(),
                                 code_bytes,
                                 false,
-                            ))),
+                            )))),
                             value: None,
                             separator,
                             //TODO
@@ -117,11 +121,11 @@ pub fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
                                 field.child(3).unwrap(),
                                 code_bytes,
                             ))),
-                            r#type: Arc::new(TypeDefinition::from((
+                            r#type: Some(Arc::new(TypeDefinition::from((
                                 field.child(4).unwrap(),
                                 code_bytes,
                                 false,
-                            ))),
+                            )))),
                             value: None,
                             separator,
                             //TODO

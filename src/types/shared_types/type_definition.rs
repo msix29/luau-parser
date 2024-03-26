@@ -7,21 +7,7 @@ use std::sync::Arc;
 
 use crate::prelude::Expression;
 
-use super::{FunctionParameter, List, Location, NormalizedName, SingleToken, TableField, TableValue};
-
-// /// A struct holding values of a type, including it's `&` and `|` (intersection and union)
-// /// types.
-// #[derive(Clone, Debug, Default)]
-// pub struct TypeValue {
-//     /// The first value in the type, not the final type.
-//     pub r#type: Arc<Expression>,
-
-//     /// All types following the [main type](TypeValue::r#type) with `&` between them.
-//     pub and_types: Vec<Arc<TypeDefinition>>,
-
-//     /// All types following the [main type](TypeValue::r#type) with `|` between them.
-//     pub or_types: Vec<Arc<TypeDefinition>>,
-// }
+use super::{FunctionParameter, List, Location, SingleToken, TableValue};
 
 #[derive(Clone, Debug)]
 pub enum TypeValue {
@@ -78,9 +64,9 @@ pub enum TypeValue {
     },
 
     Tuple {
-        opening_parentheses: SingleToken,
+        opening_parenthesis: SingleToken,
         types: List<TypeValue>,
-        closing_parentheses: SingleToken,
+        closing_parenthesis: SingleToken,
     },
 
     Union {

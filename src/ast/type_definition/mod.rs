@@ -12,7 +12,7 @@ use std::sync::Arc;
 use tree_sitter::Node;
 
 use crate::{
-    prelude::{AstNode, ExpressionInner, SingleToken, TypeDefinition, TypeValue},
+    prelude::{AstNode, SingleToken, TypeDefinition, TypeValue},
     utils::get_location,
 };
 
@@ -73,19 +73,6 @@ impl From<(&str, Node<'_>, &[u8])> for TypeDefinition {
             type_name: type_name.to_string(),
             equal_sign: None,
             type_value: Arc::new(TypeValue::from((type_name, node, code_bytes))),
-            name_location: None,
-        }
-    }
-}
-
-impl From<(Arc<ExpressionInner>, Node<'_>)> for TypeDefinition {
-    fn from((value, node): (Arc<ExpressionInner>, Node<'_>)) -> Self {
-        TypeDefinition {
-            export_keyword: None,
-            type_keyword: None,
-            type_name: "".to_string(),
-            equal_sign: None,
-            type_value: Arc::from(TypeValue::from((value, node))),
             name_location: None,
         }
     }
