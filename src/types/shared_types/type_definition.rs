@@ -7,20 +7,97 @@ use std::sync::Arc;
 
 use crate::prelude::Expression;
 
-use super::{Location, SingleToken};
+use super::{FunctionParameter, List, Location, NormalizedName, SingleToken, TableField, TableValue};
 
-/// A struct holding values of a type, including it's `&` and `|` (intersection and union)
-/// types.
-#[derive(Clone, Debug, Default)]
-pub struct TypeValue {
-    /// The first value in the type, not the final type.
-    pub r#type: Arc<Expression>,
+// /// A struct holding values of a type, including it's `&` and `|` (intersection and union)
+// /// types.
+// #[derive(Clone, Debug, Default)]
+// pub struct TypeValue {
+//     /// The first value in the type, not the final type.
+//     pub r#type: Arc<Expression>,
 
-    /// All types following the [main type](TypeValue::r#type) with `&` between them.
-    pub and_types: Vec<Arc<TypeDefinition>>,
+//     /// All types following the [main type](TypeValue::r#type) with `&` between them.
+//     pub and_types: Vec<Arc<TypeDefinition>>,
 
-    /// All types following the [main type](TypeValue::r#type) with `|` between them.
-    pub or_types: Vec<Arc<TypeDefinition>>,
+//     /// All types following the [main type](TypeValue::r#type) with `|` between them.
+//     pub or_types: Vec<Arc<TypeDefinition>>,
+// }
+
+#[derive(Clone, Debug)]
+pub enum TypeValue {
+    Array {
+        opening_braces: SingleToken,
+        type_info: Arc<TypeValue>,
+        closing_braces: SingleToken,
+    },
+
+    Basic(SingleToken),
+
+    String(SingleToken),
+
+    Boolean(SingleToken),
+
+    Function {
+        opening_parentheses: SingleToken,
+        arguments: List<FunctionParameter>,
+        closing_parentheses: SingleToken,
+        arrow: SingleToken,
+        return_type: Arc<TypeValue>,
+    },
+
+    GenericPack {
+        name: SingleToken,
+        ellipse: SingleToken,
+    },
+
+    Intersection {
+        left: Arc<TypeValue>,
+        ampersand: SingleToken,
+        right: Arc<TypeValue>,
+    },
+
+    Module {
+        module: SingleToken,
+        dot: SingleToken,
+        //TODO: Allow generics
+        type_info: Arc<SingleToken>,
+    },
+
+    Optional {
+        base: Arc<TypeValue>,
+        question_mark: SingleToken,
+    },
+
+    Table(TableValue),
+
+    Typeof {
+        typeof_token: SingleToken,
+        opening_parentheses: SingleToken,
+        inner: Arc<Expression>,
+        closing_parentheses: SingleToken,
+    },
+
+    Tuple {
+        opening_parentheses: SingleToken,
+        types: List<TypeValue>,
+        closing_parentheses: SingleToken,
+    },
+
+    Union {
+        left: Arc<TypeValue>,
+        pipe: SingleToken,
+        right: Arc<TypeValue>,
+    },
+
+    Variadic {
+        ellipse: SingleToken,
+        type_info: Arc<TypeValue>,
+    },
+
+    VariadicPack {
+        ellipse: SingleToken,
+        name: SingleToken,
+    },
 }
 
 /// A struct for a type definition. Holds needed data to be able to write it back as valid

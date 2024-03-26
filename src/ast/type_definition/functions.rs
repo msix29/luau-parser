@@ -4,20 +4,21 @@ use tree_sitter::Node;
 
 use crate::{
     prelude::{
-        Ast, ExpressionInner, FunctionName, FunctionParameter, FunctionReturn, FunctionValue,
-        NormalizedName, SingleToken, TableField, TableKey, TableValue, TypeDefinition,
+        ExpressionInner, FunctionParameter, List, ListItem, NormalizedName, SingleToken,
+        TableField, TableKey, TableValue, TypeDefinition, TypeValue,
     },
     utils::get_location,
 };
 
-pub fn from_singleton_type(node: Node, code_bytes: &[u8]) -> ExpressionInner {
-    match node.kind() {
-        "string" => ExpressionInner::from((node.utf8_text(code_bytes).unwrap(), node)),
-        "name" => ExpressionInner::from(("<other value here>", node)), // TODO: Look for it.
-        "false" => ExpressionInner::from(("false", node)),
-        "true" => ExpressionInner::from(("true", node)),
-        _ => ExpressionInner::from(("any", node)), // Should never be matched when done.
-    }
+pub fn from_singleton_type(node: Node, code_bytes: &[u8]) -> TypeValue {
+    TypeValue::Basic(SingleToken::from((node,code_bytes)))
+    // match node.kind() {
+    //     "string" => TypeValue::Basic(SingleToken::from((node.utf8_text(code_bytes).unwrap(), node))),
+    //     "name" => TypeValue::Basic(SingleToken::from(("<other value here>", node))),
+    //     "false" => TypeValue::Basic(SingleToken::from(("false", node))),
+    //     "true" => TypeValue::Basic(SingleToken::from(("true", node))),
+    //     _ => TypeValue::Basic(SingleToken::from(("any", node))),
+    // }
 }
 
 pub fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
@@ -148,94 +149,97 @@ pub fn build_function_parameters(
     parameters_node: Node,
     code_bytes: &[u8],
     is_type: bool,
-) -> Vec<FunctionParameter> {
+) -> List<FunctionParameter> {
     let mut parameters = Vec::new();
 
-    for parameter in
-        parameters_node.children_by_field_name("parameter", &mut parameters_node.walk())
+    let separators = parameters_node
+        .children_by_field_name("separators", &mut parameters_node.walk())
+        .map(|node| SingleToken::from((node, code_bytes)))
+        .collect::<Vec<SingleToken>>();
+
+    for (i, parameter) in parameters_node
+        .children_by_field_name("parameter", &mut parameters_node.walk())
+        .enumerate()
     {
         let normalized_name = NormalizedName::from((parameter, code_bytes));
 
-        if let Some(r#type) = normalized_name.r#type {
-            parameters.push(FunctionParameter {
+        let parameter = if let Some(r#type) = normalized_name.r#type {
+            FunctionParameter {
                 name: normalized_name.name,
                 is_variadic: false,
                 r#type,
                 location: get_location(parameter),
-            });
+            }
         } else if !is_type {
-            parameters.push(FunctionParameter {
+            FunctionParameter {
                 name: normalized_name.name,
                 is_variadic: false,
-                r#type: Arc::new(TypeDefinition::from(("any", parameter))),
+                r#type: Arc::new(TypeDefinition::from(("any", parameter, code_bytes))),
                 location: get_location(parameter),
-            });
+            }
         } else {
             // Pretty sure this isn't in the spec, but if the name is missing in a type
             // definition of a function, then it's the type and the name is empty, but for
             // the sake of making it "better", we use `_`, which is globally known as a
             // placeholder.
-            parameters.push(FunctionParameter {
+            FunctionParameter {
                 name: "_".to_string(),
                 is_variadic: false,
                 r#type: Arc::new(TypeDefinition::from((
                     normalized_name.name.as_str(),
                     parameter,
+                    code_bytes,
                 ))),
                 location: get_location(parameter),
-            });
-        }
-    }
+            }
+        };
 
-    parameters
-}
-
-pub fn build_function_returns(node: Node, code_bytes: &[u8]) -> Vec<FunctionReturn> {
-    let mut returns = Vec::new();
-
-    if let Some(r#type) = node.child_by_field_name("return") {
-        returns.push(FunctionReturn {
-            r#type: Arc::new(TypeDefinition::from((r#type, code_bytes, false))),
-            is_variadic: false,
-            location: get_location(r#type),
+        parameters.push(if let Some(separator) = separators.get(i) {
+            ListItem::Trailing {
+                item: parameter,
+                separator: separator.clone(),
+            }
+        } else {
+            ListItem::NonTrailing(parameter)
         })
-    } else if let Some(returns_node) = node.child_by_field_name("returns") {
-        for r#return in returns_node.children(&mut returns_node.walk()) {
-            returns.push(FunctionReturn {
-                r#type: Arc::new(TypeDefinition::from((r#return, code_bytes, false))),
-                is_variadic: false,
-                location: get_location(r#return),
-            });
-        }
     }
 
-    returns
+    List { items: parameters }
 }
 
-//TODO: Make it work
-pub fn build_function_type(node: Node, code_bytes: &[u8]) -> FunctionValue {
-    let parameters = build_function_parameters(node, code_bytes, true);
+pub fn build_function_returns(node: Node, code_bytes: &[u8]) -> TypeValue {
+    TypeValue::from((
+        node.child_by_field_name("return")
+            .unwrap_or_else(|| node.child_by_field_name("returns").unwrap()),
+        code_bytes,
+    ))
+}
 
-    FunctionValue {
-        local_keyword: None,
-        function_keyword: None,
-        function_name: FunctionName::Anonymous,
-        parameters: Arc::new(parameters),
-        returns: Arc::new(build_function_returns(node, code_bytes)),
-        body: Arc::new(Ast::default()),
-        end_keyword: None,
+pub fn build_function_type(node: Node, code_bytes: &[u8]) -> TypeValue {
+    TypeValue::Function {
+        opening_parentheses: SingleToken::from((
+            node.child_by_field_name("opening_parenthesis").unwrap(),
+            code_bytes,
+        )),
+        arguments: build_function_parameters(node, code_bytes, true),
+        closing_parentheses: SingleToken::from((
+            node.child_by_field_name("closing_parenthesis").unwrap(),
+            code_bytes,
+        )),
+        arrow: SingleToken::from((node.child_by_field_name("arrow").unwrap(), code_bytes)),
+        return_type: Arc::new(build_function_returns(node, code_bytes)),
     }
 }
 
-pub fn from_simple_type(node: Node, code_bytes: &[u8]) -> ExpressionInner {
-    match node.kind() {
-        "singleton" => from_singleton_type(node, code_bytes),
-        "namedtype" => ExpressionInner::from((node.utf8_text(code_bytes).unwrap(), node)), //TODO: indexing from a table.
-        "typeof" => ExpressionInner::from(("typeof<T>(...)", node)), //TODO: typeof(<expression>)
-        "tableType" => ExpressionInner::Table(build_table_type(node, code_bytes)),
-        "functionType" => ExpressionInner::Function(build_function_type(node, code_bytes)),
-        "wraptype" => from_simple_type(node.child(1).unwrap(), code_bytes),
-        // "untype"
-        _ => todo!("Why did this match? {}", node.to_sexp()), // Should never be matched when done.
-    }
-}
+// pub fn from_simple_type(node: Node, code_bytes: &[u8]) -> ExpressionInner {
+//     match node.kind() {
+//         "singleton" => from_singleton_type(node, code_bytes),
+//         "namedtype" => ExpressionInner::from((node.utf8_text(code_bytes).unwrap(), node)), //TODO: indexing from a table.
+//         "typeof" => ExpressionInner::from(("typeof<T>(...)", node)), //TODO: typeof(<expression>)
+//         "tableType" => ExpressionInner::Table(build_table_type(node, code_bytes)),
+//         "functionType" => ExpressionInner::Function(build_function_type(node, code_bytes)),
+//         "wraptype" => from_simple_type(node.child(1).unwrap(), code_bytes),
+//         // "untype"
+//         _ => todo!("Why did this match? {}", node.to_sexp()), // Should never be matched when done.
+//     }
+// }

@@ -35,18 +35,19 @@ impl Display for FunctionValue {
 }
 impl HasRawValue for FunctionValue {
     fn get_raw_value(&self) -> String {
-        format!(
-            "({}) -> ({})",
-            self.parameters
-                .iter()
-                .map(|parameter| parameter.get_raw_value())
-                .collect::<Vec<String>>()
-                .join(", "),
-            self.returns
-                .iter()
-                .map(|r#return| r#return.get_raw_value())
-                .collect::<Vec<String>>()
-                .join(", ")
-        )
+        todo!()
+        // format!(
+        //     "({}) -> ({})",
+        //     self.parameters
+        //         .iter()
+        //         .map(|parameter| parameter.get_raw_value())
+        //         .collect::<Vec<String>>()
+        //         .join(", "),
+        //     self.returns
+        //         .iter()
+        //         .map(|r#return| r#return.get_raw_value())
+        //         .collect::<Vec<String>>()
+        //         .join(", ")
+        // )
     }
 }

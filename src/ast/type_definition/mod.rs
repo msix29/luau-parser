@@ -65,14 +65,14 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
     }
 }
 
-impl From<(&str, Node<'_>)> for TypeDefinition {
-    fn from((type_name, node): (&str, Node<'_>)) -> Self {
+impl From<(&str, Node<'_>, &[u8])> for TypeDefinition {
+    fn from((type_name, node, code_bytes): (&str, Node<'_>, &[u8])) -> Self {
         TypeDefinition {
             export_keyword: None,
             type_keyword: None,
             type_name: type_name.to_string(),
             equal_sign: None,
-            type_value: Arc::new(TypeValue::from((type_name, node))),
+            type_value: Arc::new(TypeValue::from((type_name, node, code_bytes))),
             name_location: None,
         }
     }

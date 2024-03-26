@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::prelude::{Ast, Location, SingleToken, TypeDefinition};
+use crate::prelude::{Ast, List, Location, SingleToken, TypeDefinition, TypeValue};
 
 use super::TableKey;
 
@@ -156,10 +156,10 @@ pub struct FunctionValue {
     pub function_name: FunctionName,
 
     /// All _[parameters](FunctionParameter)_ of the function.
-    pub parameters: Arc<Vec<FunctionParameter>>,
+    pub parameters: Arc<List<FunctionParameter>>,
 
     /// All _[returns](FunctionReturn)_ of the function
-    pub returns: Arc<Vec<FunctionReturn>>,
+    pub returns: Arc<TypeValue>,
 
     /// The body of the function.
     pub body: Arc<Ast>,
