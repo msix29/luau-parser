@@ -11,16 +11,8 @@ use super::{FunctionParameter, List, Location, SingleToken, TableValue};
 
 #[derive(Clone, Debug)]
 pub enum TypeValue {
-    Array {
-        opening_braces: SingleToken,
-        type_info: Arc<TypeValue>,
-        closing_braces: SingleToken,
-    },
-
     Basic(SingleToken),
-
     String(SingleToken),
-
     Boolean(SingleToken),
 
     Function {
