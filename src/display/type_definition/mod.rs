@@ -9,7 +9,7 @@ mod type_value;
 
 use std::fmt::Display;
 
-use crate::prelude::{HasRawValue, TypeDefinition};
+use crate::prelude::{HasRawValue, Print, TypeDefinition};
 
 impl Display for TypeDefinition {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -34,5 +34,17 @@ impl HasRawValue for TypeDefinition {
         };
 
         format!("{}{}{}", prefix, start, self.type_value.get_raw_value())
+    }
+}
+
+impl Print for TypeDefinition {
+    fn print(&self) -> String {
+        todo!()
+    }
+    fn print_leading(&self) -> String {
+        todo!()
+    }
+    fn print_trailing(&self) -> String {
+        todo!()
     }
 }
