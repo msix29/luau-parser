@@ -1,59 +1,11 @@
 //! Implements helper trait for _[variable declarations](VariableDeclaration)_.
 
-use std::fmt::Display;
 use tree_sitter::{Node, TreeCursor};
 
 use crate::prelude::{
-    AstNode, Expression, ExpressionInner, HasRawValue, List, ListItem, NormalizedName, Print,
-    SingleToken, LocalAssignment,
+    AstNode, Expression, ExpressionInner, List, ListItem, LocalAssignment, NormalizedName,
+    SingleToken,
 };
-
-impl Display for LocalAssignment {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&self.get_raw_value())
-    }
-}
-
-impl HasRawValue for LocalAssignment {
-    fn get_raw_value(&self) -> String {
-        todo!()
-        // let local = self
-        //     .local_token
-        //     .as_ref()
-        //     .map(|token| token.print_leading())
-        //     .unwrap_or("".to_string());
-
-        // format!("{} {}", local, self.variable_name)
-    }
-}
-
-impl Print for LocalAssignment {
-    fn print(&self) -> String {
-        todo!()
-        // let local = self
-        //     .local_token
-        //     .as_ref()
-        //     .map(|token| token.print())
-        //     .unwrap_or("".to_string());
-
-        // format!(
-        //     "{}{}{}{}",
-        //     local,
-        //     self.variable_name.print_trailing(),
-        //     self.equal_token
-        //         .as_ref()
-        //         .map(|token| token.print())
-        //         .unwrap_or("".to_string()),
-        //     self.expressions
-        // )
-    }
-    fn print_leading(&self) -> String {
-        todo!()
-    }
-    fn print_trailing(&self) -> String {
-        todo!()
-    }
-}
 
 impl AstNode for LocalAssignment {
     fn try_from_node<'a>(

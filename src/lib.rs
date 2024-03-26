@@ -1,4 +1,5 @@
 pub mod ast;
+mod display;
 mod macors;
 pub mod parser;
 pub mod types;
