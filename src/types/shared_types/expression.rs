@@ -1,10 +1,25 @@
 use std::sync::Arc;
 
-use super::{FunctionValue, List, Location, SimpleValue, SingleToken, TableValue, TypeDefinition};
+use super::{FunctionValue, List, Location, SimpleValue, SingleToken, TableKey, TableValue, TypeDefinition};
+
+#[derive(Clone, Debug)]
+pub enum TableAccessPrefix {
+    Name(String),
+    TableAccess(Arc<TableAccess>),
+    FunctionCall(Arc<FunctionCall>),
+    ExpressionWrap(Arc<ExpressionWrap>),
+}
+
+#[derive(Clone, Debug)]
+pub struct TableAccess {
+    pub prefix: TableAccessPrefix,
+    pub last_accessed_key: Arc<TableKey>,
+}
 
 #[derive(Clone, Debug)]
 pub enum Var {
     Name(String),
+    TableAccess(TableAccess),
 }
 
 #[derive(Clone, Debug)]
@@ -14,33 +29,43 @@ pub enum FunctionCallInvoked {
         table: Arc<PrefixExp>,
         colon: SingleToken,
         method: String,
-    }
+    },
+}
+
+#[derive(Clone, Debug)]
+pub struct FunctionCall {
+    pub invoked: FunctionCallInvoked,
+    pub arguments: FunctionArguments,
 }
 
 #[derive(Clone, Debug)]
 pub enum FunctionArguments {
     String(SingleToken),
     Table(TableValue),
-    List(List<Arc<Expression>>),
+    List {
+        open_parenthesis: Option<SingleToken>,
+        arguments: List<Expression>,
+        close_parenthesis: Option<SingleToken>,
+    },
+}
+
+#[derive(Clone, Debug)]
+pub struct ExpressionWrap {
+    /// The `(` character.
+    pub opening_parenthesis: SingleToken,
+
+    /// The actual _[expression](Expression)_ being wrapped.
+    pub expression: Arc<Expression>,
+
+    // The `)` character.
+    pub closing_parenthesis: SingleToken,
 }
 
 #[derive(Clone, Debug)]
 pub enum PrefixExp {
     Var(Var),
-    FunctionCall {
-        invoked: FunctionCallInvoked,
-        arguments: FunctionArguments,
-    },
-    ExpressionWrap {
-        /// The `(` character.
-        opening_parenthesis: SingleToken,
-
-        /// The actual _[expression](Expression)_ being wrapped.
-        expression: Arc<Expression>,
-
-        // The `)` character.
-        closing_parenthesis: SingleToken,
-    },
+    FunctionCall(FunctionCall),
+    ExpressionWrap(ExpressionWrap),
 }
 
 /// An enum representing all possible values for an expression.
@@ -68,9 +93,9 @@ pub enum ExpressionInner {
     /// ```lua
     /// local foo = bar()
     /// ```
-    FunctionCall(PrefixExp),
+    FunctionCall(FunctionCall),
 
-    ExpressionWrap(PrefixExp),
+    ExpressionWrap(ExpressionWrap),
 
     Var(Var),
 

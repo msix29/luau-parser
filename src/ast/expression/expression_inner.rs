@@ -15,6 +15,77 @@ use crate::prelude::type_definition::functions::{
     build_function_parameters, build_function_returns,
 };
 
+use super::handle_prefix_exp::handle_prefix_exp;
+
+pub fn build_table(node: Node, code_bytes: &[u8]) -> TableValue {
+    let mut index = 0;
+    let field_list = node.child_by_field_name("fieldList").unwrap();
+    let separators = field_list
+        .children_by_field_name("sep", &mut node.walk())
+        .collect::<Vec<Node>>();
+
+    TableValue {
+        opening_brackets: SingleToken::from((
+            node.child_by_field_name("opening_brackets").unwrap(),
+            code_bytes,
+        )),
+        fields: Arc::new(
+            field_list
+                .children_by_field_name("field", &mut node.walk())
+                .enumerate()
+                .map(|(i, node)| {
+                    let (key, key_location) = if let Some(key) = node.child_by_field_name("keyName")
+                    {
+                        (
+                            TableKey::String(key.utf8_text(code_bytes).unwrap().to_string()),
+                            Some(get_location(key)),
+                        )
+                    } else if let Some(key) = node.child_by_field_name("keyExp") {
+                        (
+                            TableKey::Expression {
+                                open_square_brackets: SingleToken::from((
+                                    key.prev_sibling().unwrap(),
+                                    code_bytes,
+                                )),
+                                expression: Arc::new(Expression::from((key, code_bytes))),
+                                close_square_brackets: SingleToken::from((
+                                    key.next_sibling().unwrap(),
+                                    code_bytes,
+                                )),
+                            },
+                            Some(get_location(key)),
+                        )
+                    } else {
+                        index += 1;
+                        (TableKey::String(index.to_string()), None)
+                    };
+                    let value_node = node.child_by_field_name("value").unwrap();
+                    let value = Expression::from((value_node, code_bytes));
+                    TableField {
+                        key: Arc::new(key),
+                        key_location,
+                        value_location: get_location(value_node),
+                        location: get_location(node),
+                        equal_or_colon: node
+                            .child_by_field_name("equal")
+                            .map(|node| SingleToken::from((node, code_bytes))),
+                        r#type: Arc::new(TypeDefinition::from((value.inner.clone(), node))),
+                        value: Some(Arc::new(TableFieldValue::Expression(value))),
+                        separator: separators
+                            .get(i)
+                            .map(|node| SingleToken::from((*node, code_bytes))),
+                    }
+                })
+                .collect::<Vec<TableField>>(),
+        ),
+        closing_brackets: SingleToken::from((
+            node.child_by_field_name("opening_brackets").unwrap(),
+            code_bytes,
+        )),
+        location: get_location(node),
+    }
+}
+
 impl Display for ExpressionInner {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&self.get_raw_value())
@@ -125,6 +196,16 @@ impl ExpressionInner {
     }
 }
 
+impl From<PrefixExp> for ExpressionInner {
+    fn from(value: PrefixExp) -> Self {
+        match value {
+            PrefixExp::Var(var) => ExpressionInner::Var(var),
+            PrefixExp::FunctionCall(function_call) => ExpressionInner::FunctionCall(function_call),
+            PrefixExp::ExpressionWrap(expression_wrap) => ExpressionInner::ExpressionWrap(expression_wrap),
+        }
+    }
+}
+
 impl From<(Node<'_>, &[u8])> for ExpressionInner {
     fn from((node, code_bytes): (Node<'_>, &[u8])) -> Self {
         match node.kind() {
@@ -158,88 +239,10 @@ impl From<(Node<'_>, &[u8])> for ExpressionInner {
                     ))),
                 })
             }
-            "var" => todo!("Finding other variables isn't done yet."),
-            "functionCall" => todo!("Finding other variables isn't done yet."),
-            "exp_wrap" => ExpressionInner::ExpressionWrap(PrefixExp::ExpressionWrap {
-                opening_parenthesis: SingleToken::from((node.child(0).unwrap(), code_bytes)),
-                expression: Arc::new(Expression::from((node.child(1).unwrap(), code_bytes))),
-                closing_parenthesis: SingleToken::from((node.child(2).unwrap(), code_bytes)),
-            }),
-            "table" => {
-                let mut index = 0;
-                let field_list = node.child_by_field_name("fieldList").unwrap();
-                let separators = field_list
-                    .children_by_field_name("sep", &mut node.walk())
-                    .collect::<Vec<Node>>();
-
-                ExpressionInner::Table(TableValue {
-                    opening_brackets: SingleToken::from((
-                        node.child_by_field_name("opening_brackets").unwrap(),
-                        code_bytes,
-                    )),
-                    fields: Arc::new(
-                        field_list
-                            .children_by_field_name("field", &mut node.walk())
-                            .enumerate()
-                            .map(|(i, node)| {
-                                let (key, key_location) =
-                                    if let Some(key) = node.child_by_field_name("keyName") {
-                                        (
-                                            TableKey::String(
-                                                key.utf8_text(code_bytes).unwrap().to_string(),
-                                            ),
-                                            Some(get_location(key)),
-                                        )
-                                    } else if let Some(key) = node.child_by_field_name("keyExp") {
-                                        (
-                                            TableKey::Expression {
-                                                open_square_brackets: SingleToken::from((
-                                                    key.prev_sibling().unwrap(),
-                                                    code_bytes,
-                                                )),
-                                                expression: Arc::new(Expression::from((
-                                                    key, code_bytes,
-                                                ))),
-                                                close_square_brackets: SingleToken::from((
-                                                    key.next_sibling().unwrap(),
-                                                    code_bytes,
-                                                )),
-                                            },
-                                            Some(get_location(key)),
-                                        )
-                                    } else {
-                                        index += 1;
-                                        (TableKey::String(index.to_string()), None)
-                                    };
-                                let value_node = node.child_by_field_name("value").unwrap();
-                                let value = Expression::from((value_node, code_bytes));
-                                TableField {
-                                    key: Arc::new(key),
-                                    key_location,
-                                    value_location: get_location(value_node),
-                                    location: get_location(node),
-                                    equal_or_colon: node
-                                        .child_by_field_name("equal")
-                                        .map(|node| SingleToken::from((node, code_bytes))),
-                                    r#type: Arc::new(TypeDefinition::from((
-                                        value.inner.clone(),
-                                        node,
-                                    ))),
-                                    value: Some(Arc::new(TableFieldValue::Expression(value))),
-                                    separator: separators
-                                        .get(i)
-                                        .map(|node| SingleToken::from((*node, code_bytes))),
-                                }
-                            })
-                            .collect::<Vec<TableField>>(),
-                    ),
-                    closing_brackets: SingleToken::from((
-                        node.child_by_field_name("opening_brackets").unwrap(),
-                        code_bytes,
-                    )),
-                    location: get_location(node),
-                })
+            "var" | "functionCall" | "exp_wrap" => {
+                ExpressionInner::from(handle_prefix_exp(node, code_bytes))
             }
+            "table" => ExpressionInner::Table(build_table(node, code_bytes)),
             "unexp" => ExpressionInner::UnaryExpression {
                 operator: SingleToken::from((node.child_by_field_name("op").unwrap(), code_bytes)),
                 expression: Arc::new(Expression::from((
