@@ -9,5 +9,4 @@ pub mod list;
 pub mod name;
 pub mod token;
 pub mod type_definition;
-pub mod value;
 pub mod variable_declaration;
