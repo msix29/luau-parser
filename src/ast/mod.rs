@@ -11,7 +11,19 @@ pub mod token;
 pub mod type_definition;
 pub mod variable_declaration;
 
-use crate::prelude::Ast;
+use crate::prelude::{Ast, Print, Token};
 
 unsafe impl Send for Ast {}
 unsafe impl Sync for Ast {}
+
+impl Ast {
+    pub fn print(&self) -> String {
+        self.tokens
+            .iter()
+            .map(|token| match token {
+                Token::VariableDeclaration(value) => value.print(),
+                Token::TypeDefinition(value) => value.print(),
+            })
+            .collect::<String>()
+    }
+}
