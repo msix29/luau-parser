@@ -1,3 +1,5 @@
+//! Implements a helper `From<>` trait for `SingleToken`.
+
 use tree_sitter::Node;
 
 use crate::{

@@ -14,6 +14,8 @@ pub mod variable_declaration;
 use crate::prelude::{Ast, Print, Token};
 
 impl Ast {
+    /// Returns the code that was behind this AST as-is, without any modifications and
+    /// without losing on any details.
     pub fn print(&self) -> String {
         self.tokens
             .iter()

@@ -1,3 +1,6 @@
+//! Implements various functions for _[inner expressions](ExpressionInner), mainly `From<>`
+//! traits.
+
 use std::sync::Arc;
 
 use tree_sitter::Node;
@@ -96,6 +99,11 @@ impl From<(&str, Node<'_>)> for ExpressionInner {
     }
 }
 impl ExpressionInner {
+    /// Builds a list of _[inner expressions](ExpressionInner)_ from an iterator over nodes.
+    ///
+    /// # Note
+    ///
+    /// This function assumes the passed iter iterates over valid expression nodes.
     pub fn from_nodes<'a>(
         nodes_iter: impl Iterator<Item = Node<'a>>,
         code_bytes: &[u8],
