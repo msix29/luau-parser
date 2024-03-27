@@ -23,6 +23,13 @@ pub enum TypeValue {
         return_type: Arc<TypeValue>,
     },
 
+    Generic {
+        base: SingleToken,
+        right_arrows: SingleToken,
+        generics: List<TypeValue>,
+        left_arrows: SingleToken,
+    },
+
     GenericPack {
         name: SingleToken,
         ellipse: SingleToken,

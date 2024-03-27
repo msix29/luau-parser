@@ -12,6 +12,7 @@ use super::functions::{
 
 impl From<(Node<'_>, &[u8])> for TypeValue {
     fn from((node, code_bytes): (Node<'_>, &[u8])) -> Self {
+        println!("{}", node.to_sexp());
         match node.kind() {
             "namedtype" => {
                 if let Some(module) = node.child_by_field_name("module") {
@@ -81,6 +82,42 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
                     code_bytes,
                 )),
             },
+            "typepack" => {
+                let pack = node.child(0).unwrap();
+                match pack.kind() {
+                    "(" => {
+                        let opening_parenthesis = SingleToken::from((
+                            node.child_by_field_name("opening_parenthesis").unwrap(),
+                            code_bytes,
+                        ));
+                        let closing_parenthesis = SingleToken::from((
+                            node.child_by_field_name("closing_parenthesis").unwrap(),
+                            code_bytes,
+                        ));
+
+                        let mut types = Vec::new();
+
+                        for child in node.children_by_field_name("type", &mut node.walk()) {
+                            types.push(TypeValue::from((child, code_bytes)));
+                        }
+
+                        TypeValue::Tuple {
+                            opening_parenthesis,
+                            types: List::default(),
+                            closing_parenthesis,
+                        }
+                    }
+                    "variadic" => TypeValue::Variadic {
+                        ellipse: SingleToken::from((node.child(0).unwrap(), code_bytes)),
+                        type_info: Arc::new(TypeValue::from((pack.child(1).unwrap(), code_bytes))),
+                    },
+                    "genpack" => TypeValue::GenericPack {
+                        name: SingleToken::from((pack.child(0).unwrap(), code_bytes)),
+                        ellipse: SingleToken::from((pack.child(1).unwrap(), code_bytes)),
+                    },
+                    _ => unreachable!(),
+                }
+            }
             _ => panic!("Reached unhandled type. {}", node.to_sexp()),
         }
     }
