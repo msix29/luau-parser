@@ -23,7 +23,7 @@ fn print_all(node: Node, code: &str) {
     }
 }
 
-pub fn parse_block(body: Node, tokens: &mut Vec<Token>, full_code_bytes: &[u8]) {
+pub(crate) fn parse_block(body: Node, tokens: &mut Vec<Token>, full_code_bytes: &[u8]) {
     let mut cursor = body.walk();
     for i in 0..body.child_count() {
         let node = body.child(i).unwrap();
