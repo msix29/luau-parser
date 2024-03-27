@@ -9,84 +9,249 @@ use crate::prelude::Expression;
 
 use super::{FunctionParameter, List, Location, SingleToken, TableValue};
 
+/// Possible values for a type.
 #[derive(Clone, Debug)]
 pub enum TypeValue {
+    /// Just a reference to another type.
+    ///
+    /// ```lua
+    /// type Foo = Bar
+    /// ```
     Basic(SingleToken),
+
+    /// A singletone string.
+    ///
+    /// ```lua
+    /// type Foo = "Bar"
+    /// ```
     String(SingleToken),
+
+    /// A boolean value
+    ///
+    /// ```lua
+    /// type Foo = true
+    /// type Bar = false
+    /// ```
     Boolean(SingleToken),
 
+    /// A wrape of another type, the difference between this and a
+    /// _[tuple](TypeValue::Tuple)_ is that this item always have one type and only one
+    /// type in it, while a _[tuple](TypeValue::Tuple)_ can have any, even 0.
+    ///
+    /// ```lua
+    /// type Foo = (bar)
+    /// ```
     Wrap {
+        /// The `(` character.
         opening_parenthesis: SingleToken,
+
+        /// The type wrapped in between the parenthesis.
         r#type: Arc<TypeValue>,
+
+        /// The `)` character.
         closing_parenthesis: SingleToken,
     },
 
+    /// A function type.
+    ///
+    /// ```lua
+    /// type Foo = (arg1: number) -> (boolean, string)`
+    /// ```
     Function {
+        /// The `(` character at the start of the function.
         opening_parenthesis: SingleToken,
-        arguments: List<FunctionParameter>,
+
+        /// The parameters this function accepts.
+        parameters: List<FunctionParameter>,
+
+        /// The `)` character at the end of parameters and before returns
         closing_parenthesis: SingleToken,
+
+        /// The `->` character.
         arrow: SingleToken,
+
+        /// The return type of this function
         return_type: Arc<TypeValue>,
     },
 
+    /// A generic type.
+    ///
+    /// ```lua
+    /// type EmptySignal = Signal<string, ()>
+    /// ```
     Generic {
+        /// The name of the type that has the generics.
         base: SingleToken,
+
+        /// The `<` character.
         right_arrows: SingleToken,
+
+        /// The actual generics.
         generics: List<TypeValue>,
+
+        /// The `>` character.
         left_arrows: SingleToken,
     },
 
+    /// A generic pack.
+    ///
+    /// ```lua
+    /// <T...>
+    /// ```
     GenericPack {
+        /// The name.
         name: SingleToken,
+
+        /// The `...` characters.
         ellipse: SingleToken,
     },
 
+    /// An intersection between two types.
+    ///
+    /// ```lua
+    /// type Foo = Bar & Qux
+    /// ```
     Intersection {
+        /// The type at the start.
         left: Arc<TypeValue>,
+
+        /// The `&` character.
         ampersand: SingleToken,
+
+        /// The type at the end.
         right: Arc<TypeValue>,
     },
 
-    Module {
-        module: SingleToken,
-        dot: SingleToken,
-        //TODO: Allow generics
-        type_info: Arc<SingleToken>,
+    /// An union between two types.
+    ///
+    /// ```lua
+    /// type Foo = Bar & Qux
+    /// ```
+    Union {
+        /// The type at the start.
+        left: Arc<TypeValue>,
+
+        /// The `|` character.
+        pipe: SingleToken,
+
+        /// The type at the end.
+        right: Arc<TypeValue>,
     },
 
+    /// An access to an exported type from a module.
+    Module {
+        /// the name of the module.
+        module: String,
+
+        /// The `.` between the module name and the type.
+        dot: SingleToken,
+
+        /// The actual type being accessed.
+        type_info: String,
+    },
+
+    /// An optional type.
+    ///
+    /// ```lua
+    /// type Foo = Bar?
+    /// ```
+    ///
+    /// This is just equivalent to:
+    ///
+    /// ```lua
+    /// type Foo = Bar | nil
+    /// ```
     Optional {
+        /// The actual type.
         base: Arc<TypeValue>,
+
+        /// The `?` character.
         question_mark: SingleToken,
     },
 
+    /// A table type.
+    ///
+    /// ```lua
+    /// type Foo = { string }
+    /// type Bar = { Qux: Foo }
+    /// ```
     Table(TableValue),
 
+    /// A `typeof` expression.
     Typeof {
+        /// The `typeof` word.
         typeof_token: SingleToken,
+
+        /// The `(` character.
         opening_parenthesis: SingleToken,
+
+        /// The expression passed to `typeof`.
         inner: Arc<Expression>,
+
+        /// The `)` character.
         closing_parenthesis: SingleToken,
     },
 
+    /// A tuple of types
+    ///
+    /// ```lua
+    /// type Foo = () -> (string, number)
+    /// ```
+    ///
+    /// The tuple here is the return type `(string, number)`. In luau, tuples can't be
+    /// their own type, meaning, this is a syntax error:
+    ///
+    /// ```lua
+    /// type Foo = (string, number)
+    /// ```
     Tuple {
+        /// The `(` character.
         opening_parenthesis: SingleToken,
+
+        /// The list of types between the parenthesis.
         types: List<TypeValue>,
+
+        /// The `)` character.
         closing_parenthesis: SingleToken,
     },
 
-    Union {
-        left: Arc<TypeValue>,
-        pipe: SingleToken,
-        right: Arc<TypeValue>,
-    },
-
+    /// A variadic type.
+    ///
+    /// ```lua
+    /// ...Foo
+    /// ```
+    ///
+    /// The difference between this and a _[variadic pack](TypeValue::VariadicPack)_ is that
+    /// this one can be with a type and not just a name:
+    ///
+    /// ```lua
+    /// ...{ Foo: "Bar" }
+    /// ```
+    ///
+    /// And is that variadic types are used in function paramterers and returns, while
+    /// variadic packs are used for generics.
     Variadic {
+        /// The `...` characters.
         ellipse: SingleToken,
+
+        /// The actual type.
         type_info: Arc<TypeValue>,
     },
 
+    /// A variadic pack.
+    ///
+    /// ```lua
+    /// ...Foo
+    /// ```
+    ///
+    /// ## Note
+    ///
+    /// See _[variadic type](TypeValue::Variadic)_ to learn the difference between them.
     VariadicPack {
+        /// The `...` characters.
         ellipse: SingleToken,
+
+        /// The name
         name: SingleToken,
     },
 }
@@ -111,7 +276,7 @@ pub struct TypeDefinition {
     /// end
     /// ```
     ///
-    /// In the 3 cases (`foo`, `bar`, and `qux`), they all have types with no names.
+    /// In both cases (`{ number }`, and `() -> ()`), they have types with no names.
     pub type_name: String,
 
     /// Exact location of the type name.

@@ -225,7 +225,7 @@ pub(crate) fn build_function_type(node: Node, code_bytes: &[u8]) -> TypeValue {
             node.child_by_field_name("opening_parenthesis").unwrap(),
             code_bytes,
         )),
-        arguments: build_function_parameters(node, code_bytes, true),
+        parameters: build_function_parameters(node, code_bytes, true),
         closing_parenthesis: SingleToken::from((
             node.child_by_field_name("closing_parenthesis").unwrap(),
             code_bytes,

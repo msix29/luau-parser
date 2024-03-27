@@ -6,9 +6,7 @@ use crate::{
     utils::{get_location, get_spaces},
 };
 
-use super::functions::{
-    build_function_type, build_table_type, from_singleton_type,
-};
+use super::functions::{build_function_type, build_table_type, from_singleton_type};
 
 impl From<(Node<'_>, &[u8])> for TypeValue {
     fn from((node, code_bytes): (Node<'_>, &[u8])) -> Self {
@@ -17,15 +15,17 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
             "namedtype" => {
                 if let Some(module) = node.child_by_field_name("module") {
                     TypeValue::Module {
-                        module: SingleToken::from((module, code_bytes)),
+                        module: module.utf8_text(code_bytes).unwrap().to_string(),
                         dot: SingleToken::from((
                             node.child_by_field_name("dot").unwrap(),
                             code_bytes,
                         )),
-                        type_info: Arc::new(SingleToken::from((
-                            node.child_by_field_name("name").unwrap(),
-                            code_bytes,
-                        ))),
+                        type_info: node
+                            .child_by_field_name("name")
+                            .unwrap()
+                            .utf8_text(code_bytes)
+                            .unwrap()
+                            .to_string(),
                     }
                 } else {
                     from_singleton_type(node, code_bytes)
