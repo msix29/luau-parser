@@ -22,9 +22,9 @@ pub enum TypeValue {
     },
 
     Function {
-        opening_parentheses: SingleToken,
+        opening_parenthesis: SingleToken,
         arguments: List<FunctionParameter>,
-        closing_parentheses: SingleToken,
+        closing_parenthesis: SingleToken,
         arrow: SingleToken,
         return_type: Arc<TypeValue>,
     },
@@ -63,9 +63,9 @@ pub enum TypeValue {
 
     Typeof {
         typeof_token: SingleToken,
-        opening_parentheses: SingleToken,
+        opening_parenthesis: SingleToken,
         inner: Arc<Expression>,
-        closing_parentheses: SingleToken,
+        closing_parenthesis: SingleToken,
     },
 
     Tuple {

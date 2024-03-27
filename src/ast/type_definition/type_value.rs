@@ -38,9 +38,9 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
             },
             "typeof" => TypeValue::Typeof {
                 typeof_token: SingleToken::from((node.child(0).unwrap(), code_bytes)),
-                opening_parentheses: SingleToken::from((node.child(1).unwrap(), code_bytes)),
+                opening_parenthesis: SingleToken::from((node.child(1).unwrap(), code_bytes)),
                 inner: Arc::new(Expression::from((node.child(2).unwrap(), code_bytes))),
-                closing_parentheses: SingleToken::from((node.child(3).unwrap(), code_bytes)),
+                closing_parenthesis: SingleToken::from((node.child(3).unwrap(), code_bytes)),
             },
             "functionType" => build_function_type(node, code_bytes),
             "tableType" => TypeValue::Table(build_table_type(node, code_bytes)),

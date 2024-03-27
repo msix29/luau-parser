@@ -221,12 +221,12 @@ pub(crate) fn build_function_returns(node: Node, code_bytes: &[u8]) -> TypeValue
 
 pub(crate) fn build_function_type(node: Node, code_bytes: &[u8]) -> TypeValue {
     TypeValue::Function {
-        opening_parentheses: SingleToken::from((
+        opening_parenthesis: SingleToken::from((
             node.child_by_field_name("opening_parenthesis").unwrap(),
             code_bytes,
         )),
         arguments: build_function_parameters(node, code_bytes, true),
-        closing_parentheses: SingleToken::from((
+        closing_parenthesis: SingleToken::from((
             node.child_by_field_name("closing_parenthesis").unwrap(),
             code_bytes,
         )),
