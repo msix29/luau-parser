@@ -8,21 +8,6 @@ use tree_sitter::Tree;
 
 use crate::prelude::{Ast, AstNode, Token, TypeDefinition, LocalAssignment};
 
-fn print_all(node: Node, code: &str) {
-    // if true {
-    //     return;
-    // }
-    println!(
-        "{:?}\n\t{}",
-        node,
-        &code[node.start_byte()..node.end_byte()]
-    );
-
-    for i in 0..node.child_count() {
-        print_all(node.child(i).unwrap(), code);
-    }
-}
-
 pub(crate) fn parse_block(body: Node, tokens: &mut Vec<Token>, full_code_bytes: &[u8]) {
     let mut cursor = body.walk();
     for i in 0..body.child_count() {
@@ -72,12 +57,6 @@ impl Parser {
         let root = tree.root_node();
         parse_block(root, &mut tokens, code_bytes);
 
-        // TODO: Remove
-        // For debugging purposes.
-        if false {
-            // Disabled for now, printing full tree may be enough.
-            print_all(root, code);
-        }
         println!("{}", &root.to_sexp());
 
         let ast = Ast {
