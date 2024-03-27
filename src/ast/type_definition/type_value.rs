@@ -2,7 +2,7 @@ use std::sync::Arc;
 use tree_sitter::Node;
 
 use crate::{
-    prelude::{Expression, List, ListItem, SingleToken, TypeValue},
+    prelude::{Expression, List, SingleToken, TypeValue},
     utils::{get_location, get_spaces},
 };
 
@@ -31,14 +31,9 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
                     from_singleton_type(node, code_bytes)
                 }
             }
-            "wraptype" => TypeValue::Tuple {
+            "wraptype" => TypeValue::Wrap {
                 opening_parenthesis: SingleToken::from((node.child(0).unwrap(), code_bytes)),
-                types: List {
-                    items: vec![ListItem::NonTrailing(TypeValue::from((
-                        node.child(1).unwrap(),
-                        code_bytes,
-                    )))],
-                },
+                r#type: Arc::new(TypeValue::from((node.child(1).unwrap(), code_bytes))),
                 closing_parenthesis: SingleToken::from((node.child(2).unwrap(), code_bytes)),
             },
             "typeof" => TypeValue::Typeof {

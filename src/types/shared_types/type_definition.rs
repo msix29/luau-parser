@@ -15,6 +15,12 @@ pub enum TypeValue {
     String(SingleToken),
     Boolean(SingleToken),
 
+    Wrap {
+        opening_parenthesis: SingleToken,
+        r#type: Arc<TypeValue>,
+        closing_parenthesis: SingleToken,
+    },
+
     Function {
         opening_parentheses: SingleToken,
         arguments: List<FunctionParameter>,
