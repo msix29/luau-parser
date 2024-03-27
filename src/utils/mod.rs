@@ -8,7 +8,7 @@ fn get_text_from_bytes(bytes: &[u8], start: usize, end: usize) -> String {
 
 /// Gets spaces before and after a **token**. This function assumes this token has a parent
 /// as is only called for individual tokens (ex. `local` in `local foo`).
-pub fn get_spaces(node: Node, code_bytes: &[u8]) -> (String, String) {
+pub(crate) fn get_spaces(node: Node, code_bytes: &[u8]) -> (String, String) {
     let before = if let Some(before) = node.prev_sibling() {
         // Leading spaces
         get_text_from_bytes(code_bytes, before.end_byte(), node.start_byte())
@@ -34,7 +34,7 @@ pub fn get_spaces(node: Node, code_bytes: &[u8]) -> (String, String) {
     (before.to_string(), after.to_string())
 }
 
-pub fn get_location(node: Node) -> Location {
+pub(crate) fn get_location(node: Node) -> Location {
     let start = node.start_position();
     let end = node.end_position();
 

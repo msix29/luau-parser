@@ -10,7 +10,7 @@ use crate::{
     utils::get_location,
 };
 
-pub fn from_singleton_type(node: Node, code_bytes: &[u8]) -> TypeValue {
+pub(crate) fn from_singleton_type(node: Node, code_bytes: &[u8]) -> TypeValue {
     TypeValue::Basic(SingleToken::from((node, code_bytes)))
     // match node.kind() {
     //     "string" => TypeValue::Basic(SingleToken::from((node.utf8_text(code_bytes).unwrap(), node))),
@@ -21,7 +21,7 @@ pub fn from_singleton_type(node: Node, code_bytes: &[u8]) -> TypeValue {
     // }
 }
 
-pub fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
+pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
     let opening_brackets = SingleToken::from((
         node.child_by_field_name("opening_brackets").unwrap(),
         code_bytes,
@@ -149,7 +149,7 @@ pub fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
     }
 }
 
-pub fn build_function_parameters(
+pub(crate) fn build_function_parameters(
     parameters_node: Node,
     code_bytes: &[u8],
     is_type: bool,
@@ -211,7 +211,7 @@ pub fn build_function_parameters(
     List { items: parameters }
 }
 
-pub fn build_function_returns(node: Node, code_bytes: &[u8]) -> TypeValue {
+pub(crate) fn build_function_returns(node: Node, code_bytes: &[u8]) -> TypeValue {
     TypeValue::from((
         node.child_by_field_name("return")
             .unwrap_or_else(|| node.child_by_field_name("returns").unwrap()),
@@ -219,7 +219,7 @@ pub fn build_function_returns(node: Node, code_bytes: &[u8]) -> TypeValue {
     ))
 }
 
-pub fn build_function_type(node: Node, code_bytes: &[u8]) -> TypeValue {
+pub(crate) fn build_function_type(node: Node, code_bytes: &[u8]) -> TypeValue {
     TypeValue::Function {
         opening_parentheses: SingleToken::from((
             node.child_by_field_name("opening_parenthesis").unwrap(),

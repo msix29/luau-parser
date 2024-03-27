@@ -95,7 +95,7 @@ fn handle_function_call(prefix_exp: Node, code_bytes: &[u8]) -> FunctionCall {
     FunctionCall { invoked, arguments }
 }
 
-pub fn handle_prefix_exp(prefix_exp: Node, code_bytes: &[u8]) -> PrefixExp {
+pub(crate) fn handle_prefix_exp(prefix_exp: Node, code_bytes: &[u8]) -> PrefixExp {
     match prefix_exp.kind() {
         "var" => {
             let node = prefix_exp.child(0).unwrap();

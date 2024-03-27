@@ -20,7 +20,7 @@ use crate::prelude::type_definition::functions::{
 
 use super::handle_prefix_exp::handle_prefix_exp;
 
-pub fn build_table(node: Node, code_bytes: &[u8]) -> TableValue {
+pub(crate) fn build_table(node: Node, code_bytes: &[u8]) -> TableValue {
     let mut index = 0;
     let field_list = node.child_by_field_name("fieldList").unwrap();
     let separators = field_list
@@ -104,7 +104,7 @@ impl ExpressionInner {
     /// # Note
     ///
     /// This function assumes the passed iter iterates over valid expression nodes.
-    pub fn from_nodes<'a>(
+    pub(crate) fn from_nodes<'a>(
         nodes_iter: impl Iterator<Item = Node<'a>>,
         code_bytes: &[u8],
     ) -> List<ExpressionInner> {
