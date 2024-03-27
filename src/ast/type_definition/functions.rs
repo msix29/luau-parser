@@ -234,16 +234,3 @@ pub fn build_function_type(node: Node, code_bytes: &[u8]) -> TypeValue {
         return_type: Arc::new(build_function_returns(node, code_bytes)),
     }
 }
-
-// pub fn from_simple_type(node: Node, code_bytes: &[u8]) -> ExpressionInner {
-//     match node.kind() {
-//         "singleton" => from_singleton_type(node, code_bytes),
-//         "namedtype" => ExpressionInner::from((node.utf8_text(code_bytes).unwrap(), node)), //TODO: indexing from a table.
-//         "typeof" => ExpressionInner::from(("typeof<T>(...)", node)), //TODO: typeof(<expression>)
-//         "tableType" => ExpressionInner::Table(build_table_type(node, code_bytes)),
-//         "functionType" => ExpressionInner::Function(build_function_type(node, code_bytes)),
-//         "wraptype" => from_simple_type(node.child(1).unwrap(), code_bytes),
-//         // "untype"
-//         _ => todo!("Why did this match? {}", node.to_sexp()), // Should never be matched when done.
-//     }
-// }

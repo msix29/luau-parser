@@ -7,7 +7,7 @@ use crate::{
 };
 
 use super::functions::{
-    build_function_type, build_table_type, /* from_simple_type, */ from_singleton_type,
+    build_function_type, build_table_type, from_singleton_type,
 };
 
 impl From<(Node<'_>, &[u8])> for TypeValue {
