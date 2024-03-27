@@ -17,6 +17,10 @@ fn handle_table_var(node: Node, code_bytes: &[u8]) -> TableAccess {
         "functionCall" => {
             TableAccessPrefix::FunctionCall(Arc::new(handle_function_call(table_node, code_bytes)))
         }
+        "exp_wrap" => match handle_prefix_exp(table_node, code_bytes) {
+            PrefixExp::ExpressionWrap(value) => TableAccessPrefix::ExpressionWrap(Arc::new(value)),
+            _ => unreachable!("This'll always evaluate to a wrap."),
+        },
         _ => TableAccessPrefix::TableAccess(Arc::new(handle_table_var(table_node, code_bytes))),
     };
 
@@ -79,15 +83,19 @@ fn handle_function_call(prefix_exp: Node, code_bytes: &[u8]) -> FunctionCall {
             println!("{}", prefix_exp.to_sexp());
 
             FunctionArguments::List {
-                open_parenthesis: argument_list.map(|list| SingleToken::from((
-                    list.child_by_field_name("open_parenthesis").unwrap(),
-                    code_bytes,
-                ))),
+                open_parenthesis: argument_list.map(|list| {
+                    SingleToken::from((
+                        list.child_by_field_name("open_parenthesis").unwrap(),
+                        code_bytes,
+                    ))
+                }),
                 arguments,
-                close_parenthesis: argument_list.map(|list| SingleToken::from((
-                    list.child_by_field_name("close_parenthesis").unwrap(),
-                    code_bytes,
-                ))),
+                close_parenthesis: argument_list.map(|list| {
+                    SingleToken::from((
+                        list.child_by_field_name("close_parenthesis").unwrap(),
+                        code_bytes,
+                    ))
+                }),
             }
         }
     };
