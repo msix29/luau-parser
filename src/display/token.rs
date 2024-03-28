@@ -1,9 +1,6 @@
 use std::fmt::{Debug, Display};
 
-use crate::{
-    impl_print,
-    prelude::{HasRawValue, SingleToken},
-};
+use crate::prelude::{HasRawValue, Print, SingleToken};
 
 impl HasRawValue for SingleToken {
     fn get_raw_value(&self) -> String {
@@ -21,4 +18,14 @@ impl Debug for SingleToken {
     }
 }
 
-impl_print!(SingleToken, word);
+impl Print for SingleToken {
+    fn print(&self) -> String {
+        format!("{}{}{}", self.spaces_before, self.word, self.spaces_after)
+    }
+    fn print_leading(&self) -> String {
+        format!("{}{}", self.spaces_before, self.word)
+    }
+    fn print_trailing(&self) -> String {
+        format!("{}{}", self.word, self.spaces_after)
+    }
+}
