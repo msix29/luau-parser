@@ -1,6 +1,8 @@
 //! Implements helper traits for _[lists](List)_
 
-use crate::prelude::{List, ListItem};
+use tree_sitter::Node;
+
+use crate::prelude::{List, ListItem, SingleToken};
 
 impl<T> Default for List<T> {
     fn default() -> Self {
@@ -31,5 +33,35 @@ impl<T: Clone> List<T> {
                 })
                 .collect::<Vec<ListItem<U>>>(),
         }
+    }
+}
+
+impl<T> List<T> {
+    /// Builds a list from an iterator.
+    pub fn from_iter(
+        nodes: Vec<Node>,
+        parent_node: Node,
+        separators_name: &str,
+        code_bytes: &[u8],
+        get_item: impl Fn(&Node) -> T,
+    ) -> Vec<ListItem<T>> {
+        let separators = parent_node
+            .children_by_field_name(separators_name, &mut parent_node.walk())
+            .collect::<Vec<Node>>();
+
+        nodes
+            .iter()
+            .enumerate()
+            .map(|(i, binding)| {
+                if let Some(separator) = separators.get(i) {
+                    ListItem::Trailing {
+                        item: get_item(binding),
+                        separator: SingleToken::from((*separator, code_bytes)),
+                    }
+                } else {
+                    ListItem::NonTrailing(get_item(binding))
+                }
+            })
+            .collect::<Vec<ListItem<T>>>()
     }
 }
