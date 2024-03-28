@@ -1,7 +1,12 @@
+//! Utility functions.
+
 use tree_sitter::Node;
 
 use crate::prelude::{Location, Position};
 
+/// Gets the text from a specific location in a `&[u8]`, which represents bytes of valid
+/// text. This function does not do any checks and assumess the passed bytes are valid
+/// utf8 (which they should be).
 fn get_text_from_bytes(bytes: &[u8], start: usize, end: usize) -> String {
     std::str::from_utf8(&bytes[start..end]).unwrap().to_string()
 }
@@ -34,6 +39,7 @@ pub(crate) fn get_spaces(node: Node, code_bytes: &[u8]) -> (String, String) {
     (before.to_string(), after.to_string())
 }
 
+/// Get the location of a specific tree-sitter node.
 pub(crate) fn get_location(node: Node) -> Location {
     let start = node.start_position();
     let end = node.end_position();

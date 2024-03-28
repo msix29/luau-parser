@@ -1,3 +1,5 @@
+//! Implements display traits for normalized names.
+
 use std::fmt::Display;
 
 use crate::prelude::{HasRawValue, NormalizedName, Print};

@@ -1,3 +1,5 @@
+//! Helper functions.
+
 use std::sync::Arc;
 
 use tree_sitter::Node;
@@ -9,6 +11,7 @@ use crate::{
     utils::get_location,
 };
 
+/// Get a type value from a node representing a singleton type.
 pub(crate) fn from_singleton_type(node: Node, code_bytes: &[u8]) -> TypeValue {
     TypeValue::Basic(SingleToken::from((node, code_bytes)))
     // match node.kind() {
@@ -20,6 +23,7 @@ pub(crate) fn from_singleton_type(node: Node, code_bytes: &[u8]) -> TypeValue {
     // }
 }
 
+/// Build a table value from a node representing a table.
 pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
     let opening_brackets = SingleToken::from((
         node.child_by_field_name("opening_brackets").unwrap(),
@@ -148,6 +152,7 @@ pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
     }
 }
 
+/// Build functions parameters from a node representing a function.
 pub(crate) fn build_function_parameters(
     parameters_node: Node,
     code_bytes: &[u8],
@@ -210,6 +215,7 @@ pub(crate) fn build_function_parameters(
     List { items: parameters }
 }
 
+/// Build function returns from a node representing a function.
 pub(crate) fn build_function_returns(node: Node, code_bytes: &[u8]) -> TypeValue {
     TypeValue::from((
         node.child_by_field_name("return")
@@ -218,6 +224,7 @@ pub(crate) fn build_function_returns(node: Node, code_bytes: &[u8]) -> TypeValue
     ))
 }
 
+/// Build a type value from a node representing a function.
 pub(crate) fn build_function_type(node: Node, code_bytes: &[u8]) -> TypeValue {
     let generics = if node.child_by_field_name("generics").is_some() {
         let mut generics = Vec::new();

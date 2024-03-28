@@ -1,3 +1,5 @@
+//! Implements display traits for single tokens.
+
 use std::fmt::{Debug, Display};
 
 use crate::prelude::{HasRawValue, Print, SingleToken};

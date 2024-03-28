@@ -1,4 +1,4 @@
-//! Implements helper trait for _[variable declarations](VariableDeclaration)_.
+//! Implements helper trait for _[variable declarations](LocalAssignment)_.
 
 use tree_sitter::{Node, TreeCursor};
 

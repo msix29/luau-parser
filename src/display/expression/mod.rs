@@ -1,3 +1,5 @@
+//! Implements display traits for expressions.
+
 mod else_if_expression;
 mod expression_inner;
 

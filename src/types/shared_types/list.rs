@@ -1,5 +1,5 @@
-/// A list made of any length of trailing items and optionally ending with a non-trailing
-/// item
+//! A list made of any length of trailing items and optionally ending with a non-trailing
+//! item
 
 use super::SingleToken;
 

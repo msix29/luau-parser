@@ -1,3 +1,5 @@
+//! Implements helper traits for the _[parser](Parser)_.
+
 #[cfg(feature = "cache")]
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -8,6 +10,8 @@ use tree_sitter::Tree;
 
 use crate::prelude::{Ast, AstNode, Token, TypeDefinition, LocalAssignment};
 
+/// Parses a code block and fills `tokens` with the parsed ones. The tokens can then
+/// be used to make the syntax tre.
 pub(crate) fn parse_block(body: Node, tokens: &mut Vec<Token>, full_code_bytes: &[u8]) {
     let mut cursor = body.walk();
     for i in 0..body.child_count() {

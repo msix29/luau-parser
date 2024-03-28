@@ -1,9 +1,4 @@
-//! # Type Definition
-//!
-//! This module does the work of the whole type checker, from building
-//! _[type definitions](TypeDefinition)_ from _[nodes](Node)_, to implementing helper
-//! traits for both _[type definitions](TypeDefinition)_ and _[type values](TypeValue)_.
-//!
+//! Implements display traits for type definition and all related structs and enums.
 
 mod type_value;
 

@@ -318,13 +318,22 @@ pub enum GenericParameterInfo {
 /// Consists of a _[parameter info](GenericParameterInfo)_ and an optional default type.
 #[derive(Clone, Debug)]
 pub struct GenericDeclarationParameter {
+    /// The parameter passed as a generic type, can be a simple name or a generic p.ack
     pub parameter: GenericParameterInfo,
+
     /// The default type, first item is the `=` sign and the second is the type that'll be
     /// used as the default.
     pub default: Option<GenericParameterInfoDefault>,
 }
+
+/// Struct holding **default** values for generic arguments.
 #[derive(Clone, Debug)]
 pub enum GenericParameterInfoDefault {
+    /// A simple name.
+    ///
+    /// ```lua
+    /// type Foo<T = string> = "Foo"
+    /// ```
     Name {
         /// The `=` character.
         equal_sign: SingleToken,
@@ -332,6 +341,14 @@ pub enum GenericParameterInfoDefault {
         /// The name of the type.
         name: SingleToken,
     },
+
+    /// A generic pack.
+    ///
+    /// ```lua
+    /// type Foo<T... = string...> = "Foo"
+    /// type Bar<T... = ...string> = "Bar"
+    /// type Qux<T... = (string, number)> = "Qux"
+    /// ```
     Pack {
         /// The `=` character.
         equal_sign: SingleToken,

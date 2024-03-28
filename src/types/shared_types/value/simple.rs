@@ -1,3 +1,5 @@
+//! Simple values.
+
 use crate::prelude::Location;
 
 /// A simple value for the _[value](crate::prelude::Value)_ enum. Simple means it's not a

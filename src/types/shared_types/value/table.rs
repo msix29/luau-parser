@@ -1,3 +1,5 @@
+//! Holding all needed information for tables.
+
 use std::sync::Arc;
 
 use crate::prelude::{Expression, Location, SingleToken, TypeDefinition};

@@ -1,3 +1,5 @@
+//! Just a single token that can't be broke down to smaller tokens.
+
 use super::Location;
 
 /// A struct represnting a single token, aka a single word.

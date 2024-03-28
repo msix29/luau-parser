@@ -1,5 +1,4 @@
-//! Implements helper traits for _[simple value](SimpleValue)_ in the
-//! _[value enum](crate::prelude::Value)_.
+//! Implements display traits for _[simple values](SimpleValue)_.
 
 use std::fmt::Display;
 

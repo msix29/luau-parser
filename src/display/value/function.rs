@@ -1,4 +1,4 @@
-//! Implements helper traits for _[function parameters](FunctionParameter)_,
+//! Implements display traits for _[function parameters](FunctionParameter)_,
 //! _[function returns](FunctionReturn)_, and _[value](FunctionValue)_ in the
 //! _[value enum](crate::prelude::Value)_.
 

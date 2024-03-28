@@ -1,3 +1,5 @@
+//! Implements display traits for inner expressions.
+
 use std::fmt::Display;
 
 use crate::prelude::{ExpressionInner, HasRawValue};

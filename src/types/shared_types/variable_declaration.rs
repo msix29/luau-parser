@@ -1,3 +1,5 @@
+//! Holding all needed information for variable declarations.
+
 use super::{Expression, List, NormalizedName, SingleToken};
 
 /// A struct holding data for variable declarations.

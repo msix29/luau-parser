@@ -1,4 +1,4 @@
-//! Implements display traits for _[variable declarations](VariableDeclaration)_.
+//! Implements display traits for _[variable declarations](LocalAssignment)_.
 
 use std::fmt::Display;
 

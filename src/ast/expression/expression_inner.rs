@@ -20,6 +20,7 @@ use crate::prelude::type_definition::functions::{
 
 use super::handle_prefix_exp::handle_prefix_exp;
 
+/// Build a table value from a node representing a table in an expression..
 pub(crate) fn build_table(node: Node, code_bytes: &[u8]) -> TableValue {
     let mut index = 0;
     let field_list = node.child_by_field_name("fieldList").unwrap();

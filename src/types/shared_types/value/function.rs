@@ -1,3 +1,5 @@
+//! Holding all needed items for functions.
+
 use std::sync::Arc;
 
 use crate::prelude::{Ast, List, Location, SingleToken, TypeDefinition, TypeValue};

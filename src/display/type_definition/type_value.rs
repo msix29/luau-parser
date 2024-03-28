@@ -1,3 +1,5 @@
+//! Implements display traits for type values.
+
 use std::fmt::Display;
 
 use crate::prelude::{HasRawValue, TypeValue};

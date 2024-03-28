@@ -1,3 +1,5 @@
+//! Helps with parsing prefix expressions.
+
 use std::sync::Arc;
 
 use tree_sitter::Node;
@@ -10,6 +12,7 @@ use crate::prelude::{
 
 use super::expression_inner::build_table;
 
+/// Extracts data for a table access from a node representing one.
 fn handle_table_var(node: Node, code_bytes: &[u8]) -> TableAccess {
     let table_node = node.child_by_field_name("table").unwrap();
     let prefix = match table_node.kind() {
@@ -42,6 +45,7 @@ fn handle_table_var(node: Node, code_bytes: &[u8]) -> TableAccess {
     }
 }
 
+/// Extracts data for a function call from a node representing one.
 fn handle_function_call(prefix_exp: Node, code_bytes: &[u8]) -> FunctionCall {
     let invoked = if let Some(invoked) = prefix_exp.child_by_field_name("invoked") {
         FunctionCallInvoked::Function(Arc::new(handle_prefix_exp(invoked, code_bytes)))
@@ -101,6 +105,7 @@ fn handle_function_call(prefix_exp: Node, code_bytes: &[u8]) -> FunctionCall {
     FunctionCall { invoked, arguments }
 }
 
+/// Extracts needed information from a node representing any possible prefix expression.
 pub(crate) fn handle_prefix_exp(prefix_exp: Node, code_bytes: &[u8]) -> PrefixExp {
     match prefix_exp.kind() {
         "var" => {

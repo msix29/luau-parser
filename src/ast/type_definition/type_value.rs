@@ -1,3 +1,5 @@
+//! Implements helper traits for type values
+
 use std::sync::Arc;
 use tree_sitter::Node;
 

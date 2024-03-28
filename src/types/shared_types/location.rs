@@ -1,3 +1,5 @@
+//! Location-related items.
+
 use crate::prelude::Position;
 
 #[derive(Clone, Debug, Default)]
