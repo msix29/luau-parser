@@ -337,10 +337,7 @@ pub enum GenericParameterInfoDefault {
         equal_sign: SingleToken,
 
         /// The name of the type.
-        name: SingleToken,
-
-        /// The `...` characters.
-        ellipsis: SingleToken,
+        r#type: TypeValue,
     },
 }
 

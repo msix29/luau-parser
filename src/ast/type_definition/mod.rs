@@ -100,11 +100,7 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
 
                             GenericParameterInfoDefault::Pack {
                                 equal_sign: SingleToken::from((equal, code_bytes)),
-                                name: SingleToken::from((genpack.child(0).unwrap(), code_bytes)),
-                                ellipsis: SingleToken::from((
-                                    genpack.child(1).unwrap(),
-                                    code_bytes,
-                                )),
+                                r#type: TypeValue::from((genpack, code_bytes)),
                             }
                         }),
                     };
