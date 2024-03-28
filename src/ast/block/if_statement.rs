@@ -38,7 +38,7 @@ impl AstNode for IfStatement {
                         tokens: Arc::new(parse_block(body, &mut Vec::new(), code_bytes)),
                         uri: None,
                     }),
-            location: get_location(elseif),
+                    location: get_location(elseif),
                 })
                 .collect::<Vec<ElseIfStatement>>(),
             else_expression: node
