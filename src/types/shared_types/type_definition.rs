@@ -58,6 +58,13 @@ pub enum TypeValue {
     /// type Foo = (arg1: number) -> (boolean, string)`
     /// ```
     Function {
+        /// Optional generics provided for the function.
+        ///
+        /// ```lua
+        /// type Foo = <P, R>(paramter: P) -> R
+        /// ```
+        generics: Option<GenericDeclaration>,
+
         /// The `(` character at the start of the function.
         opening_parenthesis: SingleToken,
 
@@ -103,7 +110,7 @@ pub enum TypeValue {
         name: SingleToken,
 
         /// The `...` characters.
-        ellipse: SingleToken,
+        ellipsis: SingleToken,
     },
 
     /// An intersection between two types.
@@ -232,7 +239,7 @@ pub enum TypeValue {
     /// variadic packs are used for generics.
     Variadic {
         /// The `...` characters.
-        ellipse: SingleToken,
+        ellipsis: SingleToken,
 
         /// The actual type.
         type_info: Arc<TypeValue>,
@@ -249,7 +256,7 @@ pub enum TypeValue {
     /// See _[variadic type](TypeValue::Variadic)_ to learn the difference between them.
     VariadicPack {
         /// The `...` characters.
-        ellipse: SingleToken,
+        ellipsis: SingleToken,
 
         /// The name
         name: SingleToken,
@@ -287,4 +294,41 @@ pub struct TypeDefinition {
 
     /// The _[actual definition](TypeValue)_ of the type.
     pub type_value: Arc<TypeValue>,
+}
+
+
+/// A generic declaration parameter used in _[generics declarations](GenericDeclaration)_.
+/// Can either be a name or a variadic pack.
+#[derive(Clone, Debug)]
+pub enum GenericParameterInfo {
+    /// A simple name, such as `T`.
+    Name(SingleToken),
+
+    /// A variadic type pack: `T...`.
+    Pack {
+        /// The name of the type.
+        name: SingleToken,
+        /// The `...` characters.
+        ellipsis: SingleToken,
+    },
+}
+/// A generic declaration parameter used in _[generic declarations](GenericDeclaration)_.
+/// Consists of a _[parameter info](GenericParameterInfo)_ and an optional default type.
+#[derive(Clone, Debug)]
+pub struct GenericDeclarationParameter {
+    pub parameter: GenericParameterInfo,
+    pub default: Option<(SingleToken, TypeValue)>,
+}
+
+/// The generics used in a _[type definition](TypeDefinition)_.
+#[derive(Clone, Debug)]
+pub struct GenericDeclaration {
+    /// The `<` character.
+    pub right_arrow: SingleToken,
+
+    /// The actual generics.
+    pub generics: List<GenericDeclarationParameter>,
+
+    /// The `>` character.
+    pub left_arrow: SingleToken,
 }

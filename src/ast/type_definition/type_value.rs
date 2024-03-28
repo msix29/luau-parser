@@ -10,7 +10,6 @@ use super::functions::{build_function_type, build_table_type, from_singleton_typ
 
 impl From<(Node<'_>, &[u8])> for TypeValue {
     fn from((node, code_bytes): (Node<'_>, &[u8])) -> Self {
-        println!("{}", node.to_sexp());
         match node.kind() {
             "namedtype" => {
                 if let Some(module) = node.child_by_field_name("module") {
@@ -103,12 +102,12 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
                         }
                     }
                     "variadic" => TypeValue::Variadic {
-                        ellipse: SingleToken::from((node.child(0).unwrap(), code_bytes)),
+                        ellipsis: SingleToken::from((node.child(0).unwrap(), code_bytes)),
                         type_info: Arc::new(TypeValue::from((pack.child(1).unwrap(), code_bytes))),
                     },
                     "genpack" => TypeValue::GenericPack {
                         name: SingleToken::from((pack.child(0).unwrap(), code_bytes)),
-                        ellipse: SingleToken::from((pack.child(1).unwrap(), code_bytes)),
+                        ellipsis: SingleToken::from((pack.child(1).unwrap(), code_bytes)),
                     },
                     _ => unreachable!(),
                 }

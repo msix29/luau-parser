@@ -80,8 +80,6 @@ fn handle_function_call(prefix_exp: Node, code_bytes: &[u8]) -> FunctionCall {
                 List::default()
             };
 
-            println!("{}", prefix_exp.to_sexp());
-
             FunctionArguments::List {
                 open_parenthesis: argument_list.map(|list| {
                     SingleToken::from((

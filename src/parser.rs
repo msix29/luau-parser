@@ -55,9 +55,8 @@ impl Parser {
         let code_bytes = code.as_bytes();
 
         let root = tree.root_node();
+        println!("\n{}\n", &root.to_sexp());
         parse_block(root, &mut tokens, code_bytes);
-
-        println!("{}", &root.to_sexp());
 
         let ast = Ast {
             tokens: Arc::new(tokens),
