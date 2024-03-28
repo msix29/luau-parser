@@ -14,7 +14,7 @@ use tree_sitter::Node;
 use crate::{
     prelude::{
         AstNode, GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo,
-        GenericParameterInfoDefault, List, ListItem, SingleToken, TypeDefinition, TypeValue,
+        GenericParameterInfoDefault, List, SingleToken, TypeDefinition, TypeValue,
     },
     utils::get_location,
 };
@@ -36,30 +36,16 @@ impl AstNode for TypeDefinition {
 impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
     fn from((node, code_bytes, is_definition): (Node, &[u8], bool)) -> Self {
         if is_definition {
-            let generics = if let Some(generics_node) = node.child_by_field_name("generics") {
-                let mut generics = Vec::new();
-                let generic_with_default_separator = generics_node
-                    .children_by_field_name(
-                        "generic_with_default_separator",
-                        &mut generics_node.walk(),
-                    )
-                    .collect::<Vec<Node>>();
-
-                let generic_pack_with_default_separator = generics_node
-                    .children_by_field_name(
-                        "generic_pack_with_default_separator",
-                        &mut generics_node.walk(),
-                    )
-                    .collect::<Vec<Node>>();
-
-                for (i, child) in generics_node
-                    .children_by_field_name("generic_with_default", &mut generics_node.walk())
-                    .enumerate()
-                {
-                    let generic_pack = child.child(0).unwrap();
-                    let generic_item = GenericDeclarationParameter {
+            let generics = node.child_by_field_name("generics").map(|generics_node| {
+                let mut generics = List::from_iter(
+                    generics_node
+                        .children_by_field_name("generic_with_default", &mut generics_node.walk()),
+                    generics_node,
+                    "generic_with_default_separator",
+                    code_bytes,
+                    |_, child| GenericDeclarationParameter {
                         parameter: GenericParameterInfo::Name(SingleToken::from((
-                            generic_pack.child(0).unwrap(),
+                            child.child(0).unwrap().child(0).unwrap(),
                             code_bytes,
                         ))),
                         default: child.child(1).map(|equal| {
@@ -70,65 +56,56 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
                                 name: SingleToken::from((genpack.child(0).unwrap(), code_bytes)),
                             }
                         }),
-                    };
+                    },
+                );
+                generics.items.extend_from_slice(
+                    &List::from_iter(
+                        generics_node.children_by_field_name(
+                            "generic_pack_with_default",
+                            &mut generics_node.walk(),
+                        ),
+                        generics_node,
+                        "generic_pack_with_default_separator",
+                        code_bytes,
+                        |_, child| {
+                            let generic_pack = child.child(0).unwrap();
+                            GenericDeclarationParameter {
+                                parameter: GenericParameterInfo::Pack {
+                                    name: SingleToken::from((
+                                        generic_pack.child(0).unwrap(),
+                                        code_bytes,
+                                    )),
+                                    ellipsis: SingleToken::from((
+                                        generic_pack.child(1).unwrap(),
+                                        code_bytes,
+                                    )),
+                                },
+                                default: child.child(1).map(|equal| {
+                                    let genpack = child.child(2).unwrap();
 
-                    if let Some(separator) = generic_with_default_separator.get(i) {
-                        generics.push(ListItem::Trailing {
-                            item: generic_item,
-                            separator: SingleToken::from((*separator, code_bytes)),
-                        })
-                    } else {
-                        generics.push(ListItem::NonTrailing(generic_item))
-                    }
-                }
-
-                for (i, child) in generics_node
-                    .children_by_field_name("generic_pack_with_default", &mut generics_node.walk())
-                    .enumerate()
-                {
-                    let generic_pack = child.child(0).unwrap();
-                    let generic_item = GenericDeclarationParameter {
-                        parameter: GenericParameterInfo::Pack {
-                            name: SingleToken::from((generic_pack.child(0).unwrap(), code_bytes)),
-                            ellipsis: SingleToken::from((
-                                generic_pack.child(1).unwrap(),
-                                code_bytes,
-                            )),
-                        },
-                        default: child.child(1).map(|equal| {
-                            let genpack = child.child(2).unwrap();
-
-                            GenericParameterInfoDefault::Pack {
-                                equal_sign: SingleToken::from((equal, code_bytes)),
-                                r#type: TypeValue::from((genpack, code_bytes)),
+                                    GenericParameterInfoDefault::Pack {
+                                        equal_sign: SingleToken::from((equal, code_bytes)),
+                                        r#type: TypeValue::from((genpack, code_bytes)),
+                                    }
+                                }),
                             }
-                        }),
-                    };
+                        },
+                    )
+                    .items,
+                );
 
-                    if let Some(separator) = generic_pack_with_default_separator.get(i) {
-                        generics.push(ListItem::Trailing {
-                            item: generic_item,
-                            separator: SingleToken::from((*separator, code_bytes)),
-                        })
-                    } else {
-                        generics.push(ListItem::NonTrailing(generic_item))
-                    }
-                }
-
-                Some(GenericDeclaration {
+                GenericDeclaration {
                     left_arrow: SingleToken::from((
                         node.child_by_field_name("left_arrow").unwrap(),
                         code_bytes,
                     )),
-                    generics: List { items: generics },
+                    generics,
                     right_arrow: SingleToken::from((
                         node.child_by_field_name("right_arrow").unwrap(),
                         code_bytes,
                     )),
-                })
-            } else {
-                None
-            };
+                }
+            });
 
             let name_node = node.child_by_field_name("typeName").unwrap();
 
