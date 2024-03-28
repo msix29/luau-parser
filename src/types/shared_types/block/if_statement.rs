@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 
-use crate::prelude::{Ast, Expression, SingleToken};
+use crate::prelude::{Ast, Expression, Location, SingleToken};
 
 #[derive(Clone, Debug)]
 /// A struct representing an if statement
@@ -27,6 +27,9 @@ pub struct IfStatement {
 
     /// The `end` keyword
     pub end_keyword: SingleToken,
+
+    /// the location of the full if statement.
+    pub location: Location
 }
 
 #[derive(Clone, Debug)]
@@ -43,6 +46,9 @@ pub struct ElseIfStatement {
 
     /// The body that'll be excuted if condition is truthy.
     pub body: Ast,
+
+    /// the location of the full elseif statement.
+    pub location: Location
 }
 
 #[derive(Clone, Debug)]
@@ -53,4 +59,7 @@ pub struct ElseStatement {
 
     /// The body of the else statement.
     pub body: Ast,
+
+    /// the location of the full else statement.
+    pub location: Location
 }
