@@ -76,9 +76,6 @@ pub(crate) fn build_table(node: Node, code_bytes: &[u8]) -> TableValue {
                         .map(|node| SingleToken::from((node, code_bytes))),
                     r#type: None,
                     value: Some(Arc::new(TableFieldValue::Expression(value))),
-                    separator: separators
-                        .get(i)
-                        .map(|node| SingleToken::from((*node, code_bytes))),
                 }
             },
         ),

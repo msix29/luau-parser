@@ -60,7 +60,6 @@ pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
                     false,
                 )))),
                 value: None,
-                separator: None,
                 location: get_location(node),
                 key_location: None,
                 value_location: get_location(node),
@@ -96,7 +95,6 @@ pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
                                 false,
                             )))),
                             value: None,
-                            separator,
                             //TODO
                             location: get_location(node),
                             key_location: Some(get_location(field.child(0).unwrap())),
@@ -130,8 +128,6 @@ pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
                                 false,
                             )))),
                             value: None,
-                            separator,
-                            //TODO
                             location: get_location(node),
                             key_location: Some(get_location(field.child(0).unwrap())),
                             value_location: get_location(field.child(0).unwrap()),
