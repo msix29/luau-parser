@@ -273,6 +273,9 @@ pub struct TypeDefinition {
     /// The `type` keyword.
     pub type_keyword: Option<SingleToken>,
 
+    /// The generics for this type.
+    pub generics: Option<GenericDeclaration>,
+
     /// The name of the type. Will always be an empty string if this is a type with no
     /// prior definition, like:
     ///
@@ -296,7 +299,6 @@ pub struct TypeDefinition {
     pub type_value: Arc<TypeValue>,
 }
 
-
 /// A generic declaration parameter used in _[generics declarations](GenericDeclaration)_.
 /// Can either be a name or a variadic pack.
 #[derive(Clone, Debug)]
@@ -317,7 +319,29 @@ pub enum GenericParameterInfo {
 #[derive(Clone, Debug)]
 pub struct GenericDeclarationParameter {
     pub parameter: GenericParameterInfo,
-    pub default: Option<(SingleToken, TypeValue)>,
+    /// The default type, first item is the `=` sign and the second is the type that'll be
+    /// used as the default.
+    pub default: Option<GenericParameterInfoDefault>,
+}
+#[derive(Clone, Debug)]
+pub enum GenericParameterInfoDefault {
+    Name {
+        /// The `=` character.
+        equal_sign: SingleToken,
+
+        /// The name of the type.
+        name: SingleToken,
+    },
+    Pack {
+        /// The `=` character.
+        equal_sign: SingleToken,
+
+        /// The name of the type.
+        name: SingleToken,
+
+        /// The `...` characters.
+        ellipsis: SingleToken,
+    },
 }
 
 /// The generics used in a _[type definition](TypeDefinition)_.

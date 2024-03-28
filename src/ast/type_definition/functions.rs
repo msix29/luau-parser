@@ -9,8 +9,6 @@ use crate::{
     utils::get_location,
 };
 
-use super::build_generics;
-
 pub(crate) fn from_singleton_type(node: Node, code_bytes: &[u8]) -> TypeValue {
     TypeValue::Basic(SingleToken::from((node, code_bytes)))
     // match node.kind() {
