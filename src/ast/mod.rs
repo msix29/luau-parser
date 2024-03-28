@@ -11,18 +11,21 @@ pub mod token;
 pub mod type_definition;
 pub mod variable_declaration;
 
-use crate::prelude::{Ast, Print, Token};
+use crate::prelude::Ast;
 
 impl Ast {
     /// Returns the code that was behind this AST as-is, without any modifications and
     /// without losing on any details.
     pub fn print(&self) -> String {
-        self.tokens
-            .iter()
-            .map(|token| match token {
-                Token::VariableDeclaration(value) => value.print(),
-                Token::TypeDefinition(value) => value.print(),
-            })
-            .collect::<String>()
+        todo!()
+        // self.tokens
+        //     .iter()
+        //     .map(|token| match token {
+        //         Token::VariableDeclaration(value) => value.print(),
+        //         Token::TypeDefinition(value) => value.print(),
+        //         Token::IfStatement(_) => todo!(),
+
+        //     })
+        //     .collect::<String>()
     }
 }

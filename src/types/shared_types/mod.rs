@@ -31,7 +31,7 @@ pub use type_definition::*;
 pub use value::*;
 pub use variable_declaration::*;
 pub use list::*;
-// pub use block::*;
+pub use block::*;
 
 use std::{fmt::Display, sync::Arc};
 use tree_sitter::{Node, TreeCursor};
@@ -102,6 +102,19 @@ pub enum Token {
     /// type qux = {}
     /// ```
     TypeDefinition(TypeDefinition),
+
+    /// An if statement.
+    ///
+    /// ```lua
+    /// if a then
+    ///     print("It's a")
+    /// elseif b then
+    ///     print("It's b")
+    /// else
+    ///     print("It's neither a or b :(")
+    /// end
+    /// ```
+    IfStatement(IfStatement),
 }
 
 /// A struct representing a scope in a file. This ast is lossless, meaning it can be

@@ -2,3 +2,4 @@
 
 mod if_statement;
 
+pub use if_statement::*;
