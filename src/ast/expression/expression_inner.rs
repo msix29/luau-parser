@@ -24,9 +24,6 @@ use super::handle_prefix_exp::handle_prefix_exp;
 pub(crate) fn build_table(node: Node, code_bytes: &[u8]) -> TableValue {
     let mut index = 0;
     let field_list = node.child_by_field_name("fieldList").unwrap();
-    let separators = field_list
-        .children_by_field_name("sep", &mut node.walk())
-        .collect::<Vec<Node>>();
 
     TableValue {
         opening_brackets: SingleToken::from((
@@ -39,7 +36,7 @@ pub(crate) fn build_table(node: Node, code_bytes: &[u8]) -> TableValue {
             field_list,
             "sep",
             code_bytes,
-            |i, node| {
+            |_, node| {
                 let (key, key_location) = if let Some(key) = node.child_by_field_name("keyName") {
                     (
                         TableKey::String(key.utf8_text(code_bytes).unwrap().to_string()),

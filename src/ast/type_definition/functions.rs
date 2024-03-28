@@ -6,7 +6,9 @@ use tree_sitter::Node;
 
 use crate::{
     prelude::{
-        FunctionParameter, GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo, List, ListItem, NormalizedName, SingleToken, TableField, TableKey, TableValue, TypeDefinition, TypeValue
+        FunctionParameter, GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo,
+        List, ListItem, NormalizedName, SingleToken, TableField, TableKey, TableValue,
+        TypeDefinition, TypeValue,
     },
     utils::get_location,
 };
@@ -45,38 +47,14 @@ pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
             location: get_location(node),
         };
     };
-    let separators = fields_list
-        .children_by_field_name("sep", &mut node.walk())
-        .collect::<Vec<Node>>();
-    let mut table_fields: Vec<TableField> = Vec::new();
-    match fields_list.kind() {
-        "type" => {
-            table_fields.push(TableField {
-                key: Arc::new(TableKey::String("[number]".to_string())),
-                equal_or_colon: None,
-                r#type: Some(Arc::new(TypeDefinition::from((
-                    fields_list,
-                    code_bytes,
-                    false,
-                )))),
-                value: None,
-                location: get_location(node),
-                key_location: None,
-                value_location: get_location(node),
-            });
-        }
-        "propList" => {
-            for (i, field) in fields_list
-                .children_by_field_name("field", &mut fields_list.walk())
-                .enumerate()
-            {
-                let separator = separators
-                    .get(i)
-                    .map(|separator| SingleToken::from((*separator, code_bytes)));
 
+    let mut table_fields = Vec::new();
+    match fields_list.kind() {
+        "propList" => {
+            for field in fields_list.children_by_field_name("field", &mut fields_list.walk()) {
                 match field.kind() {
                     "tableProperty" => {
-                        table_fields.push(TableField {
+                        table_fields.push(ListItem::NonTrailing(TableField {
                             key: Arc::new(TableKey::String(
                                 field
                                     .child(0)
@@ -99,10 +77,10 @@ pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
                             location: get_location(node),
                             key_location: Some(get_location(field.child(0).unwrap())),
                             value_location: get_location(field.child(0).unwrap()),
-                        });
+                        }));
                     }
                     "tableIndexer" => {
-                        table_fields.push(TableField {
+                        table_fields.push(ListItem::NonTrailing(TableField {
                             key: Arc::new(TableKey::Type {
                                 open_square_brackets: SingleToken::from((
                                     field.child(0).unwrap(),
@@ -131,18 +109,32 @@ pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
                             location: get_location(node),
                             key_location: Some(get_location(field.child(0).unwrap())),
                             value_location: get_location(field.child(0).unwrap()),
-                        });
+                        }));
                     }
                     _ => (),
                 }
             }
         }
-        _ => (),
+        _ => table_fields.push(ListItem::NonTrailing(TableField {
+            key: Arc::new(TableKey::String("[number]".to_string())),
+            equal_or_colon: None,
+            r#type: Some(Arc::new(TypeDefinition::from((
+                fields_list,
+                code_bytes,
+                false,
+            )))),
+            value: None,
+            location: get_location(node),
+            key_location: None,
+            value_location: get_location(node),
+        })),
     }
 
     TableValue {
         opening_brackets,
-        fields: List::default(),
+        fields: List {
+            items: table_fields,
+        },
         closing_brackets,
         location: get_location(node),
     }
@@ -190,9 +182,9 @@ pub(crate) fn build_function_parameters(
                 name: "_".to_string(),
                 is_variadic: false,
                 r#type: Arc::new(TypeDefinition::from((
-                    normalized_name.name.as_str(),
-                    parameter,
+                    parameter.child(0).unwrap(),
                     code_bytes,
+                    false,
                 ))),
                 location: get_location(parameter),
             }
@@ -207,6 +199,47 @@ pub(crate) fn build_function_parameters(
             ListItem::NonTrailing(parameter)
         })
     }
+
+    List::from_iter(
+        parameters_node.children_by_field_name("parameter", &mut parameters_node.walk()),
+        parameters_node,
+        "separators",
+        code_bytes,
+        |_, parameter| {
+            let normalized_name = NormalizedName::from((parameter, code_bytes));
+
+            if let Some(r#type) = normalized_name.r#type {
+                FunctionParameter {
+                    name: normalized_name.name,
+                    is_variadic: false,
+                    r#type,
+                    location: get_location(parameter),
+                }
+            } else if !is_type {
+                FunctionParameter {
+                    name: normalized_name.name,
+                    is_variadic: false,
+                    r#type: Arc::new(TypeDefinition::from(("any", parameter, code_bytes))),
+                    location: get_location(parameter),
+                }
+            } else {
+                // Pretty sure this isn't in the spec, but if the name is missing in a type
+                // definition of a function, then it's the type and the name is empty, but for
+                // the sake of making it "better", we use `_`, which is globally known as a
+                // placeholder.
+                FunctionParameter {
+                    name: "_".to_string(),
+                    is_variadic: false,
+                    r#type: Arc::new(TypeDefinition::from((
+                        parameter.child(0).unwrap(),
+                        code_bytes,
+                        false,
+                    ))),
+                    location: get_location(parameter),
+                }
+            }
+        },
+    );
 
     List { items: parameters }
 }
