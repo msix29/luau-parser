@@ -40,7 +40,7 @@ pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
     else {
         return TableValue {
             opening_brackets,
-            fields: Arc::<Vec<TableField>>::default(),
+            fields: List::default(),
             closing_brackets,
             location: get_location(node),
         };
@@ -146,7 +146,7 @@ pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
 
     TableValue {
         opening_brackets,
-        fields: Arc::new(table_fields),
+        fields: List::default(),
         closing_brackets,
         location: get_location(node),
     }

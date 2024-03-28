@@ -25,7 +25,7 @@ impl HasRawValue for TableKey {
                 expression.get_raw_value(),
                 close_square_brackets
             ),
-            TableKey::Type{
+            TableKey::Type {
                 open_square_brackets,
                 r#type,
                 close_square_brackets,
@@ -56,12 +56,7 @@ impl HasRawValue for TableField {
         } else {
             String::from("")
         };
-        format!(
-            "{}{}{}",
-            self.key.get_raw_value(),
-            r#type,
-            value,
-        )
+        format!("{}{}{}", self.key.get_raw_value(), r#type, value,)
     }
 }
 
@@ -84,8 +79,9 @@ impl Display for TableValue {
 impl HasRawValue for TableValue {
     fn get_raw_value(&self) -> String {
         self.fields
+            .items
             .iter()
-            .map(|field| field.get_raw_value())
+            .map(|field| (*field).get_raw_value())
             .collect::<Vec<String>>()
             .join(", ")
     }

@@ -20,17 +20,15 @@ impl AstNode for LocalAssignment {
             ExpressionInner::from_nodes(node.children_by_field_name("value", cursor), code_bytes)
                 .to::<Expression, Node<'_>>(node);
 
-        let all_names = node
-            .children_by_field_name("binding", cursor)
-            .collect::<Vec<Node>>();
-
         Some(LocalAssignment {
             local_token: SingleToken::from((node.child(0).unwrap(), code_bytes)),
-            name_list: List {
-                items: List::from_nodes(all_names, node, "separator", code_bytes, |binding| {
-                    NormalizedName::from((binding.child(0).unwrap(), code_bytes))
-                }),
-            },
+            name_list: List::from_iter(
+                node.children_by_field_name("binding", cursor),
+                node,
+                "separator",
+                code_bytes,
+                |_, binding| NormalizedName::from((binding.child(0).unwrap(), code_bytes)),
+            ),
             equal_token: node
                 .child_by_field_name("equal")
                 .map(|equal| SingleToken::from((equal, code_bytes))),

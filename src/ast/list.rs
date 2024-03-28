@@ -1,6 +1,7 @@
 //! Implements helper traits for _[lists](List)_
 
-use std::slice::Iter;
+use std::ops::Deref;
+
 use tree_sitter::Node;
 
 use crate::prelude::{List, ListItem, SingleToken};
@@ -37,48 +38,43 @@ impl<T: Clone> List<T> {
     }
 }
 
-impl<T> List<T> {
+impl<'a, T> List<T> {
     /// Builds a list from an iterator.
-    pub fn from_nodes(
-        nodes: Vec<Node>,
+    pub fn from_iter<'b>(
+        iterator: impl Iterator<Item = Node<'a>> + 'b,
         parent_node: Node,
         separators_name: &str,
         code_bytes: &[u8],
-        get_item: impl Fn(&Node) -> T,
-    ) -> Vec<ListItem<T>> {
-        List::from_iter(
-            nodes.iter(),
-            parent_node,
-            separators_name,
-            code_bytes,
-            get_item,
-        )
-    }
-
-    /// Builds a list from an iterator.
-    pub fn from_iter(
-        iterator: Iter<Node>,
-        parent_node: Node,
-        separators_name: &str,
-        code_bytes: &[u8],
-        get_item: impl Fn(&Node) -> T,
-    ) -> Vec<ListItem<T>> {
+        mut get_item: impl FnMut(usize, Node) -> T,
+    ) -> List<T> {
         let separators = parent_node
             .children_by_field_name(separators_name, &mut parent_node.walk())
             .collect::<Vec<Node>>();
 
-        iterator
-            .enumerate()
-            .map(|(i, binding)| {
-                if let Some(separator) = separators.get(i) {
-                    ListItem::Trailing {
-                        item: get_item(binding),
-                        separator: SingleToken::from((*separator, code_bytes)),
+        List {
+            items: iterator
+                .enumerate()
+                .map(|(i, binding)| {
+                    if let Some(separator) = separators.get(i) {
+                        ListItem::Trailing {
+                            item: get_item(i, binding),
+                            separator: SingleToken::from((*separator, code_bytes)),
+                        }
+                    } else {
+                        ListItem::NonTrailing(get_item(i, binding))
                     }
-                } else {
-                    ListItem::NonTrailing(get_item(binding))
-                }
-            })
-            .collect::<Vec<ListItem<T>>>()
+                })
+                .collect::<Vec<ListItem<T>>>(),
+        }
+    }
+}
+
+impl<T> Deref for ListItem<T> {
+    type Target = T;
+    fn deref(&self) -> &Self::Target {
+        match self {
+            ListItem::Trailing { item, separator: _ } => item,
+            ListItem::NonTrailing(item) => item,
+        }
     }
 }
