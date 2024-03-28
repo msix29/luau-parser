@@ -12,9 +12,80 @@ use std::sync::Arc;
 use tree_sitter::Node;
 
 use crate::{
-    prelude::{AstNode, SingleToken, TypeDefinition, TypeValue},
+    prelude::{
+        AstNode, GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo, List,
+        ListItem, SingleToken, TypeDefinition, TypeValue,
+    },
     utils::get_location,
 };
+
+pub fn build_generics(node: Node, code_bytes: &[u8]) -> Option<GenericDeclaration> {
+    if node.child_by_field_name("generics").is_some() {
+        let mut generics = Vec::new();
+        let generic_separators = node
+            .children_by_field_name("separator", &mut node.walk())
+            .collect::<Vec<Node>>();
+
+        let generic_pack_separators = node
+            .children_by_field_name("genericPackSeparator", &mut node.walk())
+            .collect::<Vec<Node>>();
+
+        for (i, child) in node
+            .children_by_field_name("generic", &mut node.walk())
+            .enumerate()
+        {
+            let generic_item = GenericDeclarationParameter {
+                parameter: GenericParameterInfo::Name(SingleToken::from((child, code_bytes))),
+                default: None,
+            };
+
+            if let Some(separator) = generic_separators.get(i) {
+                generics.push(ListItem::Trailing {
+                    item: generic_item,
+                    separator: SingleToken::from((*separator, code_bytes)),
+                })
+            } else {
+                generics.push(ListItem::NonTrailing(generic_item))
+            }
+        }
+
+        for (i, child) in node
+            .children_by_field_name("genericPack", &mut node.walk())
+            .enumerate()
+        {
+            let generic_item = GenericDeclarationParameter {
+                parameter: GenericParameterInfo::Pack {
+                    name: SingleToken::from((child.child(0).unwrap(), code_bytes)),
+                    ellipsis: SingleToken::from((child.child(1).unwrap(), code_bytes)),
+                },
+                default: None,
+            };
+
+            if let Some(separator) = generic_pack_separators.get(i) {
+                generics.push(ListItem::Trailing {
+                    item: generic_item,
+                    separator: SingleToken::from((*separator, code_bytes)),
+                })
+            } else {
+                generics.push(ListItem::NonTrailing(generic_item))
+            }
+        }
+
+        Some(GenericDeclaration {
+            left_arrow: SingleToken::from((
+                node.child_by_field_name("left_arrow").unwrap(),
+                code_bytes,
+            )),
+            generics: List { items: generics },
+            right_arrow: SingleToken::from((
+                node.child_by_field_name("right_arrow").unwrap(),
+                code_bytes,
+            )),
+        })
+    } else {
+        None
+    }
+}
 
 impl AstNode for TypeDefinition {
     fn try_from_node<'a>(
