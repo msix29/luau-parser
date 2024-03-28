@@ -146,60 +146,6 @@ pub(crate) fn build_function_parameters(
     code_bytes: &[u8],
     is_type: bool,
 ) -> List<FunctionParameter> {
-    let mut parameters = Vec::new();
-
-    let separators = parameters_node
-        .children_by_field_name("separators", &mut parameters_node.walk())
-        .map(|node| SingleToken::from((node, code_bytes)))
-        .collect::<Vec<SingleToken>>();
-
-    for (i, parameter) in parameters_node
-        .children_by_field_name("parameter", &mut parameters_node.walk())
-        .enumerate()
-    {
-        let normalized_name = NormalizedName::from((parameter, code_bytes));
-
-        let parameter = if let Some(r#type) = normalized_name.r#type {
-            FunctionParameter {
-                name: normalized_name.name,
-                is_variadic: false,
-                r#type,
-                location: get_location(parameter),
-            }
-        } else if !is_type {
-            FunctionParameter {
-                name: normalized_name.name,
-                is_variadic: false,
-                r#type: Arc::new(TypeDefinition::from(("any", parameter, code_bytes))),
-                location: get_location(parameter),
-            }
-        } else {
-            // Pretty sure this isn't in the spec, but if the name is missing in a type
-            // definition of a function, then it's the type and the name is empty, but for
-            // the sake of making it "better", we use `_`, which is globally known as a
-            // placeholder.
-            FunctionParameter {
-                name: "_".to_string(),
-                is_variadic: false,
-                r#type: Arc::new(TypeDefinition::from((
-                    parameter.child(0).unwrap(),
-                    code_bytes,
-                    false,
-                ))),
-                location: get_location(parameter),
-            }
-        };
-
-        parameters.push(if let Some(separator) = separators.get(i) {
-            ListItem::Trailing {
-                item: parameter,
-                separator: separator.clone(),
-            }
-        } else {
-            ListItem::NonTrailing(parameter)
-        })
-    }
-
     List::from_iter(
         parameters_node.children_by_field_name("parameter", &mut parameters_node.walk()),
         parameters_node,
@@ -239,9 +185,7 @@ pub(crate) fn build_function_parameters(
                 }
             }
         },
-    );
-
-    List { items: parameters }
+    )
 }
 
 /// Build function returns from a node representing a function.
