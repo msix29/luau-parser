@@ -1,5 +1,6 @@
 //! Implements helper traits for _[lists](List)_
 
+use std::slice::Iter;
 use tree_sitter::Node;
 
 use crate::prelude::{List, ListItem, SingleToken};
@@ -38,8 +39,25 @@ impl<T: Clone> List<T> {
 
 impl<T> List<T> {
     /// Builds a list from an iterator.
-    pub fn from_iter(
+    pub fn from_nodes(
         nodes: Vec<Node>,
+        parent_node: Node,
+        separators_name: &str,
+        code_bytes: &[u8],
+        get_item: impl Fn(&Node) -> T,
+    ) -> Vec<ListItem<T>> {
+        List::from_iter(
+            nodes.iter(),
+            parent_node,
+            separators_name,
+            code_bytes,
+            get_item,
+        )
+    }
+
+    /// Builds a list from an iterator.
+    pub fn from_iter(
+        iterator: Iter<Node>,
         parent_node: Node,
         separators_name: &str,
         code_bytes: &[u8],
@@ -49,8 +67,7 @@ impl<T> List<T> {
             .children_by_field_name(separators_name, &mut parent_node.walk())
             .collect::<Vec<Node>>();
 
-        nodes
-            .iter()
+        iterator
             .enumerate()
             .map(|(i, binding)| {
                 if let Some(separator) = separators.get(i) {

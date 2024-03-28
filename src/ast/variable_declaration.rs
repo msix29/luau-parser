@@ -27,7 +27,7 @@ impl AstNode for LocalAssignment {
         Some(LocalAssignment {
             local_token: SingleToken::from((node.child(0).unwrap(), code_bytes)),
             name_list: List {
-                items: List::from_iter(all_names, node, "separator", code_bytes, |binding| {
+                items: List::from_nodes(all_names, node, "separator", code_bytes, |binding| {
                     NormalizedName::from((binding.child(0).unwrap(), code_bytes))
                 }),
             },
