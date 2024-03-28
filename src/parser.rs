@@ -8,11 +8,15 @@ use tree_sitter::Node;
 #[cfg(feature = "cache")]
 use tree_sitter::Tree;
 
-use crate::prelude::{Ast, AstNode, Token, TypeDefinition, LocalAssignment};
+use crate::prelude::{Ast, AstNode, IfStatement, LocalAssignment, Token, TypeDefinition};
 
 /// Parses a code block and fills `tokens` with the parsed ones. The tokens can then
 /// be used to make the syntax tre.
-pub(crate) fn parse_block(body: Node, tokens: &mut Vec<Token>, full_code_bytes: &[u8]) {
+pub(crate) fn parse_block(
+    body: Node,
+    tokens: &mut Vec<Token>,
+    full_code_bytes: &[u8],
+) -> Vec<Token> {
     let mut cursor = body.walk();
     for i in 0..body.child_count() {
         let node = body.child(i).unwrap();
@@ -25,8 +29,14 @@ pub(crate) fn parse_block(body: Node, tokens: &mut Vec<Token>, full_code_bytes: 
             TypeDefinition::try_from_node(node, &mut cursor, full_code_bytes)
         {
             tokens.push(Token::TypeDefinition(type_declaration))
+        } else if let Some(if_statement) =
+            IfStatement::try_from_node(node, &mut cursor, full_code_bytes)
+        {
+            tokens.push(Token::IfStatement(if_statement))
         }
     }
+
+    tokens.to_owned()
 }
 
 /// A Luau parser.

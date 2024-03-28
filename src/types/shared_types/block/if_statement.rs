@@ -1,5 +1,7 @@
 //! Module holding if statements and all related items.
 
+use std::sync::Arc;
+
 use crate::prelude::{Ast, Expression, SingleToken};
 
 #[derive(Clone, Debug)]
@@ -9,7 +11,7 @@ pub struct IfStatement {
     pub if_keyword: SingleToken,
 
     /// The condition for this statement.
-    pub condition: Expression,
+    pub condition: Arc<Expression>,
 
     /// The `then` keyword.
     pub then_keyword: SingleToken,
@@ -34,7 +36,7 @@ pub struct ElseIfStatement {
     pub elseif_keyword: SingleToken,
 
     /// The condition for this statement.
-    pub condition: Expression,
+    pub condition: Arc<Expression>,
 
     /// The `then` keyword.
     pub then_keyword: SingleToken,

@@ -10,6 +10,7 @@ pub mod name;
 pub mod token;
 pub mod type_definition;
 pub mod variable_declaration;
+pub mod block;
 
 use crate::prelude::Ast;
 
