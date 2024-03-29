@@ -46,8 +46,8 @@ impl HasLocation for LocalAssignment {
         get_location_from_boundaries(
             self.local_token.get_location(),
             self.expressions.items.last().map_or_else(
-                || self.name_list.items.last().unwrap().location,
-                |item| item.location,
+                || self.name_list.items.last().unwrap().get_location(),
+                |item| item.get_location(),
             ),
         )
     }

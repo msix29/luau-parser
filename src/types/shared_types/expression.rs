@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 
-use super::{FunctionValue, List, Location, SingleToken, TableKey, TableValue, TypeDefinition};
+use super::{FunctionValue, List, SingleToken, TableKey, TableValue, TypeDefinition};
 
 /// An enum representing different ways a table can be used.
 #[derive(Clone, Debug)]
@@ -344,7 +344,4 @@ pub struct Expression {
 
     /// All spaces after the expression.
     pub spaces_after: String,
-
-    /// Exact location of the node
-    pub location: Location,
 }

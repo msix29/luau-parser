@@ -73,10 +73,6 @@ pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
                                 false,
                             )))),
                             value: None,
-                            //TODO
-                            location: get_location(node),
-                            key_location: Some(get_location(field.child(0).unwrap())),
-                            value_location: get_location(field.child(0).unwrap()),
                         }));
                     }
                     "tableIndexer" => {
@@ -106,9 +102,6 @@ pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
                                 false,
                             )))),
                             value: None,
-                            location: get_location(node),
-                            key_location: Some(get_location(field.child(0).unwrap())),
-                            value_location: get_location(field.child(0).unwrap()),
                         }));
                     }
                     _ => (),
@@ -124,9 +117,6 @@ pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
                 false,
             )))),
             value: None,
-            location: get_location(node),
-            key_location: None,
-            value_location: get_location(node),
         })),
     }
 

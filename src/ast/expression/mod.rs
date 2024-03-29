@@ -17,7 +17,6 @@ impl From<(Node<'_>, &[u8])> for Expression {
         let (spaces_before, spaces_after) = get_spaces(node, code_bytes);
 
         Self {
-            location: get_location(node),
             spaces_before,
             inner: Arc::new(ExpressionInner::from((node, code_bytes))),
             spaces_after,
@@ -29,7 +28,6 @@ impl From<(Node<'_>, ExpressionInner, &[u8])> for Expression {
         let (spaces_before, spaces_after) = get_spaces(node, code_bytes);
 
         Self {
-            location: get_location(node),
             spaces_before,
             inner: Arc::new(expression_inner),
             spaces_after,
@@ -41,7 +39,6 @@ impl From<(ExpressionInner, Node<'_>)> for Expression {
         Self {
             spaces_before: "".to_string(),
             inner: Arc::new(expression_inner),
-            location: get_location(node),
             spaces_after: "".to_string(),
         }
     }
@@ -51,7 +48,6 @@ impl From<(Arc<ExpressionInner>, Node<'_>)> for Expression {
         Self {
             spaces_before: "".to_string(),
             inner: expression_inner,
-            location: get_location(node),
             spaces_after: "".to_string(),
         }
     }

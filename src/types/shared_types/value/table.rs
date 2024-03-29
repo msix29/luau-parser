@@ -63,24 +63,14 @@ pub struct TableField {
     /// The key of this field.
     pub key: Arc<TableKey>,
 
-    //TODO: Remove
-    /// Exact location of the key. Will be `None` if the key was unspecified.
-    pub key_location: Option<Location>,
-
     /// The `=` or `:` tokens, it's `=` in variables and `:` in types.
     pub equal_or_colon: Option<SingleToken>,
 
     /// The value of the variable, only exists if this table is a variable.
     pub value: Option<Arc<TableFieldValue>>,
 
-    /// Exact location of the value.
-    pub value_location: Location,
-
     /// The type of this field, this is always present regardless of the field type.
     pub r#type: Option<Arc<TypeDefinition>>,
-
-    /// Exact location of the full field.
-    pub location: Location,
 }
 
 /// A possible value for a _[table field](TableField)_.

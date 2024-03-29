@@ -289,9 +289,6 @@ pub struct TypeDefinition {
     /// In both cases (`{ number }`, and `() -> ()`), they have types with no names.
     pub type_name: String,
 
-    /// Exact location of the type name.
-    pub name_location: Option<Location>,
-
     /// The `=` sign between the name and the actual value of the type.
     pub equal_sign: Option<SingleToken>,
 

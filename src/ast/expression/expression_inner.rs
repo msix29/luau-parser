@@ -37,37 +37,28 @@ pub(crate) fn build_table(node: Node, code_bytes: &[u8]) -> TableValue {
             "sep",
             code_bytes,
             |_, node| {
-                let (key, key_location) = if let Some(key) = node.child_by_field_name("keyName") {
-                    (
-                        TableKey::String(key.utf8_text(code_bytes).unwrap().to_string()),
-                        Some(get_location(key)),
-                    )
+                let key = if let Some(key) = node.child_by_field_name("keyName") {
+                    TableKey::String(key.utf8_text(code_bytes).unwrap().to_string())
                 } else if let Some(key) = node.child_by_field_name("keyExp") {
-                    (
-                        TableKey::Expression {
-                            open_square_brackets: SingleToken::from((
-                                key.prev_sibling().unwrap(),
-                                code_bytes,
-                            )),
-                            expression: Arc::new(Expression::from((key, code_bytes))),
-                            close_square_brackets: SingleToken::from((
-                                key.next_sibling().unwrap(),
-                                code_bytes,
-                            )),
-                        },
-                        Some(get_location(key)),
-                    )
+                    TableKey::Expression {
+                        open_square_brackets: SingleToken::from((
+                            key.prev_sibling().unwrap(),
+                            code_bytes,
+                        )),
+                        expression: Arc::new(Expression::from((key, code_bytes))),
+                        close_square_brackets: SingleToken::from((
+                            key.next_sibling().unwrap(),
+                            code_bytes,
+                        )),
+                    }
                 } else {
                     index += 1;
-                    (TableKey::String(index.to_string()), None)
+                    TableKey::String(index.to_string())
                 };
                 let value_node = node.child_by_field_name("value").unwrap();
                 let value = Expression::from((value_node, code_bytes));
                 TableField {
                     key: Arc::new(key),
-                    key_location,
-                    value_location: get_location(value_node),
-                    location: get_location(node),
                     equal_or_colon: node
                         .child_by_field_name("equal")
                         .map(|node| SingleToken::from((node, code_bytes))),
