@@ -137,13 +137,13 @@ pub enum FunctionArguments {
     /// ```
     List {
         /// The `(` character.
-        open_parenthesis: Option<SingleToken>,
+        open_parenthesis: SingleToken,
 
         /// List of arguments passed to the function.
         arguments: List<Expression>,
 
         /// The `)` character.
-        close_parenthesis: Option<SingleToken>,
+        close_parenthesis: SingleToken,
     },
 }
 

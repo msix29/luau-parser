@@ -73,31 +73,26 @@ fn handle_function_call(prefix_exp: Node, code_bytes: &[u8]) -> FunctionCall {
         "table" => FunctionArguments::Table(build_table(prefix_exp, code_bytes)),
         "string" => FunctionArguments::String(SingleToken::from((arguments_node, code_bytes))),
         _ => {
-            let argument_list = prefix_exp.child_by_field_name("arguments_list");
-            let arguments = if let Some(argument_list) = argument_list {
-                ExpressionInner::from_nodes(
-                    argument_list.children(&mut argument_list.walk()),
-                    code_bytes,
-                )
-                .to::<Expression, Node>(argument_list)
-            } else {
-                List::default()
-            };
+            let arguments = ExpressionInner::from_nodes(
+                arguments_node.children_by_field_name("arguments", &mut arguments_node.walk()),
+                code_bytes,
+            )
+            .to::<Expression, Node>(arguments_node);
 
             FunctionArguments::List {
-                open_parenthesis: argument_list.map(|list| {
-                    SingleToken::from((
-                        list.child_by_field_name("open_parenthesis").unwrap(),
-                        code_bytes,
-                    ))
-                }),
+                open_parenthesis: SingleToken::from((
+                    arguments_node
+                        .child_by_field_name("open_parenthesis")
+                        .unwrap(),
+                    code_bytes,
+                )),
                 arguments,
-                close_parenthesis: argument_list.map(|list| {
-                    SingleToken::from((
-                        list.child_by_field_name("close_parenthesis").unwrap(),
-                        code_bytes,
-                    ))
-                }),
+                close_parenthesis: SingleToken::from((
+                    arguments_node
+                        .child_by_field_name("close_parenthesis")
+                        .unwrap(),
+                    code_bytes,
+                )),
             }
         }
     };
