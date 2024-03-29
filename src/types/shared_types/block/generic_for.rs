@@ -5,12 +5,6 @@ use crate::prelude::{Expression, List, NormalizedName, SingleToken};
 use super::DoBlock;
 
 /// A struct representing a for-in loop.
-///
-/// ```lua
-/// for i, v in ipairs(t) do
-///     print(`{i}: {v}`)
-/// end
-/// ```
 #[derive(Clone, Debug)]
 pub struct GenericFor {
     /// The `for` keyword.

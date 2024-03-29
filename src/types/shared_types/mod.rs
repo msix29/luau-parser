@@ -11,7 +11,9 @@
 //! their implementations in `ast/value/function.rs`.
 //!
 
+mod block;
 mod expression;
+mod list;
 mod location;
 mod name;
 mod position;
@@ -19,10 +21,10 @@ mod token;
 mod type_definition;
 mod value;
 mod variable_declaration;
-mod list;
-mod block;
 
+pub use block::*;
 pub use expression::*;
+pub use list::*;
 pub use location::*;
 pub use name::*;
 pub use position::*;
@@ -30,8 +32,6 @@ pub use token::*;
 pub use type_definition::*;
 pub use value::*;
 pub use variable_declaration::*;
-pub use list::*;
-pub use block::*;
 
 use std::{fmt::Display, sync::Arc};
 use tree_sitter::{Node, TreeCursor};
@@ -130,19 +130,23 @@ pub enum Token {
     /// do blocks as part of their token.
     DoBlock(DoBlock),
 
-    /// A do block.
+    /// A generic for loop.
     ///
     /// ```lua
-    /// do
-    ///     print("Hello, World!")
+    /// for i, v in ipairs(t) do
+    ///     print(`{i}: {v}`)
     /// end
     /// ```
-    ///
-    /// # Note
-    ///
-    /// This struct isn't used for while or for loops, they have their own tokens, and have
-    /// do blocks as part of their token.
     GenericFor(GenericFor),
+
+    /// A numerical for loop.
+    ///
+    /// ```lua
+    /// for i = 1, 100, 2 do
+    ///     print(i)
+    /// end
+    /// ```
+    NumericalFor(NumericalFor),
 }
 
 /// A struct representing a scope in a file. This ast is lossless, meaning it can be

@@ -8,7 +8,10 @@ use tree_sitter::Node;
 #[cfg(feature = "cache")]
 use tree_sitter::Tree;
 
-use crate::prelude::{Ast, AstNode, DoBlock, GenericFor, IfStatement, LocalAssignment, Token, TypeDefinition};
+use crate::prelude::{
+    Ast, AstNode, DoBlock, GenericFor, IfStatement, LocalAssignment, NumericalFor, Token,
+    TypeDefinition,
+};
 
 /// Parses a code block and fills `tokens` with the parsed ones. The tokens can then
 /// be used to make the syntax tre.
@@ -35,8 +38,14 @@ pub(crate) fn parse_block(
             tokens.push(Token::IfStatement(if_statement))
         } else if let Some(do_block) = DoBlock::try_from_node(node, &mut cursor, full_code_bytes) {
             tokens.push(Token::DoBlock(do_block))
-        } else if let Some(for_in) = GenericFor::try_from_node(node, &mut cursor, full_code_bytes) {
-            tokens.push(Token::GenericFor(for_in))
+        } else if let Some(generic_for) =
+            GenericFor::try_from_node(node, &mut cursor, full_code_bytes)
+        {
+            tokens.push(Token::GenericFor(generic_for))
+        } else if let Some(numerical_for) =
+            NumericalFor::try_from_node(node, &mut cursor, full_code_bytes)
+        {
+            tokens.push(Token::NumericalFor(numerical_for))
         }
     }
 
