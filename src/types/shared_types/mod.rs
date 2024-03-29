@@ -56,7 +56,7 @@ pub trait Print: Display {
 }
 
 /// A trait to tell Rust that this item is an `AstNode`.
-pub trait AstNode: HasRawValue /* + Print */ + Sized {
+pub trait AstNode: Sized {
     /// Try creating this _[ast node](AstNode)_ from a _[treesitter node](Node)_. This
     /// returns a `Vec<Self>` instead of `Self` as
     /// _[variable declarations](VariableDeclaration)_ can be chained like:
@@ -115,6 +115,20 @@ pub enum Token {
     /// end
     /// ```
     IfStatement(IfStatement),
+
+    /// A do block.
+    ///
+    /// ```lua
+    /// do
+    ///     print("Hello, World!")
+    /// end
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// This struct isn't used for while or for loops, they have their own tokens, and have
+    /// do blocks as part of their token.
+    DoBlock(DoBlock),
 }
 
 /// A struct representing a scope in a file. This ast is lossless, meaning it can be
