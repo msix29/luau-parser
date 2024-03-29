@@ -10,7 +10,7 @@ use tree_sitter::Tree;
 
 use crate::prelude::{
     Ast, AstNode, DoBlock, GenericFor, IfStatement, LocalAssignment, NumericalFor, RepeatBlock,
-    Token, TypeDefinition,
+    Token, TypeDefinition, WhileLoop,
 };
 
 /// Parses a code block and fills `tokens` with the parsed ones. The tokens can then
@@ -50,6 +50,10 @@ pub(crate) fn parse_block(
             RepeatBlock::try_from_node(node, &mut cursor, full_code_bytes)
         {
             tokens.push(Token::RepeatBlock(repeat_block))
+        } else if let Some(while_loop) =
+            WhileLoop::try_from_node(node, &mut cursor, full_code_bytes)
+        {
+            tokens.push(Token::WhileLoop(while_loop))
         }
     }
 

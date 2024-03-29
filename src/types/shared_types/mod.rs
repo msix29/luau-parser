@@ -158,6 +158,17 @@ pub enum Token {
     /// until i == 10
     /// ```
     RepeatBlock(RepeatBlock),
+
+    /// A while loop.
+    ///
+    /// ```lua
+    /// local i = 0
+    /// while i <= 10 do
+    ///     print(i)
+    ///     i += 1
+    /// end
+    /// ```
+    WhileLoop(WhileLoop),
 }
 
 /// A struct representing a scope in a file. This ast is lossless, meaning it can be
