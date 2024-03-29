@@ -14,7 +14,7 @@ pub mod token;
 pub mod type_definition;
 pub mod variable_declaration;
 
-use crate::prelude::Ast;
+use crate::prelude::{Ast, HasLocation, Token};
 
 impl Ast {
     /// Returns the code that was behind this AST as-is, without any modifications and
@@ -30,5 +30,20 @@ impl Ast {
 
         //     })
         //     .collect::<String>()
+    }
+}
+
+impl HasLocation for Token {
+    fn get_location(&self) -> crate::prelude::Location {
+        match self {
+            Token::VariableDeclaration(_) => todo!(),
+            Token::TypeDefinition(_) => todo!(),
+            Token::IfStatement(_) => todo!(),
+            Token::DoBlock(_) => todo!(),
+            Token::GenericFor(_) => todo!(),
+            Token::NumericalFor(_) => todo!(),
+            Token::RepeatBlock(_) => todo!(),
+            Token::WhileLoop(_) => todo!(),
+        }
     }
 }

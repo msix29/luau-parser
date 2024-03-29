@@ -7,9 +7,7 @@ use tree_sitter::Node;
 
 use crate::{
     prelude::{
-        parse_block, Ast, ElseIfExpression, Expression, ExpressionInner, FunctionName,
-        FunctionValue, List, ListItem, PrefixExp, SingleToken, TableField, TableFieldValue,
-        TableKey, TableValue, TypeDefinition,
+        parse_block, Ast, ElseIfExpression, Expression, ExpressionInner, FunctionName, FunctionValue, HasLocation, List, ListItem, PrefixExp, SingleToken, TableField, TableFieldValue, TableKey, TableValue, TypeDefinition
     },
     utils::get_location,
 };

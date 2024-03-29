@@ -2,8 +2,13 @@
 
 use tree_sitter::{Node, TreeCursor};
 
-use crate::prelude::{
-    AstNode, Expression, ExpressionInner, List, LocalAssignment, NormalizedName, SingleToken,
+use crate::{
+    call_any,
+    prelude::{
+        AstNode, Expression, ExpressionInner, HasLocation, List, LocalAssignment, Location,
+        NormalizedName, SingleToken,
+    },
+    utils::get_location_from_boundaries,
 };
 
 impl AstNode for LocalAssignment {
@@ -34,5 +39,17 @@ impl AstNode for LocalAssignment {
                 .map(|equal| SingleToken::from((equal, code_bytes))),
             expressions,
         })
+    }
+}
+
+impl HasLocation for LocalAssignment {
+    fn get_location(&self) -> Location {
+        get_location_from_boundaries(
+            self.local_token.get_location(),
+            self.expressions.items.last().map_or_else(
+                || self.name_list.items.last().unwrap().location,
+                |item| item.location,
+            ),
+        )
     }
 }
