@@ -283,3 +283,12 @@ impl HasLocation for ExpressionInner {
         }
     }
 }
+
+impl HasLocation for ElseIfExpression {
+    fn get_location(&self) -> crate::prelude::Location {
+        get_location_from_boundaries(
+            self.else_if_token.get_location(),
+            self.expression.get_location(),
+        )
+    }
+}

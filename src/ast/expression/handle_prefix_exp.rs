@@ -4,9 +4,13 @@ use std::sync::Arc;
 
 use tree_sitter::Node;
 
-use crate::prelude::{
-    Expression, ExpressionInner, ExpressionWrap, FunctionArguments, FunctionCall,
-    FunctionCallInvoked, PrefixExp, SingleToken, TableAccess, TableAccessPrefix, TableKey, Var,
+use crate::{
+    prelude::{
+        Expression, ExpressionInner, ExpressionWrap, FunctionArguments, FunctionCall,
+        FunctionCallInvoked, HasLocation, Location, PrefixExp, SingleToken, TableAccess,
+        TableAccessPrefix, TableKey, Var,
+    },
+    utils::{get_location, get_location_from_boundaries},
 };
 
 use super::expression_inner::build_table;
@@ -118,5 +122,70 @@ pub(crate) fn handle_prefix_exp(prefix_exp: Node, code_bytes: &[u8]) -> PrefixEx
             closing_parenthesis: SingleToken::from((prefix_exp.child(2).unwrap(), code_bytes)),
         }),
         _ => panic!("This shouldn't be reached."),
+    }
+}
+
+
+impl HasLocation for TableAccess {
+    fn get_location(&self) -> Location {
+        get_location_from_boundaries(
+            self.prefix.get_location(),
+            self.last_accessed_key.get_location(),
+        )
+    }
+}
+impl HasLocation for TableAccessPrefix {
+    fn get_location(&self) -> Location {
+        match self {
+            TableAccessPrefix::Name(value) => value.get_location(),
+            TableAccessPrefix::TableAccess(value) => value.get_location(),
+            TableAccessPrefix::FunctionCall(value) => value.get_location(),
+            TableAccessPrefix::ExpressionWrap(value) => value.get_location(),
+        }
+    }
+}
+
+impl HasLocation for FunctionCall {
+    fn get_location(&self) -> Location {
+        get_location_from_boundaries(self.invoked.get_location(), self.arguments.get_location())
+    }
+}
+impl HasLocation for FunctionCallInvoked {
+    fn get_location(&self) -> Location {
+        match self {
+            FunctionCallInvoked::Function(value) => value.get_location(),
+            FunctionCallInvoked::TableMethod {
+                table,
+                colon,
+                method,
+            } => get_location_from_boundaries(table.get_location(), method.get_location()),
+        }
+    }
+}
+
+impl HasLocation for Var {
+    fn get_location(&self) -> Location {
+        match self {
+            Var::Name(value) => value.get_location(),
+            Var::TableAccess(value) => value.get_location(),
+        }
+    }
+}
+impl HasLocation for ExpressionWrap {
+    fn get_location(&self) -> Location {
+        get_location_from_boundaries(
+            self.opening_parenthesis.get_location(),
+            self.closing_parenthesis.get_location(),
+        )
+    }
+}
+
+impl HasLocation for PrefixExp {
+    fn get_location(&self) -> Location {
+        match self {
+            PrefixExp::Var(value) => value.get_location(),
+            PrefixExp::FunctionCall(value) => value.get_location(),
+            PrefixExp::ExpressionWrap(value) => value.get_location(),
+        }
     }
 }

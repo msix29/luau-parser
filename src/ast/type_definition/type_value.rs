@@ -4,7 +4,11 @@ use std::sync::Arc;
 use tree_sitter::Node;
 
 use crate::{
-    prelude::{Expression, HasLocation, List, Location, SingleToken, TypeValue},
+    call_any,
+    prelude::{
+        Expression, HasLocation, List, Location, SingleToken, TableField, TableFieldValue,
+        TableKey, TableValue, TypeValue,
+    },
     utils::{get_location, get_location_from_boundaries, get_spaces},
 };
 
@@ -209,5 +213,55 @@ impl HasLocation for TypeValue {
                 get_location_from_boundaries(ellipsis.get_location(), name.get_location())
             }
         }
+    }
+}
+
+impl HasLocation for TableValue {
+    fn get_location(&self) -> Location {
+        get_location_from_boundaries(
+            self.opening_brackets.get_location(),
+            self.closing_brackets.get_location(),
+        )
+    }
+}
+
+impl HasLocation for TableKey {
+    fn get_location(&self) -> Location {
+        match self {
+            TableKey::String(value) => value.get_location(),
+            TableKey::Expression {
+                open_square_brackets,
+                expression: _,
+                close_square_brackets,
+            } => get_location_from_boundaries(
+                open_square_brackets.get_location(),
+                close_square_brackets.get_location(),
+            ),
+            TableKey::Type {
+                open_square_brackets,
+                r#type: _,
+                close_square_brackets,
+            } => get_location_from_boundaries(
+                open_square_brackets.get_location(),
+                close_square_brackets.get_location(),
+            ),
+        }
+    }
+}
+impl HasLocation for TableFieldValue {
+    fn get_location(&self) -> Location {
+        match self {
+            TableFieldValue::Expression(value) => value.get_location(),
+            TableFieldValue::Type(value) => value.get_location(),
+        }
+    }
+}
+impl HasLocation for TableField {
+    fn get_location(&self) -> Location {
+        get_location_from_boundaries(
+            self.key.get_location(),
+            // Either value or type is there, which is why `unwrap` here is fine.
+            call_any!(get_location, self.value.unwrap(), self.r#type),
+        )
     }
 }

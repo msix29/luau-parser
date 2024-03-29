@@ -63,6 +63,7 @@ pub struct TableField {
     /// The key of this field.
     pub key: Arc<TableKey>,
 
+    //TODO: Remove
     /// Exact location of the key. Will be `None` if the key was unspecified.
     pub key_location: Option<Location>,
 

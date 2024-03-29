@@ -6,9 +6,9 @@ use tree_sitter::Node;
 
 use crate::{
     prelude::{
-        FunctionParameter, GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo,
-        List, ListItem, NormalizedName, SingleToken, TableField, TableKey, TableValue,
-        TypeDefinition, TypeValue,
+        FunctionParameter, FunctionValue, GenericDeclaration, GenericDeclarationParameter,
+        GenericParameterInfo, HasLocation, List, ListItem, Location, NormalizedName, SingleToken,
+        TableField, TableKey, TableValue, TypeDefinition, TypeValue,
     },
     utils::get_location,
 };
@@ -262,5 +262,11 @@ pub(crate) fn build_function_type(node: Node, code_bytes: &[u8]) -> TypeValue {
         )),
         arrow: SingleToken::from((node.child_by_field_name("arrow").unwrap(), code_bytes)),
         return_type: Arc::new(build_function_returns(node, code_bytes)),
+    }
+}
+
+impl HasLocation for FunctionValue {
+    fn get_location(&self) -> Location {
+        todo!()
     }
 }
