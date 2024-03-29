@@ -7,7 +7,7 @@ use std::sync::Arc;
 
 use crate::prelude::Expression;
 
-use super::{FunctionParameter, List, Location, SingleToken, TableValue};
+use super::{FunctionParameter, List, SingleToken, TableValue};
 
 /// Possible values for a type.
 #[derive(Clone, Debug)]
@@ -287,7 +287,7 @@ pub struct TypeDefinition {
     /// ```
     ///
     /// In both cases (`{ number }`, and `() -> ()`), they have types with no names.
-    pub type_name: String,
+    pub type_name: SingleToken,
 
     /// The `=` sign between the name and the actual value of the type.
     pub equal_sign: Option<SingleToken>,

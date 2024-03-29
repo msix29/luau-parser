@@ -12,7 +12,7 @@ pub enum TableAccessPrefix {
     /// ```lua
     /// local _ = t.name
     /// ```
-    Name(String),
+    Name(SingleToken),
 
     /// A nested table access.
     ///
@@ -61,7 +61,7 @@ pub enum Var {
     /// ```lua
     /// local _ = foo
     /// ```
-    Name(String),
+    Name(SingleToken),
 
     /// A variable accessed from a table.
     ///
@@ -93,8 +93,9 @@ pub enum FunctionCallInvoked {
 
         /// The colon between the table and the method name.
         colon: SingleToken,
+        
         /// The actual name of the method being called.
-        method: String,
+        method: SingleToken,
     },
 }
 

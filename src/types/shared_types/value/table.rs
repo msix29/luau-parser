@@ -27,8 +27,11 @@ use crate::prelude::{Expression, List, Location, SingleToken, TypeDefinition};
 /// ```
 #[derive(Clone, Debug)]
 pub enum TableKey {
+    /// Cases in which a key wasn't provided, it's guessed as a number in that case.
+    Undefined(i32),
+
     /// Simple key
-    String(String),
+    String(SingleToken),
 
     /// An expression, can only be used in definitions and not in types.
     Expression {

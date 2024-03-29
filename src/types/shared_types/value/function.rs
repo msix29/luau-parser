@@ -10,7 +10,7 @@ use super::TableKey;
 #[derive(Clone, Debug)]
 pub struct FunctionParameter {
     /// The name of the parameter.
-    pub name: String,
+    pub name: SingleToken,
 
     /// The _[type](TypeDefinition)_ of the parameter.
     pub r#type: Arc<TypeDefinition>,
