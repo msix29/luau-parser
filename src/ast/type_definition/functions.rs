@@ -151,10 +151,7 @@ pub(crate) fn build_function_parameters(
                 FunctionParameter {
                     name: normalized_name.name,
                     is_variadic: false,
-                    r#type: Arc::new(TypeDefinition::from((
-                        SingleToken::from("any"),
-                        code_bytes,
-                    ))),
+                    r#type: Arc::new(TypeDefinition::from(SingleToken::from("any"))),
                     location: get_location(parameter),
                 }
             } else {

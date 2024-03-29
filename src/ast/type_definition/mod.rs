@@ -142,8 +142,8 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
     }
 }
 
-impl From<(SingleToken, &[u8])> for TypeDefinition {
-    fn from((type_name, code_bytes): (SingleToken, &[u8])) -> Self {
+impl From<SingleToken> for TypeDefinition {
+    fn from(type_name: SingleToken) -> Self {
         TypeDefinition {
             export_keyword: None,
             type_keyword: None,
