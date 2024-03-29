@@ -8,7 +8,7 @@ use std::sync::Arc;
 use tree_sitter::Node;
 
 use crate::{
-    prelude::{Expression, ExpressionInner},
+    prelude::{Expression, ExpressionInner, HasLocation, Location},
     utils::{get_location, get_spaces},
 };
 
@@ -54,5 +54,11 @@ impl From<(Arc<ExpressionInner>, Node<'_>)> for Expression {
             location: get_location(node),
             spaces_after: "".to_string(),
         }
+    }
+}
+
+impl HasLocation for Expression {
+    fn get_location(&self) -> Location {
+        self.inner.get_location()
     }
 }
