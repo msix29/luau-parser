@@ -129,6 +129,20 @@ pub enum Token {
     /// This struct isn't used for while or for loops, they have their own tokens, and have
     /// do blocks as part of their token.
     DoBlock(DoBlock),
+
+    /// A do block.
+    ///
+    /// ```lua
+    /// do
+    ///     print("Hello, World!")
+    /// end
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// This struct isn't used for while or for loops, they have their own tokens, and have
+    /// do blocks as part of their token.
+    ForIn(ForIn),
 }
 
 /// A struct representing a scope in a file. This ast is lossless, meaning it can be

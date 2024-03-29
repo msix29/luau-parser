@@ -1,4 +1,4 @@
-//! Module loading in helpful traits for block-related structs.
+//! Module loading in helper traits for block-related structs.
 
 mod do_block;
 mod for_in;

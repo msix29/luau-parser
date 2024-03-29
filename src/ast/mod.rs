@@ -1,7 +1,7 @@
 //! # Abstract Syntax Tree
 //!
 //! This module is only responsible for loading in needed files which implements multiple
-//! helpful traits for AST-related structs.
+//! helper traits for AST-related structs.
 //!
 
 pub mod block;

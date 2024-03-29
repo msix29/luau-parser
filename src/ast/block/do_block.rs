@@ -1,4 +1,4 @@
-//! Implements helpful traits for do block
+//! Implements helper traits for do block
 
 use std::sync::Arc;
 
@@ -16,15 +16,14 @@ impl AstNode for DoBlock {
 
         Some(DoBlock {
             do_keyword: SingleToken::from((node.child(0).unwrap(), code_bytes)),
-            body: Ast {
-                uri: None,
-                tokens: Arc::new(parse_block(
-                    node.child(1).unwrap(),
-                    &mut Vec::new(),
-                    code_bytes,
-                )),
-            },
-            end_keyword: SingleToken::from((node.child(2).unwrap(), code_bytes)),
+            body: node
+                .child_by_field_name("body")
+                .map(|body| Ast {
+                    uri: None,
+                    tokens: Arc::new(parse_block(body, &mut Vec::new(), code_bytes)),
+                })
+                .unwrap_or_default(),
+            end_keyword: SingleToken::from((node.child_by_field_name("end").unwrap(), code_bytes)),
         })
     }
 }
