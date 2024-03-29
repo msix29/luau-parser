@@ -12,7 +12,7 @@ impl Display for ExpressionInner {
 impl HasRawValue for ExpressionInner {
     fn get_raw_value(&self) -> String {
         match self {
-            ExpressionInner::Nil => "nil".to_string(),
+            ExpressionInner::Nil(value) => value.get_raw_value(),
             ExpressionInner::Boolean(value) => value.get_raw_value(),
             ExpressionInner::Number(value) => value.get_raw_value(),
             ExpressionInner::String(value) => value.get_raw_value(),

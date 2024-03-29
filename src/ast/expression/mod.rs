@@ -39,18 +39,20 @@ impl From<(Node<'_>, ExpressionInner, &[u8])> for Expression {
 impl From<(ExpressionInner, Node<'_>)> for Expression {
     fn from((expression_inner, node): (ExpressionInner, Node<'_>)) -> Self {
         Self {
+            spaces_before: "".to_string(),
             inner: Arc::new(expression_inner),
             location: get_location(node),
-            ..Default::default()
+            spaces_after: "".to_string(),
         }
     }
 }
 impl From<(Arc<ExpressionInner>, Node<'_>)> for Expression {
     fn from((expression_inner, node): (Arc<ExpressionInner>, Node<'_>)) -> Self {
         Self {
+            spaces_before: "".to_string(),
             inner: expression_inner,
             location: get_location(node),
-            ..Default::default()
+            spaces_after: "".to_string(),
         }
     }
 }

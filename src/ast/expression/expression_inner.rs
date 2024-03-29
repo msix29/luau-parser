@@ -7,7 +7,9 @@ use tree_sitter::Node;
 
 use crate::{
     prelude::{
-        parse_block, Ast, ElseIfExpression, Expression, ExpressionInner, FunctionName, FunctionValue, HasLocation, List, ListItem, PrefixExp, SingleToken, TableField, TableFieldValue, TableKey, TableValue, TypeDefinition
+        parse_block, Ast, ElseIfExpression, Expression, ExpressionInner, FunctionName,
+        FunctionValue, List, ListItem, PrefixExp, SingleToken, TableField, TableFieldValue,
+        TableKey, TableValue, TypeDefinition,
     },
     utils::get_location,
 };
@@ -83,15 +85,6 @@ pub(crate) fn build_table(node: Node, code_bytes: &[u8]) -> TableValue {
     }
 }
 
-impl From<(&str, Node<'_>)> for ExpressionInner {
-    fn from((value, node): (&str, Node<'_>)) -> Self {
-        //TODO: Handle other cases.
-        Self::String(crate::prelude::SimpleValue {
-            location: get_location(node),
-            value: value.to_string(),
-        })
-    }
-}
 impl ExpressionInner {
     /// Builds a list of _[inner expressions](ExpressionInner)_ from an iterator over nodes.
     ///
@@ -144,11 +137,11 @@ impl From<PrefixExp> for ExpressionInner {
 impl From<(Node<'_>, &[u8])> for ExpressionInner {
     fn from((node, code_bytes): (Node<'_>, &[u8])) -> Self {
         match node.kind() {
-            "nil" => ExpressionInner::from(("nil", node)),
-            "boolean" => ExpressionInner::from((node.utf8_text(code_bytes).unwrap(), node)),
-            "number" => ExpressionInner::from((node.utf8_text(code_bytes).unwrap(), node)),
-            "string" => ExpressionInner::from((node.utf8_text(code_bytes).unwrap(), node)),
-            "string_interp" => ExpressionInner::from((node.utf8_text(code_bytes).unwrap(), node)),
+            "nil" => ExpressionInner::Nil(SingleToken::from((node, code_bytes))),
+            "boolean" => ExpressionInner::Boolean(SingleToken::from((node, code_bytes))),
+            "number" => ExpressionInner::Number(SingleToken::from((node, code_bytes))),
+            "string" => ExpressionInner::String(SingleToken::from((node, code_bytes))),
+            "string_interp" => ExpressionInner::String(SingleToken::from((node, code_bytes))),
             "anon_fn" => {
                 let mut ast_tokens = Vec::new();
                 if let Some(body) = node.child_by_field_name("body") {

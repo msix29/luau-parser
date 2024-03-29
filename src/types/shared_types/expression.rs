@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 
-use super::{FunctionValue, List, Location, SimpleValue, SingleToken, TableKey, TableValue, TypeDefinition};
+use super::{FunctionValue, List, Location, SingleToken, TableKey, TableValue, TypeDefinition};
 
 /// An enum representing different ways a table can be used.
 #[derive(Clone, Debug)]
@@ -92,7 +92,6 @@ pub enum FunctionCallInvoked {
         table: Arc<PrefixExp>,
 
         /// The colon between the table and the method name.
-
         colon: SingleToken,
         /// The actual name of the method being called.
         method: String,
@@ -191,21 +190,20 @@ pub enum PrefixExp {
 }
 
 /// An enum representing all possible values for an expression.
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug)]
 pub enum ExpressionInner {
     /// Nil value.
-    #[default]
-    Nil,
+    Nil(SingleToken),
 
     /// A `true` or `false` value.
-    Boolean(SimpleValue),
+    Boolean(SingleToken),
 
     /// Any number, be it a float, an unsigned integer, or an integer.
-    Number(SimpleValue),
+    Number(SingleToken),
 
     /// A string, be it double quotes, single quotes, interpolated string, or multi-line.
     //TODO: Support interpolated string as a type by itself for better diagnostics.
-    String(SimpleValue),
+    String(SingleToken),
 
     /// An **anonymous** function.
     ///
@@ -336,7 +334,7 @@ pub struct ElseIfExpression {
 }
 
 /// A struct representing an expression with no actual type.
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug)]
 pub struct Expression {
     /// All Spaces before the expression.
     pub spaces_before: String,

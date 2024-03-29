@@ -3,7 +3,6 @@
 use tree_sitter::{Node, TreeCursor};
 
 use crate::{
-    call_any,
     prelude::{
         AstNode, Expression, ExpressionInner, HasLocation, List, LocalAssignment, Location,
         NormalizedName, SingleToken,
