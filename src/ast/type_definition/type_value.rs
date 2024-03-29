@@ -175,11 +175,10 @@ impl HasLocation for TypeValue {
                 right,
             } => get_location_from_boundaries(left.get_location(), right.get_location()),
             TypeValue::Module {
-                //TODO: Change to SingleToken
-                module: _,
-                dot,
-                type_info: _,
-            } => dot.get_location(),
+                module,
+                dot: _,
+                type_info,
+            } => get_location_from_boundaries(module.get_location(), type_info.get_location()),
             TypeValue::Optional {
                 base,
                 question_mark,
