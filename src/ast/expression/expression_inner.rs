@@ -141,21 +141,30 @@ impl From<(Node<'_>, &[u8])> for ExpressionInner {
 
                 ExpressionInner::Function(FunctionValue {
                     local_keyword: None,
-                    function_keyword: Some(SingleToken::from((
+                    function_keyword: SingleToken::from((
                         node.child_by_field_name("function").unwrap(),
                         code_bytes,
-                    ))),
+                    )),
                     function_name: FunctionName::Anonymous,
+                    opening_parenthesis: SingleToken::from((
+                        node.child_by_field_name("opening_parenthesis").unwrap(),
+                        code_bytes,
+                    )),
+
                     parameters: Arc::new(build_function_parameters(node, code_bytes, false)),
+                    closing_parenthesis: SingleToken::from((
+                        node.child_by_field_name("closing_parenthesis").unwrap(),
+                        code_bytes,
+                    )),
                     returns: Arc::new(build_function_returns(node, code_bytes)),
                     body: Arc::new(Ast {
                         tokens: Arc::new(ast_tokens),
                         uri: None,
                     }),
-                    end_keyword: Some(SingleToken::from((
+                    end_keyword: SingleToken::from((
                         node.child_by_field_name("end").unwrap(),
                         code_bytes,
-                    ))),
+                    )),
                 })
             }
             "var" | "functionCall" | "exp_wrap" => {

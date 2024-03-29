@@ -141,7 +141,7 @@ pub enum FunctionName {
         ///
         /// The method is `None` as there's no `:`.
         method: Option<SingleToken>,
-    }
+    },
 }
 
 /// The actual value representing a function for the _[value](crate::prelude::Value)_ enum.
@@ -152,10 +152,16 @@ pub struct FunctionValue {
 
     /// The `function` keyword at the start (if any), only `None` in
     /// _[type definitions](TypeDefinition)_.
-    pub function_keyword: Option<SingleToken>,
+    pub function_keyword: SingleToken,
 
     /// The actual name of the function.
     pub function_name: FunctionName,
+
+    /// The `(` character.
+    pub opening_parenthesis: SingleToken,
+
+    /// The `)` character.
+    pub closing_parenthesis: SingleToken,
 
     /// All _[parameters](FunctionParameter)_ of the function.
     pub parameters: Arc<List<FunctionParameter>>,
@@ -167,5 +173,5 @@ pub struct FunctionValue {
     pub body: Arc<Ast>,
 
     /// The `end` keyword (if any), only `None` in _[type definitions](TypeDefinition)_.
-    pub end_keyword: Option<SingleToken>,
+    pub end_keyword: SingleToken,
 }

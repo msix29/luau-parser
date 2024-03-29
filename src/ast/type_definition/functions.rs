@@ -5,12 +5,14 @@ use std::sync::Arc;
 use tree_sitter::Node;
 
 use crate::{
+    call_any,
     prelude::{
-        FunctionParameter, FunctionValue, GenericDeclaration, GenericDeclarationParameter,
-        GenericParameterInfo, HasLocation, List, ListItem, Location, NormalizedName, SingleToken,
-        TableField, TableKey, TableValue, TypeDefinition, TypeValue,
+        FunctionName, FunctionParameter, FunctionValue, GenericDeclaration,
+        GenericDeclarationParameter, GenericParameterInfo, HasLocation, List, ListItem, Location,
+        MightHaveLocation, NormalizedName, SingleToken, TableField, TableKey, TableValue,
+        TypeDefinition, TypeValue,
     },
-    utils::get_location,
+    utils::{get_location, get_location_from_boundaries},
 };
 
 /// Get a type value from a node representing a singleton type.
@@ -251,8 +253,37 @@ pub(crate) fn build_function_type(node: Node, code_bytes: &[u8]) -> TypeValue {
     }
 }
 
+impl MightHaveLocation for FunctionName {
+    fn try_get_location(&self) -> Option<Location> {
+        match self {
+            FunctionName::Anonymous => None,
+            FunctionName::Name(name) => Some(name.get_location()),
+            FunctionName::TableAccess {
+                table,
+                keys,
+                method,
+            } => {
+                let end = method.as_ref().map_or_else(
+                    || {
+                        keys.last()
+                            .map_or_else(|| table.get_location(), |key| key.get_location())
+                    },
+                    |method| method.get_location(),
+                );
+
+                Some(get_location_from_boundaries(
+                    table.get_location(),
+                    end,
+                ))
+            }
+        }
+    }
+}
 impl HasLocation for FunctionValue {
     fn get_location(&self) -> Location {
-        todo!()
+        get_location_from_boundaries(
+            call_any!(get_location, self.function_keyword, self.local_keyword),
+            self.end_keyword.get_location(),
+        )
     }
 }

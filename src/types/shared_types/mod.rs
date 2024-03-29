@@ -73,12 +73,16 @@ pub trait AstNode: Sized {
     ) -> Option<Self>;
 }
 
-/// A trait for letting the compiler know that this _[ast node](AstNode)_ has a location
-/// that the user can interact with. Nodes creating new scapes like if statements don't
-/// have a location, while a function does as it's treated just like a variable.
+/// A trait for letting the compiler know that this specifc item has a location.
 pub trait HasLocation {
     /// Get the location of the node.
     fn get_location(&self) -> Location;
+}
+
+/// A trait for letting the compiler know that this specific item may have a location.
+pub trait MightHaveLocation {
+    /// Try getting the location of the node.
+    fn try_get_location(&self) -> Option<Location>;
 }
 
 /// All possible tokens in an _[ast](Ast)_.
