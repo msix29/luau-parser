@@ -12,7 +12,7 @@ use super::DoBlock;
 /// end
 /// ```
 #[derive(Clone, Debug)]
-pub struct ForIn {
+pub struct GenericFor {
     /// The `for` keyword.
     pub for_keyword: SingleToken,
 

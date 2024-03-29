@@ -3,10 +3,10 @@
 use tree_sitter::Node;
 
 use crate::prelude::{
-    AstNode, DoBlock, Expression, ExpressionInner, ForIn, List, NormalizedName, SingleToken,
+    AstNode, DoBlock, Expression, ExpressionInner, GenericFor, List, NormalizedName, SingleToken,
 };
 
-impl AstNode for ForIn {
+impl AstNode for GenericFor {
     fn try_from_node<'a>(
         node: tree_sitter::Node<'a>,
         cursor: &mut tree_sitter::TreeCursor<'a>,
@@ -16,7 +16,7 @@ impl AstNode for ForIn {
             return None;
         }
 
-        Some(ForIn {
+        Some(GenericFor {
             for_keyword: SingleToken::from((node.child_by_field_name("for").unwrap(), code_bytes)),
             names: List::from_iter(
                 node.children_by_field_name("binding", cursor),

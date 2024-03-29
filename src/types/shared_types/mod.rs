@@ -142,7 +142,7 @@ pub enum Token {
     ///
     /// This struct isn't used for while or for loops, they have their own tokens, and have
     /// do blocks as part of their token.
-    ForIn(ForIn),
+    GenericFor(GenericFor),
 }
 
 /// A struct representing a scope in a file. This ast is lossless, meaning it can be
