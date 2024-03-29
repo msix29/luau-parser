@@ -10,7 +10,7 @@ use crate::{
         FunctionCallInvoked, HasLocation, Location, PrefixExp, SingleToken, TableAccess,
         TableAccessPrefix, TableKey, Var,
     },
-    utils::{get_location, get_location_from_boundaries},
+    utils::get_location_from_boundaries,
 };
 
 use super::expression_inner::build_table;
@@ -19,7 +19,7 @@ use super::expression_inner::build_table;
 fn handle_table_var(node: Node, code_bytes: &[u8]) -> TableAccess {
     let table_node = node.child_by_field_name("table").unwrap();
     let prefix = match table_node.kind() {
-        "name" => TableAccessPrefix::Name(table_node.utf8_text(code_bytes).unwrap().to_string()),
+        "name" => TableAccessPrefix::Name(SingleToken::from((table_node, code_bytes))),
         "functionCall" => {
             TableAccessPrefix::FunctionCall(Arc::new(handle_function_call(table_node, code_bytes)))
         }
@@ -31,7 +31,7 @@ fn handle_table_var(node: Node, code_bytes: &[u8]) -> TableAccess {
     };
 
     let key = if let Some(key) = node.child_by_field_name("keyName") {
-        TableKey::String(key.utf8_text(code_bytes).unwrap().to_string())
+        TableKey::String(SingleToken::from((key, code_bytes)))
     } else {
         let key = node.child_by_field_name("keyExp").unwrap();
 
@@ -62,12 +62,10 @@ fn handle_function_call(prefix_exp: Node, code_bytes: &[u8]) -> FunctionCall {
                 prefix_exp.child_by_field_name("colon").unwrap(),
                 code_bytes,
             )),
-            method: prefix_exp
-                .child_by_field_name("method")
-                .unwrap()
-                .utf8_text(code_bytes)
-                .unwrap()
-                .to_string(),
+            method: SingleToken::from((
+                prefix_exp.child_by_field_name("method").unwrap(),
+                code_bytes,
+            )),
         }
     };
 
@@ -109,9 +107,7 @@ pub(crate) fn handle_prefix_exp(prefix_exp: Node, code_bytes: &[u8]) -> PrefixEx
         "var" => {
             let node = prefix_exp.child(0).unwrap();
             match node.kind() {
-                "name" => {
-                    PrefixExp::Var(Var::Name(node.utf8_text(code_bytes).unwrap().to_string()))
-                }
+                "name" => PrefixExp::Var(Var::Name(SingleToken::from((node, code_bytes)))),
                 _ => PrefixExp::Var(Var::TableAccess(handle_table_var(node, code_bytes))),
             }
         }
@@ -124,7 +120,6 @@ pub(crate) fn handle_prefix_exp(prefix_exp: Node, code_bytes: &[u8]) -> PrefixEx
         _ => panic!("This shouldn't be reached."),
     }
 }
-
 
 impl HasLocation for TableAccess {
     fn get_location(&self) -> Location {
@@ -147,7 +142,7 @@ impl HasLocation for TableAccessPrefix {
 
 impl HasLocation for FunctionCall {
     fn get_location(&self) -> Location {
-        get_location_from_boundaries(self.invoked.get_location(), self.arguments.get_location())
+        get_location_from_boundaries(self.invoked.get_location(), self.arguments..get_location())
     }
 }
 impl HasLocation for FunctionCallInvoked {

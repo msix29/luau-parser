@@ -9,7 +9,7 @@ use crate::{
         Expression, HasLocation, List, Location, SingleToken, TableField, TableFieldValue,
         TableKey, TableValue, TypeValue,
     },
-    utils::{get_location, get_location_from_boundaries, get_spaces},
+    utils::get_location_from_boundaries,
 };
 
 use super::functions::{build_function_type, build_table_type, from_singleton_type};
@@ -118,18 +118,6 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
             }
             _ => panic!("Reached unhandled type. {}", node.to_sexp()),
         }
-    }
-}
-impl From<(&str, Node<'_>, &[u8])> for TypeValue {
-    fn from((name, node, code_bytes): (&str, Node<'_>, &[u8])) -> Self {
-        let (spaces_before, spaces_after) = get_spaces(node, code_bytes);
-
-        TypeValue::Basic(SingleToken {
-            spaces_before,
-            word: name.to_string(),
-            location: get_location(node),
-            spaces_after,
-        })
     }
 }
 
@@ -245,6 +233,8 @@ impl HasLocation for TableKey {
                 open_square_brackets.get_location(),
                 close_square_brackets.get_location(),
             ),
+            TableKey::UndefinedNumber(_) => Location::default(),
+            TableKey::UndefinedString(_) => Location::default(),
         }
     }
 }

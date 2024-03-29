@@ -38,7 +38,7 @@ pub(crate) fn build_table(node: Node, code_bytes: &[u8]) -> TableValue {
             code_bytes,
             |_, node| {
                 let key = if let Some(key) = node.child_by_field_name("keyName") {
-                    TableKey::String(key.utf8_text(code_bytes).unwrap().to_string())
+                    TableKey::String(SingleToken::from((key, code_bytes)))
                 } else if let Some(key) = node.child_by_field_name("keyExp") {
                     TableKey::Expression {
                         open_square_brackets: SingleToken::from((
@@ -53,7 +53,7 @@ pub(crate) fn build_table(node: Node, code_bytes: &[u8]) -> TableValue {
                     }
                 } else {
                     index += 1;
-                    TableKey::String(index.to_string())
+                    TableKey::UndefinedNumber(index)
                 };
                 let value_node = node.child_by_field_name("value").unwrap();
                 let value = Expression::from((value_node, code_bytes));

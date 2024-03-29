@@ -18,7 +18,7 @@ use crate::{
         GenericParameterInfoDefault, HasLocation, List, Location, SingleToken, TypeDefinition,
         TypeValue,
     },
-    utils::{get_location, get_location_from_boundaries},
+    utils::get_location_from_boundaries,
 };
 
 impl AstNode for TypeDefinition {
@@ -109,8 +109,6 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
                 }
             });
 
-            let name_node = node.child_by_field_name("typeName").unwrap();
-
             TypeDefinition {
                 export_keyword: node
                     .child_by_field_name("export")
@@ -119,7 +117,10 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
                     .child_by_field_name("typeKeyword")
                     .map(|node| SingleToken::from((node, code_bytes))),
                 generics,
-                type_name: name_node.utf8_text(code_bytes).unwrap().to_string(),
+                type_name: SingleToken::from((
+                    node.child_by_field_name("typeName").unwrap(),
+                    code_bytes,
+                )),
                 equal_sign: node
                     .child_by_field_name("equal")
                     .map(|node| SingleToken::from((node, code_bytes))),
@@ -127,32 +128,29 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
                     node.child_by_field_name("type").unwrap(),
                     code_bytes,
                 ))),
-                name_location: Some(get_location(name_node)),
             }
         } else {
             TypeDefinition {
                 export_keyword: None,
                 type_keyword: None,
-                type_name: "".to_string(),
+                type_name: SingleToken::default(),
                 generics: None,
                 equal_sign: None,
                 type_value: Arc::new(TypeValue::from((node, code_bytes))),
-                name_location: Some(get_location(node)),
             }
         }
     }
 }
 
-impl From<(&str, Node<'_>, &[u8])> for TypeDefinition {
-    fn from((type_name, node, code_bytes): (&str, Node<'_>, &[u8])) -> Self {
+impl From<(SingleToken, Node<'_>, &[u8])> for TypeDefinition {
+    fn from((type_name, node, code_bytes): (SingleToken, Node<'_>, &[u8])) -> Self {
         TypeDefinition {
             export_keyword: None,
             type_keyword: None,
-            type_name: type_name.to_string(),
+            type_name,
             generics: None,
             equal_sign: None,
-            type_value: Arc::new(TypeValue::from((type_name, node, code_bytes))),
-            name_location: None,
+            type_value: Arc::new(TypeValue::Basic(type_name)),
         }
     }
 }

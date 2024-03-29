@@ -55,14 +55,10 @@ pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
                 match field.kind() {
                     "tableProperty" => {
                         table_fields.push(ListItem::NonTrailing(TableField {
-                            key: Arc::new(TableKey::String(
-                                field
-                                    .child(0)
-                                    .unwrap()
-                                    .utf8_text(code_bytes)
-                                    .unwrap()
-                                    .to_string(),
-                            )),
+                            key: Arc::new(TableKey::String(SingleToken::from((
+                                field.child(0).unwrap(),
+                                code_bytes,
+                            )))),
                             equal_or_colon: Some(SingleToken::from((
                                 field.child(1).unwrap(),
                                 code_bytes,
@@ -109,7 +105,7 @@ pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
             }
         }
         _ => table_fields.push(ListItem::NonTrailing(TableField {
-            key: Arc::new(TableKey::String("[number]".to_string())),
+            key: Arc::new(TableKey::UndefinedString("[number]".to_string())),
             equal_or_colon: None,
             r#type: Some(Arc::new(TypeDefinition::from((
                 fields_list,
@@ -155,7 +151,11 @@ pub(crate) fn build_function_parameters(
                 FunctionParameter {
                     name: normalized_name.name,
                     is_variadic: false,
-                    r#type: Arc::new(TypeDefinition::from(("any", parameter, code_bytes))),
+                    r#type: Arc::new(TypeDefinition::from((
+                        SingleToken::from("any"),
+                        parameter,
+                        code_bytes,
+                    ))),
                     location: get_location(parameter),
                 }
             } else {
@@ -164,7 +164,7 @@ pub(crate) fn build_function_parameters(
                 // the sake of making it "better", we use `_`, which is globally known as a
                 // placeholder.
                 FunctionParameter {
-                    name: "_".to_string(),
+                    name: SingleToken::from("_"),
                     is_variadic: false,
                     r#type: Arc::new(TypeDefinition::from((
                         parameter.child(0).unwrap(),

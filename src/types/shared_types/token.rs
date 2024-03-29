@@ -3,7 +3,7 @@
 use super::Location;
 
 /// A struct represnting a single token, aka a single word.
-#[derive(Clone, Default)]
+#[derive(Clone, Debug, Default)]
 pub struct SingleToken {
     /// All the spaces before the word.
     pub spaces_before: String,

@@ -28,7 +28,11 @@ use crate::prelude::{Expression, List, Location, SingleToken, TypeDefinition};
 #[derive(Clone, Debug)]
 pub enum TableKey {
     /// Cases in which a key wasn't provided, it's guessed as a number in that case.
-    Undefined(i32),
+    UndefinedNumber(i32),
+
+    /// Cases in which a key wasn't provided, it's guessed as `[number]`. It has no other
+    /// possible values than `[number]`.
+    UndefinedString(String),
 
     /// Simple key
     String(SingleToken),
