@@ -4,7 +4,11 @@ use std::sync::Arc;
 
 use tree_sitter::Node;
 
-use crate::prelude::{NormalizedName, SingleToken, TypeDefinition};
+use crate::{
+    call_any,
+    prelude::{HasLocation, NormalizedName, SingleToken, TypeDefinition},
+    utils::get_location_from_boundaries,
+};
 
 impl From<(Node<'_>, &[u8])> for NormalizedName {
     fn from((node, code_bytes): (Node<'_>, &[u8])) -> Self {
@@ -23,5 +27,14 @@ impl From<(Node<'_>, &[u8])> for NormalizedName {
                 r#type: None,
             }
         }
+    }
+}
+
+impl HasLocation for NormalizedName {
+    fn get_location(&self) -> crate::prelude::Location {
+        get_location_from_boundaries(
+            self.name.get_location(),
+            call_any!(get_location, self.name, self.r#type),
+        )
     }
 }

@@ -1,7 +1,5 @@
 //! Implemens helper traits for for-in loops.
 
-use tree_sitter::Node;
-
 use crate::prelude::{
     AstNode, DoBlock, Expression, ExpressionInner, GenericFor, List, NormalizedName, SingleToken,
 };
@@ -30,7 +28,7 @@ impl AstNode for GenericFor {
                 node.children_by_field_name("value", cursor),
                 code_bytes,
             )
-            .to::<Expression, Node<'_>>(node),
+            .to::<Expression>(),
             do_block: DoBlock::try_from_node(
                 node.child_by_field_name("doBlock").unwrap(),
                 cursor,

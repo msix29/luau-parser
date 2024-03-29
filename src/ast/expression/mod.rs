@@ -9,7 +9,7 @@ use tree_sitter::Node;
 
 use crate::{
     prelude::{Expression, ExpressionInner, HasLocation, Location},
-    utils::{get_location, get_spaces},
+    utils::get_spaces,
 };
 
 impl From<(Node<'_>, &[u8])> for Expression {
@@ -34,20 +34,11 @@ impl From<(Node<'_>, ExpressionInner, &[u8])> for Expression {
         }
     }
 }
-impl From<(ExpressionInner, Node<'_>)> for Expression {
-    fn from((expression_inner, node): (ExpressionInner, Node<'_>)) -> Self {
+impl From<ExpressionInner> for Expression {
+    fn from(expression_inner: ExpressionInner) -> Self {
         Self {
             spaces_before: "".to_string(),
             inner: Arc::new(expression_inner),
-            spaces_after: "".to_string(),
-        }
-    }
-}
-impl From<(Arc<ExpressionInner>, Node<'_>)> for Expression {
-    fn from((expression_inner, node): (Arc<ExpressionInner>, Node<'_>)) -> Self {
-        Self {
-            spaces_before: "".to_string(),
-            inner: expression_inner,
             spaces_after: "".to_string(),
         }
     }

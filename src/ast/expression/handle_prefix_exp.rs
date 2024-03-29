@@ -78,7 +78,7 @@ fn handle_function_call(prefix_exp: Node, code_bytes: &[u8]) -> FunctionCall {
                 arguments_node.children_by_field_name("arguments", &mut arguments_node.walk()),
                 code_bytes,
             )
-            .to::<Expression, Node>(arguments_node);
+            .to::<Expression>();
 
             FunctionArguments::List {
                 open_parenthesis: SingleToken::from((
@@ -142,7 +142,23 @@ impl HasLocation for TableAccessPrefix {
 
 impl HasLocation for FunctionCall {
     fn get_location(&self) -> Location {
-        get_location_from_boundaries(self.invoked.get_location(), self.arguments..get_location())
+        get_location_from_boundaries(self.invoked.get_location(), self.arguments.get_location())
+    }
+}
+impl HasLocation for FunctionArguments {
+    fn get_location(&self) -> Location {
+        match self {
+            FunctionArguments::String(value) => value.get_location(),
+            FunctionArguments::Table(value) => value.get_location(),
+            FunctionArguments::List {
+                open_parenthesis,
+                arguments: _,
+                close_parenthesis,
+            } => get_location_from_boundaries(
+                open_parenthesis.get_location(),
+                close_parenthesis.get_location(),
+            ),
+        }
     }
 }
 impl HasLocation for FunctionCallInvoked {
@@ -151,7 +167,7 @@ impl HasLocation for FunctionCallInvoked {
             FunctionCallInvoked::Function(value) => value.get_location(),
             FunctionCallInvoked::TableMethod {
                 table,
-                colon,
+                colon: _,
                 method,
             } => get_location_from_boundaries(table.get_location(), method.get_location()),
         }

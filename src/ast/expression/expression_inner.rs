@@ -262,10 +262,10 @@ impl HasLocation for ExpressionInner {
             } => get_location_from_boundaries(expression.get_location(), cast_to.get_location()),
             ExpressionInner::IfExpression {
                 if_token,
-                condition,
-                then_token,
-                else_if_expressions,
-                else_token,
+                condition: _,
+                then_token: _,
+                else_if_expressions: _,
+                else_token: _,
                 else_expression,
             } => get_location_from_boundaries(
                 if_token.get_location(),

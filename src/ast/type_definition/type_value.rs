@@ -251,7 +251,7 @@ impl HasLocation for TableField {
         get_location_from_boundaries(
             self.key.get_location(),
             // Either value or type is there, which is why `unwrap` here is fine.
-            call_any!(get_location, self.value.unwrap(), self.r#type),
+            call_any!(get_location, self.value.as_ref().unwrap(), self.r#type),
         )
     }
 }

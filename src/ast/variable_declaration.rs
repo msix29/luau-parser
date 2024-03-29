@@ -22,7 +22,7 @@ impl AstNode for LocalAssignment {
 
         let expressions =
             ExpressionInner::from_nodes(node.children_by_field_name("value", cursor), code_bytes)
-                .to::<Expression, Node<'_>>(node);
+                .to::<Expression>();
 
         Some(LocalAssignment {
             local_token: SingleToken::from((node.child(0).unwrap(), code_bytes)),
