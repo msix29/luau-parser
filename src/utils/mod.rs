@@ -46,12 +46,12 @@ pub(crate) fn get_location(node: Node) -> Location {
 
     Location {
         start: Position {
-            character: start.column as u16,
-            line: start.row as u16,
+            character: start.column as u32,
+            line: start.row as u32,
         },
         end: Position {
-            line: end.row as u16,
-            character: end.column as u16,
+            line: end.row as u32,
+            character: end.column as u32,
         },
     }
 }
@@ -61,7 +61,7 @@ pub(crate) fn get_location(node: Node) -> Location {
 pub(crate) fn get_location_from_boundaries(a: Location, b: Location) -> Location {
     let start = a.start;
     let end = b.end;
-    
+
     Location {
         start: Position {
             line: start.character,

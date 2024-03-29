@@ -1,14 +1,12 @@
 //! Position
 
-/// A struct representing a specific point in a document. Lines and characters start from 0
-/// and ends at `Type`'s upper limit - 1 (defaults to 65535 - 1 in u16, which is the default
-/// type).
+/// A struct representing a specific point in a document. Lines and characters start from 0.
 #[derive(Clone, Debug, Default, Copy)]
-pub struct Position<Type = u16> {
+pub struct Position {
     /// The line in which this position points to, starting from 0.
-    pub line: Type,
+    pub line: u32,
 
     /// The character in the _[line](Position::line)_ that this position points to,
     /// starting from 0.
-    pub character: Type,
+    pub character: u32,
 }

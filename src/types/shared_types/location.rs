@@ -4,10 +4,10 @@ use crate::prelude::Position;
 
 #[derive(Clone, Debug, Default, Copy)]
 /// A struct representing the location of an _[AstNode](crate::prelude::AstNode)_.
-pub struct Location<Type = u16> {
+pub struct Location {
     /// Start _[position](Position)_ of the node.
-    pub start: Position<Type>,
+    pub start: Position,
 
     /// End _[position](Position)_ of the node.
-    pub end: Position<Type>,
+    pub end: Position,
 }

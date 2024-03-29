@@ -51,8 +51,8 @@ impl AstNode for IfStatement {
                     || {
                         let end = node.end_position();
                         Position {
-                            line: end.column as u16,
-                            character: end.column as u16,
+                            line: end.column as u32,
+                            character: end.column as u32,
                         }
                     },
                     |node| node.location.start,
@@ -74,8 +74,8 @@ impl AstNode for IfStatement {
             end_keyword: SingleToken::from((node.child_by_field_name("end").unwrap(), code_bytes)),
             location: Location {
                 start: Position {
-                    line: start.column as u16,
-                    character: start.row as u16,
+                    line: start.column as u32,
+                    character: start.row as u32,
                 },
                 end,
             },
