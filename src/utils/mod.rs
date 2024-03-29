@@ -55,3 +55,21 @@ pub(crate) fn get_location(node: Node) -> Location {
         },
     }
 }
+
+
+/// Get the location of a specific tree-sitter node.
+pub(crate) fn get_location_from_boundaries(a: Location, b: Location) -> Location {
+    let start = a.start;
+    let end = b.end;
+    
+    Location {
+        start: Position {
+            line: start.character,
+            character: start.line,
+        },
+        end: Position {
+            line: end.character,
+            character: end.line,
+        },
+    }
+}

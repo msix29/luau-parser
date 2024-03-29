@@ -3,7 +3,7 @@
 use tree_sitter::Node;
 
 use crate::{
-    prelude::SingleToken,
+    prelude::{HasLocation, Location, SingleToken},
     utils::{get_location, get_spaces},
 };
 
@@ -18,5 +18,27 @@ impl From<(Node<'_>, &[u8])> for SingleToken {
             spaces_after,
             location: get_location(node),
         }
+    }
+}
+
+impl From<&str> for SingleToken {
+    fn from(value: &str) -> Self {
+        Self {
+            spaces_before: "".to_string(),
+            word: value.to_string(),
+            spaces_after: "".to_string(),
+            location: Location::default(),
+        }
+    }
+}
+
+impl HasLocation for &SingleToken {
+    fn get_location(&self) -> crate::prelude::Location {
+        self.location
+    }
+}
+impl HasLocation for SingleToken {
+    fn get_location(&self) -> crate::prelude::Location {
+        self.location
     }
 }

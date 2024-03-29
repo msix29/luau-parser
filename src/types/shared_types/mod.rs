@@ -76,7 +76,7 @@ pub trait AstNode: HasRawValue /* + Print */ + Sized {
 /// A trait for letting the compiler know that this _[ast node](AstNode)_ has a location
 /// that the user can interact with. Nodes creating new scapes like if statements don't
 /// have a location, while a function does as it's treated just like a variable.
-pub trait HasLocation: AstNode {
+pub trait HasLocation {
     /// Get the location of the node.
     fn get_location(&self) -> Location;
 }

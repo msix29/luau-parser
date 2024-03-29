@@ -190,11 +190,18 @@ pub(crate) fn build_function_parameters(
 
 /// Build function returns from a node representing a function.
 pub(crate) fn build_function_returns(node: Node, code_bytes: &[u8]) -> TypeValue {
-    TypeValue::from((
-        node.child_by_field_name("return")
-            .unwrap_or_else(|| node.child_by_field_name("returns").unwrap()),
-        code_bytes,
-    ))
+    if let Some(return_node) = node
+        .child_by_field_name("return")
+        .or(node.child_by_field_name("returns"))
+    {
+        TypeValue::from((return_node, code_bytes))
+    } else {
+        TypeValue::Tuple {
+            opening_parenthesis: SingleToken::from("("),
+            types: List::default(),
+            closing_parenthesis: SingleToken::from(")"),
+        }
+    }
 }
 
 /// Build a type value from a node representing a function.
@@ -226,7 +233,7 @@ pub(crate) fn build_function_type(node: Node, code_bytes: &[u8]) -> TypeValue {
             )
             .items,
         );
-        
+
         Some(GenericDeclaration {
             left_arrow: SingleToken::from((
                 node.child_by_field_name("left_arrow").unwrap(),
