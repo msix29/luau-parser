@@ -6,8 +6,7 @@ use tree_sitter::Node;
 
 use crate::prelude::{
     Expression, ExpressionInner, ExpressionWrap, FunctionArguments, FunctionCall,
-    FunctionCallInvoked, List, PrefixExp, SingleToken, TableAccess, TableAccessPrefix, TableKey,
-    Var,
+    FunctionCallInvoked, PrefixExp, SingleToken, TableAccess, TableAccessPrefix, TableKey, Var,
 };
 
 use super::expression_inner::build_table;
