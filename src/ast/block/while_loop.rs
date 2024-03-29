@@ -1,6 +1,9 @@
 //! Implements helper traits for while loops.
 
-use crate::prelude::{AstNode, DoBlock, Expression, SingleToken, WhileLoop};
+use crate::{
+    prelude::{AstNode, DoBlock, Expression, HasLocation, SingleToken, WhileLoop},
+    utils::get_location_from_boundaries,
+};
 
 impl AstNode for WhileLoop {
     fn try_from_node<'a>(
@@ -22,5 +25,14 @@ impl AstNode for WhileLoop {
             )
             .unwrap(),
         })
+    }
+}
+
+impl HasLocation for WhileLoop {
+    fn get_location(&self) -> crate::prelude::Location {
+        get_location_from_boundaries(
+            self.while_keyword.get_location(),
+            self.do_block.get_location(),
+        )
     }
 }

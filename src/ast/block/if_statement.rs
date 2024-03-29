@@ -4,10 +4,10 @@ use std::sync::Arc;
 
 use crate::{
     prelude::{
-        parse_block, Ast, AstNode, ElseIfStatement, ElseStatement, Expression, IfStatement,
-        Location, Position, SingleToken,
+        parse_block, Ast, AstNode, ElseIfStatement, ElseStatement, Expression, HasLocation,
+        IfStatement, Location, Position, SingleToken,
     },
-    utils::get_location,
+    utils::{get_location, get_location_from_boundaries},
 };
 
 impl AstNode for IfStatement {
@@ -80,5 +80,14 @@ impl AstNode for IfStatement {
                 end,
             },
         })
+    }
+}
+
+impl HasLocation for IfStatement {
+    fn get_location(&self) -> Location {
+        get_location_from_boundaries(
+            self.if_keyword.get_location(),
+            self.end_keyword.get_location(),
+        )
     }
 }

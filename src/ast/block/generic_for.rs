@@ -1,7 +1,11 @@
 //! Implemens helper traits for for-in loops.
 
-use crate::prelude::{
-    AstNode, DoBlock, Expression, ExpressionInner, GenericFor, List, NormalizedName, SingleToken,
+use crate::{
+    prelude::{
+        AstNode, DoBlock, Expression, ExpressionInner, GenericFor, HasLocation, List,
+        NormalizedName, SingleToken,
+    },
+    utils::get_location_from_boundaries,
 };
 
 impl AstNode for GenericFor {
@@ -36,5 +40,14 @@ impl AstNode for GenericFor {
             )
             .unwrap(),
         })
+    }
+}
+
+impl HasLocation for GenericFor {
+    fn get_location(&self) -> crate::prelude::Location {
+        get_location_from_boundaries(
+            self.for_keyword.get_location(),
+            self.do_block.get_location(),
+        )
     }
 }

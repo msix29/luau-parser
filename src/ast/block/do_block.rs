@@ -2,7 +2,10 @@
 
 use std::sync::Arc;
 
-use crate::prelude::{parse_block, Ast, AstNode, DoBlock, SingleToken};
+use crate::{
+    prelude::{parse_block, Ast, AstNode, DoBlock, HasLocation, SingleToken},
+    utils::get_location_from_boundaries,
+};
 
 impl AstNode for DoBlock {
     fn try_from_node<'a>(
@@ -25,5 +28,14 @@ impl AstNode for DoBlock {
                 .unwrap_or_default(),
             end_keyword: SingleToken::from((node.child_by_field_name("end").unwrap(), code_bytes)),
         })
+    }
+}
+
+impl HasLocation for DoBlock {
+    fn get_location(&self) -> crate::prelude::Location {
+        get_location_from_boundaries(
+            self.do_keyword.get_location(),
+            self.end_keyword.get_location(),
+        )
     }
 }

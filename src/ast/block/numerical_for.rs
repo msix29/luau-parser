@@ -1,6 +1,11 @@
 //! Implements helper traits for numerical for loops.
 
-use crate::prelude::{AstNode, DoBlock, Expression, NormalizedName, NumericalFor, SingleToken};
+use crate::{
+    prelude::{
+        AstNode, DoBlock, Expression, HasLocation, NormalizedName, NumericalFor, SingleToken,
+    },
+    utils::get_location_from_boundaries,
+};
 
 impl AstNode for NumericalFor {
     fn try_from_node<'a>(
@@ -32,5 +37,14 @@ impl AstNode for NumericalFor {
             )
             .unwrap(),
         })
+    }
+}
+
+impl HasLocation for NumericalFor {
+    fn get_location(&self) -> crate::prelude::Location {
+        get_location_from_boundaries(
+            self.for_keyword.get_location(),
+            self.do_block.get_location(),
+        )
     }
 }

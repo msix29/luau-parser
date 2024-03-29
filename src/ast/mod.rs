@@ -36,14 +36,14 @@ impl Ast {
 impl HasLocation for Token {
     fn get_location(&self) -> crate::prelude::Location {
         match self {
-            Token::VariableDeclaration(_) => todo!(),
-            Token::TypeDefinition(_) => todo!(),
-            Token::IfStatement(_) => todo!(),
-            Token::DoBlock(_) => todo!(),
-            Token::GenericFor(_) => todo!(),
-            Token::NumericalFor(_) => todo!(),
-            Token::RepeatBlock(_) => todo!(),
-            Token::WhileLoop(_) => todo!(),
+            Token::VariableDeclaration(value) => value.get_location(),
+            Token::TypeDefinition(value) => value.get_location(),
+            Token::IfStatement(value) => value.get_location(),
+            Token::DoBlock(value) => value.get_location(),
+            Token::GenericFor(value) => value.get_location(),
+            Token::NumericalFor(value) => value.get_location(),
+            Token::RepeatBlock(value) => value.get_location(),
+            Token::WhileLoop(value) => value.get_location(),
         }
     }
 }

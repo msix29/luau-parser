@@ -2,7 +2,10 @@
 
 use std::sync::Arc;
 
-use crate::prelude::{parse_block, Ast, AstNode, Expression, RepeatBlock, SingleToken};
+use crate::{
+    prelude::{parse_block, Ast, AstNode, Expression, HasLocation, RepeatBlock, SingleToken},
+    utils::get_location_from_boundaries,
+};
 
 impl AstNode for RepeatBlock {
     fn try_from_node<'a>(
@@ -32,5 +35,14 @@ impl AstNode for RepeatBlock {
                 code_bytes,
             )),
         })
+    }
+}
+
+impl HasLocation for RepeatBlock {
+    fn get_location(&self) -> crate::prelude::Location {
+        get_location_from_boundaries(
+            self.repeat_keyword.get_location(),
+            self.condition.get_location(),
+        )
     }
 }
