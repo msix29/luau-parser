@@ -135,7 +135,7 @@ pub(crate) fn build_function_parameters(
     List::from_iter(
         parameters_node.children_by_field_name("parameter", &mut parameters_node.walk()),
         parameters_node,
-        "separators",
+        "separator",
         code_bytes,
         |_, parameter| {
             let normalized_name = NormalizedName::from((parameter, code_bytes));
@@ -153,7 +153,6 @@ pub(crate) fn build_function_parameters(
                     is_variadic: false,
                     r#type: Arc::new(TypeDefinition::from((
                         SingleToken::from("any"),
-                        parameter,
                         code_bytes,
                     ))),
                     location: get_location(parameter),

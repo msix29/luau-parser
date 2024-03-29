@@ -142,15 +142,15 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
     }
 }
 
-impl From<(SingleToken, Node<'_>, &[u8])> for TypeDefinition {
-    fn from((type_name, node, code_bytes): (SingleToken, Node<'_>, &[u8])) -> Self {
+impl From<(SingleToken, &[u8])> for TypeDefinition {
+    fn from((type_name, code_bytes): (SingleToken, &[u8])) -> Self {
         TypeDefinition {
             export_keyword: None,
             type_keyword: None,
             type_name: type_name.clone(),
             generics: None,
             equal_sign: None,
-            type_value: Arc::new(TypeValue::from((node, code_bytes))),
+            type_value: Arc::new(TypeValue::Basic(type_name)),
         }
     }
 }
