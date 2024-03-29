@@ -8,10 +8,10 @@ use tree_sitter::Node;
 use crate::{
     prelude::{
         parse_block, Ast, ElseIfExpression, Expression, ExpressionInner, FunctionName,
-        FunctionValue, List, ListItem, PrefixExp, SingleToken, TableField, TableFieldValue,
-        TableKey, TableValue, TypeDefinition,
+        FunctionValue, HasLocation, List, ListItem, PrefixExp, SingleToken, TableField,
+        TableFieldValue, TableKey, TableValue, TypeDefinition,
     },
-    utils::get_location,
+    utils::{get_location, get_location_from_boundaries},
 };
 
 use crate::prelude::type_definition::functions::{
@@ -238,6 +238,47 @@ impl From<(Node<'_>, &[u8])> for ExpressionInner {
             _ => todo!(
                 "This should never be reached. But it did? Node: {}",
                 node.to_sexp()
+            ),
+        }
+    }
+}
+
+impl HasLocation for ExpressionInner {
+    fn get_location(&self) -> crate::prelude::Location {
+        match self {
+            ExpressionInner::Nil(value) => value.get_location(),
+            ExpressionInner::Boolean(value) => value.get_location(),
+            ExpressionInner::Number(value) => value.get_location(),
+            ExpressionInner::String(value) => value.get_location(),
+            ExpressionInner::Function(value) => value.get_location(),
+            ExpressionInner::FunctionCall(value) => value.get_location(),
+            ExpressionInner::ExpressionWrap(value) => value.get_location(),
+            ExpressionInner::Var(value) => value.get_location(),
+            ExpressionInner::Table(value) => value.get_location(),
+            ExpressionInner::UnaryExpression {
+                operator,
+                expression,
+            } => get_location_from_boundaries(operator.get_location(), expression.get_location()),
+            ExpressionInner::BinaryExpression {
+                left,
+                operator: _,
+                right,
+            } => get_location_from_boundaries(left.get_location(), right.get_location()),
+            ExpressionInner::Cast {
+                expression,
+                operator: _,
+                cast_to,
+            } => get_location_from_boundaries(expression.get_location(), cast_to.get_location()),
+            ExpressionInner::IfExpression {
+                if_token,
+                condition,
+                then_token,
+                else_if_expressions,
+                else_token,
+                else_expression,
+            } => get_location_from_boundaries(
+                if_token.get_location(),
+                else_expression.get_location(),
             ),
         }
     }
