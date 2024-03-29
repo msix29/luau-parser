@@ -147,6 +147,17 @@ pub enum Token {
     /// end
     /// ```
     NumericalFor(NumericalFor),
+
+    /// A repeat block.
+    ///
+    /// ```lua
+    /// local i = 0
+    /// repeat
+    ///     print(i)
+    ///     i += 1
+    /// until i == 10
+    /// ```
+    RepeatBlock(RepeatBlock),
 }
 
 /// A struct representing a scope in a file. This ast is lossless, meaning it can be

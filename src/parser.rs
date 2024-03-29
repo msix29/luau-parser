@@ -9,8 +9,8 @@ use tree_sitter::Node;
 use tree_sitter::Tree;
 
 use crate::prelude::{
-    Ast, AstNode, DoBlock, GenericFor, IfStatement, LocalAssignment, NumericalFor, Token,
-    TypeDefinition,
+    Ast, AstNode, DoBlock, GenericFor, IfStatement, LocalAssignment, NumericalFor, RepeatBlock,
+    Token, TypeDefinition,
 };
 
 /// Parses a code block and fills `tokens` with the parsed ones. The tokens can then
@@ -46,6 +46,10 @@ pub(crate) fn parse_block(
             NumericalFor::try_from_node(node, &mut cursor, full_code_bytes)
         {
             tokens.push(Token::NumericalFor(numerical_for))
+        } else if let Some(repeat_block) =
+            RepeatBlock::try_from_node(node, &mut cursor, full_code_bytes)
+        {
+            tokens.push(Token::RepeatBlock(repeat_block))
         }
     }
 
