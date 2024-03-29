@@ -20,10 +20,10 @@ impl AstNode for NumericalFor {
             start_comma: SingleToken::from((node.child(4).unwrap(), code_bytes)),
             end: Expression::from((node.child(5).unwrap(), code_bytes)),
             end_comma: node
-                .child(0)
+                .child(6)
                 .map(|node| SingleToken::from((node, code_bytes))),
             step: node
-                .child(0)
+                .child(7)
                 .map(|node| Expression::from((node, code_bytes))),
             do_block: DoBlock::try_from_node(
                 node.child_by_field_name("doBlock").unwrap(),
