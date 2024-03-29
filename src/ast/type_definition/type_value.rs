@@ -16,17 +16,15 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
             "namedtype" => {
                 if let Some(module) = node.child_by_field_name("module") {
                     TypeValue::Module {
-                        module: module.utf8_text(code_bytes).unwrap().to_string(),
+                        module: SingleToken::from((module, code_bytes)),
                         dot: SingleToken::from((
                             node.child_by_field_name("dot").unwrap(),
                             code_bytes,
                         )),
-                        type_info: node
-                            .child_by_field_name("name")
-                            .unwrap()
-                            .utf8_text(code_bytes)
-                            .unwrap()
-                            .to_string(),
+                        type_info: SingleToken::from((
+                            node.child_by_field_name("name").unwrap(),
+                            code_bytes,
+                        )),
                     }
                 } else {
                     from_singleton_type(node, code_bytes)

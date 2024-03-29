@@ -148,13 +148,13 @@ pub enum TypeValue {
     /// An access to an exported type from a module.
     Module {
         /// the name of the module.
-        module: String,
+        module: SingleToken,
 
         /// The `.` between the module name and the type.
         dot: SingleToken,
 
-        /// The actual type being accessed.
-        type_info: String,
+        /// The actual name of the type being accessed.
+        type_info: SingleToken,
     },
 
     /// An optional type.
