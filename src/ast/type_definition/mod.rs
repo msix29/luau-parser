@@ -12,6 +12,7 @@ use std::sync::Arc;
 use tree_sitter::Node;
 
 use crate::{
+    call_any,
     prelude::{
         AstNode, GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo,
         GenericParameterInfoDefault, HasLocation, List, Location, SingleToken, TypeDefinition,
@@ -158,16 +159,14 @@ impl From<(&str, Node<'_>, &[u8])> for TypeDefinition {
 
 impl HasLocation for TypeDefinition {
     fn get_location(&self) -> Location {
-        let start = self.export_keyword.as_ref().map_or_else(
-            || {
-                self.type_keyword.as_ref().map_or_else(
-                    || self.type_value.get_location(),
-                    |item| item.get_location(),
-                )
-            },
-            |item| item.get_location(),
-        );
-
-        get_location_from_boundaries(start, self.type_value.get_location())
+        get_location_from_boundaries(
+            call_any!(
+                get_location,
+                self.type_value,
+                self.export_keyword,
+                self.type_keyword
+            ),
+            self.type_value.get_location(),
+        )
     }
 }

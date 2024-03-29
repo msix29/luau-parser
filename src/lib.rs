@@ -34,6 +34,7 @@
 
 pub mod ast;
 mod display;
+mod macros;
 pub mod parser;
 pub mod types;
 mod utils;
