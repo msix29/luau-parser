@@ -14,9 +14,10 @@ use tree_sitter::Node;
 use crate::{
     prelude::{
         AstNode, GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo,
-        GenericParameterInfoDefault, List, SingleToken, TypeDefinition, TypeValue,
+        GenericParameterInfoDefault, HasLocation, List, Location, SingleToken, TypeDefinition,
+        TypeValue,
     },
-    utils::get_location,
+    utils::{get_location, get_location_from_boundaries},
 };
 
 impl AstNode for TypeDefinition {
@@ -152,5 +153,21 @@ impl From<(&str, Node<'_>, &[u8])> for TypeDefinition {
             type_value: Arc::new(TypeValue::from((type_name, node, code_bytes))),
             name_location: None,
         }
+    }
+}
+
+impl HasLocation for TypeDefinition {
+    fn get_location(&self) -> Location {
+        let start = self.export_keyword.as_ref().map_or_else(
+            || {
+                self.type_keyword.as_ref().map_or_else(
+                    || self.type_value.get_location(),
+                    |item| item.get_location(),
+                )
+            },
+            |item| item.get_location(),
+        );
+
+        get_location_from_boundaries(start, self.type_value.get_location())
     }
 }
