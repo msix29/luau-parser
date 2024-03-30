@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use crate::prelude::{Ast, Expression, Location, SingleToken};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 /// A struct representing an if statement
 pub struct IfStatement {
     /// The `if` keyword.
@@ -32,7 +32,7 @@ pub struct IfStatement {
     pub location: Location
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 /// A struct representing an if statement
 pub struct ElseIfStatement {
     /// The `elseif` keyword.
@@ -51,7 +51,7 @@ pub struct ElseIfStatement {
     pub location: Location
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 /// A struct representing an if statement
 pub struct ElseStatement {
     /// The `else` keyword.

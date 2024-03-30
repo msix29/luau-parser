@@ -3,7 +3,7 @@
 use crate::prelude::{DoBlock, Expression, SingleToken};
 
 /// A struct representing a while loop.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct WhileLoop {
     /// The "while" keyword.
     pub while_keyword: SingleToken,

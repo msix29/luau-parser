@@ -12,7 +12,7 @@ use super::SingleToken;
 
 /// A struct that provides a high level abstraction of `name` and `typedName` from the
 /// grammar for easier usability..
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct NormalizedName {
     /// The actual name.
     pub name: SingleToken,

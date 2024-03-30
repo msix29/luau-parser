@@ -25,7 +25,7 @@ use crate::prelude::{Expression, List, Location, SingleToken, TypeDefinition};
 ///     [string]: number,
 /// }
 /// ```
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum TableKey {
     /// Cases in which a key wasn't provided, it's guessed as a number in that case.
     UndefinedNumber(i32),
@@ -65,7 +65,7 @@ pub enum TableKey {
 /// A struct representing one table field. It'll always have a _[key](TableKey)_ and a
 /// _[type](TypeDefinition)_ and on optional _[value](TableFieldValue)_, the value will
 /// only be present if this is an actual table and not type definition for the table.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct TableField {
     /// The key of this field.
     pub key: Arc<TableKey>,
@@ -81,7 +81,7 @@ pub struct TableField {
 }
 
 /// A possible value for a _[table field](TableField)_.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum TableFieldValue {
     /// An _[expression](Expression)_, can be found in declarations of tables as variables
     /// only.
@@ -92,7 +92,7 @@ pub enum TableFieldValue {
 }
 
 /// Struct for table _[expression](Expression)_ enum.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct TableValue {
     /// The `{` character.
     pub opening_brackets: SingleToken,

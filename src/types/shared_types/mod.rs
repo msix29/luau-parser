@@ -84,7 +84,7 @@ pub trait MightHaveLocation {
 }
 
 /// All possible tokens in an _[ast](Ast)_.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Statement {
     /// A variable declaration.
     ///
@@ -220,7 +220,7 @@ pub enum Statement {
 
 /// A struct representing a scope in a file. This ast is lossless, meaning it can be
 /// printed back to the code it was created from without losing any details.
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Ast {
     /// The path pointing to the file that this _[ast](Ast)_ represents, if any.
     pub uri: Option<String>,

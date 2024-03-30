@@ -10,7 +10,7 @@ use crate::prelude::Expression;
 use super::{FunctionParameter, List, SingleToken, TableValue};
 
 /// Possible values for a type.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum TypeValue {
     /// Just a reference to another type.
     ///
@@ -265,7 +265,7 @@ pub enum TypeValue {
 
 /// A struct for a type definition. Holds needed data to be able to write it back as valid
 /// luau.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct TypeDefinition {
     /// The `export` keyword.
     pub export_keyword: Option<SingleToken>,
@@ -298,7 +298,7 @@ pub struct TypeDefinition {
 
 /// A generic declaration parameter used in _[generics declarations](GenericDeclaration)_.
 /// Can either be a name or a variadic pack.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum GenericParameterInfo {
     /// A simple name, such as `T`.
     Name(SingleToken),
@@ -313,7 +313,7 @@ pub enum GenericParameterInfo {
 }
 /// A generic declaration parameter used in _[generic declarations](GenericDeclaration)_.
 /// Consists of a _[parameter info](GenericParameterInfo)_ and an optional default type.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct GenericDeclarationParameter {
     /// The parameter passed as a generic type, can be a simple name or a generic p.ack
     pub parameter: GenericParameterInfo,
@@ -324,7 +324,7 @@ pub struct GenericDeclarationParameter {
 }
 
 /// Struct holding **default** values for generic arguments.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum GenericParameterInfoDefault {
     /// A simple name.
     ///
@@ -356,7 +356,7 @@ pub enum GenericParameterInfoDefault {
 }
 
 /// The generics used in a _[type definition](TypeDefinition)_.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct GenericDeclaration {
     /// The `<` character.
     pub right_arrow: SingleToken,

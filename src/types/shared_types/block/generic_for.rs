@@ -5,7 +5,7 @@ use crate::prelude::{Expression, List, NormalizedName, SingleToken};
 use super::DoBlock;
 
 /// A struct representing a for-in loop.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct GenericFor {
     /// The `for` keyword.
     pub for_keyword: SingleToken,

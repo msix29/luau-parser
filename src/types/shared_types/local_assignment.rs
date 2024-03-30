@@ -3,7 +3,7 @@
 use super::{Expression, List, NormalizedName, SingleToken};
 
 /// A struct holding data for variable declarations.
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct LocalAssignment {
     /// The keyword `local`.
     pub local_token: SingleToken,

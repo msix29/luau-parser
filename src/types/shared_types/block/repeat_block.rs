@@ -3,7 +3,7 @@
 use crate::prelude::{Ast, Expression, SingleToken};
 
 /// A struct representing a repeat block.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct RepeatBlock {
     /// The "repeat" keyword.
     pub repeat_keyword: SingleToken,

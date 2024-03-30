@@ -2,7 +2,7 @@
 
 use crate::prelude::{Ast, SingleToken};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 /// A struct representing a do statement
 pub struct DoBlock {
     /// The `do` keyword.

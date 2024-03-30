@@ -4,7 +4,7 @@
 use super::SingleToken;
 
 /// A possible list item of type `T`.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum ListItem<T> {
     /// A trailing one.
     ///
@@ -32,7 +32,7 @@ pub enum ListItem<T> {
 }
 
 /// A list holding [list items](ListItem) of type `T`.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct List<T> {
     /// The actual items being stored.
     pub items: Vec<ListItem<T>>

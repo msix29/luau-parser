@@ -7,7 +7,7 @@ use super::{
 };
 
 /// An enum representing different ways a table can be used.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum TableAccessPrefix {
     /// Just a simple access.
     ///
@@ -40,7 +40,7 @@ pub enum TableAccessPrefix {
 }
 
 /// Represents an access to a table index.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct TableAccess {
     /// The actual table being indexed
     pub prefix: TableAccessPrefix,
@@ -56,7 +56,7 @@ pub struct TableAccess {
 }
 
 /// Possible ways in which a variable can be used.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Var {
     /// A simple reference to the variable.
     ///
@@ -74,7 +74,7 @@ pub enum Var {
 }
 
 /// Different ways a function can be called.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum FunctionCallInvoked {
     /// A standalone function call or one in a table.
     /// ```lua
@@ -106,7 +106,7 @@ pub enum FunctionCallInvoked {
 /// ```lua
 /// local _ = foo(1, 2, 3)
 /// ```
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct FunctionCall {
     /// The function being called.
     pub invoked: FunctionCallInvoked,
@@ -116,7 +116,7 @@ pub struct FunctionCall {
 }
 
 /// All possible arguments that can be passed to a function.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum FunctionArguments {
     /// A string.
     ///
@@ -150,7 +150,7 @@ pub enum FunctionArguments {
 }
 
 /// A struct representing an expression wrapped in parenthesis.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct ExpressionWrap {
     /// The `(` character.
     pub opening_parenthesis: SingleToken,
@@ -169,7 +169,7 @@ pub struct ExpressionWrap {
 /// local _ = foo()
 /// local _ = (foo)
 /// ```
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum PrefixExp {
     /// A normal variable.
     ///
@@ -193,7 +193,7 @@ pub enum PrefixExp {
 }
 
 /// An enum representing all possible values for an expression.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum ExpressionInner {
     /// Nil value.
     Nil(SingleToken),
@@ -342,7 +342,7 @@ pub enum ExpressionInner {
 }
 
 /// A struct representing an elseif **expression**, only exists in variable declarations.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct ElseIfExpression {
     /// The `elseif` keyword.
     pub else_if_token: SingleToken,
@@ -359,7 +359,7 @@ pub struct ElseIfExpression {
 }
 
 /// A struct representing an expression with no actual type.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Expression {
     /// All Spaces before the expression.
     pub spaces_before: String,

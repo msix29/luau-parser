@@ -5,7 +5,7 @@ use crate::prelude::{Expression, NormalizedName, SingleToken};
 use super::DoBlock;
 
 /// A struct representing a numerical for loop.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct NumericalFor {
     /// The `for` keyword.
     pub for_keyword: SingleToken,
