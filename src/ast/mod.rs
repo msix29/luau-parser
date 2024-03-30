@@ -12,7 +12,7 @@ pub mod name;
 pub mod position;
 pub mod token;
 pub mod type_definition;
-pub mod variable_declaration;
+pub mod local_assignment;
 
 use crate::prelude::{Ast, HasLocation, Token};
 
