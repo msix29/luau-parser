@@ -9,7 +9,7 @@ use tree_sitter::Node;
 use tree_sitter::Tree;
 
 use crate::prelude::{
-    Ast, AstNode, CompoundSetExpression, DoBlock, FunctionCall, GenericFor, IfStatement, LocalAssignment, NumericalFor, RepeatBlock, SetExpression, Statement, TypeDefinition, WhileLoop
+    Ast, LuauStatement, CompoundSetExpression, DoBlock, FunctionCall, GenericFor, IfStatement, LocalAssignment, NumericalFor, RepeatBlock, SetExpression, Statement, TypeDefinition, WhileLoop
 };
 
 /// Parses a code block and fills `tokens` with the parsed ones. The tokens can then

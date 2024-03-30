@@ -1,11 +1,11 @@
 //! Implements helper traits for while loops.
 
 use crate::{
-    prelude::{AstNode, DoBlock, Expression, HasLocation, SingleToken, WhileLoop},
+    prelude::{LuauStatement, DoBlock, Expression, HasLocation, SingleToken, WhileLoop},
     utils::get_location_from_boundaries,
 };
 
-impl AstNode for WhileLoop {
+impl LuauStatement for WhileLoop {
     fn try_from_node<'a>(
         node: tree_sitter::Node<'a>,
         cursor: &mut tree_sitter::TreeCursor<'a>,

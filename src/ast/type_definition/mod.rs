@@ -14,14 +14,14 @@ use tree_sitter::Node;
 use crate::{
     call_any,
     prelude::{
-        AstNode, GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo,
+        LuauStatement, GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo,
         GenericParameterInfoDefault, HasLocation, List, Location, SingleToken, TypeDefinition,
         TypeValue,
     },
     utils::get_location_from_boundaries,
 };
 
-impl AstNode for TypeDefinition {
+impl LuauStatement for TypeDefinition {
     fn try_from_node<'a>(
         node: tree_sitter::Node<'a>,
         _: &mut tree_sitter::TreeCursor<'a>,

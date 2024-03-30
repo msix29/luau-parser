@@ -4,7 +4,7 @@ use tree_sitter::{Node, TreeCursor};
 
 use crate::{
     prelude::{
-        AstNode, CompoundSetExpression, Expression, ExpressionInner, HasLocation, List, PrefixExp,
+        LuauStatement, CompoundSetExpression, Expression, ExpressionInner, HasLocation, List, PrefixExp,
         SetExpression, SingleToken,
     },
     utils::get_location_from_boundaries,
@@ -12,7 +12,7 @@ use crate::{
 
 use super::expression::handle_prefix_exp::handle_prefix_exp;
 
-impl AstNode for SetExpression {
+impl LuauStatement for SetExpression {
     fn try_from_node<'a>(
         node: Node<'a>,
         _: &mut TreeCursor<'a>,
@@ -54,7 +54,7 @@ impl HasLocation for SetExpression {
     }
 }
 
-impl AstNode for CompoundSetExpression {
+impl LuauStatement for CompoundSetExpression {
     fn try_from_node<'a>(
         node: Node<'a>,
         _: &mut TreeCursor<'a>,

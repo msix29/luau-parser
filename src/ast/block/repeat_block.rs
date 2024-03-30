@@ -3,11 +3,11 @@
 use std::sync::Arc;
 
 use crate::{
-    prelude::{parse_block, Ast, AstNode, Expression, HasLocation, RepeatBlock, SingleToken},
+    prelude::{parse_block, Ast, LuauStatement, Expression, HasLocation, RepeatBlock, SingleToken},
     utils::get_location_from_boundaries,
 };
 
-impl AstNode for RepeatBlock {
+impl LuauStatement for RepeatBlock {
     fn try_from_node<'a>(
         node: tree_sitter::Node<'a>,
         _: &mut tree_sitter::TreeCursor<'a>,

@@ -6,7 +6,7 @@ use tree_sitter::Node;
 
 use crate::{
     prelude::{
-        AstNode, Expression, ExpressionInner, ExpressionWrap, FunctionArguments, FunctionCall,
+        LuauStatement, Expression, ExpressionInner, ExpressionWrap, FunctionArguments, FunctionCall,
         FunctionCallInvoked, HasLocation, Location, PrefixExp, SingleToken, TableAccess,
         TableAccessPrefix, TableKey, Var,
     },
@@ -121,7 +121,7 @@ pub(crate) fn handle_prefix_exp(prefix_exp: Node, code_bytes: &[u8]) -> PrefixEx
     }
 }
 
-impl AstNode for FunctionCall {
+impl LuauStatement for FunctionCall {
     fn try_from_node<'a>(
         node: Node<'a>,
         _: &mut tree_sitter::TreeCursor<'a>,

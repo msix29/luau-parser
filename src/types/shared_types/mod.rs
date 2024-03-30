@@ -14,26 +14,26 @@
 mod block;
 mod expression;
 mod list;
+mod local_assignment;
 mod location;
 mod name;
 mod position;
+mod set_expressions;
 mod token;
 mod type_definition;
 mod value;
-mod local_assignment;
-mod set_expressions;
 
 pub use block::*;
 pub use expression::*;
 pub use list::*;
+pub use local_assignment::*;
 pub use location::*;
 pub use name::*;
 pub use position::*;
+pub use set_expressions::*;
 pub use token::*;
 pub use type_definition::*;
 pub use value::*;
-pub use local_assignment::*;
-pub use set_expressions::*;
 
 use std::{fmt::Display, sync::Arc};
 use tree_sitter::{Node, TreeCursor};
@@ -57,17 +57,9 @@ pub trait Print: Display {
     fn print_leading(&self) -> String;
 }
 
-/// A trait to tell Rust that this item is an `AstNode`.
-pub trait AstNode: Sized {
-    /// Try creating this _[ast node](AstNode)_ from a _[treesitter node](Node)_. This
-    /// returns a `Vec<Self>` instead of `Self` as
-    /// _[variable declarations](VariableDeclaration)_ can be chained like:
-    ///
-    /// ```lua
-    /// local foo, bar, qux
-    /// ```
-    ///
-    /// For all other tokens, you are guaranteed that `vec.len() == 1`.
+/// A trait to tell Rust that this item is a `LuauStatement`.
+pub trait LuauStatement: Sized {
+    /// Try creating this _[statement](LuauStatement)_ from a _[treesitter node](Node)_.
     fn try_from_node<'a>(
         node: Node<'a>,
         cursor: &mut TreeCursor<'a>,

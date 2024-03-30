@@ -4,13 +4,13 @@ use std::sync::Arc;
 
 use crate::{
     prelude::{
-        parse_block, Ast, AstNode, ElseIfStatement, ElseStatement, Expression, HasLocation,
+        parse_block, Ast, LuauStatement, ElseIfStatement, ElseStatement, Expression, HasLocation,
         IfStatement, Location, Position, SingleToken,
     },
     utils::{get_location, get_location_from_boundaries},
 };
 
-impl AstNode for IfStatement {
+impl LuauStatement for IfStatement {
     fn try_from_node<'a>(
         node: tree_sitter::Node<'a>,
         _: &mut tree_sitter::TreeCursor<'a>,

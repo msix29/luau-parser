@@ -2,13 +2,13 @@
 
 use crate::{
     prelude::{
-        AstNode, DoBlock, Expression, ExpressionInner, GenericFor, HasLocation, List,
+        LuauStatement, DoBlock, Expression, ExpressionInner, GenericFor, HasLocation, List,
         NormalizedName, SingleToken,
     },
     utils::get_location_from_boundaries,
 };
 
-impl AstNode for GenericFor {
+impl LuauStatement for GenericFor {
     fn try_from_node<'a>(
         node: tree_sitter::Node<'a>,
         cursor: &mut tree_sitter::TreeCursor<'a>,

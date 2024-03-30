@@ -4,13 +4,13 @@ use tree_sitter::{Node, TreeCursor};
 
 use crate::{
     prelude::{
-        AstNode, Expression, ExpressionInner, HasLocation, List, LocalAssignment, Location,
+        LuauStatement, Expression, ExpressionInner, HasLocation, List, LocalAssignment, Location,
         NormalizedName, SingleToken,
     },
     utils::get_location_from_boundaries,
 };
 
-impl AstNode for LocalAssignment {
+impl LuauStatement for LocalAssignment {
     fn try_from_node<'a>(
         node: Node<'a>,
         cursor: &mut TreeCursor<'a>,
