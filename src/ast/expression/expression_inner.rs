@@ -69,7 +69,7 @@ pub(crate) fn build_table(node: Node, code_bytes: &[u8]) -> TableValue {
         ),
 
         closing_brackets: SingleToken::from((
-            node.child_by_field_name("opening_brackets").unwrap(),
+            node.child_by_field_name("closing_brackets").unwrap(),
             code_bytes,
         )),
         location: get_location(node),
