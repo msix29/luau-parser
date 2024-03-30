@@ -3,6 +3,7 @@
 use super::{Expression, List, SingleToken, Var};
 
 /// A struct representing a set expression.
+#[derive(Clone, Debug)]
 pub struct SetExpression {
     /// The variables whome values are being set.
     pub variables: List<Var>,

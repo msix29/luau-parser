@@ -13,6 +13,7 @@ pub mod position;
 pub mod token;
 pub mod type_definition;
 pub mod local_assignment;
+pub mod set_expressions;
 
 use crate::prelude::{Ast, HasLocation, Statement};
 
@@ -44,6 +45,7 @@ impl HasLocation for Statement {
             Statement::NumericalFor(value) => value.get_location(),
             Statement::RepeatBlock(value) => value.get_location(),
             Statement::WhileLoop(value) => value.get_location(),
+            _ => todo!()
         }
     }
 }

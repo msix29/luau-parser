@@ -1,7 +1,7 @@
 //! Implements various `From<>` traits for `Expression` and `ExpressionInner`.
 
 mod expression_inner;
-mod handle_prefix_exp;
+pub(crate) mod handle_prefix_exp;
 
 use std::sync::Arc;
 

@@ -175,6 +175,15 @@ pub enum Statement {
     /// end
     /// ```
     WhileLoop(WhileLoop),
+
+    /// A set expression.
+    ///
+    /// ```lua
+    /// a = "test"
+    /// b, c = true, false, 1
+    /// d, e, f = foo()
+    /// ```
+    SetExpression(SetExpression),
 }
 
 /// A struct representing a scope in a file. This ast is lossless, meaning it can be
