@@ -184,6 +184,14 @@ pub enum Statement {
     /// d, e, f = foo()
     /// ```
     SetExpression(SetExpression),
+
+    /// A compound set expression.
+    ///
+    /// ```lua
+    /// foo += 1
+    /// bar //= 2
+    /// ```
+    CompoundSetExpression(CompoundSetExpression),
 }
 
 /// A struct representing a scope in a file. This ast is lossless, meaning it can be

@@ -1,15 +1,18 @@
 //! Implements helper traits for set expressions.
 
+use tree_sitter::{Node, TreeCursor};
+
 use crate::prelude::{
-    AstNode, Expression, ExpressionInner, List, PrefixExp, SetExpression, SingleToken,
+    AstNode, CompoundSetExpression, Expression, ExpressionInner, List, PrefixExp, SetExpression,
+    SingleToken,
 };
 
 use super::expression::handle_prefix_exp::handle_prefix_exp;
 
 impl AstNode for SetExpression {
     fn try_from_node<'a>(
-        node: tree_sitter::Node<'a>,
-        _: &mut tree_sitter::TreeCursor<'a>,
+        node: Node<'a>,
+        _: &mut TreeCursor<'a>,
         code_bytes: &[u8],
     ) -> Option<Self> {
         if node.kind() != "setExpression" {
@@ -36,6 +39,29 @@ impl AstNode for SetExpression {
                 code_bytes,
             )
             .to::<Expression>(),
+        })
+    }
+}
+
+impl AstNode for CompoundSetExpression {
+    fn try_from_node<'a>(
+        node: Node<'a>,
+        _: &mut TreeCursor<'a>,
+        code_bytes: &[u8],
+    ) -> Option<Self> {
+        if node.kind() != "compoundSetExpression" {
+            return None;
+        }
+        let prefix_exp = handle_prefix_exp(node.child(0).unwrap(), code_bytes);
+        let variable = match prefix_exp {
+            PrefixExp::Var(var) => var,
+            _ => unreachable!(),
+        };
+
+        Some(CompoundSetExpression {
+            variable,
+            operation: SingleToken::from((node.child(1).unwrap(), code_bytes)),
+            value: Expression::from((node.child(2).unwrap(), code_bytes)),
         })
     }
 }
