@@ -23,6 +23,7 @@ mod token;
 mod type_definition;
 mod value;
 mod function;
+mod comment;
 
 pub use block::*;
 pub use expression::*;
@@ -36,6 +37,7 @@ pub use token::*;
 pub use type_definition::*;
 pub use value::*;
 pub use function::*;
+pub use comment::*;
 
 use std::{fmt::Display, sync::Arc};
 use tree_sitter::{Node, TreeCursor};
@@ -211,6 +213,9 @@ pub enum Statement {
     /// end
     /// ```
     GlobalFunction(GlobalFunction),
+
+    /// A comment.
+    Comment(Comment),
 }
 
 /// A struct representing a scope in a file. This ast is lossless, meaning it can be

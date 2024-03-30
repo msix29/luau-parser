@@ -15,6 +15,7 @@ pub mod set_expressions;
 pub mod token;
 pub mod type_definition;
 pub mod function;
+pub mod comment;
 
 use crate::prelude::{Ast, HasLocation, Location, Statement};
 
