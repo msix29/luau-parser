@@ -64,12 +64,12 @@ pub(crate) fn get_location_from_boundaries(a: Location, b: Location) -> Location
 
     Location {
         start: Position {
-            line: start.character,
-            character: start.line,
+            line: start.line,
+            character: start.character,
         },
         end: Position {
-            line: end.character,
-            character: end.line,
+            line: end.line,
+            character: end.character,
         },
     }
 }
