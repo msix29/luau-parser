@@ -1,6 +1,6 @@
 //! Local and global functions.
 
-use super::{Ast, FunctionParameter, List, SingleToken, TableKey, TypeValue};
+use super::{Ast, FunctionParameter, List, SingleToken, TypeValue};
 
 /// A struct representing a local function.
 #[derive(Clone, Debug)]
@@ -33,10 +33,18 @@ pub struct LocalFunction {
     pub end_keyword: SingleToken,
 }
 
+/// An enum representing possible ways in which a global function's name can be.
 #[derive(Clone, Debug)]
 pub enum GlobalFunctionName {
+    /// Just a simple name, this is usually in local functions but some people don't do so.
     SimpleName(SingleToken),
 
+    /// A table.
+    ///
+    /// ```lua
+    /// function foo.bar()
+    /// end
+    /// ```
     Table {
         /// The table that's being accessed
         ///
