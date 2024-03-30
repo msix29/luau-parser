@@ -21,6 +21,7 @@ mod token;
 mod type_definition;
 mod value;
 mod local_assignment;
+mod set_expressions;
 
 pub use block::*;
 pub use expression::*;
@@ -32,6 +33,7 @@ pub use token::*;
 pub use type_definition::*;
 pub use value::*;
 pub use local_assignment::*;
+pub use set_expressions::*;
 
 use std::{fmt::Display, sync::Arc};
 use tree_sitter::{Node, TreeCursor};
