@@ -15,7 +15,7 @@ pub mod set_expressions;
 pub mod token;
 pub mod type_definition;
 
-use crate::prelude::{Ast, HasLocation, Statement};
+use crate::prelude::{Ast, HasLocation, Location, Statement};
 
 impl Ast {
     /// Returns the code that was behind this AST as-is, without any modifications and
@@ -35,7 +35,7 @@ impl Ast {
 }
 
 impl HasLocation for Statement {
-    fn get_location(&self) -> crate::prelude::Location {
+    fn get_location(&self) -> Location {
         match self {
             Statement::LocalAssignment(value) => value.get_location(),
             Statement::TypeDefinition(value) => value.get_location(),

@@ -7,9 +7,7 @@ use tree_sitter::Node;
 
 use crate::{
     prelude::{
-        parse_block, Ast, ElseIfExpression, Expression, ExpressionInner, FunctionName,
-        FunctionValue, HasLocation, List, ListItem, PrefixExp, SingleToken, TableField,
-        TableFieldValue, TableKey, TableValue, TypeDefinition,
+        parse_block, Ast, ElseIfExpression, Expression, ExpressionInner, FunctionName, FunctionValue, HasLocation, List, ListItem, Location, PrefixExp, SingleToken, TableField, TableFieldValue, TableKey, TableValue, TypeDefinition
     },
     utils::{get_location, get_location_from_boundaries},
 };
@@ -244,7 +242,7 @@ impl From<(Node<'_>, &[u8])> for ExpressionInner {
 }
 
 impl HasLocation for ExpressionInner {
-    fn get_location(&self) -> crate::prelude::Location {
+    fn get_location(&self) -> Location {
         match self {
             ExpressionInner::Nil(value) => value.get_location(),
             ExpressionInner::Boolean(value) => value.get_location(),
@@ -285,7 +283,7 @@ impl HasLocation for ExpressionInner {
 }
 
 impl HasLocation for ElseIfExpression {
-    fn get_location(&self) -> crate::prelude::Location {
+    fn get_location(&self) -> Location {
         get_location_from_boundaries(
             self.else_if_token.get_location(),
             self.expression.get_location(),

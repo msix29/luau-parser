@@ -31,6 +31,7 @@
 #![warn(clippy::missing_docs_in_private_items)]
 #![warn(clippy::arc_with_non_send_sync)]
 #![warn(missing_docs)]
+#![warn(clippy::absolute_paths)]
 
 pub mod ast;
 mod macros;

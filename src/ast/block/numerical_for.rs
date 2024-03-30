@@ -2,7 +2,7 @@
 
 use crate::{
     prelude::{
-        LuauStatement, DoBlock, Expression, HasLocation, NormalizedName, NumericalFor, SingleToken,
+        DoBlock, Expression, HasLocation, Location, LuauStatement, NormalizedName, NumericalFor, SingleToken
     },
     utils::get_location_from_boundaries,
 };
@@ -41,7 +41,7 @@ impl LuauStatement for NumericalFor {
 }
 
 impl HasLocation for NumericalFor {
-    fn get_location(&self) -> crate::prelude::Location {
+    fn get_location(&self) -> Location {
         get_location_from_boundaries(
             self.for_keyword.get_location(),
             self.do_block.get_location(),

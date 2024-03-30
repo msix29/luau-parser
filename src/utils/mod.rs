@@ -1,5 +1,6 @@
 //! Utility functions.
 
+use std::str::from_utf8;
 use tree_sitter::Node;
 
 use crate::prelude::{Location, Position};
@@ -8,7 +9,7 @@ use crate::prelude::{Location, Position};
 /// text. This function does not do any checks and assumess the passed bytes are valid
 /// utf8 (which they should be).
 fn get_text_from_bytes(bytes: &[u8], start: usize, end: usize) -> String {
-    std::str::from_utf8(&bytes[start..end]).unwrap().to_string()
+    from_utf8(&bytes[start..end]).unwrap().to_string()
 }
 
 /// Gets spaces before and after a **token**. This function assumes this token has a parent

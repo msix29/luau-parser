@@ -33,12 +33,12 @@ impl From<&str> for SingleToken {
 }
 
 impl HasLocation for &SingleToken {
-    fn get_location(&self) -> crate::prelude::Location {
+    fn get_location(&self) -> Location {
         self.location
     }
 }
 impl HasLocation for SingleToken {
-    fn get_location(&self) -> crate::prelude::Location {
+    fn get_location(&self) -> Location {
         self.location
     }
 }
