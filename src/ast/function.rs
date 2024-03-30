@@ -4,9 +4,12 @@ use std::sync::Arc;
 
 use tree_sitter::{Node, TreeCursor};
 
-use crate::prelude::{
-    parse_block, Ast, GlobalFunction, GlobalFunctionName, List, LocalFunction, LuauStatement,
-    SingleToken,
+use crate::{
+    prelude::{
+        parse_block, Ast, GlobalFunction, GlobalFunctionName, HasLocation, List, LocalFunction,
+        Location, LuauStatement, SingleToken,
+    },
+    utils::get_location_from_boundaries,
 };
 
 use super::type_definition::functions::{build_function_parameters, build_function_returns};
@@ -45,6 +48,14 @@ impl LuauStatement for LocalFunction {
                 .unwrap_or_default(),
             end_keyword: SingleToken::from((node.child_by_field_name("end").unwrap(), code_bytes)),
         })
+    }
+}
+impl HasLocation for LocalFunction {
+    fn get_location(&self) -> Location {
+        get_location_from_boundaries(
+            self.local_keyword.get_location(),
+            self.end_keyword.get_location(),
+        )
     }
 }
 
@@ -99,5 +110,13 @@ impl LuauStatement for GlobalFunction {
                 .unwrap_or_default(),
             end_keyword: SingleToken::from((node.child_by_field_name("end").unwrap(), code_bytes)),
         })
+    }
+}
+impl HasLocation for GlobalFunction {
+    fn get_location(&self) -> Location {
+        get_location_from_boundaries(
+            self.function_keyword.get_location(),
+            self.end_keyword.get_location(),
+        )
     }
 }

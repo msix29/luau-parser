@@ -5,7 +5,9 @@
 //!
 
 pub mod block;
+pub mod comment;
 pub mod expression;
+pub mod function;
 pub mod list;
 pub mod local_assignment;
 pub mod location;
@@ -14,8 +16,6 @@ pub mod position;
 pub mod set_expressions;
 pub mod token;
 pub mod type_definition;
-pub mod function;
-pub mod comment;
 
 use crate::prelude::{Ast, HasLocation, Location, Statement};
 
@@ -50,7 +50,9 @@ impl HasLocation for Statement {
             Statement::SetExpression(value) => value.get_location(),
             Statement::CompoundSetExpression(value) => value.get_location(),
             Statement::FunctionCall(value) => value.get_location(),
-            _ => todo!()
+            Statement::LocalFunction(value) => value.get_location(),
+            Statement::GlobalFunction(value) => value.get_location(),
+            Statement::Comment(value) => value.get_location(),
         }
     }
 }
