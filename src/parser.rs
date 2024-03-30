@@ -27,7 +27,7 @@ pub(crate) fn parse_block(
         if let Some(variable_declaration) =
             LocalAssignment::try_from_node(node, &mut cursor, full_code_bytes)
         {
-            tokens.push(Token::VariableDeclaration(variable_declaration));
+            tokens.push(Token::LocalAssignment(variable_declaration));
         } else if let Some(type_declaration) =
             TypeDefinition::try_from_node(node, &mut cursor, full_code_bytes)
         {

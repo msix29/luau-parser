@@ -96,7 +96,7 @@ pub enum Token {
     /// end
     /// local qux = {}
     /// ```
-    VariableDeclaration(LocalAssignment),
+    LocalAssignment(LocalAssignment),
 
     /// A type definition.
     ///

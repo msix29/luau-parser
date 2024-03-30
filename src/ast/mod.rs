@@ -36,7 +36,7 @@ impl Ast {
 impl HasLocation for Token {
     fn get_location(&self) -> crate::prelude::Location {
         match self {
-            Token::VariableDeclaration(value) => value.get_location(),
+            Token::LocalAssignment(value) => value.get_location(),
             Token::TypeDefinition(value) => value.get_location(),
             Token::IfStatement(value) => value.get_location(),
             Token::DoBlock(value) => value.get_location(),
