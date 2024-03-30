@@ -201,6 +201,16 @@ pub enum Statement {
     /// end
     /// ```
     LocalFunction(LocalFunction),
+
+    /// A global function.
+    ///
+    /// ```lua
+    /// function foo(bar: string): Qux
+    /// end
+    /// function foo:Qux(bar: string): Qux
+    /// end
+    /// ```
+    GlobalFunction(GlobalFunction),
 }
 
 /// A struct representing a scope in a file. This ast is lossless, meaning it can be

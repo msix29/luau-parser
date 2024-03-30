@@ -6,11 +6,11 @@ use tree_sitter::Node;
 
 use crate::{
     prelude::{
-        FunctionName, FunctionParameter, GenericDeclaration, GenericDeclarationParameter,
-        GenericParameterInfo, HasLocation, List, ListItem, Location, MightHaveLocation,
-        NormalizedName, SingleToken, TableField, TableKey, TableValue, TypeDefinition, TypeValue,
+        FunctionParameter, GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo,
+        List, ListItem, NormalizedName, SingleToken, TableField, TableKey, TableValue,
+        TypeDefinition, TypeValue,
     },
-    utils::{get_location, get_location_from_boundaries},
+    utils::get_location,
 };
 
 /// Get a type value from a node representing a singleton type.
@@ -242,29 +242,5 @@ pub(crate) fn build_function_type(node: Node, code_bytes: &[u8]) -> TypeValue {
         )),
         arrow: SingleToken::from((node.child_by_field_name("arrow").unwrap(), code_bytes)),
         return_type: Arc::new(build_function_returns(node, code_bytes)),
-    }
-}
-
-impl MightHaveLocation for FunctionName {
-    fn try_get_location(&self) -> Option<Location> {
-        match self {
-            FunctionName::Anonymous => None,
-            FunctionName::Name(name) => Some(name.get_location()),
-            FunctionName::TableAccess {
-                table,
-                keys,
-                method,
-            } => {
-                let end = method.as_ref().map_or_else(
-                    || {
-                        keys.last()
-                            .map_or_else(|| table.get_location(), |key| key.get_location())
-                    },
-                    |method| method.get_location(),
-                );
-
-                Some(get_location_from_boundaries(table.get_location(), end))
-            }
-        }
     }
 }

@@ -9,7 +9,9 @@ use tree_sitter::Node;
 use tree_sitter::Tree;
 
 use crate::prelude::{
-    Ast, CompoundSetExpression, DoBlock, FunctionCall, GenericFor, IfStatement, LocalAssignment, LocalFunction, LuauStatement, NumericalFor, RepeatBlock, SetExpression, Statement, TypeDefinition, WhileLoop
+    Ast, CompoundSetExpression, DoBlock, FunctionCall, GenericFor, GlobalFunction, IfStatement,
+    LocalAssignment, LocalFunction, LuauStatement, NumericalFor, RepeatBlock, SetExpression,
+    Statement, TypeDefinition, WhileLoop,
 };
 
 /// Parses a code block and fills `tokens` with the parsed ones. The tokens can then
@@ -69,6 +71,10 @@ pub(crate) fn parse_block(
             LocalFunction::try_from_node(node, &mut cursor, full_code_bytes)
         {
             tokens.push(Statement::LocalFunction(local_function))
+        } else if let Some(global_function) =
+            GlobalFunction::try_from_node(node, &mut cursor, full_code_bytes)
+        {
+            tokens.push(Statement::GlobalFunction(global_function))
         }
     }
 
