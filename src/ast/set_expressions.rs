@@ -2,9 +2,12 @@
 
 use tree_sitter::{Node, TreeCursor};
 
-use crate::prelude::{
-    AstNode, CompoundSetExpression, Expression, ExpressionInner, List, PrefixExp, SetExpression,
-    SingleToken,
+use crate::{
+    prelude::{
+        AstNode, CompoundSetExpression, Expression, ExpressionInner, HasLocation, List, PrefixExp,
+        SetExpression, SingleToken,
+    },
+    utils::get_location_from_boundaries,
 };
 
 use super::expression::handle_prefix_exp::handle_prefix_exp;
@@ -42,6 +45,14 @@ impl AstNode for SetExpression {
         })
     }
 }
+impl HasLocation for SetExpression {
+    fn get_location(&self) -> crate::prelude::Location {
+        get_location_from_boundaries(
+            self.variables.items.last().unwrap().get_location(),
+            self.values.items.last().unwrap().get_location(),
+        )
+    }
+}
 
 impl AstNode for CompoundSetExpression {
     fn try_from_node<'a>(
@@ -63,5 +74,10 @@ impl AstNode for CompoundSetExpression {
             operation: SingleToken::from((node.child(1).unwrap(), code_bytes)),
             value: Expression::from((node.child(2).unwrap(), code_bytes)),
         })
+    }
+}
+impl HasLocation for CompoundSetExpression {
+    fn get_location(&self) -> crate::prelude::Location {
+        get_location_from_boundaries(self.variable.get_location(), self.value.get_location())
     }
 }
