@@ -14,6 +14,7 @@ pub mod position;
 pub mod set_expressions;
 pub mod token;
 pub mod type_definition;
+pub mod function;
 
 use crate::prelude::{Ast, HasLocation, Location, Statement};
 
@@ -48,7 +49,7 @@ impl HasLocation for Statement {
             Statement::SetExpression(value) => value.get_location(),
             Statement::CompoundSetExpression(value) => value.get_location(),
             Statement::FunctionCall(value) => value.get_location(),
-
+            _ => todo!()
         }
     }
 }

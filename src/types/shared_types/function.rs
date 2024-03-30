@@ -11,11 +11,17 @@ pub struct LocalFunction {
     /// The `function` keyword.
     pub function_keyword: SingleToken,
 
+    /// The name of the function.
+    pub function_name: SingleToken,
+
     /// The `(` character.
     pub opening_parenthesis: SingleToken,
 
     /// The parameters that this function accepts.
     pub parameters: List<FunctionParameter>,
+
+    /// The `)` character.
+    pub closing_parenthesis: SingleToken,
 
     /// The return type of the function
     pub returns: TypeValue,
@@ -23,6 +29,6 @@ pub struct LocalFunction {
     /// The body of the function.
     pub body: Ast,
 
-    /// The `)`` character.
-    pub closing_parenthesis: SingleToken,
+    /// The `end` keyword.
+    pub end_keyword: SingleToken,
 }

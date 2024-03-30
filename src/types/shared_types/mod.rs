@@ -193,6 +193,14 @@ pub enum Statement {
     /// local _ = foo(1, 2, 3)
     /// ```
     FunctionCall(FunctionCall),
+
+    /// A local function.
+    ///
+    /// ```lua
+    /// local function foo(bar: string): Qux
+    /// end
+    /// ```
+    LocalFunction(LocalFunction),
 }
 
 /// A struct representing a scope in a file. This ast is lossless, meaning it can be
