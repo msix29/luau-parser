@@ -48,27 +48,6 @@ impl LuauStatement for LocalFunction {
     }
 }
 
-///
-fn get_function_name(node: Node, code_bytes: &[u8]) -> GlobalFunctionName {
-    if let Some(name) = node.child_by_field_name("name") {
-        GlobalFunctionName::SimpleName(SingleToken::from((name, code_bytes)))
-    } else {
-        GlobalFunctionName::Table {
-            table: SingleToken::from((node.child_by_field_name("table").unwrap(), code_bytes)),
-            keys: List::from_iter(
-                node.children_by_field_name("index", &mut node.walk()),
-                node,
-                "dot",
-                code_bytes,
-                |_, name| SingleToken::from((name, code_bytes)),
-            ),
-            method: node
-                .child_by_field_name("method")
-                .map(|method| SingleToken::from((method, code_bytes))),
-        }
-    }
-}
-
 impl LuauStatement for GlobalFunction {
     fn try_from_node<'a>(
         node: Node<'a>,
@@ -81,7 +60,26 @@ impl LuauStatement for GlobalFunction {
 
         Some(GlobalFunction {
             function_keyword: SingleToken::from((node.child(0).unwrap(), code_bytes)),
-            function_name: get_function_name(node, code_bytes),
+            function_name: if let Some(name) = node.child_by_field_name("name") {
+                GlobalFunctionName::SimpleName(SingleToken::from((name, code_bytes)))
+            } else {
+                GlobalFunctionName::Table {
+                    table: SingleToken::from((
+                        node.child_by_field_name("table").unwrap(),
+                        code_bytes,
+                    )),
+                    keys: List::from_iter(
+                        node.children_by_field_name("index", &mut node.walk()),
+                        node,
+                        "dot",
+                        code_bytes,
+                        |_, name| SingleToken::from((name, code_bytes)),
+                    ),
+                    method: node
+                        .child_by_field_name("method")
+                        .map(|method| SingleToken::from((method, code_bytes))),
+                }
+            },
             opening_parenthesis: SingleToken::from((
                 node.child_by_field_name("opening_parenthesis").unwrap(),
                 code_bytes,
