@@ -2,7 +2,9 @@
 
 use std::sync::Arc;
 
-use super::{FunctionValue, List, SingleToken, TableKey, TableValue, TypeDefinition};
+use super::{
+    Ast, FunctionParameter, List, SingleToken, TableKey, TableValue, TypeDefinition, TypeValue,
+};
 
 /// An enum representing different ways a table can be used.
 #[derive(Clone, Debug)]
@@ -93,7 +95,7 @@ pub enum FunctionCallInvoked {
 
         /// The colon between the table and the method name.
         colon: SingleToken,
-        
+
         /// The actual name of the method being called.
         method: SingleToken,
     },
@@ -212,7 +214,29 @@ pub enum ExpressionInner {
     /// local foo = function(arg1: number): boolean
     /// end
     /// ```
-    Function(FunctionValue),
+    Function {
+        /// The `function` keyword at the start (if any), only `None` in
+        /// _[type definitions](TypeDefinition)_.
+        function_keyword: SingleToken,
+
+        /// The `(` character.
+        opening_parenthesis: SingleToken,
+
+        /// The `)` character.
+        closing_parenthesis: SingleToken,
+
+        /// All _[parameters](FunctionParameter)_ of the function.
+        parameters: Arc<List<FunctionParameter>>,
+
+        /// The return type of the function
+        returns: Arc<TypeValue>,
+
+        /// The body of the function.
+        body: Arc<Ast>,
+
+        /// The `end` keyword (if any), only `None` in _[type definitions](TypeDefinition)_.
+        end_keyword: SingleToken,
+    },
 
     /// A function call.
     ///

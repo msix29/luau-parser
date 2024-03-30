@@ -7,7 +7,9 @@ use tree_sitter::Node;
 
 use crate::{
     prelude::{
-        parse_block, Ast, ElseIfExpression, Expression, ExpressionInner, FunctionName, FunctionValue, HasLocation, List, ListItem, Location, PrefixExp, SingleToken, TableField, TableFieldValue, TableKey, TableValue, TypeDefinition
+        parse_block, Ast, ElseIfExpression, Expression, ExpressionInner, HasLocation, List,
+        ListItem, Location, PrefixExp, SingleToken, TableField, TableFieldValue, TableKey,
+        TableValue, TypeDefinition,
     },
     utils::{get_location, get_location_from_boundaries},
 };
@@ -137,13 +139,11 @@ impl From<(Node<'_>, &[u8])> for ExpressionInner {
                     parse_block(body, &mut ast_tokens, code_bytes);
                 }
 
-                ExpressionInner::Function(FunctionValue {
-                    local_keyword: None,
+                ExpressionInner::Function {
                     function_keyword: SingleToken::from((
                         node.child_by_field_name("function").unwrap(),
                         code_bytes,
                     )),
-                    function_name: FunctionName::Anonymous,
                     opening_parenthesis: SingleToken::from((
                         node.child_by_field_name("opening_parenthesis").unwrap(),
                         code_bytes,
@@ -163,7 +163,7 @@ impl From<(Node<'_>, &[u8])> for ExpressionInner {
                         node.child_by_field_name("end").unwrap(),
                         code_bytes,
                     )),
-                })
+                }
             }
             "var" | "functionCall" | "exp_wrap" => {
                 ExpressionInner::from(handle_prefix_exp(node, code_bytes))
@@ -248,7 +248,18 @@ impl HasLocation for ExpressionInner {
             ExpressionInner::Boolean(value) => value.get_location(),
             ExpressionInner::Number(value) => value.get_location(),
             ExpressionInner::String(value) => value.get_location(),
-            ExpressionInner::Function(value) => value.get_location(),
+            ExpressionInner::Function {
+                function_keyword,
+                opening_parenthesis: _,
+                closing_parenthesis: _,
+                parameters: _,
+                returns: _,
+                body: _,
+                end_keyword,
+            } => get_location_from_boundaries(
+                function_keyword.get_location(),
+                end_keyword.get_location(),
+            ),
             ExpressionInner::FunctionCall(value) => value.get_location(),
             ExpressionInner::ExpressionWrap(value) => value.get_location(),
             ExpressionInner::Var(value) => value.get_location(),

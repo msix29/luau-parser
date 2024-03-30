@@ -22,6 +22,7 @@ mod set_expressions;
 mod token;
 mod type_definition;
 mod value;
+mod function;
 
 pub use block::*;
 pub use expression::*;
@@ -34,6 +35,7 @@ pub use set_expressions::*;
 pub use token::*;
 pub use type_definition::*;
 pub use value::*;
+pub use function::*;
 
 use std::{fmt::Display, sync::Arc};
 use tree_sitter::{Node, TreeCursor};

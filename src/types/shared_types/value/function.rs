@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 
-use crate::prelude::{Ast, List, Location, SingleToken, TypeDefinition, TypeValue};
+use crate::prelude::{SingleToken, TypeDefinition};
 
 use super::TableKey;
 
@@ -13,26 +13,7 @@ pub struct FunctionParameter {
     pub name: SingleToken,
 
     /// The _[type](TypeDefinition)_ of the parameter.
-    pub r#type: Arc<TypeDefinition>,
-
-    /// Whether or not this parameter is variadic.
-    pub is_variadic: bool,
-
-    /// Exact location of the parmeter
-    pub location: Location,
-}
-
-/// A single return that a function has.
-#[derive(Clone, Debug)]
-pub struct FunctionReturn {
-    /// The _[type](TypeDefinition)_ of the return.
-    pub r#type: Arc<TypeDefinition>,
-
-    /// Whether or not this return is variadic.
-    pub is_variadic: bool,
-
-    /// Exact location of the return.
-    pub location: Location,
+    pub r#type: Option<Arc<TypeDefinition>>,
 }
 
 /// A struct representing a function name.
@@ -142,36 +123,4 @@ pub enum FunctionName {
         /// The method is `None` as there's no `:`.
         method: Option<SingleToken>,
     },
-}
-
-/// The actual value representing a function for the _[value](crate::prelude::Value)_ enum.
-#[derive(Clone, Debug)]
-pub struct FunctionValue {
-    /// The `local` keyword before the function (if any). `Some` in local functions only.
-    pub local_keyword: Option<SingleToken>,
-
-    /// The `function` keyword at the start (if any), only `None` in
-    /// _[type definitions](TypeDefinition)_.
-    pub function_keyword: SingleToken,
-
-    /// The actual name of the function.
-    pub function_name: FunctionName,
-
-    /// The `(` character.
-    pub opening_parenthesis: SingleToken,
-
-    /// The `)` character.
-    pub closing_parenthesis: SingleToken,
-
-    /// All _[parameters](FunctionParameter)_ of the function.
-    pub parameters: Arc<List<FunctionParameter>>,
-
-    /// All _[returns](FunctionReturn)_ of the function
-    pub returns: Arc<TypeValue>,
-
-    /// The body of the function.
-    pub body: Arc<Ast>,
-
-    /// The `end` keyword (if any), only `None` in _[type definitions](TypeDefinition)_.
-    pub end_keyword: SingleToken,
 }

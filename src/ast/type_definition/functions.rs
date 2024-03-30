@@ -5,12 +5,10 @@ use std::sync::Arc;
 use tree_sitter::Node;
 
 use crate::{
-    call_any,
     prelude::{
-        FunctionName, FunctionParameter, FunctionValue, GenericDeclaration,
-        GenericDeclarationParameter, GenericParameterInfo, HasLocation, List, ListItem, Location,
-        MightHaveLocation, NormalizedName, SingleToken, TableField, TableKey, TableValue,
-        TypeDefinition, TypeValue,
+        FunctionName, FunctionParameter, GenericDeclaration, GenericDeclarationParameter,
+        GenericParameterInfo, HasLocation, List, ListItem, Location, MightHaveLocation,
+        NormalizedName, SingleToken, TableField, TableKey, TableValue, TypeDefinition, TypeValue,
     },
     utils::{get_location, get_location_from_boundaries},
 };
@@ -145,16 +143,12 @@ pub(crate) fn build_function_parameters(
             if let Some(r#type) = normalized_name.r#type {
                 FunctionParameter {
                     name: normalized_name.name,
-                    is_variadic: false,
-                    r#type,
-                    location: get_location(parameter),
+                    r#type: Some(r#type),
                 }
             } else if !is_type {
                 FunctionParameter {
                     name: normalized_name.name,
-                    is_variadic: false,
-                    r#type: Arc::new(TypeDefinition::from(SingleToken::from("any"))),
-                    location: get_location(parameter),
+                    r#type: None,
                 }
             } else {
                 // Pretty sure this isn't in the spec, but if the name is missing in a type
@@ -163,13 +157,11 @@ pub(crate) fn build_function_parameters(
                 // placeholder.
                 FunctionParameter {
                     name: SingleToken::from("_"),
-                    is_variadic: false,
-                    r#type: Arc::new(TypeDefinition::from((
+                    r#type: Some(Arc::new(TypeDefinition::from((
                         parameter.child(0).unwrap(),
                         code_bytes,
                         false,
-                    ))),
-                    location: get_location(parameter),
+                    )))),
                 }
             }
         },
@@ -271,19 +263,8 @@ impl MightHaveLocation for FunctionName {
                     |method| method.get_location(),
                 );
 
-                Some(get_location_from_boundaries(
-                    table.get_location(),
-                    end,
-                ))
+                Some(get_location_from_boundaries(table.get_location(), end))
             }
         }
-    }
-}
-impl HasLocation for FunctionValue {
-    fn get_location(&self) -> Location {
-        get_location_from_boundaries(
-            call_any!(get_location, self.function_keyword, self.local_keyword),
-            self.end_keyword.get_location(),
-        )
     }
 }
