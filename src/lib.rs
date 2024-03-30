@@ -37,11 +37,13 @@ pub mod ast;
 mod macros;
 pub mod parser;
 pub mod types;
-mod utils;
+pub mod utils;
 
 /// Loads all needed items for outside crates to use.
 pub mod prelude {
     pub use crate::ast::*;
     pub use crate::parser::*;
     pub use crate::types::*;
+    pub use crate::utils::*;
+    pub use tree_sitter;
 }

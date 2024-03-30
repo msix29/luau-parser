@@ -41,7 +41,7 @@ pub(crate) fn get_spaces(node: Node, code_bytes: &[u8]) -> (String, String) {
 }
 
 /// Get the location of a specific tree-sitter node.
-pub(crate) fn get_location(node: Node) -> Location {
+pub fn get_location(node: Node) -> Location {
     let start = node.start_position();
     let end = node.end_position();
 
