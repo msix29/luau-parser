@@ -87,7 +87,7 @@ pub trait MightHaveLocation {
 
 /// All possible tokens in an _[ast](Ast)_.
 #[derive(Clone, Debug)]
-pub enum Token {
+pub enum Statement {
     /// A variable declaration.
     ///
     /// ```lua
@@ -183,5 +183,5 @@ pub struct Ast {
     pub uri: Option<String>,
 
     /// The tokens in the **main scope** of this file.
-    pub tokens: Arc<Vec<Token>>,
+    pub tokens: Arc<Vec<Statement>>,
 }

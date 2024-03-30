@@ -14,7 +14,7 @@ pub mod token;
 pub mod type_definition;
 pub mod local_assignment;
 
-use crate::prelude::{Ast, HasLocation, Token};
+use crate::prelude::{Ast, HasLocation, Statement};
 
 impl Ast {
     /// Returns the code that was behind this AST as-is, without any modifications and
@@ -33,17 +33,17 @@ impl Ast {
     }
 }
 
-impl HasLocation for Token {
+impl HasLocation for Statement {
     fn get_location(&self) -> crate::prelude::Location {
         match self {
-            Token::LocalAssignment(value) => value.get_location(),
-            Token::TypeDefinition(value) => value.get_location(),
-            Token::IfStatement(value) => value.get_location(),
-            Token::DoBlock(value) => value.get_location(),
-            Token::GenericFor(value) => value.get_location(),
-            Token::NumericalFor(value) => value.get_location(),
-            Token::RepeatBlock(value) => value.get_location(),
-            Token::WhileLoop(value) => value.get_location(),
+            Statement::LocalAssignment(value) => value.get_location(),
+            Statement::TypeDefinition(value) => value.get_location(),
+            Statement::IfStatement(value) => value.get_location(),
+            Statement::DoBlock(value) => value.get_location(),
+            Statement::GenericFor(value) => value.get_location(),
+            Statement::NumericalFor(value) => value.get_location(),
+            Statement::RepeatBlock(value) => value.get_location(),
+            Statement::WhileLoop(value) => value.get_location(),
         }
     }
 }

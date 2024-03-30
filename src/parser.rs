@@ -10,16 +10,16 @@ use tree_sitter::Tree;
 
 use crate::prelude::{
     Ast, AstNode, DoBlock, GenericFor, IfStatement, LocalAssignment, NumericalFor, RepeatBlock,
-    Token, TypeDefinition, WhileLoop,
+    Statement, TypeDefinition, WhileLoop,
 };
 
 /// Parses a code block and fills `tokens` with the parsed ones. The tokens can then
 /// be used to make the syntax tre.
 pub(crate) fn parse_block(
     body: Node,
-    tokens: &mut Vec<Token>,
+    tokens: &mut Vec<Statement>,
     full_code_bytes: &[u8],
-) -> Vec<Token> {
+) -> Vec<Statement> {
     let mut cursor = body.walk();
     for i in 0..body.child_count() {
         let node = body.child(i).unwrap();
@@ -27,33 +27,33 @@ pub(crate) fn parse_block(
         if let Some(variable_declaration) =
             LocalAssignment::try_from_node(node, &mut cursor, full_code_bytes)
         {
-            tokens.push(Token::LocalAssignment(variable_declaration));
+            tokens.push(Statement::LocalAssignment(variable_declaration));
         } else if let Some(type_declaration) =
             TypeDefinition::try_from_node(node, &mut cursor, full_code_bytes)
         {
-            tokens.push(Token::TypeDefinition(type_declaration))
+            tokens.push(Statement::TypeDefinition(type_declaration))
         } else if let Some(if_statement) =
             IfStatement::try_from_node(node, &mut cursor, full_code_bytes)
         {
-            tokens.push(Token::IfStatement(if_statement))
+            tokens.push(Statement::IfStatement(if_statement))
         } else if let Some(do_block) = DoBlock::try_from_node(node, &mut cursor, full_code_bytes) {
-            tokens.push(Token::DoBlock(do_block))
+            tokens.push(Statement::DoBlock(do_block))
         } else if let Some(generic_for) =
             GenericFor::try_from_node(node, &mut cursor, full_code_bytes)
         {
-            tokens.push(Token::GenericFor(generic_for))
+            tokens.push(Statement::GenericFor(generic_for))
         } else if let Some(numerical_for) =
             NumericalFor::try_from_node(node, &mut cursor, full_code_bytes)
         {
-            tokens.push(Token::NumericalFor(numerical_for))
+            tokens.push(Statement::NumericalFor(numerical_for))
         } else if let Some(repeat_block) =
             RepeatBlock::try_from_node(node, &mut cursor, full_code_bytes)
         {
-            tokens.push(Token::RepeatBlock(repeat_block))
+            tokens.push(Statement::RepeatBlock(repeat_block))
         } else if let Some(while_loop) =
             WhileLoop::try_from_node(node, &mut cursor, full_code_bytes)
         {
-            tokens.push(Token::WhileLoop(while_loop))
+            tokens.push(Statement::WhileLoop(while_loop))
         }
     }
 
