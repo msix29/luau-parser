@@ -85,17 +85,17 @@ pub(crate) fn parse_block(
 
 /// A Luau parser.
 #[derive(Clone, Debug)]
-pub struct Parser {
+pub struct LuauParser {
     /// Cache, only works with the `cache` feature, this increases speed of generation of
     /// ASTs after the first one.
     #[cfg(feature = "cache")]
     cache: HashMap<String, (Ast, Tree)>,
 }
 
-impl Parser {
+impl LuauParser {
     /// Create a new parser.
     pub fn new() -> Self {
-        Parser {
+        LuauParser {
             #[cfg(feature = "cache")]
             cache: HashMap::new(),
         }
@@ -179,7 +179,7 @@ impl Parser {
     }
 }
 
-impl Default for Parser {
+impl Default for LuauParser {
     fn default() -> Self {
         Self::new()
     }
