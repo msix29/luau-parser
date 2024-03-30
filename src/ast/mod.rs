@@ -47,6 +47,8 @@ impl HasLocation for Statement {
             Statement::WhileLoop(value) => value.get_location(),
             Statement::SetExpression(value) => value.get_location(),
             Statement::CompoundSetExpression(value) => value.get_location(),
+            Statement::FunctionCall(value) => value.get_location(),
+
         }
     }
 }

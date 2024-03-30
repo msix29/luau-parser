@@ -192,6 +192,13 @@ pub enum Statement {
     /// bar //= 2
     /// ```
     CompoundSetExpression(CompoundSetExpression),
+
+    /// A function call.
+    ///
+    /// ```lua
+    /// local _ = foo(1, 2, 3)
+    /// ```
+    FunctionCall(FunctionCall),
 }
 
 /// A struct representing a scope in a file. This ast is lossless, meaning it can be

@@ -6,7 +6,7 @@ use tree_sitter::Node;
 
 use crate::{
     prelude::{
-        Expression, ExpressionInner, ExpressionWrap, FunctionArguments, FunctionCall,
+        AstNode, Expression, ExpressionInner, ExpressionWrap, FunctionArguments, FunctionCall,
         FunctionCallInvoked, HasLocation, Location, PrefixExp, SingleToken, TableAccess,
         TableAccessPrefix, TableKey, Var,
     },
@@ -118,6 +118,20 @@ pub(crate) fn handle_prefix_exp(prefix_exp: Node, code_bytes: &[u8]) -> PrefixEx
             closing_parenthesis: SingleToken::from((prefix_exp.child(2).unwrap(), code_bytes)),
         }),
         _ => panic!("This shouldn't be reached."),
+    }
+}
+
+impl AstNode for FunctionCall {
+    fn try_from_node<'a>(
+        node: Node<'a>,
+        _: &mut tree_sitter::TreeCursor<'a>,
+        code_bytes: &[u8],
+    ) -> Option<Self> {
+        if node.kind() != "functionCall" {
+            return None;
+        }
+
+        Some(handle_function_call(node, code_bytes))
     }
 }
 
