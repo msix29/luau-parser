@@ -3,11 +3,11 @@
 use std::sync::Arc;
 
 use crate::{
+    call_any,
     prelude::{
-        parse_block, Ast, LuauStatement, ElseIfStatement, ElseStatement, Expression, HasLocation,
-        IfStatement, Location, Position, SingleToken,
-    },
-    utils::{get_location, get_location_from_boundaries},
+        parse_block, Ast, ElseIfStatement, ElseStatement, Expression, HasLocation, IfStatement,
+        Location, LuauStatement, SingleToken,
+    }, utils::get_location_from_boundaries,
 };
 
 impl LuauStatement for IfStatement {
@@ -30,7 +30,6 @@ impl LuauStatement for IfStatement {
                     tokens: Arc::new(parse_block(body, &mut Vec::new(), code_bytes)),
                     uri: None,
                 }),
-                location: get_location(elseif),
             })
             .collect::<Vec<ElseIfStatement>>();
         let else_expression = node
@@ -41,25 +40,7 @@ impl LuauStatement for IfStatement {
                     tokens: Arc::new(parse_block(body, &mut Vec::new(), code_bytes)),
                     uri: None,
                 }),
-                location: get_location(node),
             });
-
-        let start = node.start_position();
-        let end = else_if_expressions.last().map_or_else(
-            || {
-                else_expression.as_ref().map_or_else(
-                    || {
-                        let end = node.end_position();
-                        Position {
-                            line: end.column as u32,
-                            character: end.column as u32,
-                        }
-                    },
-                    |node| node.location.start,
-                )
-            },
-            |node| node.location.start,
-        );
 
         Some(IfStatement {
             if_keyword: SingleToken::from((node.child(0).unwrap(), code_bytes)),
@@ -72,13 +53,6 @@ impl LuauStatement for IfStatement {
             else_if_expressions,
             else_expression,
             end_keyword: SingleToken::from((node.child_by_field_name("end").unwrap(), code_bytes)),
-            location: Location {
-                start: Position {
-                    line: start.column as u32,
-                    character: start.row as u32,
-                },
-                end,
-            },
         })
     }
 }
@@ -87,7 +61,27 @@ impl HasLocation for IfStatement {
     fn get_location(&self) -> Location {
         get_location_from_boundaries(
             self.if_keyword.get_location(),
-            self.end_keyword.get_location(),
+            call_any!(
+                get_location,
+                self.end_keyword,
+                self.else_if_expressions.first()
+            ),
+        )
+    }
+}
+impl HasLocation for ElseIfStatement {
+    fn get_location(&self) -> Location {
+        get_location_from_boundaries(
+            self.elseif_keyword.get_location(),
+            call_any!(get_location, self.then_keyword, self.body.tokens.last()),
+        )
+    }
+}
+impl HasLocation for ElseStatement {
+    fn get_location(&self) -> Location {
+        get_location_from_boundaries(
+            self.else_keyword.get_location(),
+            call_any!(get_location, self.else_keyword, self.body.tokens.last()),
         )
     }
 }

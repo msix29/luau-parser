@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 
-use crate::prelude::{Expression, List, Location, SingleToken, TypeDefinition};
+use crate::prelude::{Expression, List, SingleToken, TypeDefinition};
 
 /// A possible key entry in a table. The key is usually a string, but it can be a value
 /// (from an expression) in tables or a type in type definitions.
@@ -102,7 +102,4 @@ pub struct TableValue {
 
     /// The `}` character.
     pub closing_brackets: SingleToken,
-
-    /// Exact location of the full table
-    pub location: Location,
 }

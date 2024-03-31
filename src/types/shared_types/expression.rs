@@ -232,7 +232,7 @@ pub enum ExpressionInner {
         returns: Arc<TypeValue>,
 
         /// The body of the function.
-        body: Arc<Ast>,
+        body: Ast,
 
         /// The `end` keyword (if any), only `None` in _[type definitions](TypeDefinition)_.
         end_keyword: SingleToken,

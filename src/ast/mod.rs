@@ -56,3 +56,23 @@ impl HasLocation for Statement {
         }
     }
 }
+impl Statement {
+    /// Get th body of this rule, if this rule doesn't start a new scope, `None` is returned.
+    ///
+    /// # Note
+    ///
+    /// This returns `None` for variables and set expressions.
+    pub fn try_get_body(&self) -> Option<&Ast> {
+        match self {
+            Statement::IfStatement(value) => Some(&value.body),
+            Statement::DoBlock(value) => Some(&value.body),
+            Statement::GenericFor(value) => Some(&value.do_block.body),
+            Statement::NumericalFor(value) => Some(&value.do_block.body),
+            Statement::RepeatBlock(value) => Some(&value.body),
+            Statement::WhileLoop(value) => Some(&value.do_block.body),
+            Statement::LocalFunction(value) => Some(&value.body),
+            Statement::GlobalFunction(value) => Some(&value.body),
+            _ => None,
+        }
+    }
+}

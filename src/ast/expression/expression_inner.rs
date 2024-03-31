@@ -11,7 +11,7 @@ use crate::{
         ListItem, Location, PrefixExp, SingleToken, TableField, TableFieldValue, TableKey,
         TableValue, TypeDefinition,
     },
-    utils::{get_location, get_location_from_boundaries},
+    utils::get_location_from_boundaries,
 };
 
 use crate::prelude::type_definition::functions::{
@@ -72,7 +72,6 @@ pub(crate) fn build_table(node: Node, code_bytes: &[u8]) -> TableValue {
             node.child_by_field_name("closing_brackets").unwrap(),
             code_bytes,
         )),
-        location: get_location(node),
     }
 }
 
@@ -109,6 +108,15 @@ impl ExpressionInner {
                     }
                 })
                 .collect(),
+        }
+    }
+
+    /// Try getting th body of this expression, will only be `Some` if this expression
+    /// is a function.
+    pub fn try_get_body(&self) -> Option<&Ast> {
+        match self {
+            ExpressionInner::Function { body, .. } => Some(body),
+            _ => None,
         }
     }
 }
@@ -155,10 +163,10 @@ impl From<(Node<'_>, &[u8])> for ExpressionInner {
                         code_bytes,
                     )),
                     returns: Arc::new(build_function_returns(node, code_bytes)),
-                    body: Arc::new(Ast {
+                    body: Ast {
                         tokens: Arc::new(ast_tokens),
                         uri: None,
-                    }),
+                    },
                     end_keyword: SingleToken::from((
                         node.child_by_field_name("end").unwrap(),
                         code_bytes,

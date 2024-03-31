@@ -175,7 +175,7 @@ impl HasLocation for TypeValue {
                 base,
                 question_mark,
             } => get_location_from_boundaries(base.get_location(), question_mark.get_location()),
-            TypeValue::Table(table) => table.location, //TODO: Call function
+            TypeValue::Table(table) => table.get_location(),
             TypeValue::Typeof {
                 typeof_token,
                 opening_parenthesis: _,

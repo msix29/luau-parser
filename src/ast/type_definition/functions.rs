@@ -4,13 +4,10 @@ use std::sync::Arc;
 
 use tree_sitter::Node;
 
-use crate::{
-    prelude::{
-        FunctionParameter, GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo,
-        List, ListItem, NormalizedName, SingleToken, TableField, TableKey, TableValue,
-        TypeDefinition, TypeValue,
-    },
-    utils::get_location,
+use crate::prelude::{
+    FunctionParameter, GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo, List,
+    ListItem, NormalizedName, SingleToken, TableField, TableKey, TableValue, TypeDefinition,
+    TypeValue,
 };
 
 /// Get a type value from a node representing a singleton type.
@@ -44,7 +41,6 @@ pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
             opening_brackets,
             fields: List::default(),
             closing_brackets,
-            location: get_location(node),
         };
     };
 
@@ -122,7 +118,6 @@ pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
             items: table_fields,
         },
         closing_brackets,
-        location: get_location(node),
     }
 }
 
