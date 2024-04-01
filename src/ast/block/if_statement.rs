@@ -7,7 +7,8 @@ use crate::{
     prelude::{
         parse_block, Ast, ElseIfStatement, ElseStatement, Expression, HasLocation, IfStatement,
         Location, LuauStatement, SingleToken,
-    }, utils::get_location_from_boundaries,
+    },
+    utils::get_location_from_boundaries,
 };
 
 impl LuauStatement for IfStatement {
@@ -59,14 +60,13 @@ impl LuauStatement for IfStatement {
 
 impl HasLocation for IfStatement {
     fn get_location(&self) -> Location {
-        get_location_from_boundaries(
-            self.if_keyword.get_location(),
-            call_any!(
-                get_location,
-                self.end_keyword,
-                self.else_if_expressions.first()
-            ),
-        )
+        let end = if let Some(else_if_statement) = self.else_if_expressions.first() {
+            else_if_statement.elseif_keyword.get_location()
+        } else {
+            call_any!(get_location, self.end_keyword, self.else_expression)
+        };
+
+        get_location_from_boundaries(self.if_keyword.get_location(), end)
     }
 }
 impl HasLocation for ElseIfStatement {
