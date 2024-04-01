@@ -3,7 +3,6 @@
 use std::sync::Arc;
 
 use crate::{
-    call_any,
     prelude::{
         parse_block, Ast, ElseIfStatement, ElseStatement, Expression, HasLocation, IfStatement,
         Location, LuauStatement, SingleToken,
@@ -62,26 +61,33 @@ impl HasLocation for IfStatement {
     fn get_location(&self) -> Location {
         let end = if let Some(else_if_statement) = self.else_if_expressions.first() {
             else_if_statement.elseif_keyword.get_location()
+        } else if let Some(else_statement) = &self.else_expression {
+            else_statement.else_keyword.get_location()
         } else {
-            call_any!(get_location, self.end_keyword, self.else_expression)
+            self.end_keyword.get_location()
         };
 
         get_location_from_boundaries(self.if_keyword.get_location(), end)
     }
 }
-impl HasLocation for ElseIfStatement {
-    fn get_location(&self) -> Location {
+impl ElseIfStatement {
+    /// Get the location of this else if statement.
+    pub fn get_location(&self, if_statement: &IfStatement) -> Location {
         get_location_from_boundaries(
             self.elseif_keyword.get_location(),
-            call_any!(get_location, self.then_keyword, self.body.tokens.last()),
+            if_statement.else_expression.as_ref().map_or_else(
+                || if_statement.end_keyword.get_location(),
+                |else_statement| else_statement.else_keyword.get_location(),
+            ),
         )
     }
 }
-impl HasLocation for ElseStatement {
-    fn get_location(&self) -> Location {
+impl ElseStatement {
+    /// Get the location of this else statement.
+    pub fn get_location(&self, if_statement: &IfStatement) -> Location {
         get_location_from_boundaries(
             self.else_keyword.get_location(),
-            call_any!(get_location, self.else_keyword, self.body.tokens.last()),
+            if_statement.end_keyword.get_location(),
         )
     }
 }

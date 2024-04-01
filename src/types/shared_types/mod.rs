@@ -77,12 +77,6 @@ pub trait HasLocation {
     fn get_location(&self) -> Location;
 }
 
-/// A trait for letting the compiler know that this specific item may have a location.
-pub trait MightHaveLocation {
-    /// Try getting the location of the node.
-    fn try_get_location(&self) -> Option<Location>;
-}
-
 /// All possible tokens in an _[ast](Ast)_.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Statement {
