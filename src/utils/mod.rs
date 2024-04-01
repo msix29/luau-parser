@@ -8,7 +8,7 @@ use crate::prelude::{Location, Position};
 /// Gets the text from a specific location in a `&[u8]`, which represents bytes of valid
 /// text. This function does not do any checks and assumess the passed bytes are valid
 /// utf8 (which they should be).
-fn get_text_from_bytes(bytes: &[u8], start: usize, end: usize) -> String {
+pub(crate) fn get_text_from_bytes(bytes: &[u8], start: usize, end: usize) -> String {
     from_utf8(&bytes[start..end]).unwrap().to_string()
 }
 

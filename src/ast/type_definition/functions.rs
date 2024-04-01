@@ -127,7 +127,7 @@ pub(crate) fn build_function_parameters(
     code_bytes: &[u8],
     is_type: bool,
 ) -> List<FunctionParameter> {
-    List::from_iter(
+    let mut parameters = List::from_iter(
         parameters_node.children_by_field_name("parameter", &mut parameters_node.walk()),
         parameters_node,
         "separator",
@@ -160,7 +160,23 @@ pub(crate) fn build_function_parameters(
                 }
             }
         },
-    )
+    );
+    if let Some(variadic) = parameters_node.child_by_field_name("variadic") {
+        parameters
+            .items
+            .push(ListItem::NonTrailing(FunctionParameter {
+                name: SingleToken::from((variadic.child(0).unwrap(), code_bytes)),
+                r#type: variadic.child(2).map(|r#type| {
+                    if let Some(r#type) = r#type.child_by_field_name("type") {
+                        Arc::new(TypeDefinition::from((r#type, code_bytes, false)))
+                    } else {
+                        Arc::new(TypeDefinition::from(TypeValue::from((r#type, code_bytes))))
+                    }
+                }),
+            }))
+    }
+
+    parameters
 }
 
 /// Build function returns from a node representing a function.

@@ -154,7 +154,18 @@ impl From<SingleToken> for TypeDefinition {
         }
     }
 }
-
+impl From<TypeValue> for TypeDefinition {
+    fn from(type_value: TypeValue) -> Self {
+        TypeDefinition {
+            export_keyword: None,
+            type_keyword: None,
+            type_name: SingleToken::default(),
+            generics: None,
+            equal_sign: None,
+            type_value: Arc::new(type_value),
+        }
+    }
+}
 impl HasLocation for TypeDefinition {
     fn get_location(&self) -> Location {
         get_location_from_boundaries(

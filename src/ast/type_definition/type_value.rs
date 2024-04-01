@@ -6,8 +6,8 @@ use tree_sitter::Node;
 use crate::{
     call_any,
     prelude::{
-        Expression, HasLocation, List, Location, SingleToken, TableField, TableFieldValue,
-        TableKey, TableValue, TypeValue,
+        Expression, HasLocation, List, ListItem, Location, SingleToken, TableField,
+        TableFieldValue, TableKey, TableValue, TypeValue,
     },
     utils::get_location_from_boundaries,
 };
@@ -93,29 +93,45 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
                             code_bytes,
                         ));
 
-                        let mut types = Vec::new();
+                        let mut types = List::from_iter(
+                            node.children_by_field_name("type", &mut node.walk()),
+                            node,
+                            "separator",
+                            code_bytes,
+                            |_, node| TypeValue::from((node, code_bytes)),
+                        );
 
-                        for child in node.children_by_field_name("type", &mut node.walk()) {
-                            types.push(TypeValue::from((child, code_bytes)));
+                        if let Some(typepack) = node.child_by_field_name("variadic") {
+                            types.items.push(ListItem::NonTrailing(TypeValue::from((
+                                typepack, code_bytes,
+                            ))))
                         }
 
                         TypeValue::Tuple {
                             opening_parenthesis,
-                            types: List::default(),
+                            types,
                             closing_parenthesis,
                         }
                     }
                     "variadic" => TypeValue::Variadic {
-                        ellipsis: SingleToken::from((node.child(0).unwrap(), code_bytes)),
-                        type_info: Arc::new(TypeValue::from((pack.child(1).unwrap(), code_bytes))),
+                        ellipsis: SingleToken::from((pack.child(1).unwrap(), code_bytes)),
+                        type_info: Arc::new(TypeValue::from((pack.child(0).unwrap(), code_bytes))),
                     },
                     "genpack" => TypeValue::GenericPack {
-                        name: SingleToken::from((pack.child(0).unwrap(), code_bytes)),
-                        ellipsis: SingleToken::from((pack.child(1).unwrap(), code_bytes)),
+                        name: SingleToken::from((pack.child(1).unwrap(), code_bytes)),
+                        ellipsis: SingleToken::from((pack.child(0).unwrap(), code_bytes)),
                     },
                     _ => unreachable!(),
                 }
             }
+            "variadic" => TypeValue::Variadic {
+                ellipsis: SingleToken::from((node.child(1).unwrap(), code_bytes)),
+                type_info: Arc::new(TypeValue::from((node.child(0).unwrap(), code_bytes))),
+            },
+            "genpack" => TypeValue::GenericPack {
+                name: SingleToken::from((node.child(1).unwrap(), code_bytes)),
+                ellipsis: SingleToken::from((node.child(0).unwrap(), code_bytes)),
+            },
             _ => panic!("Reached unhandled type. {}", node.to_sexp()),
         }
     }
