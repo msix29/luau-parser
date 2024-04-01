@@ -47,8 +47,8 @@ pub fn get_location(node: Node) -> Location {
 
     Location {
         start: Position {
-            character: start.column as u32,
             line: start.row as u32,
+            character: start.column as u32,
         },
         end: Position {
             line: end.row as u32,
@@ -56,7 +56,6 @@ pub fn get_location(node: Node) -> Location {
         },
     }
 }
-
 
 /// Get the location of a specific tree-sitter node.
 pub(crate) fn get_location_from_boundaries(a: Location, b: Location) -> Location {

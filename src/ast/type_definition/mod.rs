@@ -12,11 +12,10 @@ use std::sync::Arc;
 use tree_sitter::Node;
 
 use crate::{
-    call_any,
     prelude::{
-        LuauStatement, GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo,
-        GenericParameterInfoDefault, HasLocation, List, Location, SingleToken, TypeDefinition,
-        TypeValue,
+        GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo,
+        GenericParameterInfoDefault, HasLocation, List, Location, LuauStatement, SingleToken,
+        TypeDefinition, TypeValue,
     },
     utils::get_location_from_boundaries,
 };
@@ -169,12 +168,11 @@ impl From<TypeValue> for TypeDefinition {
 impl HasLocation for TypeDefinition {
     fn get_location(&self) -> Location {
         get_location_from_boundaries(
-            call_any!(
-                get_location,
-                self.type_value,
-                self.export_keyword,
-                self.type_keyword
-            ),
+            // `call_any!` macro just doesn't wanna work for whatever reason.
+            self.export_keyword
+                .as_ref()
+                .or(self.type_keyword.as_ref())
+                .map_or_else(|| self.type_value.get_location(), |a| a.get_location()),
             self.type_value.get_location(),
         )
     }
