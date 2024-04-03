@@ -12,7 +12,9 @@
 //!
 
 mod block;
+mod comment;
 mod expression;
+mod function;
 mod list;
 mod local_assignment;
 mod location;
@@ -22,11 +24,11 @@ mod set_expressions;
 mod token;
 mod type_definition;
 mod value;
-mod function;
-mod comment;
 
 pub use block::*;
+pub use comment::*;
 pub use expression::*;
+pub use function::*;
 pub use list::*;
 pub use local_assignment::*;
 pub use location::*;
@@ -36,21 +38,19 @@ pub use set_expressions::*;
 pub use token::*;
 pub use type_definition::*;
 pub use value::*;
-pub use function::*;
-pub use comment::*;
 
-use std::{fmt::Display, sync::Arc};
+use std::sync::Arc;
 use tree_sitter::{Node, TreeCursor};
 
 /// A trait for a token that can be represented in a more abstract form for the user to see,
 /// without maintaing original styling.
-pub trait HasRawValue: Display {
+pub trait HasRawValue {
     /// Get the lossy _raw value_ of this token. For lossless, see _[print](Print)_.
     fn get_raw_value(&self) -> String;
 }
 
 /// A trait to print the token as-is, while preserving all user spaces and styling.
-pub trait Print: Display {
+pub trait Print {
     /// Prints the whole token including all surrounding spaces.
     fn print(&self) -> String;
 
