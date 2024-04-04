@@ -148,6 +148,17 @@ impl LuauParser {
         &self.cache.get(uri).unwrap().0
     }
 
+    /// Get a specific ast from the cache, this function assumes the file does exist. If
+    /// it may or may not exist, use [maybe_get_ast](Parser::maybe_get_ast)
+    pub fn get_or_create(&mut self, uri: &str, code: &str) -> Ast {
+        #[cfg(feature = "cache")]
+        if let Some(ast) = self.maybe_get_ast(uri) {
+            return ast.to_owned();
+        }
+
+        self.parse(code, uri)
+    }
+
     /// Get a specific ast from the cache, this function is the safer version of
     /// [get_ast](Parser::get_ast).
     #[cfg(feature = "cache")]
