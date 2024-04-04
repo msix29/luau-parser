@@ -11,7 +11,7 @@ impl Location {
     }
 
     /// Checks whether or not the passed position is inside this location.
-    pub fn is_in_bounds(&self, position: Position) -> bool {
+    pub fn is_in_bounds(&self, position: &Position) -> bool {
         let is_after_start = self.start.line == position.line
             && self.start.character <= position.character
             || self.start.line < position.line;
