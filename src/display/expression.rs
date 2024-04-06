@@ -1,6 +1,8 @@
 //! Implements display traits for expressions.
 
-use crate::prelude::{Expression, ExpressionInner, HasRawValue};
+use crate::prelude::{
+    Expression, ExpressionInner, HasRawValue, TableField, TableFieldValue, TableKey, TableValue,
+};
 
 use super::type_definition::try_generics;
 
@@ -87,6 +89,62 @@ impl HasRawValue for ExpressionInner {
                     .join("\n"),
                 else_expression.get_raw_value()
             ),
+        }
+    }
+}
+
+impl HasRawValue for TableValue {
+    fn get_raw_value(&self) -> String {
+        let len = self.fields.items.len();
+        if len == 0 {
+            return "{}".to_string();
+        } else if len == 1 {
+            return format!("{{ {} }}", self.fields.items[0].get_raw_value());
+        }
+
+        "".to_string()
+    }
+}
+
+impl HasRawValue for TableField {
+    fn get_raw_value(&self) -> String {
+        let key = self.key.get_raw_value();
+        
+        if key == "" {
+            self.value.get_raw_value()
+        } else {
+            let equal_or_colon = self.equal_or_colon.unwrap().get_raw_value();
+            if equal_or_colon == ":" {
+                format!("{}{} {}", key, ":", self.value.get_raw_value())
+            } else {
+                format!("{} {} {}", key, "=", self.value.get_raw_value())
+            }
+        }
+    }
+}
+impl HasRawValue for TableKey {
+    fn get_raw_value(&self) -> String {
+        match self {
+            TableKey::UndefinedNumber(_) | TableKey::UndefinedString(_) => "".to_string(),
+            TableKey::String(value) => value.get_raw_value(),
+            TableKey::Expression {
+                open_square_brackets,
+                expression,
+                close_square_brackets,
+            } => format!("[{}]", expression.get_raw_value()),
+            TableKey::Type {
+                open_square_brackets,
+                r#type,
+                close_square_brackets,
+            } => format!("[{}]", r#type.get_raw_value()),
+        }
+    }
+}
+impl HasRawValue for TableFieldValue {
+    fn get_raw_value(&self) -> String {
+        match self {
+            TableFieldValue::Expression(value) => value.get_raw_value(),
+            TableFieldValue::Type(value) => value.get_raw_value(),
         }
     }
 }

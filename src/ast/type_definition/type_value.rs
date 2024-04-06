@@ -4,7 +4,6 @@ use std::sync::Arc;
 use tree_sitter::Node;
 
 use crate::{
-    call_any,
     prelude::{
         Expression, HasLocation, List, ListItem, Location, SingleToken, TableField,
         TableFieldValue, TableKey, TableValue, TypeValue,
@@ -264,10 +263,6 @@ impl HasLocation for TableFieldValue {
 }
 impl HasLocation for TableField {
     fn get_location(&self) -> Location {
-        get_location_from_boundaries(
-            self.key.get_location(),
-            // Either value or type is there, which is why `unwrap` here is fine.
-            call_any!(get_location, self.value.as_ref().unwrap(), self.r#type),
-        )
+        get_location_from_boundaries(self.key.get_location(), self.value.get_location())
     }
 }

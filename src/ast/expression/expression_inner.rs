@@ -60,8 +60,7 @@ pub(crate) fn build_table(node: Node, code_bytes: &[u8]) -> TableValue {
                     equal_or_colon: node
                         .child_by_field_name("equal")
                         .map(|node| SingleToken::from((node, code_bytes))),
-                    r#type: None,
-                    value: Some(Arc::new(TableFieldValue::Expression(value))),
+                    value: Arc::new(TableFieldValue::Expression(value)),
                 }
             },
         ),

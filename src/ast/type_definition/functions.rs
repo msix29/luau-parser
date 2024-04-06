@@ -6,8 +6,8 @@ use tree_sitter::Node;
 
 use crate::prelude::{
     FunctionParameter, GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo, List,
-    ListItem, NormalizedName, SingleToken, TableField, TableKey, TableValue, TypeDefinition,
-    TypeValue,
+    ListItem, NormalizedName, SingleToken, TableField, TableFieldValue, TableKey, TableValue,
+    TypeDefinition, TypeValue,
 };
 
 /// Get a type value from a node representing a singleton type.
@@ -59,12 +59,11 @@ pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
                                 field.child(1).unwrap(),
                                 code_bytes,
                             ))),
-                            r#type: Some(Arc::new(TypeDefinition::from((
+                            value: Arc::new(TableFieldValue::Type(TypeDefinition::from((
                                 field.child(2).unwrap(),
                                 code_bytes,
                                 false,
                             )))),
-                            value: None,
                         }));
                     }
                     "tableIndexer" => {
@@ -88,12 +87,11 @@ pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
                                 field.child(3).unwrap(),
                                 code_bytes,
                             ))),
-                            r#type: Some(Arc::new(TypeDefinition::from((
+                            value: Arc::new(TableFieldValue::Type(TypeDefinition::from((
                                 field.child(4).unwrap(),
                                 code_bytes,
                                 false,
                             )))),
-                            value: None,
                         }));
                     }
                     _ => (),
@@ -103,12 +101,11 @@ pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
         _ => table_fields.push(ListItem::NonTrailing(TableField {
             key: Arc::new(TableKey::UndefinedString("[number]".to_string())),
             equal_or_colon: None,
-            r#type: Some(Arc::new(TypeDefinition::from((
+            value: Arc::new(TableFieldValue::Type(TypeDefinition::from((
                 fields_list,
                 code_bytes,
                 false,
             )))),
-            value: None,
         })),
     }
 

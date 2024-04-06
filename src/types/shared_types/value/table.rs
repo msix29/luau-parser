@@ -74,10 +74,7 @@ pub struct TableField {
     pub equal_or_colon: Option<SingleToken>,
 
     /// The value of the variable, only exists if this table is a variable.
-    pub value: Option<Arc<TableFieldValue>>,
-
-    /// The type of this field, this is always present regardless of the field type.
-    pub r#type: Option<Arc<TypeDefinition>>,
+    pub value: Arc<TableFieldValue>,
 }
 
 /// A possible value for a _[table field](TableField)_.
