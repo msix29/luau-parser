@@ -43,7 +43,8 @@ use std::sync::Arc;
 use tree_sitter::{Node, TreeCursor};
 
 /// A trait for a token that can be represented in a more abstract form for the user to see,
-/// without maintaing original styling.
+/// without maintaing original styling. This is mainly for LSPs so it's LSP-ready and can
+/// be used for things like hover.
 pub trait HasRawValue {
     /// Get the lossy _raw value_ of this token. For lossless, see _[print](Print)_.
     fn get_raw_value(&self) -> String;
