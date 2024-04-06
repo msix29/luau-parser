@@ -192,6 +192,7 @@ pub(crate) fn build_function_returns(node: Node, code_bytes: &[u8]) -> TypeValue
     }
 }
 
+/// Build the generics of a function.
 pub(crate) fn build_generics(node: Node, code_bytes: &[u8]) -> Option<GenericDeclaration> {
     if node.child_by_field_name("generics").is_some() {
         let mut generics = List::from_iter(
