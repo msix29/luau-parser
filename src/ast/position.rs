@@ -23,13 +23,18 @@ impl Position {
 
     /// Checks whether or not this position is inside the passed location.
     pub fn is_in_bounds(&self, location: &Location) -> bool {
-        let is_after_start = location.start.line == self.line
-            && location.start.character <= self.character
-            || location.start.line < self.line;
-        let is_before_end = location.end.line == self.line
-            && location.end.character >= self.character
-            || location.end.line > self.line;
+        self.is_after(&location.start) & self.is_before(&location.end)
+    }
 
-        is_after_start && is_before_end
+    /// Checks whether or not this position is after the passed position
+    pub fn is_after(&self, position: &Position) -> bool {
+        self.line > position.line
+            || position.line == self.line && self.character >= position.character
+    }
+
+    /// Checks whether or not this position is before the passed position
+    pub fn is_before(&self, position: &Position) -> bool {
+        self.line < position.line
+            || position.line == self.line && self.character <= position.character
     }
 }
