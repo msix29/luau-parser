@@ -196,9 +196,8 @@ impl From<(Node<'_>, &[u8])> for ExpressionInner {
                 ))),
             },
             "cast" => {
-                let node = node.child_by_field_name("arg").unwrap();
                 ExpressionInner::Cast {
-                    expression: Arc::new(Expression::from((node, code_bytes))),
+                    expression: Arc::new(Expression::from((node.child_by_field_name("arg").unwrap(), code_bytes))),
                     cast_to: Arc::new(TypeDefinition::from((
                         node.child_by_field_name("cast").unwrap(),
                         code_bytes,
