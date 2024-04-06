@@ -59,10 +59,30 @@ impl HasRawValue for ExpressionInner {
                 if_token,
                 condition,
                 then_token,
+                if_expression,
                 else_if_expressions,
                 else_token,
                 else_expression,
-            } => todo!(),
+            } => format!(
+                "if {} then\
+                    \t{}\
+                {}
+                else\
+                    \t{}",
+                condition.get_raw_value(),
+                if_expression.get_raw_value(),
+                else_if_expressions
+                    .iter()
+                    .map(|expression| format!(
+                        "elseif {} then\
+                            \t{}",
+                        expression.condition.get_raw_value(),
+                        expression.expression.get_raw_value()
+                    ))
+                    .collect::<Vec<String>>()
+                    .join("\n"),
+                else_expression.get_raw_value()
+            ),
         }
     }
 }

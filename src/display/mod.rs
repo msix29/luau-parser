@@ -1,4 +1,5 @@
 mod expression;
+mod function;
 mod list;
 mod name;
 mod token;
