@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use super::{
-    Ast, FunctionParameter, List, SingleToken, TableKey, TableValue, TypeDefinition, TypeValue,
+    Ast, FunctionParameter, GenericDeclaration, List, SingleToken, TableKey, TableValue, TypeDefinition, TypeValue
 };
 
 /// An enum representing different ways a table can be used.
@@ -218,6 +218,9 @@ pub enum ExpressionInner {
         /// The `function` keyword at the start (if any), only `None` in
         /// _[type definitions](TypeDefinition)_.
         function_keyword: SingleToken,
+
+        /// The generics of this function.
+        generics: Option<GenericDeclaration>,
 
         /// The `(` character.
         opening_parenthesis: SingleToken,

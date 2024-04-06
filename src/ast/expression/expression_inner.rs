@@ -7,9 +7,7 @@ use tree_sitter::Node;
 
 use crate::{
     prelude::{
-        parse_block, Ast, ElseIfExpression, Expression, ExpressionInner, HasLocation, List,
-        ListItem, Location, PrefixExp, SingleToken, TableField, TableFieldValue, TableKey,
-        TableValue, TypeDefinition,
+        parse_block, type_definition::functions::build_generics, Ast, ElseIfExpression, Expression, ExpressionInner, HasLocation, List, ListItem, Location, PrefixExp, SingleToken, TableField, TableFieldValue, TableKey, TableValue, TypeDefinition
     },
     utils::get_location_from_boundaries,
 };
@@ -152,6 +150,7 @@ impl From<(Node<'_>, &[u8])> for ExpressionInner {
                         node.child_by_field_name("function").unwrap(),
                         code_bytes,
                     )),
+                    generics: build_generics(node, code_bytes),
                     opening_parenthesis: SingleToken::from((
                         node.child_by_field_name("opening_parenthesis").unwrap(),
                         code_bytes,
@@ -195,20 +194,18 @@ impl From<(Node<'_>, &[u8])> for ExpressionInner {
                     code_bytes,
                 ))),
             },
-            "cast" => {
-                ExpressionInner::Cast {
-                    expression: Arc::new(Expression::from((node.child_by_field_name("arg").unwrap(), code_bytes))),
-                    cast_to: Arc::new(TypeDefinition::from((
-                        node.child_by_field_name("cast").unwrap(),
-                        code_bytes,
-                        false,
-                    ))),
-                    operator: SingleToken::from((
-                        node.child_by_field_name("op").unwrap(),
-                        code_bytes,
-                    )),
-                }
-            }
+            "cast" => ExpressionInner::Cast {
+                expression: Arc::new(Expression::from((
+                    node.child_by_field_name("arg").unwrap(),
+                    code_bytes,
+                ))),
+                cast_to: Arc::new(TypeDefinition::from((
+                    node.child_by_field_name("cast").unwrap(),
+                    code_bytes,
+                    false,
+                ))),
+                operator: SingleToken::from((node.child_by_field_name("op").unwrap(), code_bytes)),
+            },
             "ifexp" => ExpressionInner::IfExpression {
                 if_token: SingleToken::from((node.child(0).unwrap(), code_bytes)),
                 condition: Arc::new(Expression::from((node.child(1).unwrap(), code_bytes))),
@@ -258,12 +255,8 @@ impl HasLocation for ExpressionInner {
             ExpressionInner::String(value) => value.get_location(),
             ExpressionInner::Function {
                 function_keyword,
-                opening_parenthesis: _,
-                closing_parenthesis: _,
-                parameters: _,
-                returns: _,
-                body: _,
                 end_keyword,
+                ..
             } => get_location_from_boundaries(
                 function_keyword.get_location(),
                 end_keyword.get_location(),

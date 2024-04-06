@@ -5,7 +5,7 @@ use crate::prelude::{
     GenericParameterInfoDefault, HasRawValue, TypeDefinition, TypeValue,
 };
 
-fn try_generics(generics: &Option<GenericDeclaration>) -> String {
+pub fn try_generics(generics: &Option<GenericDeclaration>) -> String {
     generics.map_or_else(|| "".to_string(), |generics| generics.get_raw_value())
 }
 

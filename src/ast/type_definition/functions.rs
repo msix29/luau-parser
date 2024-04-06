@@ -195,9 +195,8 @@ pub(crate) fn build_function_returns(node: Node, code_bytes: &[u8]) -> TypeValue
     }
 }
 
-/// Build a type value from a node representing a function.
-pub(crate) fn build_function_type(node: Node, code_bytes: &[u8]) -> TypeValue {
-    let generics = if node.child_by_field_name("generics").is_some() {
+pub(crate) fn build_generics(node: Node, code_bytes: &[u8]) -> Option<GenericDeclaration> {
+    if node.child_by_field_name("generics").is_some() {
         let mut generics = List::from_iter(
             node.children_by_field_name("generic", &mut node.walk()),
             node,
@@ -238,10 +237,13 @@ pub(crate) fn build_function_type(node: Node, code_bytes: &[u8]) -> TypeValue {
         })
     } else {
         None
-    };
+    }
+}
 
+/// Build a type value from a node representing a function.
+pub(crate) fn build_function_type(node: Node, code_bytes: &[u8]) -> TypeValue {
     TypeValue::Function {
-        generics,
+        generics: build_generics(node, code_bytes),
         opening_parenthesis: SingleToken::from((
             node.child_by_field_name("opening_parenthesis").unwrap(),
             code_bytes,

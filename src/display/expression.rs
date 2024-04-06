@@ -2,6 +2,8 @@
 
 use crate::prelude::{Expression, ExpressionInner, HasRawValue};
 
+use super::type_definition::try_generics;
+
 impl HasRawValue for Expression {
     fn get_raw_value(&self) -> String {
         self.inner.get_raw_value()
@@ -17,6 +19,7 @@ impl HasRawValue for ExpressionInner {
             | ExpressionInner::String(value) => value.get_raw_value(),
             ExpressionInner::Function {
                 function_keyword,
+                generics,
                 opening_parenthesis,
                 closing_parenthesis,
                 parameters,
@@ -24,7 +27,8 @@ impl HasRawValue for ExpressionInner {
                 body,
                 end_keyword,
             } => format!(
-                "function ({}): {}",
+                "function {}({}): {}",
+                try_generics(generics),
                 parameters.get_raw_value(),
                 returns.get_raw_value()
             ),
