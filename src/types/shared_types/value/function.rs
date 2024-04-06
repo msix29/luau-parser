@@ -1,4 +1,4 @@
-//! Holding all needed items for functions.
+//! Holding function parameters.
 
 use std::sync::Arc;
 

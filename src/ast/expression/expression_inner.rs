@@ -213,6 +213,7 @@ impl From<(Node<'_>, &[u8])> for ExpressionInner {
                 if_token: SingleToken::from((node.child(0).unwrap(), code_bytes)),
                 condition: Arc::new(Expression::from((node.child(1).unwrap(), code_bytes))),
                 then_token: SingleToken::from((node.child(2).unwrap(), code_bytes)),
+                if_expression: Arc::new(Expression::from((node.child(3).unwrap(), code_bytes))),
 
                 else_if_expressions: Arc::new(
                     node.children_by_field_name("elseif", &mut node.walk())
@@ -287,11 +288,8 @@ impl HasLocation for ExpressionInner {
             } => get_location_from_boundaries(expression.get_location(), cast_to.get_location()),
             ExpressionInner::IfExpression {
                 if_token,
-                condition: _,
-                then_token: _,
-                else_if_expressions: _,
-                else_token: _,
                 else_expression,
+                ..
             } => get_location_from_boundaries(
                 if_token.get_location(),
                 else_expression.get_location(),

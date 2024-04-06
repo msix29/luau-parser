@@ -330,6 +330,9 @@ pub enum ExpressionInner {
         /// The `then` keyword after the condition.
         then_token: SingleToken,
 
+        /// The final value if all other conditions were not met.
+        if_expression: Arc<Expression>,
+
         /// All `elseif` expressions.
         else_if_expressions: Arc<Vec<ElseIfExpression>>,
 
