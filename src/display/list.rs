@@ -1,3 +1,5 @@
+//! Implements display traits for lists.
+
 use crate::prelude::{HasRawValue, List};
 
 impl<T: HasRawValue> HasRawValue for List<T> {
