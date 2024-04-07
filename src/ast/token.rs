@@ -42,3 +42,26 @@ impl HasLocation for SingleToken {
         self.location
     }
 }
+impl SingleToken {
+    /// Create a new single token from the passed word with no spaces and
+    /// location at 0, 0.
+    pub fn new(word: &str) -> SingleToken {
+        Self {
+            spaces_before: "".to_string(),
+            word: word.to_string(),
+            spaces_after: "".to_string(),
+            ..Default::default()
+        }
+    }
+
+    /// Create a new single token from the passed word with passed spaces and
+    /// location at 0, 0.
+    pub fn new_with_spaces(spaces_before: &str, word: &str, spaces_after: &str) -> SingleToken {
+        Self {
+            spaces_before: spaces_before.to_string(),
+            word: word.to_string(),
+            spaces_after: spaces_after.to_string(),
+            ..Default::default()
+        }
+    }
+}

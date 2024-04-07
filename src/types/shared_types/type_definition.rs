@@ -7,7 +7,7 @@ use std::sync::Arc;
 
 use crate::prelude::Expression;
 
-use super::{FunctionParameter, List, SingleToken, TableValue};
+use super::{FunctionCall, FunctionParameter, List, SingleToken, TableValue, Var};
 
 /// Possible values for a type.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -366,4 +366,38 @@ pub struct GenericDeclaration {
 
     /// The `>` character.
     pub left_arrow: SingleToken,
+}
+
+/// Possible errors converting from an expression to a type definition.
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+pub enum ConversionError {
+    /// Function calls can't be converted to types since the parser won't look for the
+    /// variable and thus can't get it's return type.
+    FunctionCall(FunctionCall),
+
+    /// Variables calls can't be converted to types since the parser won't look for them.
+    Var(Var),
+
+    /// Unary expressions require metatables. If you wish to just use the value of the
+    /// expression, pass the inner one and not the unary.
+    UnaryExpression {
+        /// The operator.
+        operator: SingleToken,
+
+        /// The actual expression this operator is affecting.
+        expression: Arc<Expression>,
+    },
+
+    /// Binary expressions require metatables. If you wish to just use the value of the
+    /// expression, pass the inner one and not the binary.
+    BinaryExpression {
+        /// The left expression.
+        left: Arc<Expression>,
+
+        /// The operator between the expressions.
+        operator: SingleToken,
+
+        /// The right expression.
+        right: Arc<Expression>,
+    },
 }

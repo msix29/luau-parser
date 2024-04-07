@@ -229,7 +229,7 @@ pub enum ExpressionInner {
         closing_parenthesis: SingleToken,
 
         /// All _[parameters](FunctionParameter)_ of the function.
-        parameters: Arc<List<FunctionParameter>>,
+        parameters: List<FunctionParameter>,
 
         /// The return type of the function
         returns: Arc<TypeValue>,

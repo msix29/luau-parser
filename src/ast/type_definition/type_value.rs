@@ -5,8 +5,7 @@ use tree_sitter::Node;
 
 use crate::{
     prelude::{
-        Expression, HasLocation, List, ListItem, Location, SingleToken, TableField,
-        TableFieldValue, TableKey, TableValue, TypeValue,
+        ConversionError, ElseIfExpression, Expression, ExpressionInner, HasLocation, List, ListItem, Location, SingleToken, TableField, TableFieldValue, TableKey, TableValue, TypeValue
     },
     utils::get_location_from_boundaries,
 };
@@ -264,5 +263,88 @@ impl HasLocation for TableFieldValue {
 impl HasLocation for TableField {
     fn get_location(&self) -> Location {
         get_location_from_boundaries(self.key.get_location(), self.value.get_location())
+    }
+}
+
+/// Recursively turn else if expressions to a type value.
+fn else_if_to_type(
+    else_if_expressions: Vec<ElseIfExpression>,
+    i: usize,
+) -> Result<TypeValue, ConversionError> {
+    if else_if_expressions.get(i + 1).is_some() {
+        Ok(TypeValue::Union {
+            left: Arc::new(TypeValue::try_from(
+                (*else_if_expressions.get(i).unwrap().expression.inner).clone(),
+            )?),
+            pipe: SingleToken::from(" | "),
+            right: Arc::new(else_if_to_type(else_if_expressions, i + 1)?),
+        })
+    } else {
+        TypeValue::try_from((*else_if_expressions.get(i).unwrap().expression.inner).clone())
+    }
+}
+
+impl TryFrom<ExpressionInner> for TypeValue {
+    type Error = ConversionError;
+
+    fn try_from(value: ExpressionInner) -> Result<Self, Self::Error> {
+        match value {
+            ExpressionInner::Nil(value) => Ok(Self::Basic(value)),
+            ExpressionInner::Boolean(word) => Ok(Self::Boolean(word)),
+            ExpressionInner::Number(_) => Ok(Self::Basic(SingleToken::new("number"))),
+            ExpressionInner::String(value) => Ok(Self::String(value)),
+            ExpressionInner::Function {
+                generics,
+                opening_parenthesis,
+                closing_parenthesis,
+                parameters,
+                returns,
+                ..
+            } => Ok(Self::Function {
+                generics,
+                opening_parenthesis,
+                parameters,
+                closing_parenthesis,
+                arrow: SingleToken::new("->"),
+                return_type: returns,
+            }),
+            ExpressionInner::FunctionCall(value) => Err(ConversionError::FunctionCall(value)),
+            ExpressionInner::ExpressionWrap(value) => {
+                Self::try_from((*value.expression.inner).clone())
+            }
+            ExpressionInner::Var(value) => Err(ConversionError::Var(value)),
+            ExpressionInner::Table(value) => Ok(Self::Table(value)),
+            ExpressionInner::UnaryExpression {
+                operator,
+                expression,
+            } => Err(ConversionError::UnaryExpression {
+                operator,
+                expression,
+            }),
+            ExpressionInner::BinaryExpression {
+                left,
+                operator,
+                right,
+            } => Err(ConversionError::BinaryExpression {
+                left,
+                operator,
+                right,
+            }),
+            ExpressionInner::Cast { cast_to, .. } => Ok((*cast_to.type_value).clone()),
+            ExpressionInner::IfExpression {
+                if_expression,
+                else_if_expressions,
+                else_expression,
+                ..
+            } => Ok(TypeValue::Union {
+                left: Arc::new(Self::try_from((*if_expression.inner).clone())?),
+                pipe: SingleToken::from(" | "),
+                right: Arc::new(TypeValue::Union {
+                    left: Arc::new(Self::try_from((*else_expression.inner).clone())?),
+                    pipe: SingleToken::from(" | "),
+                    right: Arc::new(else_if_to_type(else_if_expressions.to_vec(), 0)?),
+                }),
+            }),
+        }
     }
 }

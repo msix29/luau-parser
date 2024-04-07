@@ -7,7 +7,9 @@ use tree_sitter::Node;
 
 use crate::{
     prelude::{
-        parse_block, type_definition::functions::build_generics, Ast, ElseIfExpression, Expression, ExpressionInner, HasLocation, List, ListItem, Location, PrefixExp, SingleToken, TableField, TableFieldValue, TableKey, TableValue, TypeDefinition
+        parse_block, type_definition::functions::build_generics, Ast, ElseIfExpression, Expression,
+        ExpressionInner, HasLocation, List, ListItem, Location, PrefixExp, SingleToken, TableField,
+        TableFieldValue, TableKey, TableValue, TypeDefinition,
     },
     utils::get_location_from_boundaries,
 };
@@ -155,7 +157,7 @@ impl From<(Node<'_>, &[u8])> for ExpressionInner {
                         code_bytes,
                     )),
 
-                    parameters: Arc::new(build_function_parameters(node, code_bytes, false)),
+                    parameters: build_function_parameters(node, code_bytes, false),
                     closing_parenthesis: SingleToken::from((
                         node.child_by_field_name("closing_parenthesis").unwrap(),
                         code_bytes,
