@@ -6,9 +6,9 @@ use tree_sitter::Node;
 
 use crate::{
     prelude::{
-        LuauStatement, Expression, ExpressionInner, ExpressionWrap, FunctionArguments, FunctionCall,
-        FunctionCallInvoked, HasLocation, Location, PrefixExp, SingleToken, TableAccess,
-        TableAccessPrefix, TableKey, Var,
+        Expression, ExpressionInner, ExpressionWrap, FunctionArguments, FunctionCall,
+        FunctionCallInvoked, HasLocation, Location, LuauStatement, PrefixExp, SingleToken,
+        TableAccess, TableAccessPrefix, TableKey, Var,
     },
     utils::get_location_from_boundaries,
 };
@@ -105,10 +105,11 @@ fn handle_function_call(prefix_exp: Node, code_bytes: &[u8]) -> FunctionCall {
 pub(crate) fn handle_prefix_exp(prefix_exp: Node, code_bytes: &[u8]) -> PrefixExp {
     match prefix_exp.kind() {
         "var" => {
-            let node = prefix_exp.child(0).unwrap();
-            match node.kind() {
-                "name" => PrefixExp::Var(Var::Name(SingleToken::from((node, code_bytes)))),
-                _ => PrefixExp::Var(Var::TableAccess(handle_table_var(node, code_bytes))),
+            // let node = prefix_exp.child(0).unwrap();
+            if prefix_exp.child_count() == 1 {
+                PrefixExp::Var(Var::Name(SingleToken::from((prefix_exp, code_bytes))))
+            } else {
+                PrefixExp::Var(Var::TableAccess(handle_table_var(prefix_exp, code_bytes)))
             }
         }
         "functionCall" => PrefixExp::FunctionCall(handle_function_call(prefix_exp, code_bytes)),
