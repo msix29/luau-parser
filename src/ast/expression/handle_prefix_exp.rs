@@ -29,8 +29,6 @@ fn handle_table_var(node: Node, code_bytes: &[u8]) -> TableAccess {
         _ => TableAccessPrefix::Name(SingleToken::from((table_node, code_bytes))),
     };
 
-    println!("{}", node.to_sexp());
-
     TableAccess {
         prefix,
         accessed_keys: node
