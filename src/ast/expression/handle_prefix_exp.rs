@@ -8,7 +8,7 @@ use crate::{
     prelude::{
         Expression, ExpressionInner, ExpressionWrap, FunctionArguments, FunctionCall,
         FunctionCallInvoked, HasLocation, Location, LuauStatement, PrefixExp, SingleToken,
-        TableAccess, TableAccessPrefix, TableKey, Var,
+        TableAccess, TableAccessKey, TableAccessPrefix, TableKey, Var,
     },
     utils::get_location_from_boundaries,
 };
@@ -17,9 +17,8 @@ use super::expression_inner::build_table;
 
 /// Extracts data for a table access from a node representing one.
 fn handle_table_var(node: Node, code_bytes: &[u8]) -> TableAccess {
-    let table_node = node.child_by_field_name("table").unwrap();
+    let table_node = node.child_by_field_name("table").unwrap_or(node);
     let prefix = match table_node.kind() {
-        "name" => TableAccessPrefix::Name(SingleToken::from((table_node, code_bytes))),
         "functionCall" => {
             TableAccessPrefix::FunctionCall(Arc::new(handle_function_call(table_node, code_bytes)))
         }
@@ -27,24 +26,29 @@ fn handle_table_var(node: Node, code_bytes: &[u8]) -> TableAccess {
             PrefixExp::ExpressionWrap(value) => TableAccessPrefix::ExpressionWrap(Arc::new(value)),
             _ => unreachable!("This'll always evaluate to a wrap."),
         },
-        _ => TableAccessPrefix::TableAccess(Arc::new(handle_table_var(table_node, code_bytes))),
+        _ => TableAccessPrefix::Name(SingleToken::from((table_node, code_bytes))),
     };
 
-    let key = if let Some(key) = node.child_by_field_name("keyName") {
-        TableKey::String(SingleToken::from((key, code_bytes)))
-    } else {
-        let key = node.child_by_field_name("keyExp").unwrap();
-
-        TableKey::Expression {
-            open_square_brackets: SingleToken::from((key.prev_sibling().unwrap(), code_bytes)),
-            expression: Arc::new(Expression::from((key, code_bytes))),
-            close_square_brackets: SingleToken::from((key.next_sibling().unwrap(), code_bytes)),
-        }
-    };
+    println!("{}", node.to_sexp());
 
     TableAccess {
         prefix,
-        last_accessed_key: Arc::new(key),
+        accessed_keys: node
+            .children_by_field_name("key", &mut node.walk())
+            .map(|key| match key.kind() {
+                //TODO:
+                "field_named" => TableAccessKey::Name {
+                    dot: SingleToken::from((key.child(0).unwrap(), code_bytes)),
+                    name: SingleToken::from((key.child(1).unwrap(), code_bytes)),
+                },
+                "field_indexed" => TableAccessKey::Expression(TableKey::Expression {
+                    open_square_brackets: SingleToken::from((key.child(0).unwrap(), code_bytes)),
+                    expression: Arc::new(Expression::from((key.child(1).unwrap(), code_bytes))),
+                    close_square_brackets: SingleToken::from((key.child(2).unwrap(), code_bytes)),
+                }),
+                _ => unreachable!("Key can't be anything else. Got {}", key.to_sexp()),
+            })
+            .collect(),
     }
 }
 
@@ -140,7 +144,8 @@ impl HasLocation for TableAccess {
     fn get_location(&self) -> Location {
         get_location_from_boundaries(
             self.prefix.get_location(),
-            self.last_accessed_key.get_location(),
+            // There's at least one key.
+            self.accessed_keys.last().unwrap().get_location(),
         )
     }
 }
@@ -148,9 +153,18 @@ impl HasLocation for TableAccessPrefix {
     fn get_location(&self) -> Location {
         match self {
             TableAccessPrefix::Name(value) => value.get_location(),
-            TableAccessPrefix::TableAccess(value) => value.get_location(),
             TableAccessPrefix::FunctionCall(value) => value.get_location(),
             TableAccessPrefix::ExpressionWrap(value) => value.get_location(),
+        }
+    }
+}
+impl HasLocation for TableAccessKey {
+    fn get_location(&self) -> Location {
+        match self {
+            TableAccessKey::Expression(value) => value.get_location(),
+            TableAccessKey::Name { dot, name } => {
+                get_location_from_boundaries(dot.get_location(), name.get_location())
+            }
         }
     }
 }

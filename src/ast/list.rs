@@ -59,7 +59,6 @@ impl<T: Clone> List<T> {
         }
     }
 }
-
 impl<'a, T> List<T> {
     /// Builds a list from an iterator.
     pub fn from_iter<'b>(

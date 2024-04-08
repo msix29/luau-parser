@@ -21,7 +21,7 @@ pub enum TableAccessPrefix {
     /// ```lua
     /// local _ = t.name.name2
     /// ```
-    TableAccess(Arc<TableAccess>),
+    // TableAccess(Arc<TableAccess>),
 
     /// A function call
     ///
@@ -52,7 +52,23 @@ pub struct TableAccess {
     /// ```
     ///
     /// It'll be `c` in this case.
-    pub last_accessed_key: Arc<TableKey>,
+    pub accessed_keys: Vec<TableAccessKey>,
+}
+
+/// Represents an access to a table index.
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+pub enum TableAccessKey {
+    /// An expression, this'll only have the enum [`TableKey::Expression`].
+    Expression(TableKey),
+
+    /// Name.
+    Name {
+        /// The `.` **before** the key.
+        dot: SingleToken,
+
+        /// The actual key being accessed.
+        name: SingleToken,
+    }
 }
 
 /// Possible ways in which a variable can be used.

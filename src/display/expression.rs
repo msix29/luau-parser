@@ -2,8 +2,8 @@
 
 use crate::prelude::{
     Expression, ExpressionInner, ExpressionWrap, FunctionArguments, FunctionCall,
-    FunctionCallInvoked, HasRawValue, PrefixExp, TableAccess, TableAccessPrefix, TableField,
-    TableFieldValue, TableKey, TableValue, Var,
+    FunctionCallInvoked, HasRawValue, PrefixExp, TableAccess, TableAccessKey, TableAccessPrefix,
+    TableField, TableFieldValue, TableKey, TableValue, Var,
 };
 
 use super::type_definition::try_generics_to_string;
@@ -123,14 +123,8 @@ impl HasRawValue for TableKey {
         match self {
             TableKey::UndefinedNumber(_) | TableKey::UndefinedString(_) => "".to_string(),
             TableKey::String(value) => value.get_raw_value(),
-            TableKey::Expression {
-                expression,
-                ..
-            } => format!("[{}]", expression.get_raw_value()),
-            TableKey::Type {
-                r#type,
-                ..
-            } => format!("[{}]", r#type.get_raw_value()),
+            TableKey::Expression { expression, .. } => format!("[{}]", expression.get_raw_value()),
+            TableKey::Type { r#type, .. } => format!("[{}]", r#type.get_raw_value()),
         }
     }
 }
@@ -173,7 +167,7 @@ impl HasRawValue for TableAccess {
         format!(
             "{}{}",
             self.prefix.get_raw_value(),
-            self.last_accessed_key.get_raw_value()
+            self.accessed_keys.last().unwrap().get_raw_value()
         )
     }
 }
@@ -181,9 +175,16 @@ impl HasRawValue for TableAccessPrefix {
     fn get_raw_value(&self) -> String {
         match self {
             TableAccessPrefix::Name(value) => value.get_raw_value(),
-            TableAccessPrefix::TableAccess(value) => value.get_raw_value(),
             TableAccessPrefix::FunctionCall(value) => value.get_raw_value(),
             TableAccessPrefix::ExpressionWrap(value) => value.get_raw_value(),
+        }
+    }
+}
+impl HasRawValue for TableAccessKey {
+    fn get_raw_value(&self) -> String {
+        match self {
+            TableAccessKey::Expression(value) => value.get_raw_value(),
+            TableAccessKey::Name { name, .. } => format!(".{}", name.get_raw_value()),
         }
     }
 }
