@@ -1,9 +1,12 @@
 //! Implements display traits for expressions.
 
-use crate::prelude::{
-    Expression, ExpressionInner, ExpressionWrap, FunctionArguments, FunctionCall,
-    FunctionCallInvoked, HasRawValue, PrefixExp, TableAccess, TableAccessKey, TableAccessPrefix,
-    TableField, TableFieldValue, TableKey, TableValue, Var,
+use crate::{
+    prelude::{
+        Expression, ExpressionInner, ExpressionWrap, FunctionArguments, FunctionCall,
+        FunctionCallInvoked, HasRawValue, PrefixExp, TableAccess, TableAccessKey,
+        TableAccessPrefix, TableField, TableFieldValue, TableKey, TableValue, Var,
+    },
+    utils::fix_table_indentation,
 };
 
 use super::type_definition::try_generics_to_string;
@@ -98,7 +101,7 @@ impl HasRawValue for TableValue {
             return format!("{{ {} }}", self.fields.items[0].get_raw_value());
         }
 
-        "".to_string()
+        fix_table_indentation(&format!("{{\n{}\n}}", self.fields.get_raw_value()))
     }
 }
 
@@ -111,9 +114,9 @@ impl HasRawValue for TableField {
         } else {
             let equal_or_colon = self.equal_or_colon.as_ref().unwrap().get_raw_value();
             if equal_or_colon == ":" {
-                format!("{}{} {}", key, ":", self.value.get_raw_value())
+                format!("{}: {}", key, self.value.get_raw_value())
             } else {
-                format!("{} {} {}", key, "=", self.value.get_raw_value())
+                format!("{} = {}", key, self.value.get_raw_value())
             }
         }
     }
@@ -184,7 +187,7 @@ impl HasRawValue for TableAccessKey {
     fn get_raw_value(&self) -> String {
         match self {
             TableAccessKey::Expression(value) => value.get_raw_value(),
-            TableAccessKey::Name { name, .. } => format!(".{}", name.get_raw_value()),
+            TableAccessKey::Name { name, .. } => name.get_raw_value(),
         }
     }
 }

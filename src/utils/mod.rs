@@ -73,3 +73,32 @@ pub(crate) fn get_location_from_boundaries(a: Location, b: Location) -> Location
         },
     }
 }
+
+/// Fix the indentation of a string representing a table.
+pub(crate) fn fix_table_indentation(raw_value: &str) -> String {
+    if raw_value.is_empty() {
+        return raw_value.to_string();
+    }
+
+    let mut indent = 0;
+    raw_value
+        .lines()
+        .map(|line| {
+            let contains_opening = line.contains('{');
+            let contains_closing = line.contains('}');
+            let ignore = contains_opening && contains_closing;
+            if !ignore && contains_closing {
+                indent -= 1;
+            }
+
+            let indented_line = format!("{}{}", "\t".repeat(indent), line.trim());
+
+            if !ignore && contains_opening {
+                indent += 1;
+            }
+
+            indented_line
+        })
+        .collect::<Vec<_>>()
+        .join("\n")
+}
