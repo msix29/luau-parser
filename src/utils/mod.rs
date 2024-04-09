@@ -6,9 +6,13 @@ use tree_sitter::Node;
 use crate::prelude::{Location, Position};
 
 /// Gets the text from a specific location in a `&[u8]`, which represents bytes of valid
-/// text. This function does not do any checks and assumess the passed bytes are valid
-/// utf8 (which they should be).
+/// text. This function does check for the passed bytes to ensure they're in the correct
+/// range.
 pub(crate) fn get_text_from_bytes(bytes: &[u8], start: usize, end: usize) -> String {
+    if start > end || bytes.len() <= end {
+        return "*error*".to_string();
+    }
+
     from_utf8(&bytes[start..end]).unwrap().to_string()
 }
 

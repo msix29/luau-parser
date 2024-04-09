@@ -4,9 +4,9 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use tree_sitter::Node;
 #[cfg(feature = "cache")]
 use tree_sitter::Tree;
+use tree_sitter::{InputEdit, Node};
 
 use crate::prelude::{
     Ast, Comment, CompoundSetExpression, DoBlock, FunctionCall, GenericFor, GlobalFunction,
@@ -108,12 +108,12 @@ impl LuauParser {
             .set_language(&tree_sitter_luau::language())
             .expect("Error loading Luau grammar");
 
-        let old_tree = if cfg!(feature = "cache") {
-            self.cache.get(uri).map(|cached| &cached.1)
-        } else {
-            None
-        };
-        let tree = parser.parse(code, old_tree).unwrap();
+        // let old_tree = if cfg!(feature = "cache") {
+        //     self.cache.get(uri).map(|cached| &cached.1)
+        // } else {
+        //     None
+        // };
+        let tree = parser.parse(code, None).unwrap();
 
         let mut tokens = Vec::default();
         let code_bytes = code.as_bytes();

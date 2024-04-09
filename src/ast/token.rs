@@ -4,12 +4,12 @@ use tree_sitter::Node;
 
 use crate::{
     prelude::{HasLocation, Location, SingleToken},
-    utils::{get_location, get_spaces},
+    utils::{get_location, get_spaces, get_text_from_bytes},
 };
 
 impl From<(Node<'_>, &[u8])> for SingleToken {
     fn from((node, code_bytes): (Node<'_>, &[u8])) -> Self {
-        let word = node.utf8_text(code_bytes).unwrap().to_string();
+        let word = get_text_from_bytes(code_bytes, node.start_byte(), node.end_byte());
         let (spaces_before, spaces_after) = get_spaces(node, code_bytes);
 
         Self {
