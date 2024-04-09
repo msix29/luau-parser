@@ -4,9 +4,9 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use tree_sitter::Node;
 #[cfg(feature = "cache")]
 use tree_sitter::Tree;
-use tree_sitter::{InputEdit, Node};
 
 use crate::prelude::{
     Ast, Comment, CompoundSetExpression, DoBlock, FunctionCall, GenericFor, GlobalFunction,
