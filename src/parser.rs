@@ -4,9 +4,9 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use tree_sitter::Node;
 #[cfg(feature = "cache")]
 use tree_sitter::Tree;
+use tree_sitter::{Node, Parser};
 
 use crate::prelude::{
     Ast, Comment, CompoundSetExpression, DoBlock, FunctionCall, GenericFor, GlobalFunction,
@@ -87,36 +87,39 @@ pub(crate) fn parse_block(
 }
 
 /// A Luau parser.
-#[derive(Clone, Debug)]
 pub struct LuauParser {
     /// Cache, only works with the `cache` feature, this increases speed of generation of
     /// ASTs after the first one.
     #[cfg(feature = "cache")]
     cache: HashMap<String, (Ast, Tree)>,
+
+    /// The `tree-sitter` parser.
+    parser: Parser,
 }
 
 impl LuauParser {
     /// Create a new parser.
     pub fn new() -> Self {
-        LuauParser {
-            #[cfg(feature = "cache")]
-            cache: HashMap::new(),
-        }
-    }
-
-    /// Parse Luau code into an AST.
-    pub fn parse(&mut self, code: &str, uri: &str) -> Ast {
         let mut parser = tree_sitter::Parser::new();
         parser
             .set_language(&tree_sitter_luau::language())
             .expect("Error loading Luau grammar");
 
+        LuauParser {
+            #[cfg(feature = "cache")]
+            cache: HashMap::new(),
+            parser,
+        }
+    }
+
+    /// Parse Luau code into an AST.
+    pub fn parse(&mut self, code: &str, uri: &str) -> Ast {
         // let old_tree = if cfg!(feature = "cache") {
         //     self.cache.get(uri).map(|cached| &cached.1)
         // } else {
         //     None
         // };
-        let tree = parser.parse(code, None).unwrap();
+        let tree = self.parser.parse(code, None).unwrap();
 
         let mut tokens = Vec::default();
         let code_bytes = code.as_bytes();
