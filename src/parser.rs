@@ -24,6 +24,9 @@ pub(crate) fn parse_block(
     let mut cursor = body.walk();
     for i in 0..body.child_count() {
         let node = body.child(i).unwrap();
+        if node.has_error() {
+            continue;
+        }
 
         if let Some(variable_declaration) =
             LocalAssignment::try_from_node(node, &mut cursor, full_code_bytes)
