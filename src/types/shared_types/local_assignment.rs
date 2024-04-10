@@ -1,20 +1,19 @@
-//! Holding all needed information for variable declarations.
+//! Holding all needed information for local assignments.
 
 use super::{Expression, List, NormalizedName, SingleToken};
 
-/// A struct holding data for variable declarations.
+/// A struct holding data for local assignments.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct LocalAssignment {
-    /// The keyword `local`.
+    /// The `local` keyword.
     pub local_token: SingleToken,
 
-    /// The name of the variable.
+    /// The List of [`names`](NormalizedName) before the `=` sign.
     pub name_list: List<NormalizedName>,
 
-    /// The `=`.
+    /// The `=` sign.
     pub equal_token: Option<SingleToken>,
 
-    /// The _[expression](Expression)_ of the variable. This may be an empty string if this
-    /// value was returned from a function.
+    /// The list of [`expressions`](Expression) after the `=` sign.
     pub expressions: List<Expression>,
 }

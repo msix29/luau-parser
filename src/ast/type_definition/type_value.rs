@@ -5,7 +5,7 @@ use tree_sitter::Node;
 
 use crate::{
     prelude::{
-        ConversionError, ElseIfExpression, Expression, ExpressionInner, HasLocation, List, ListItem, Location, SingleToken, TableField, TableFieldValue, TableKey, TableValue, TypeValue
+        ConversionError, ElseIfExpression, Expression, ExpressionInner, HasLocation, List, ListItem, Location, SingleToken, TableField, TableFieldValue, TableKey, Table, TypeValue
     },
     utils::get_location_from_boundaries,
 };
@@ -218,7 +218,7 @@ impl HasLocation for TypeValue {
     }
 }
 
-impl HasLocation for TableValue {
+impl HasLocation for Table {
     fn get_location(&self) -> Location {
         get_location_from_boundaries(
             self.opening_brackets.get_location(),

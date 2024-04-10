@@ -3,10 +3,11 @@
 use std::sync::Arc;
 
 use super::{
-    Ast, FunctionParameter, GenericDeclaration, List, SingleToken, TableKey, TableValue, TypeDefinition, TypeValue
+    Ast, FunctionParameter, GenericDeclaration, List, SingleToken, Table, TableKey, TypeDefinition,
+    TypeValue,
 };
 
-/// An enum representing different ways a table can be used.
+/// An enum representing different ways in which a table value can be returned from.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum TableAccessPrefix {
     /// Just a simple access.
@@ -15,13 +16,6 @@ pub enum TableAccessPrefix {
     /// local _ = t.name
     /// ```
     Name(SingleToken),
-
-    /// A nested table access.
-    ///
-    /// ```lua
-    /// local _ = t.name.name2
-    /// ```
-    // TableAccess(Arc<TableAccess>),
 
     /// A function call
     ///
@@ -45,33 +39,33 @@ pub struct TableAccess {
     /// The actual table being indexed
     pub prefix: TableAccessPrefix,
 
-    /// The final key accessed by the expression.
+    /// All keys accessed by the expression.
     ///
     /// ```lua
     /// local _ = t.a.b.c
     /// ```
     ///
-    /// It'll be `c` in this case.
+    /// Will be `a`, `b`, `c` in this case.
     pub accessed_keys: Vec<TableAccessKey>,
 }
 
-/// Represents an access to a table index.
+/// Enum representing different ways in which a table's index can be accessed.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum TableAccessKey {
     /// An expression, this'll only have the enum [`TableKey::Expression`].
     Expression(TableKey),
 
-    /// Name.
+    /// A simple name.
     Name {
         /// The `.` **before** the key.
         dot: SingleToken,
 
         /// The actual key being accessed.
         name: SingleToken,
-    }
+    },
 }
 
-/// Possible ways in which a variable can be used.
+/// Possible ways in which a variable can be referenced.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Var {
     /// A simple reference to the variable.
@@ -81,7 +75,7 @@ pub enum Var {
     /// ```
     Name(SingleToken),
 
-    /// A variable accessed from a table.
+    /// A field accessed from a table.
     ///
     /// ```lua
     /// local _ = t.foo
@@ -134,21 +128,21 @@ pub struct FunctionCall {
 /// All possible arguments that can be passed to a function.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum FunctionArguments {
-    /// A string.
+    /// A standalone string.
     ///
     /// ```lua
     /// local _ = foo"Hello, World!"
     /// ```
     String(SingleToken),
 
-    /// A table.
+    /// A standalone table.
     ///
     /// ```lua
     /// local _ = foo { bar = "Hello, World!" }
     /// ```
-    Table(TableValue),
+    Table(Table),
 
-    /// A list of items.
+    /// A list of arguments.
     ///
     /// ```lua
     /// local _ = foo(1, 2, 3)
@@ -171,7 +165,7 @@ pub struct ExpressionWrap {
     /// The `(` character.
     pub opening_parenthesis: SingleToken,
 
-    /// The actual _[expression](Expression)_ being wrapped.
+    /// The actual [`expression`](Expression) being wrapped.
     pub expression: Arc<Expression>,
 
     /// The `)` character.
@@ -187,7 +181,7 @@ pub struct ExpressionWrap {
 /// ```
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum PrefixExp {
-    /// A normal variable.
+    /// A normal variable reference.
     ///
     /// ```lua
     /// local _ = foo
@@ -211,17 +205,17 @@ pub enum PrefixExp {
 /// An enum representing all possible values for an expression.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum ExpressionInner {
-    /// Nil value.
+    /// The `nil` value.
     Nil(SingleToken),
 
     /// A `true` or `false` value.
     Boolean(SingleToken),
 
-    /// Any number, be it a float, an unsigned integer, or an integer.
+    /// Any number, be it a float, an unsigned integer, an integer or a hex digit.
     Number(SingleToken),
 
     /// A string, be it double quotes, single quotes, interpolated string, or multi-line.
-    //TODO: Support interpolated string as a type by itself for better diagnostics.
+    //TODO: Support interpolated string as a type by itself for better diagnostics?
     String(SingleToken),
 
     /// An **anonymous** function.
@@ -231,8 +225,7 @@ pub enum ExpressionInner {
     /// end
     /// ```
     Function {
-        /// The `function` keyword at the start (if any), only `None` in
-        /// _[type definitions](TypeDefinition)_.
+        /// The `function` keyword at the start
         function_keyword: SingleToken,
 
         /// The generics of this function.
@@ -241,11 +234,11 @@ pub enum ExpressionInner {
         /// The `(` character.
         opening_parenthesis: SingleToken,
 
+        /// All [`parameters`](FunctionParameter) of the function.
+        parameters: List<FunctionParameter>,
+
         /// The `)` character.
         closing_parenthesis: SingleToken,
-
-        /// All _[parameters](FunctionParameter)_ of the function.
-        parameters: List<FunctionParameter>,
 
         /// The return type of the function
         returns: Arc<TypeValue>,
@@ -253,7 +246,7 @@ pub enum ExpressionInner {
         /// The body of the function.
         body: Ast,
 
-        /// The `end` keyword (if any), only `None` in _[type definitions](TypeDefinition)_.
+        /// The `end` keyword.
         end_keyword: SingleToken,
     },
 
@@ -283,7 +276,7 @@ pub enum ExpressionInner {
     /// ```lua
     /// local _ = { foo = "bar" }
     /// ```
-    Table(TableValue),
+    Table(Table),
 
     /// A unary expression, these are expressions that have an operator before the actual
     /// expression:
@@ -349,7 +342,8 @@ pub enum ExpressionInner {
         /// The `then` keyword after the condition.
         then_token: SingleToken,
 
-        /// The final value if all other conditions were not met.
+        /// The [`expression`](Expression) that this statement would resolve to if the
+        /// [`condition`](ExpressionInner::IfExpression::condition) evaluated to `true`.
         if_expression: Arc<Expression>,
 
         /// All `elseif` expressions.
@@ -375,8 +369,8 @@ pub struct ElseIfExpression {
     /// The `then` keyword after the condition.
     pub then_token: SingleToken,
 
-    /// The _[expression](Expression)_ that this statement would resolve to if the
-    /// _[condition](ElseIfExpression::condition)_ evaluated to `true`.
+    /// The [`expression`](Expression) that this statement would resolve to if the
+    /// [`condition`](ElseIfExpression::condition) evaluated to `true`.
     pub expression: Arc<Expression>,
 }
 

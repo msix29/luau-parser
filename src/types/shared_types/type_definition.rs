@@ -7,7 +7,7 @@ use std::sync::Arc;
 
 use crate::prelude::Expression;
 
-use super::{FunctionCall, FunctionParameter, List, SingleToken, TableValue, Var};
+use super::{FunctionCall, FunctionParameter, List, SingleToken, Table, Var};
 
 /// Possible values for a type.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -35,8 +35,8 @@ pub enum TypeValue {
     Boolean(SingleToken),
 
     /// A wrape of another type, the difference between this and a
-    /// _[tuple](TypeValue::Tuple)_ is that this item always have one type and only one
-    /// type in it, while a _[tuple](TypeValue::Tuple)_ can have any, even 0.
+    /// [`tuple`](TypeValue::Tuple) is that this item always have one type and only one
+    /// type in it, while a [`tuple`](TypeValue::Tuple) can have any, even 0.
     ///
     /// ```lua
     /// type Foo = (bar)
@@ -81,11 +81,13 @@ pub enum TypeValue {
         return_type: Arc<TypeValue>,
     },
 
-    /// A generic type.
+    /// A reference to a generic type.
     ///
     /// ```lua
     /// type EmptySignal = Signal<string, ()>
     /// ```
+    ///
+    /// The [`generic`](TypeValue::Generic) here is `Signal`.
     Generic {
         /// The name of the type that has the generics.
         base: SingleToken,
@@ -182,7 +184,7 @@ pub enum TypeValue {
     /// type Foo = { string }
     /// type Bar = { Qux: Foo }
     /// ```
-    Table(TableValue),
+    Table(Table),
 
     /// A `typeof` expression.
     Typeof {
@@ -228,7 +230,7 @@ pub enum TypeValue {
     /// ...Foo
     /// ```
     ///
-    /// The difference between this and a _[variadic pack](TypeValue::VariadicPack)_ is that
+    /// The difference between this and a [`variadic pack`](TypeValue::VariadicPack) is that
     /// this one can be with a type and not just a name:
     ///
     /// ```lua
@@ -253,7 +255,7 @@ pub enum TypeValue {
     ///
     /// ## Note
     ///
-    /// See _[variadic type](TypeValue::Variadic)_ to learn the difference between them.
+    /// See [`variadic type`](TypeValue::Variadic) to learn the difference between them.
     VariadicPack {
         /// The `...` characters.
         ellipsis: SingleToken,
@@ -276,27 +278,19 @@ pub struct TypeDefinition {
     /// The generics for this type.
     pub generics: Option<GenericDeclaration>,
 
-    /// The name of the type. Will always be an empty string if this is a type with no
-    /// prior definition, like:
-    ///
-    /// ```lua
-    /// local foo: { number }
-    ///
-    /// local function bar(qux: () -> ())
-    /// end
-    /// ```
-    ///
-    /// In both cases (`{ number }`, and `() -> ()`), they have types with no names.
+    /// The name of the type.
     pub type_name: SingleToken,
 
     /// The `=` sign between the name and the actual value of the type.
+    /// This will be `None` if this isn't it's own statement but rather
+    /// in another place like parameter's type or a variable's type.
     pub equal_sign: Option<SingleToken>,
 
-    /// The _[actual definition](TypeValue)_ of the type.
+    /// The [`actual definition`](TypeValue) of the type.
     pub type_value: Arc<TypeValue>,
 }
 
-/// A generic declaration parameter used in _[generics declarations](GenericDeclaration)_.
+/// A generic declaration parameter used in [`generics declarations`](GenericDeclaration).
 /// Can either be a name or a variadic pack.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum GenericParameterInfo {
@@ -311,15 +305,14 @@ pub enum GenericParameterInfo {
         ellipsis: SingleToken,
     },
 }
-/// A generic declaration parameter used in _[generic declarations](GenericDeclaration)_.
-/// Consists of a _[parameter info](GenericParameterInfo)_ and an optional default type.
+/// A generic declaration parameter used in [`generic declarations`](GenericDeclaration).
+/// Consists of a [`parameter info`](GenericParameterInfo) and an optional default type.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct GenericDeclarationParameter {
-    /// The parameter passed as a generic type, can be a simple name or a generic p.ack
+    /// The parameter passed as a generic type, can be a simple name or a generic pack.
     pub parameter: GenericParameterInfo,
 
-    /// The default type, first item is the `=` sign and the second is the type that'll be
-    /// used as the default.
+    /// The default type.
     pub default: Option<GenericParameterInfoDefault>,
 }
 
@@ -350,12 +343,12 @@ pub enum GenericParameterInfoDefault {
         /// The `=` character.
         equal_sign: SingleToken,
 
-        /// The name of the type.
+        /// The type itself..
         r#type: TypeValue,
     },
 }
 
-/// The generics used in a _[type definition](TypeDefinition)_.
+/// The generics used in a [`type definition`](TypeDefinition).
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct GenericDeclaration {
     /// The `<` character.

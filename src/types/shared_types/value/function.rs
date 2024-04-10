@@ -10,6 +10,6 @@ pub struct FunctionParameter {
     /// The name of the parameter.
     pub name: SingleToken,
 
-    /// The _[type](TypeDefinition)_ of the parameter.
+    /// The [`type`](TypeDefinition) of the parameter.
     pub r#type: Option<Arc<TypeDefinition>>,
 }

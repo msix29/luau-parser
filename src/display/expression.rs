@@ -4,7 +4,7 @@ use crate::{
     prelude::{
         Expression, ExpressionInner, ExpressionWrap, FunctionArguments, FunctionCall,
         FunctionCallInvoked, HasRawValue, PrefixExp, TableAccess, TableAccessKey,
-        TableAccessPrefix, TableField, TableFieldValue, TableKey, TableValue, Var,
+        TableAccessPrefix, TableField, TableFieldValue, TableKey, Table, Var,
     },
     utils::fix_table_indentation,
 };
@@ -92,7 +92,7 @@ impl HasRawValue for ExpressionInner {
     }
 }
 
-impl HasRawValue for TableValue {
+impl HasRawValue for Table {
     fn get_raw_value(&self) -> String {
         let len = self.fields.items.len();
         if len == 0 {

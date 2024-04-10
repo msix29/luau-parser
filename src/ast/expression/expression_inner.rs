@@ -1,4 +1,4 @@
-//! Implements various functions for _[inner expressions](ExpressionInner), mainly `From<>`
+//! Implements various functions for [`inner expressions`](ExpressionInner), mainly `From<>`
 //! traits.
 
 use std::sync::Arc;
@@ -9,7 +9,7 @@ use crate::{
     prelude::{
         parse_block, type_definition::functions::build_generics, Ast, ElseIfExpression, Expression,
         ExpressionInner, HasLocation, List, ListItem, Location, PrefixExp, SingleToken, TableField,
-        TableFieldValue, TableKey, TableValue, TypeDefinition,
+        TableFieldValue, TableKey, Table, TypeDefinition,
     },
     utils::get_location_from_boundaries,
 };
@@ -20,12 +20,12 @@ use crate::prelude::type_definition::functions::{
 
 use super::handle_prefix_exp::handle_prefix_exp;
 
-/// Build a table value from a node representing a table in an expression..
-pub(crate) fn build_table(node: Node, code_bytes: &[u8]) -> TableValue {
+/// Build a table value from a node representing a table in an expression.
+pub(crate) fn build_table(node: Node, code_bytes: &[u8]) -> Table {
     let mut index = 0;
     let field_list = node.child_by_field_name("fieldList").unwrap();
 
-    TableValue {
+    Table {
         opening_brackets: SingleToken::from((
             node.child_by_field_name("opening_brackets").unwrap(),
             code_bytes,
@@ -75,7 +75,7 @@ pub(crate) fn build_table(node: Node, code_bytes: &[u8]) -> TableValue {
 }
 
 impl ExpressionInner {
-    /// Builds a list of _[inner expressions](ExpressionInner)_ from an iterator over nodes.
+    /// Builds a list of [`inner expressions`](ExpressionInner) from an iterator over nodes.
     ///
     /// # Note
     ///

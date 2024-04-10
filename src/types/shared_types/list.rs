@@ -31,7 +31,7 @@ pub enum ListItem<T> {
     NonTrailing(T)
 }
 
-/// A list holding [list items](ListItem) of type `T`.
+/// A list holding [`list items`](ListItem) of type `T`.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct List<T> {
     /// The actual items being stored.

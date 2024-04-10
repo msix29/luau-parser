@@ -1,8 +1,8 @@
 //! # Type Definition
 //!
 //! This module does the work of the whole type checker, from building
-//! _[type definitions](TypeDefinition)_ from _[nodes](Node)_, to implementing helper
-//! traits for both _[type definitions](TypeDefinition)_ and _[type values](TypeValue)_.
+//! [`type definitions`](TypeDefinition) from [`nodes`](Node), to implementing helper
+//! traits for both [`type definitions`](TypeDefinition) and [`type values`](TypeValue).
 //!
 
 pub(crate) mod functions;

@@ -8,7 +8,8 @@
 //! This file only contains the definitions for items, for actual implementations,
 //! check the files under `src/ast`. Each type will have it's implementation in
 //! the same location, ex. types in `shared_types/value/function.rs` will have
-//! their implementations in `ast/value/function.rs`.
+//! their implementations in `ast/value/function.rs`, same thing for display
+//! implementations but they'll be in `src/display` instead.
 //!
 
 mod block;
@@ -46,7 +47,7 @@ use tree_sitter::{Node, TreeCursor};
 /// without maintaing original styling. This is mainly for LSPs so it's LSP-ready and can
 /// be used for things like hover.
 pub trait HasRawValue {
-    /// Get the lossy _raw value_ of this token. For lossless, see _[print](Print)_.
+    /// Get the lossy _raw value_ of this token. For lossless, see [`print`](Print).
     fn get_raw_value(&self) -> String;
 }
 
@@ -64,7 +65,7 @@ pub trait Print {
 
 /// A trait to tell Rust that this item is a `LuauStatement`.
 pub trait LuauStatement: Sized {
-    /// Try creating this _[statement](LuauStatement)_ from a _[treesitter node](Node)_.
+    /// Try creating this [`statement`](LuauStatement) from a [`treesitter node`](Node).
     fn try_from_node<'a>(
         node: Node<'a>,
         cursor: &mut TreeCursor<'a>,
@@ -78,7 +79,7 @@ pub trait HasLocation {
     fn get_location(&self) -> Location;
 }
 
-/// All possible tokens in an _[ast](Ast)_.
+/// All possible tokens in an [`ast`](Ast).
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Statement {
     /// A variable declaration.
@@ -217,9 +218,12 @@ pub enum Statement {
 /// printed back to the code it was created from without losing any details.
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Ast {
-    /// The path pointing to the file that this _[ast](Ast)_ represents, if any.
+    /// The path pointing to the file that this [`ast`](Ast) represents, if any.
+    /// For scopes like functions, if statements, etc. it'll be `None` but for actual
+    /// files it'll always be `Some`.
     pub uri: Option<String>,
 
-    /// The tokens in the **main scope** of this file.
+    /// The tokens in the of this [`ast`](Ast) **only**. Parent [`asts`](Ast)' tokens won't
+    /// be included.
     pub tokens: Arc<Vec<Statement>>,
 }

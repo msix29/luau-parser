@@ -6,7 +6,7 @@ use tree_sitter::Node;
 
 use crate::prelude::{
     FunctionParameter, GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo, List,
-    ListItem, NormalizedName, SingleToken, TableField, TableFieldValue, TableKey, TableValue,
+    ListItem, NormalizedName, SingleToken, TableField, TableFieldValue, TableKey, Table,
     TypeDefinition, TypeValue,
 };
 
@@ -23,7 +23,7 @@ pub(crate) fn from_singleton_type(node: Node, code_bytes: &[u8]) -> TypeValue {
 }
 
 /// Build a table value from a node representing a table.
-pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
+pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> Table {
     let opening_brackets = SingleToken::from((
         node.child_by_field_name("opening_brackets").unwrap(),
         code_bytes,
@@ -37,7 +37,7 @@ pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
         .child_by_field_name("fields")
         .map(|node| node.child(0).unwrap())
     else {
-        return TableValue {
+        return Table {
             opening_brackets,
             fields: List::default(),
             closing_brackets,
@@ -109,7 +109,7 @@ pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> TableValue {
         })),
     }
 
-    TableValue {
+    Table {
         opening_brackets,
         fields: List {
             items: table_fields,

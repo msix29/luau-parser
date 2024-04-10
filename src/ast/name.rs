@@ -1,4 +1,4 @@
-//! Implements helper traits for _[normalized names](NormalizedName)_.
+//! Implements helper traits for [`normalized names`](NormalizedName).
 
 use std::sync::Arc;
 

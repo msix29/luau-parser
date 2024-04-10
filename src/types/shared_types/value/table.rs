@@ -62,39 +62,40 @@ pub enum TableKey {
     },
 }
 
-/// A struct representing one table field. It'll always have a _[key](TableKey)_ and a
-/// _[type](TypeDefinition)_ and on optional _[value](TableFieldValue)_, the value will
-/// only be present if this is an actual table and not type definition for the table.
+/// A struct representing one table field. It'll always have a [`key`](TableKey) and a
+/// value that's either a [`type`](TypeDefinition) or an [`expression`](Expression). See
+/// [`table field values`](TableFieldValue).
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct TableField {
-    /// The key of this field.
+    /// The [`key`](TableKey) used to index field.
     pub key: Arc<TableKey>,
 
     /// The `=` or `:` tokens, it's `=` in variables and `:` in types.
     pub equal_or_colon: Option<SingleToken>,
 
-    /// The value of the variable, only exists if this table is a variable.
+    /// The value of theis field. An expression in variables and a type in type
+    /// definitions.
     pub value: Arc<TableFieldValue>,
 }
 
-/// A possible value for a _[table field](TableField)_.
+/// A possible value for a [`table field`](TableField).
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum TableFieldValue {
-    /// An _[expression](Expression)_, can be found in declarations of tables as variables
+    /// An [`expression`](Expression), can be found in declarations of tables as variables
     /// only.
     Expression(Expression),
 
-    /// A _[type](TypeDefinition)_, can be found in type definitions only.
+    /// A [`type`](TypeDefinition), can be found in type definitions only.
     Type(TypeDefinition),
 }
 
-/// Struct for table _[expression](Expression)_ enum.
+/// Struct representing a luau table.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
-pub struct TableValue {
+pub struct Table {
     /// The `{` character.
     pub opening_brackets: SingleToken,
 
-    /// The actual _[fields](TableField)_ of the table.
+    /// The actual [`fields`](TableField) of the table.
     pub fields: List<TableField>,
 
     /// The `}` character.

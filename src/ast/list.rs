@@ -1,4 +1,4 @@
-//! Implements helper traits for _[lists](List)_
+//! Implements helper traits for [`lists`](List).
 
 use std::ops::Deref;
 
