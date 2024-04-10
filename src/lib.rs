@@ -8,13 +8,16 @@
 //! # Usage:
 //!
 //! ```rust
-//! let code = "";
+//! use luau_parser::parser::LuauParser;
+//!
+//! let code = r#"local foo = "Hello, World!""#;
 //! let uri = "";
 //!
-//! let mut parser = Parser::new();
-//! let ast = parser.parse(code, Some(uri));
+//! let mut parser = LuauParser::new();
+//! let ast = parser.parse(code, uri);
 //!
 //! println!("{:#?}", ast);
+//! assert_eq!(ast.tokens.len(), 1);
 //! ```
 //!
 //! # Note
