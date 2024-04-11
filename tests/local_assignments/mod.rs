@@ -6,7 +6,7 @@ use luau_parser::{
 
 #[test]
 /// Tests simple local assignments.
-fn creating_parser() {
+fn simple_local_assignment() {
     let mut parser = LuauParser::new();
 
     let ast_1 = parser.parse(r#"local foo = "Hello, World!""#, "1");
