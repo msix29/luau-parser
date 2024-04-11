@@ -3,6 +3,11 @@
 use crate::prelude::{Location, Position};
 
 impl Position {
+    /// Create a new [`position`](Position).
+    pub fn new(line: u32, character: u32) -> Self {
+        Self { character, line }
+    }
+
     /// Offsets the current position by lines and characters. If you're adding both lines
     /// and characters, making sure to set characters to `0` before calling this function
     /// to ensure correct results.

@@ -54,14 +54,25 @@ impl SingleToken {
         }
     }
 
+    /// Create a new [`SingleToken`] with the same everything and only different
+    /// location. The old one is dropped.
+    pub fn set_location(self, location: Location) -> Self {
+        Self {
+            spaces_before: self.spaces_before,
+            word: self.word,
+            spaces_after: self.spaces_after,
+            location,
+        }
+    }
+
     /// Create a new single token from the passed word with passed spaces and
     /// location at 0, 0.
-    pub fn new_with_spaces(spaces_before: &str, word: &str, spaces_after: &str) -> SingleToken {
+    pub fn with_spaces(self, spaces_before: &str, spaces_after: &str) -> SingleToken {
         Self {
             spaces_before: spaces_before.to_string(),
-            word: word.to_string(),
+            word: self.word,
             spaces_after: spaces_after.to_string(),
-            ..Default::default()
+            location: self.location,
         }
     }
 }

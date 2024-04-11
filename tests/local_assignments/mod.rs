@@ -5,7 +5,7 @@ use luau_parser::{
     prelude::LuauParser,
     types::{
         ExpressionInner, FunctionArguments, FunctionCall, FunctionCallInvoked, HasRawValue, List,
-        Location, Position, PrefixExp, SingleToken, Statement, Var,
+        Location, PrefixExp, SingleToken, Statement, Var,
     },
 };
 
@@ -44,54 +44,14 @@ fn local_assignment_2() {
         *assignment.expressions.items[1].inner,
         ExpressionInner::FunctionCall(FunctionCall {
             invoked: FunctionCallInvoked::Function(Arc::new(PrefixExp::Var(Var::Name(
-                SingleToken {
-                    spaces_before: " ".to_string(),
-                    word: "foo".to_string(),
-                    spaces_after: "".to_string(),
-                    location: Location {
-                        start: Position {
-                            line: 0,
-                            character: 19
-                        },
-                        end: Position {
-                            line: 0,
-                            character: 22,
-                        }
-                    }
-                }
+                SingleToken::new("foo")
+                    .with_spaces(" ", "")
+                    .set_location(Location::new2(0, 19, 0, 22)),
             )))),
             arguments: FunctionArguments::List {
-                open_parenthesis: SingleToken {
-                    spaces_before: "".to_string(),
-                    word: "(".to_string(),
-                    spaces_after: "".to_string(),
-                    location: Location {
-                        start: Position {
-                            line: 0,
-                            character: 22
-                        },
-                        end: Position {
-                            line: 0,
-                            character: 23
-                        }
-                    }
-                },
+                open_parenthesis: SingleToken::new("(").set_location(Location::new2(0, 22, 0, 23)),
                 arguments: List::default(),
-                close_parenthesis: SingleToken {
-                    spaces_before: "".to_string(),
-                    word: ")".to_string(),
-                    spaces_after: "".to_string(),
-                    location: Location {
-                        start: Position {
-                            line: 0,
-                            character: 23
-                        },
-                        end: Position {
-                            line: 0,
-                            character: 24
-                        }
-                    }
-                }
+                close_parenthesis: SingleToken::new(")").set_location(Location::new2(0, 23, 0, 24)),
             },
         })
     );
