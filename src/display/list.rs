@@ -13,6 +13,6 @@ impl<T: HasRawValue> HasRawValue for List<T> {
                 ListItem::NonTrailing(item) => item.get_raw_value(),
             })
             .collect::<Vec<String>>()
-            .join("\n")
+            .join("")
     }
 }
