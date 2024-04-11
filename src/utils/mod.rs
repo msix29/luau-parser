@@ -9,7 +9,7 @@ use crate::prelude::{Location, Position};
 /// text. This function does check for the passed bytes to ensure they're in the correct
 /// range.
 pub(crate) fn get_text_from_bytes(bytes: &[u8], start: usize, end: usize) -> String {
-    if start > end || bytes.len() <= end {
+    if start > end || bytes.len() < end {
         return "*error*".to_string();
     }
 
