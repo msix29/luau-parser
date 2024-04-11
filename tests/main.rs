@@ -1,6 +1,7 @@
 #![cfg(test)]
+mod local_assignments;
 
-use luau_parser::prelude::*;
+use luau_parser::prelude::LuauParser;
 
 #[test]
 /// Checks whether or not creating a parser is working.
