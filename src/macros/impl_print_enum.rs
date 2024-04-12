@@ -3,12 +3,32 @@
 /// Implements the [`Print`](crate::types::Print) trait for the passed enum.
 #[macro_export]
 macro_rules! impl_print_enum {
-    ($struct:ident $(, { self.$item:ident, $macro:ident! })*) => {
+    (
+        $struct:ident,
+        { $($empty_enum:ident)* },
+        { $($unit_enum:ident)* },
+        {
+            $({
+                $struct_enum:ident,
+                {
+                    $($field: ident,)*
+                }
+            })*
+        }
+    ) => {
         impl $crate::types::Print for $struct {
             fn print(&self) -> String {
-                let mut str = String::new();
-
-                str
+                match self {
+                    $( $struct::$empty_enum => String::new(), )*
+                    $( $struct::$unit_enum(item) => item.print(), )*
+                    $(
+                        $struct::$struct_enum { $($field,)* } => {
+                            let mut str = String::new();
+                            $(str.push_str(&$field.print());)*
+                            str
+                        },
+                    )*
+                }
             }
         }
     };
