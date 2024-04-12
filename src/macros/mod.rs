@@ -3,4 +3,5 @@
 mod call_any;
 mod enum_matches;
 mod get_item_from_enum;
-mod impl_print;
+mod impl_print_enum;
+mod impl_print_struct;

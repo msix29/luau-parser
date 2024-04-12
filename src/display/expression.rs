@@ -1,13 +1,11 @@
 //! Implements display traits for expressions.
 
 use crate::{
-    impl_print,
-    prelude::{
+    impl_print_enum, impl_print_struct, prelude::{
         Expression, ExpressionInner, ExpressionWrap, FunctionArguments, FunctionCall,
-        FunctionCallInvoked, HasRawValue, PrefixExp, Table, TableAccess, TableAccessKey,
+        FunctionCallInvoked, HasRawValue, PrefixExp, Print, Table, TableAccess, TableAccessKey,
         TableAccessPrefix, TableField, TableFieldValue, TableKey, Var,
-    },
-    utils::fix_table_indentation,
+    }, print, utils::fix_table_indentation
 };
 
 use super::type_definition::try_generics_to_string;
@@ -220,4 +218,11 @@ impl HasRawValue for FunctionArguments {
         }
     }
 }
-impl_print!(FunctionCall);
+
+impl Print for FunctionArguments {
+    fn print(&self) -> String {
+        todo!()
+    }
+}
+impl_print_struct!(FunctionCall, { self.invoked, print! }, { self.arguments, print! });
+impl_print_enum!(FunctionCallInvoked);
