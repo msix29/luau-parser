@@ -1,10 +1,11 @@
 //! Implements display traits for expressions.
 
 use crate::{
+    impl_print,
     prelude::{
         Expression, ExpressionInner, ExpressionWrap, FunctionArguments, FunctionCall,
-        FunctionCallInvoked, HasRawValue, PrefixExp, TableAccess, TableAccessKey,
-        TableAccessPrefix, TableField, TableFieldValue, TableKey, Table, Var,
+        FunctionCallInvoked, HasRawValue, PrefixExp, Table, TableAccess, TableAccessKey,
+        TableAccessPrefix, TableField, TableFieldValue, TableKey, Var,
     },
     utils::fix_table_indentation,
 };
@@ -164,7 +165,6 @@ impl HasRawValue for ExpressionWrap {
     }
 }
 
-//TODO: I think I forgot to store indexing method .-.
 impl HasRawValue for TableAccess {
     fn get_raw_value(&self) -> String {
         format!(
@@ -220,3 +220,4 @@ impl HasRawValue for FunctionArguments {
         }
     }
 }
+impl_print!(FunctionCall);

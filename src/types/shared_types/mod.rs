@@ -55,12 +55,6 @@ pub trait HasRawValue {
 pub trait Print {
     /// Prints the whole token including all surrounding spaces.
     fn print(&self) -> String;
-
-    /// Prints the token with only trailing spaces.
-    fn print_trailing(&self) -> String;
-
-    /// Prints the token with only leading spaces.
-    fn print_leading(&self) -> String;
 }
 
 /// A trait to tell Rust that this item is a `LuauStatement`.
