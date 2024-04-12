@@ -222,25 +222,16 @@ impl HasRawValue for FunctionArguments {
     }
 }
 
-impl Print for FunctionArguments {
-    fn print(&self) -> String {
-        todo!()
-    }
-}
-impl Print for PrefixExp {
-    fn print(&self) -> String {
-        todo!()
-    }
-}
-impl Print for SingleToken {
-    fn print(&self) -> String {
-        todo!()
-    }
-}
 impl_print_struct!(FunctionCall, { self.invoked, print! }, { self.arguments, print! });
 impl_print_enum!(
     FunctionCallInvoked,
     {},
-    { Function },
+    { Function, },
     { { TableMethod, { table, colon, method, } } }
+);
+impl_print_enum!(
+    FunctionArguments,
+    {},
+    { String, Table, },
+    { { List, { open_parenthesis,arguments,close_parenthesis, } } }
 );

@@ -5,8 +5,8 @@
 macro_rules! impl_print_enum {
     (
         $struct:ident,
-        { $($empty_enum:ident)* },
-        { $($unit_enum:ident)* },
+        { $($empty_enum:ident,)* },
+        { $($unit_enum:ident,)* },
         {
             $({
                 $struct_enum:ident,
