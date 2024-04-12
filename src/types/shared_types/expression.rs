@@ -3,8 +3,7 @@
 use std::sync::Arc;
 
 use super::{
-    Ast, FunctionParameter, GenericDeclaration, List, SingleToken, Table, TableKey, TypeDefinition,
-    TypeValue,
+    Ast, GenericDeclaration, List, NormalizedName, SingleToken, Table, TableKey, TypeDefinition, TypeValue
 };
 
 /// An enum representing different ways in which a table value can be returned from.
@@ -234,8 +233,8 @@ pub enum ExpressionInner {
         /// The `(` character.
         opening_parenthesis: SingleToken,
 
-        /// All [`parameters`](FunctionParameter) of the function.
-        parameters: List<FunctionParameter>,
+        /// All [`parameters`](NormalizedName) of the function.
+        parameters: List<NormalizedName>,
 
         /// The `)` character.
         closing_parenthesis: SingleToken,

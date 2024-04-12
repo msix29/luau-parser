@@ -222,16 +222,16 @@ impl HasRawValue for FunctionArguments {
     }
 }
 
-impl_print_struct!(FunctionCall, { self.invoked, print! }, { self.arguments, print! });
-impl_print_enum!(
-    FunctionCallInvoked,
-    {},
-    { Function, },
-    { { TableMethod, { table, colon, method, } } }
-);
-impl_print_enum!(
-    FunctionArguments,
-    {},
-    { String, Table, },
-    { { List, { open_parenthesis,arguments,close_parenthesis, } } }
-);
+// impl_print_struct!(FunctionCall, { self.invoked, print! }, { self.arguments, print! });
+// impl_print_enum!(
+//     FunctionCallInvoked,
+//     {},
+//     { Function, },
+//     { { TableMethod, { table, colon, method, } } }
+// );
+// impl_print_enum!(
+//     FunctionArguments,
+//     {},
+//     { String, Table, },
+//     { { List, { open_parenthesis,arguments,close_parenthesis, } } }
+// );

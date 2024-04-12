@@ -5,9 +5,9 @@ use std::sync::Arc;
 use tree_sitter::Node;
 
 use crate::prelude::{
-    FunctionParameter, GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo, List,
-    ListItem, NormalizedName, SingleToken, TableField, TableFieldValue, TableKey, Table,
-    TypeDefinition, TypeValue,
+    GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo, List, ListItem,
+    NormalizedName, SingleToken, Table, TableField, TableFieldValue, TableKey, TypeDefinition,
+    TypeValue,
 };
 
 /// Get a type value from a node representing a singleton type.
@@ -120,49 +120,55 @@ pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> Table {
 
 /// Build functions parameters from a node representing a function.
 pub(crate) fn build_function_parameters(
-    parameters_node: Node,
+    node: Node,
     code_bytes: &[u8],
     is_type: bool,
-) -> List<FunctionParameter> {
+) -> List<NormalizedName> {
+    println!("{}", node.to_sexp());
     let mut parameters = List::from_iter(
-        parameters_node.children_by_field_name("parameter", &mut parameters_node.walk()),
-        parameters_node,
+        node.children_by_field_name("parameter", &mut node.walk()),
+        node,
         "separator",
         code_bytes,
         |_, parameter| {
             let normalized_name = NormalizedName::from((parameter, code_bytes));
 
-            if let Some(r#type) = normalized_name.r#type {
-                FunctionParameter {
-                    name: normalized_name.name,
-                    r#type: Some(r#type),
-                }
-            } else if !is_type {
-                FunctionParameter {
-                    name: normalized_name.name,
-                    r#type: None,
-                }
-            } else {
+            if is_type && normalized_name.r#type.is_none() {
                 // Pretty sure this isn't in the spec, but if the name is missing in a type
                 // definition of a function, then it's the type and the name is empty, but for
                 // the sake of making it "better", we use `_`, which is globally known as a
                 // placeholder.
-                FunctionParameter {
+                NormalizedName {
                     name: SingleToken::from("_"),
+                    colon: None,
                     r#type: Some(Arc::new(TypeDefinition::from((
                         parameter.child(0).unwrap(),
                         code_bytes,
                         false,
                     )))),
                 }
+            } else {
+                normalized_name
             }
         },
     );
-    if let Some(variadic) = parameters_node.child_by_field_name("variadic") {
-        parameters
-            .items
-            .push(ListItem::NonTrailing(FunctionParameter {
+    if let Some(variadic) = node.child_by_field_name("variadic") {
+        let name = if node.kind() == "functionType" {
+            NormalizedName {
+                name: SingleToken::from(""),
+                colon: None,
+                r#type: Some(Arc::new(TypeDefinition::from((
+                    variadic.child(0).unwrap(),
+                    code_bytes,
+                    false,
+                )))),
+            }
+        } else {
+            NormalizedName {
                 name: SingleToken::from((variadic.child(0).unwrap(), code_bytes)),
+                colon: variadic
+                    .child(1)
+                    .map(|colon| SingleToken::from((colon, code_bytes))),
                 r#type: variadic.child(2).map(|r#type| {
                     if let Some(r#type) = r#type.child_by_field_name("type") {
                         Arc::new(TypeDefinition::from((r#type, code_bytes, false)))
@@ -170,7 +176,10 @@ pub(crate) fn build_function_parameters(
                         Arc::new(TypeDefinition::from(TypeValue::from((r#type, code_bytes))))
                     }
                 }),
-            }))
+            }
+        };
+
+        parameters.items.push(ListItem::NonTrailing(name));
     }
 
     parameters

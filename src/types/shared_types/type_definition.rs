@@ -6,8 +6,7 @@
 use std::sync::Arc;
 
 use crate::prelude::Expression;
-
-use super::{FunctionCall, FunctionParameter, List, SingleToken, Table, Var};
+use super::{FunctionCall, List, NormalizedName, SingleToken, Table, Var};
 
 /// Possible values for a type.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -69,7 +68,7 @@ pub enum TypeValue {
         opening_parenthesis: SingleToken,
 
         /// The parameters this function accepts.
-        parameters: List<FunctionParameter>,
+        parameters: List<NormalizedName>,
 
         /// The `)` character at the end of parameters and before returns
         closing_parenthesis: SingleToken,

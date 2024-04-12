@@ -8,8 +8,8 @@ use tree_sitter::Node;
 use crate::{
     prelude::{
         parse_block, type_definition::functions::build_generics, Ast, ElseIfExpression, Expression,
-        ExpressionInner, HasLocation, List, ListItem, Location, PrefixExp, SingleToken, TableField,
-        TableFieldValue, TableKey, Table, TypeDefinition,
+        ExpressionInner, HasLocation, List, ListItem, Location, PrefixExp, SingleToken, Table,
+        TableField, TableFieldValue, TableKey, TypeDefinition,
     },
     utils::get_location_from_boundaries,
 };
