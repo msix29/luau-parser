@@ -3,6 +3,7 @@
 use crate::prelude::Print;
 
 mod block;
+mod comment;
 mod expression;
 mod function;
 mod list;
