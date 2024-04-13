@@ -2,6 +2,7 @@
 
 use crate::prelude::Print;
 
+mod block;
 mod expression;
 mod list;
 mod local_assignment;
