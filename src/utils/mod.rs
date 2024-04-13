@@ -16,15 +16,32 @@ pub(crate) fn get_text_from_bytes(bytes: &[u8], start: usize, end: usize) -> Str
     from_utf8(&bytes[start..end]).unwrap().to_string()
 }
 
+/// Get the closest parent that has a sibling, the chosen sibling is decided by the
+/// `get_sibling` function. If it returns `Some(Node)`, that value will be returned,
+/// else, the function will continue going up the tree till `get_sibling` returns
+/// `Some(Node)` or we reach the top of the tree.
+fn get_parent_sibling(node: Node, get_sibling: fn(node: Node) -> Option<Node>) -> Option<Node> {
+    let mut parent = node.parent();
+    while let Some(parent_node) = parent {
+        if let Some(sibling) = get_sibling(parent_node) {
+            return Some(sibling);
+        }
+
+        parent = parent_node.parent();
+    }
+
+    None
+}
+
 /// Gets spaces before and after a **token**. This function assumes this token has a parent
 /// as is only called for individual tokens (ex. `local` in `local foo`).
 pub(crate) fn get_spaces(node: Node, code_bytes: &[u8]) -> (String, String) {
     let before = if let Some(before) = node.prev_sibling() {
         // Leading spaces
         get_text_from_bytes(code_bytes, before.end_byte(), node.start_byte())
-    } else if let Some(before_parent) = node.parent().unwrap().prev_sibling() {
+    } else if let Some(sibling) = get_parent_sibling(node, |node| node.prev_sibling()) {
         // Leading spaces for parent
-        get_text_from_bytes(code_bytes, before_parent.end_byte(), node.start_byte())
+        get_text_from_bytes(code_bytes, sibling.end_byte(), node.start_byte())
     } else {
         // Leading spaces from the start of the file
         get_text_from_bytes(code_bytes, 0, node.start_byte())
@@ -33,9 +50,9 @@ pub(crate) fn get_spaces(node: Node, code_bytes: &[u8]) -> (String, String) {
     let after = if let Some(next) = node.next_sibling() {
         // Trailing spaces
         get_text_from_bytes(code_bytes, node.end_byte(), next.start_byte())
-    } else if let Some(next_parent) = node.parent().unwrap().next_sibling() {
+    } else if let Some(sibling) = get_parent_sibling(node, |node| node.next_sibling()) {
         // Trailing spaces for parent
-        get_text_from_bytes(code_bytes, node.end_byte(), next_parent.start_byte())
+        get_text_from_bytes(code_bytes, node.end_byte(), sibling.start_byte())
     } else {
         // Trailing spaces till the end of the file
         get_text_from_bytes(code_bytes, node.end_byte(), code_bytes.len())
