@@ -163,7 +163,7 @@ impl From<(Node<'_>, &[u8])> for Expression {
                         node.child_by_field_name("closing_parenthesis").unwrap(),
                         code_bytes,
                     )),
-                    returns: Arc::new(build_function_returns(node, code_bytes)),
+                    returns: build_function_returns(node, code_bytes).map(Arc::new),
                     body: Ast {
                         tokens: Arc::new(ast_tokens),
                         uri: None,

@@ -24,7 +24,7 @@ pub struct LocalFunction {
     pub closing_parenthesis: SingleToken,
 
     /// The return type of the function
-    pub returns: TypeValue,
+    pub returns: Option<TypeValue>,
 
     /// The body of the function.
     pub body: Ast,
@@ -112,7 +112,7 @@ pub struct GlobalFunction {
     pub closing_parenthesis: SingleToken,
 
     /// The return type of the function
-    pub returns: TypeValue,
+    pub returns: Option<TypeValue>,
 
     /// The body of the function.
     pub body: Ast,

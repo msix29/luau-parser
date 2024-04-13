@@ -23,9 +23,15 @@ impl Ast {
     /// Returns the code that was behind this AST as-is, without any modifications and
     /// without losing on any details.
     pub fn print(&self) -> String {
-        self.tokens
-            .iter()
-            .map(|token| match token {
+        let len = self.tokens.len();
+        if len == 0 {
+            return String::new()
+        }
+
+        let mut str = String::new();
+        let last_index = len - 1;
+        for (i, token) in self.tokens.iter().enumerate() {
+            let printed_value = match token {
                 Statement::LocalAssignment(value) => value.print(),
                 Statement::TypeDefinition(_) => todo!(),
                 Statement::IfStatement(_) => todo!(),
@@ -40,8 +46,16 @@ impl Ast {
                 Statement::LocalFunction(_) => todo!(),
                 Statement::GlobalFunction(_) => todo!(),
                 Statement::Comment(_) => todo!(),
-            })
-            .collect::<String>()
+            };
+
+            if i == last_index {
+                str.push_str(&printed_value);
+            } else {
+                str.push_str(printed_value.trim_end());
+            }
+        }
+
+        str
     }
 }
 

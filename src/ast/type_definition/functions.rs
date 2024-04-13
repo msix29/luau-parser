@@ -185,19 +185,10 @@ pub(crate) fn build_function_parameters(
 }
 
 /// Build function returns from a node representing a function.
-pub(crate) fn build_function_returns(node: Node, code_bytes: &[u8]) -> TypeValue {
-    if let Some(return_node) = node
-        .child_by_field_name("return")
+pub(crate) fn build_function_returns(node: Node, code_bytes: &[u8]) -> Option<TypeValue> {
+    node.child_by_field_name("return")
         .or(node.child_by_field_name("returns"))
-    {
-        TypeValue::from((return_node, code_bytes))
-    } else {
-        TypeValue::Tuple {
-            opening_parenthesis: SingleToken::from("("),
-            types: List::default(),
-            closing_parenthesis: SingleToken::from(")"),
-        }
-    }
+        .map(|return_node| TypeValue::from((return_node, code_bytes)))
 }
 
 /// Build the generics of a function.
@@ -260,6 +251,7 @@ pub(crate) fn build_function_type(node: Node, code_bytes: &[u8]) -> TypeValue {
             code_bytes,
         )),
         arrow: SingleToken::from((node.child_by_field_name("arrow").unwrap(), code_bytes)),
-        return_type: Arc::new(build_function_returns(node, code_bytes)),
+        // Function types will always have a return.
+        return_type: Arc::new(build_function_returns(node, code_bytes).unwrap()),
     }
 }

@@ -307,7 +307,11 @@ impl TryFrom<Expression> for TypeValue {
                 parameters,
                 closing_parenthesis,
                 arrow: SingleToken::new("->"),
-                return_type: returns,
+                return_type: returns.unwrap_or(Arc::new(TypeValue::Tuple {
+                    opening_parenthesis: SingleToken::from("("),
+                    types: List::default(),
+                    closing_parenthesis: SingleToken::from(")"),
+                })),
             }),
             Expression::FunctionCall(value) => Err(ConversionError::FunctionCall(value)),
             Expression::ExpressionWrap(value) => Self::try_from((*value.expression).clone()),

@@ -37,7 +37,10 @@ impl HasRawValue for Expression {
                 "function {}({}): {}",
                 try_generics_to_string(generics),
                 parameters.get_raw_value(),
-                returns.get_raw_value()
+                returns.as_ref().map_or(String::new(), |returns| format!(
+                    ": {}",
+                    returns.get_raw_value()
+                ))
             ),
             Expression::FunctionCall(value) => value.get_raw_value(),
             Expression::ExpressionWrap(value) => value.expression.get_raw_value(),
@@ -117,7 +120,7 @@ impl_print_enum!(
                 { opening_parenthesis, print!} ,
                 { parameters, print!} ,
                 { closing_parenthesis, print!} ,
-                { returns, print!} ,
+                { returns, optional_print!} ,
                 { body, print!} ,
                 { end_keyword, print!} ,
             }

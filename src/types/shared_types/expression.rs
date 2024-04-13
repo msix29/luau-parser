@@ -240,7 +240,7 @@ pub enum Expression {
         closing_parenthesis: SingleToken,
 
         /// The return type of the function
-        returns: Arc<TypeValue>,
+        returns: Option<Arc<TypeValue>>,
 
         /// The body of the function.
         body: Ast,
