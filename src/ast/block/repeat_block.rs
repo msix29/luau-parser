@@ -3,7 +3,10 @@
 use std::sync::Arc;
 
 use crate::{
-    prelude::{parse_block, Ast, Expression, HasLocation, Location, LuauStatement, RepeatBlock, SingleToken},
+    prelude::{
+        parse_block, Ast, Expression, HasLocation, Location, LuauStatement, RepeatBlock,
+        SingleToken,
+    },
     utils::get_location_from_boundaries,
 };
 

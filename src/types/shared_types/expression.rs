@@ -3,7 +3,8 @@
 use std::sync::Arc;
 
 use super::{
-    Ast, GenericDeclaration, List, NormalizedName, SingleToken, Table, TableKey, TypeDefinition, TypeValue
+    Ast, GenericDeclaration, List, NormalizedName, SingleToken, Table, TableKey, TypeDefinition,
+    TypeValue,
 };
 
 /// An enum representing different ways in which a table value can be returned from.
@@ -372,4 +373,3 @@ pub struct ElseIfExpression {
     /// [`condition`](ElseIfExpression::condition) evaluated to `true`.
     pub expression: Arc<Expression>,
 }
-

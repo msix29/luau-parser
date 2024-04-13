@@ -3,7 +3,7 @@
 #[cfg(feature = "regex")]
 use lazy_static::lazy_static;
 #[cfg(feature = "regex")]
-use regex::{Regex, Captures};
+use regex::{Captures, Regex};
 
 #[cfg(feature = "regex")]
 lazy_static! {

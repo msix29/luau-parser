@@ -6,7 +6,7 @@ macro_rules! unit_enum_matches {
     ($variant:expr, $enum:ident::$check_for:ident) => {{
         match $variant {
             $enum::$check_for => true,
-            _ => false
+            _ => false,
         }
     }};
 }
@@ -17,7 +17,7 @@ macro_rules! tuple_enum_matches {
     ($variant:expr, $enum:ident::$check_for:ident) => {{
         match $variant {
             $enum::$check_for(_) => true,
-            _ => false
+            _ => false,
         }
     }};
 }
@@ -28,7 +28,7 @@ macro_rules! struct_enum_matches {
     ($variant:expr, $enum:ident::$check_for:ident) => {{
         match $variant {
             $enum::$check_for { .. } => true,
-            _ => false
+            _ => false,
         }
     }};
 }

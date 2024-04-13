@@ -44,10 +44,10 @@ impl Ast {
 
 /// Implements a specific trait for [`Statement`]s.
 macro_rules! impl_statement {
-	($trait: ident, $fn_name: ident, $return: ty) => {
-		impl $trait for Statement {
-			fn $fn_name(&self) -> $return {
-			    match self {
+    ($trait: ident, $fn_name: ident, $return: ty) => {
+        impl $trait for Statement {
+            fn $fn_name(&self) -> $return {
+                match self {
                     Statement::LocalAssignment(value) => value.$fn_name(),
                     Statement::TypeDefinition(value) => value.$fn_name(),
                     Statement::IfStatement(value) => value.$fn_name(),
@@ -64,8 +64,8 @@ macro_rules! impl_statement {
                     Statement::Comment(value) => value.$fn_name(),
                 }
             }
-		}
-	}
+        }
+    };
 }
 
 impl_statement!(HasLocation, get_location, Location);

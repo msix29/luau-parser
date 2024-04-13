@@ -2,7 +2,8 @@
 
 use crate::{
     prelude::{
-        DoBlock, Expression, HasLocation, Location, LuauStatement, NormalizedName, NumericalFor, SingleToken
+        DoBlock, Expression, HasLocation, Location, LuauStatement, NormalizedName, NumericalFor,
+        SingleToken,
     },
     utils::get_location_from_boundaries,
 };

@@ -28,12 +28,12 @@ pub enum ListItem<T> {
     /// ```
     ///
     /// `2` is non trailing in this case.
-    NonTrailing(T)
+    NonTrailing(T),
 }
 
 /// A list holding [`list items`](ListItem) of type `T`.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct List<T> {
     /// The actual items being stored.
-    pub items: Vec<ListItem<T>>
+    pub items: Vec<ListItem<T>>,
 }

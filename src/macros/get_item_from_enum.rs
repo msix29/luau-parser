@@ -7,7 +7,7 @@ macro_rules! get_item_from_tuple_enum {
     ($value:expr, $enum:ident::$variant:ident) => {{
         match $value {
             $enum::$variant(value) => value,
-            _ => unreachable!()
+            _ => unreachable!(),
         }
     }};
 }

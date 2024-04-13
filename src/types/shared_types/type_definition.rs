@@ -5,8 +5,8 @@
 
 use std::sync::Arc;
 
-use crate::prelude::Expression;
 use super::{FunctionCall, List, NormalizedName, SingleToken, Table, Var};
+use crate::prelude::Expression;
 
 /// Possible values for a type.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -156,7 +156,6 @@ pub enum TypeValue {
 
         /// The actual name of the type being accessed.
         type_info: SingleToken,
-
         //TODO: Generics
     },
 
