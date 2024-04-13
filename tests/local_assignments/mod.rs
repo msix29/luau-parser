@@ -4,7 +4,7 @@ use luau_parser::{
     get_item_from_tuple_enum,
     prelude::LuauParser,
     types::{
-        ExpressionInner, FunctionArguments, FunctionCall, FunctionCallInvoked, HasRawValue, List,
+        Expression, FunctionArguments, FunctionCall, FunctionCallInvoked, HasRawValue, List,
         Location, PrefixExp, SingleToken, Statement, Var,
     },
 };
@@ -41,8 +41,8 @@ fn local_assignment_2() {
     assert_eq!(assignment.expressions.items.len(), 2);
     assert_eq!(assignment.expressions.items[0].get_raw_value(), "1");
     assert_eq!(
-        *assignment.expressions.items[1].inner,
-        ExpressionInner::FunctionCall(FunctionCall {
+        *assignment.expressions.items[1],
+        Expression::FunctionCall(FunctionCall {
             invoked: FunctionCallInvoked::Function(Arc::new(PrefixExp::Var(Var::Name(
                 SingleToken::new("foo")
                     .with_spaces(" ", "")

@@ -6,14 +6,14 @@ use tree_sitter::Node;
 
 use crate::{
     prelude::{
-        Expression, ExpressionInner, ExpressionWrap, FunctionArguments, FunctionCall,
-        FunctionCallInvoked, HasLocation, Location, LuauStatement, PrefixExp, SingleToken,
-        TableAccess, TableAccessKey, TableAccessPrefix, TableKey, Var,
+        Expression, ExpressionWrap, FunctionArguments, FunctionCall, FunctionCallInvoked,
+        HasLocation, Location, LuauStatement, PrefixExp, SingleToken, TableAccess, TableAccessKey,
+        TableAccessPrefix, TableKey, Var,
     },
     utils::get_location_from_boundaries,
 };
 
-use super::expression_inner::build_table;
+use super::build_table;
 
 /// Extracts data for a table access from a node representing one.
 fn handle_table_var(node: Node, code_bytes: &[u8]) -> TableAccess {
@@ -76,7 +76,7 @@ fn handle_function_call(prefix_exp: Node, code_bytes: &[u8]) -> FunctionCall {
         "table" => FunctionArguments::Table(build_table(prefix_exp, code_bytes)),
         "string" => FunctionArguments::String(SingleToken::from((arguments_node, code_bytes))),
         _ => {
-            let arguments = ExpressionInner::from_nodes(
+            let arguments = Expression::from_nodes(
                 arguments_node.children_by_field_name("arguments", &mut arguments_node.walk()),
                 code_bytes,
             )

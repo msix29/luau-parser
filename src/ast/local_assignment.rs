@@ -4,8 +4,8 @@ use tree_sitter::{Node, TreeCursor};
 
 use crate::{
     prelude::{
-        LuauStatement, Expression, ExpressionInner, HasLocation, List, LocalAssignment, Location,
-        NormalizedName, SingleToken,
+        Expression, HasLocation, List, LocalAssignment, Location, LuauStatement, NormalizedName,
+        SingleToken,
     },
     utils::get_location_from_boundaries,
 };
@@ -21,7 +21,7 @@ impl LuauStatement for LocalAssignment {
         }
 
         let expressions =
-            ExpressionInner::from_nodes(node.children_by_field_name("value", cursor), code_bytes)
+            Expression::from_nodes(node.children_by_field_name("value", cursor), code_bytes)
                 .to::<Expression>();
 
         Some(LocalAssignment {

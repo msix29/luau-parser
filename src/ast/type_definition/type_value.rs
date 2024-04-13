@@ -5,7 +5,8 @@ use tree_sitter::Node;
 
 use crate::{
     prelude::{
-        ConversionError, ElseIfExpression, Expression, ExpressionInner, HasLocation, List, ListItem, Location, SingleToken, TableField, TableFieldValue, TableKey, Table, TypeValue
+        ConversionError, ElseIfExpression, Expression, HasLocation, List, ListItem, Location,
+        SingleToken, Table, TableField, TableFieldValue, TableKey, TypeValue,
     },
     utils::get_location_from_boundaries,
 };
@@ -274,26 +275,26 @@ fn else_if_to_type(
     if else_if_expressions.get(i + 1).is_some() {
         Ok(TypeValue::Union {
             left: Arc::new(TypeValue::try_from(
-                (*else_if_expressions.get(i).unwrap().expression.inner).clone(),
+                (*else_if_expressions.get(i).unwrap().expression).clone(),
             )?),
             pipe: SingleToken::from(" | "),
             right: Arc::new(else_if_to_type(else_if_expressions, i + 1)?),
         })
     } else {
-        TypeValue::try_from((*else_if_expressions.get(i).unwrap().expression.inner).clone())
+        TypeValue::try_from((*else_if_expressions.get(i).unwrap().expression).clone())
     }
 }
 
-impl TryFrom<ExpressionInner> for TypeValue {
+impl TryFrom<Expression> for TypeValue {
     type Error = ConversionError;
 
-    fn try_from(value: ExpressionInner) -> Result<Self, Self::Error> {
+    fn try_from(value: Expression) -> Result<Self, Self::Error> {
         match value {
-            ExpressionInner::Nil(value) => Ok(Self::Basic(value)),
-            ExpressionInner::Boolean(word) => Ok(Self::Boolean(word)),
-            ExpressionInner::Number(_) => Ok(Self::Basic(SingleToken::new("number"))),
-            ExpressionInner::String(value) => Ok(Self::String(value)),
-            ExpressionInner::Function {
+            Expression::Nil(value) => Ok(Self::Basic(value)),
+            Expression::Boolean(word) => Ok(Self::Boolean(word)),
+            Expression::Number(_) => Ok(Self::Basic(SingleToken::new("number"))),
+            Expression::String(value) => Ok(Self::String(value)),
+            Expression::Function {
                 generics,
                 opening_parenthesis,
                 closing_parenthesis,
@@ -308,20 +309,18 @@ impl TryFrom<ExpressionInner> for TypeValue {
                 arrow: SingleToken::new("->"),
                 return_type: returns,
             }),
-            ExpressionInner::FunctionCall(value) => Err(ConversionError::FunctionCall(value)),
-            ExpressionInner::ExpressionWrap(value) => {
-                Self::try_from((*value.expression.inner).clone())
-            }
-            ExpressionInner::Var(value) => Err(ConversionError::Var(value)),
-            ExpressionInner::Table(value) => Ok(Self::Table(value)),
-            ExpressionInner::UnaryExpression {
+            Expression::FunctionCall(value) => Err(ConversionError::FunctionCall(value)),
+            Expression::ExpressionWrap(value) => Self::try_from((*value.expression).clone()),
+            Expression::Var(value) => Err(ConversionError::Var(value)),
+            Expression::Table(value) => Ok(Self::Table(value)),
+            Expression::UnaryExpression {
                 operator,
                 expression,
             } => Err(ConversionError::UnaryExpression {
                 operator,
                 expression,
             }),
-            ExpressionInner::BinaryExpression {
+            Expression::BinaryExpression {
                 left,
                 operator,
                 right,
@@ -330,17 +329,17 @@ impl TryFrom<ExpressionInner> for TypeValue {
                 operator,
                 right,
             }),
-            ExpressionInner::Cast { cast_to, .. } => Ok((*cast_to.type_value).clone()),
-            ExpressionInner::IfExpression {
+            Expression::Cast { cast_to, .. } => Ok((*cast_to.type_value).clone()),
+            Expression::IfExpression {
                 if_expression,
                 else_if_expressions,
                 else_expression,
                 ..
             } => Ok(TypeValue::Union {
-                left: Arc::new(Self::try_from((*if_expression.inner).clone())?),
+                left: Arc::new(Self::try_from((*if_expression).clone())?),
                 pipe: SingleToken::from(" | "),
                 right: Arc::new(TypeValue::Union {
-                    left: Arc::new(Self::try_from((*else_expression.inner).clone())?),
+                    left: Arc::new(Self::try_from((*else_expression).clone())?),
                     pipe: SingleToken::from(" | "),
                     right: Arc::new(else_if_to_type(else_if_expressions.to_vec(), 0)?),
                 }),

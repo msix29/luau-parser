@@ -2,7 +2,8 @@
 
 use crate::{
     prelude::{
-        DoBlock, Expression, ExpressionInner, GenericFor, HasLocation, List, Location, LuauStatement, NormalizedName, SingleToken
+        DoBlock, Expression, GenericFor, HasLocation, List, Location, LuauStatement,
+        NormalizedName, SingleToken,
     },
     utils::get_location_from_boundaries,
 };
@@ -27,7 +28,7 @@ impl LuauStatement for GenericFor {
                 |_, binding| NormalizedName::from((binding.child(0).unwrap(), code_bytes)),
             ),
             in_keyword: SingleToken::from((node.child_by_field_name("in").unwrap(), code_bytes)),
-            expressions: ExpressionInner::from_nodes(
+            expressions: Expression::from_nodes(
                 node.children_by_field_name("value", cursor),
                 code_bytes,
             )

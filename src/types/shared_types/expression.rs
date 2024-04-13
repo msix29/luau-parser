@@ -203,7 +203,7 @@ pub enum PrefixExp {
 
 /// An enum representing all possible values for an expression.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
-pub enum ExpressionInner {
+pub enum Expression {
     /// The `nil` value.
     Nil(SingleToken),
 
@@ -342,7 +342,7 @@ pub enum ExpressionInner {
         then_token: SingleToken,
 
         /// The [`expression`](Expression) that this statement would resolve to if the
-        /// [`condition`](ExpressionInner::IfExpression::condition) evaluated to `true`.
+        /// [`condition`](Expression::IfExpression::condition) evaluated to `true`.
         if_expression: Arc<Expression>,
 
         /// All `elseif` expressions.
@@ -373,15 +373,3 @@ pub struct ElseIfExpression {
     pub expression: Arc<Expression>,
 }
 
-/// A struct representing an expression with no actual type.
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
-pub struct Expression {
-    /// All Spaces before the expression.
-    pub spaces_before: String,
-
-    /// The actual vlaue of the expression.
-    pub inner: Arc<ExpressionInner>,
-
-    /// All spaces after the expression.
-    pub spaces_after: String,
-}

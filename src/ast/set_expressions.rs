@@ -4,7 +4,8 @@ use tree_sitter::{Node, TreeCursor};
 
 use crate::{
     prelude::{
-        CompoundSetExpression, Expression, ExpressionInner, HasLocation, List, Location, LuauStatement, PrefixExp, SetExpression, SingleToken
+        CompoundSetExpression, Expression, HasLocation, List, Location, LuauStatement, PrefixExp,
+        SetExpression, SingleToken,
     },
     utils::get_location_from_boundaries,
 };
@@ -36,7 +37,7 @@ impl LuauStatement for SetExpression {
                 },
             ),
             equal: SingleToken::from((node.child_by_field_name("equal").unwrap(), code_bytes)),
-            values: ExpressionInner::from_nodes(
+            values: Expression::from_nodes(
                 node.children_by_field_name("value", &mut node.walk()),
                 code_bytes,
             )

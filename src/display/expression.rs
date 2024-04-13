@@ -3,24 +3,15 @@
 use crate::{
     impl_print_enum, impl_print_struct, optional_print,
     prelude::{
-        ElseIfExpression, Expression, ExpressionInner, ExpressionWrap, FunctionArguments, FunctionCall, FunctionCallInvoked, HasRawValue, PrefixExp, Print, Table, TableAccess, TableAccessKey, TableAccessPrefix, TableField, TableFieldValue, TableKey, Var
+        ElseIfExpression, Expression, ExpressionWrap, FunctionArguments, FunctionCall,
+        FunctionCallInvoked, HasRawValue, PrefixExp, Table, TableAccess, TableAccessKey,
+        TableAccessPrefix, TableField, TableFieldValue, TableKey, Var,
     },
     print,
     utils::fix_table_indentation,
 };
 
 use super::type_definition::try_generics_to_string;
-
-impl HasRawValue for Expression {
-    fn get_raw_value(&self) -> String {
-        self.inner.get_raw_value()
-    }
-}
-impl Print for Expression {
-    fn print(&self) -> String {
-        todo!()
-    }
-}
 
 impl_print_struct!(
     ElseIfExpression,
@@ -30,14 +21,14 @@ impl_print_struct!(
     { self.expression, print! }
 );
 
-impl HasRawValue for ExpressionInner {
+impl HasRawValue for Expression {
     fn get_raw_value(&self) -> String {
         match self {
-            ExpressionInner::Nil(value)
-            | ExpressionInner::Boolean(value)
-            | ExpressionInner::Number(value)
-            | ExpressionInner::String(value) => value.get_raw_value(),
-            ExpressionInner::Function {
+            Expression::Nil(value)
+            | Expression::Boolean(value)
+            | Expression::Number(value)
+            | Expression::String(value) => value.get_raw_value(),
+            Expression::Function {
                 generics,
                 parameters,
                 returns,
@@ -48,15 +39,15 @@ impl HasRawValue for ExpressionInner {
                 parameters.get_raw_value(),
                 returns.get_raw_value()
             ),
-            ExpressionInner::FunctionCall(value) => value.get_raw_value(),
-            ExpressionInner::ExpressionWrap(value) => value.expression.get_raw_value(),
-            ExpressionInner::Var(value) => value.get_raw_value(),
-            ExpressionInner::Table(value) => value.get_raw_value(),
-            ExpressionInner::UnaryExpression {
+            Expression::FunctionCall(value) => value.get_raw_value(),
+            Expression::ExpressionWrap(value) => value.expression.get_raw_value(),
+            Expression::Var(value) => value.get_raw_value(),
+            Expression::Table(value) => value.get_raw_value(),
+            Expression::UnaryExpression {
                 operator,
                 expression,
             } => format!("{}{}", operator.get_raw_value(), expression.get_raw_value()),
-            ExpressionInner::BinaryExpression {
+            Expression::BinaryExpression {
                 left,
                 operator,
                 right,
@@ -66,7 +57,7 @@ impl HasRawValue for ExpressionInner {
                 operator.get_raw_value(),
                 right.get_raw_value()
             ),
-            ExpressionInner::Cast {
+            Expression::Cast {
                 expression,
                 cast_to,
                 ..
@@ -75,7 +66,7 @@ impl HasRawValue for ExpressionInner {
                 expression.get_raw_value(),
                 cast_to.get_raw_value()
             ),
-            ExpressionInner::IfExpression {
+            Expression::IfExpression {
                 condition,
                 if_expression,
                 else_if_expressions,
@@ -105,7 +96,7 @@ impl HasRawValue for ExpressionInner {
     }
 }
 impl_print_enum!(
-    ExpressionInner,
+    Expression,
     {},
     {
         Nil,
