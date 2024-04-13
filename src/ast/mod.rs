@@ -17,22 +17,31 @@ pub mod set_expressions;
 pub mod token;
 pub mod type_definition;
 
-use crate::prelude::{Ast, HasLocation, Location, Statement};
+use crate::prelude::{Ast, HasLocation, Location, Print, Statement};
 
 impl Ast {
     /// Returns the code that was behind this AST as-is, without any modifications and
     /// without losing on any details.
     pub fn print(&self) -> String {
-        todo!()
-        // self.tokens
-        //     .iter()
-        //     .map(|token| match token {
-        //         Token::VariableDeclaration(value) => value.print(),
-        //         Token::TypeDefinition(value) => value.print(),
-        //         Token::IfStatement(_) => todo!(),
-
-        //     })
-        //     .collect::<String>()
+        self.tokens
+            .iter()
+            .map(|token| match token {
+                Statement::LocalAssignment(value) => value.print(),
+                Statement::TypeDefinition(_) => todo!(),
+                Statement::IfStatement(_) => todo!(),
+                Statement::DoBlock(_) => todo!(),
+                Statement::GenericFor(_) => todo!(),
+                Statement::NumericalFor(_) => todo!(),
+                Statement::RepeatBlock(_) => todo!(),
+                Statement::WhileLoop(_) => todo!(),
+                Statement::SetExpression(_) => todo!(),
+                Statement::CompoundSetExpression(_) => todo!(),
+                Statement::FunctionCall(_) => todo!(),
+                Statement::LocalFunction(_) => todo!(),
+                Statement::GlobalFunction(_) => todo!(),
+                Statement::Comment(_) => todo!(),
+            })
+            .collect::<String>()
     }
 }
 
