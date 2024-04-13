@@ -1,3 +1,5 @@
+//! Implement display traits for blocks.
+
 mod do_block;
 mod generic_for;
 mod if_statement;

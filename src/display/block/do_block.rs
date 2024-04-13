@@ -1,3 +1,5 @@
+//! Implements display traits for do blocks
+
 use crate::{impl_print_struct, print, types::DoBlock};
 
 impl_print_struct!(
