@@ -7,6 +7,7 @@ mod expression;
 mod list;
 mod local_assignment;
 mod name;
+mod set_expressions;
 mod token;
 mod type_definition;
 
