@@ -25,33 +25,16 @@ impl Ast {
     pub fn print(&self) -> String {
         let len = self.tokens.len();
         if len == 0 {
-            return String::new()
+            return String::new();
         }
 
         let mut str = String::new();
         let last_index = len - 1;
         for (i, token) in self.tokens.iter().enumerate() {
-            let printed_value = match token {
-                Statement::LocalAssignment(value) => value.print(),
-                Statement::TypeDefinition(_) => todo!(),
-                Statement::IfStatement(_) => todo!(),
-                Statement::DoBlock(_) => todo!(),
-                Statement::GenericFor(_) => todo!(),
-                Statement::NumericalFor(_) => todo!(),
-                Statement::RepeatBlock(_) => todo!(),
-                Statement::WhileLoop(_) => todo!(),
-                Statement::SetExpression(_) => todo!(),
-                Statement::CompoundSetExpression(_) => todo!(),
-                Statement::FunctionCall(_) => todo!(),
-                Statement::LocalFunction(_) => todo!(),
-                Statement::GlobalFunction(_) => todo!(),
-                Statement::Comment(_) => todo!(),
-            };
-
             if i == last_index {
-                str.push_str(&printed_value);
+                str.push_str(&token.print());
             } else {
-                str.push_str(printed_value.trim_end());
+                str.push_str(token.print().trim_end());
             }
         }
 
@@ -59,26 +42,35 @@ impl Ast {
     }
 }
 
-impl HasLocation for Statement {
-    fn get_location(&self) -> Location {
-        match self {
-            Statement::LocalAssignment(value) => value.get_location(),
-            Statement::TypeDefinition(value) => value.get_location(),
-            Statement::IfStatement(value) => value.get_location(),
-            Statement::DoBlock(value) => value.get_location(),
-            Statement::GenericFor(value) => value.get_location(),
-            Statement::NumericalFor(value) => value.get_location(),
-            Statement::RepeatBlock(value) => value.get_location(),
-            Statement::WhileLoop(value) => value.get_location(),
-            Statement::SetExpression(value) => value.get_location(),
-            Statement::CompoundSetExpression(value) => value.get_location(),
-            Statement::FunctionCall(value) => value.get_location(),
-            Statement::LocalFunction(value) => value.get_location(),
-            Statement::GlobalFunction(value) => value.get_location(),
-            Statement::Comment(value) => value.get_location(),
-        }
-    }
+/// Implements a specific trait for [`Statement`]s.
+macro_rules! impl_statement {
+	($trait: ident, $fn_name: ident, $return: ty) => {
+		impl $trait for Statement {
+			fn $fn_name(&self) -> $return {
+			    match self {
+                    Statement::LocalAssignment(value) => value.$fn_name(),
+                    Statement::TypeDefinition(value) => value.$fn_name(),
+                    Statement::IfStatement(value) => value.$fn_name(),
+                    Statement::DoBlock(value) => value.$fn_name(),
+                    Statement::GenericFor(value) => value.$fn_name(),
+                    Statement::NumericalFor(value) => value.$fn_name(),
+                    Statement::RepeatBlock(value) => value.$fn_name(),
+                    Statement::WhileLoop(value) => value.$fn_name(),
+                    Statement::SetExpression(value) => value.$fn_name(),
+                    Statement::CompoundSetExpression(value) => value.$fn_name(),
+                    Statement::FunctionCall(value) => value.$fn_name(),
+                    Statement::LocalFunction(value) => value.$fn_name(),
+                    Statement::GlobalFunction(value) => value.$fn_name(),
+                    Statement::Comment(value) => value.$fn_name(),
+                }
+            }
+		}
+	}
 }
+
+impl_statement!(HasLocation, get_location, Location);
+impl_statement!(Print, print, String);
+
 impl Statement {
     /// Get th body of this rule, if this rule doesn't start a new scope, `None` is returned.
     ///
