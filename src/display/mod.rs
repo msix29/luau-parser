@@ -4,6 +4,7 @@ use crate::prelude::Print;
 
 mod expression;
 mod list;
+mod local_assignment;
 mod name;
 mod token;
 mod type_definition;
