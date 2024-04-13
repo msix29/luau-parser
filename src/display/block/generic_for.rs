@@ -1,4 +1,4 @@
-//! For in struct.
+//! Implements display traits for [`generic for loops`](GenericFor).
 
 use crate::{impl_print_struct, prelude::GenericFor, print};
 
