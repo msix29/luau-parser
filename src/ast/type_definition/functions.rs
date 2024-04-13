@@ -124,7 +124,6 @@ pub(crate) fn build_function_parameters(
     code_bytes: &[u8],
     is_type: bool,
 ) -> List<NormalizedName> {
-    println!("{}", node.to_sexp());
     let mut parameters = List::from_iter(
         node.children_by_field_name("parameter", &mut node.walk()),
         node,
