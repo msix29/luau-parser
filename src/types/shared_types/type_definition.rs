@@ -156,6 +156,8 @@ pub enum TypeValue {
 
         /// The actual name of the type being accessed.
         type_info: SingleToken,
+
+        //TODO: Generics
     },
 
     /// An optional type.

@@ -4,8 +4,8 @@ use crate::{
     impl_print_enum, impl_print_struct,
     prelude::{
         Expression, ExpressionInner, ExpressionWrap, FunctionArguments, FunctionCall,
-        FunctionCallInvoked, HasRawValue, PrefixExp, Print, SingleToken, Table, TableAccess,
-        TableAccessKey, TableAccessPrefix, TableField, TableFieldValue, TableKey, Var,
+        FunctionCallInvoked, HasRawValue, PrefixExp, Table, TableAccess, TableAccessKey,
+        TableAccessPrefix, TableField, TableFieldValue, TableKey, Var,
     },
     print,
     utils::fix_table_indentation,
@@ -227,11 +227,15 @@ impl_print_enum!(
     FunctionCallInvoked,
     {},
     { Function, },
-    { { TableMethod, { table, colon, method, } } }
+    {
+        { TableMethod, { table, colon, method, } },
+    }
 );
 impl_print_enum!(
     FunctionArguments,
     {},
     { String, Table, },
-    { { List, { open_parenthesis,arguments,close_parenthesis, } } }
+    {
+        { List, { open_parenthesis,arguments,close_parenthesis, } },
+    }
 );

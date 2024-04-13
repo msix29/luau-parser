@@ -1,8 +1,10 @@
 //! Implements display traits for type definitions.
 
-use crate::prelude::{
-    GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo,
-    GenericParameterInfoDefault, HasRawValue, TypeDefinition, TypeValue,
+use crate::{
+    impl_print_enum, impl_print_struct, optional_print, prelude::{
+        GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo,
+        GenericParameterInfoDefault, HasRawValue, TypeDefinition, TypeValue,
+    }, print
 };
 
 /// Try turning generics to a string
@@ -32,6 +34,15 @@ impl HasRawValue for TypeDefinition {
         }
     }
 }
+impl_print_struct!(
+    TypeDefinition,
+    { self.export_keyword, optional_print! },
+    { self.type_keyword, optional_print! },
+    { self.generics, optional_print! },
+    { self.type_name, print! },
+    { self.equal_sign, optional_print! },
+    { self.type_value, print! }
+);
 
 impl HasRawValue for TypeValue {
     fn get_raw_value(&self) -> String {
@@ -71,6 +82,37 @@ impl HasRawValue for TypeValue {
         }
     }
 }
+impl_print_enum!(
+    TypeValue,
+    {},
+    {
+        Basic,
+        String,
+        Boolean,
+        Table,
+    },
+    {
+        { Wrap, { opening_parenthesis, r#type, closing_parenthesis, } },
+        { Function, {
+            opening_parenthesis,
+            parameters,
+            closing_parenthesis,
+            arrow,
+            return_type,
+            { generics },
+        }},
+        { Generic, { base, right_arrows, generics, left_arrows, } },
+        { GenericPack, { name, ellipsis, } },
+        { Intersection, { left, ampersand, right, } },
+        { Union, { left, pipe, right, } },
+        { Module, { module, dot, type_info, } },
+        { Optional, { base, question_mark, } },
+        { Typeof, { typeof_token, opening_parenthesis, inner, closing_parenthesis, } },
+        { Tuple, { opening_parenthesis, types, closing_parenthesis, } },
+        { Variadic, { ellipsis, type_info, } },
+        { VariadicPack, { ellipsis, name, } },
+    }
+);
 
 impl HasRawValue for GenericDeclaration {
     fn get_raw_value(&self) -> String {
@@ -87,6 +129,12 @@ impl HasRawValue for GenericDeclaration {
         )
     }
 }
+impl_print_struct!(
+    GenericDeclaration,
+    { self.right_arrow, print! },
+    { self.generics, print! },
+    { self.left_arrow, print! }
+);
 
 impl HasRawValue for GenericDeclarationParameter {
     fn get_raw_value(&self) -> String {
@@ -101,6 +149,11 @@ impl HasRawValue for GenericDeclarationParameter {
         }
     }
 }
+impl_print_struct!(
+    GenericDeclarationParameter,
+    { self.parameter, print! },
+    { self.default, optional_print! }
+);
 
 impl HasRawValue for GenericParameterInfoDefault {
     fn get_raw_value(&self) -> String {
@@ -110,6 +163,15 @@ impl HasRawValue for GenericParameterInfoDefault {
         }
     }
 }
+impl_print_enum!(
+    GenericParameterInfoDefault,
+    {},
+    {},
+    {
+        { Name, { equal_sign, name, } },
+        { Pack, { equal_sign, r#type, } },
+    }
+);
 
 impl HasRawValue for GenericParameterInfo {
     fn get_raw_value(&self) -> String {
@@ -119,3 +181,11 @@ impl HasRawValue for GenericParameterInfo {
         }
     }
 }
+impl_print_enum!(
+    GenericParameterInfo,
+    {},
+    { Name, },
+    {
+        { Pack, { name, ellipsis, } }
+    }
+);
