@@ -1,11 +1,9 @@
 //! Implements display traits for expressions.
 
 use crate::{
-    impl_print_enum, impl_print_struct,
+    impl_print_enum, impl_print_struct, optional_print,
     prelude::{
-        Expression, ExpressionInner, ExpressionWrap, FunctionArguments, FunctionCall,
-        FunctionCallInvoked, HasRawValue, PrefixExp, Table, TableAccess, TableAccessKey,
-        TableAccessPrefix, TableField, TableFieldValue, TableKey, Var,
+        ElseIfExpression, Expression, ExpressionInner, ExpressionWrap, FunctionArguments, FunctionCall, FunctionCallInvoked, HasRawValue, PrefixExp, Print, Table, TableAccess, TableAccessKey, TableAccessPrefix, TableField, TableFieldValue, TableKey, Var
     },
     print,
     utils::fix_table_indentation,
@@ -18,6 +16,19 @@ impl HasRawValue for Expression {
         self.inner.get_raw_value()
     }
 }
+impl Print for Expression {
+    fn print(&self) -> String {
+        todo!()
+    }
+}
+
+impl_print_struct!(
+    ElseIfExpression,
+    { self.else_if_token, print! },
+    { self.condition, print! },
+    { self.then_token, print! },
+    { self.expression, print! }
+);
 
 impl HasRawValue for ExpressionInner {
     fn get_raw_value(&self) -> String {
@@ -93,6 +104,70 @@ impl HasRawValue for ExpressionInner {
         }
     }
 }
+impl_print_enum!(
+    ExpressionInner,
+    {},
+    {
+        Nil,
+        Boolean,
+        Number,
+        String,
+        FunctionCall,
+        ExpressionWrap,
+        Var,
+        Table,
+    },
+    {
+        {
+            Function,
+            {
+                { function_keyword, print! },
+                { generics, optional_print! },
+                { opening_parenthesis, print!} ,
+                { parameters, print!} ,
+                { closing_parenthesis, print!} ,
+                { returns, print!} ,
+                { body, print!} ,
+                { end_keyword, print!} ,
+            }
+        },
+        {
+            UnaryExpression,
+            {
+                { operator, print! },
+                { expression, print! },
+            }
+        },
+        {
+            BinaryExpression,
+            {
+                { left, print! },
+                { operator, print! },
+                { right, print! },
+            }
+        },
+        {
+            Cast,
+            {
+                { expression, print! },
+                { operator, print! },
+                { cast_to, print! },
+            }
+        },
+        {
+            IfExpression,
+            {
+                { if_token, print! },
+                { condition, print! },
+                { then_token, print! },
+                { if_expression, print! },
+                { else_if_expressions, print! },
+                { else_token, print! },
+                { else_expression, print! },
+            }
+        },
+    }
+);
 
 impl HasRawValue for Table {
     fn get_raw_value(&self) -> String {
@@ -106,6 +181,12 @@ impl HasRawValue for Table {
         fix_table_indentation(&format!("{{\n{}\n}}", self.fields.get_raw_value()))
     }
 }
+impl_print_struct!(
+    Table,
+    { self.opening_brackets, print! },
+    { self.fields, print! },
+    { self.closing_brackets, print! }
+);
 
 impl HasRawValue for TableField {
     fn get_raw_value(&self) -> String {
@@ -123,6 +204,13 @@ impl HasRawValue for TableField {
         }
     }
 }
+impl_print_struct!(
+    TableField,
+    { self.key, print! },
+    { self.equal_or_colon, optional_print! },
+    { self.value, print! }
+);
+
 impl HasRawValue for TableKey {
     fn get_raw_value(&self) -> String {
         match self {
@@ -133,6 +221,30 @@ impl HasRawValue for TableKey {
         }
     }
 }
+impl_print_enum!(
+    TableKey,
+    {},
+    { UndefinedNumber, UndefinedString, String, },
+    {
+        {
+            Expression,
+            {
+                { open_square_brackets, print! },
+                { expression, print! },
+                { close_square_brackets, print! },
+            }
+        },
+        {
+            Type,
+            {
+                { open_square_brackets, print! },
+                { r#type, print! },
+                { close_square_brackets, print! },
+            }
+        },
+    }
+);
+
 impl HasRawValue for TableFieldValue {
     fn get_raw_value(&self) -> String {
         match self {
@@ -141,6 +253,12 @@ impl HasRawValue for TableFieldValue {
         }
     }
 }
+impl_print_enum!(
+    TableFieldValue,
+    {},
+    { Expression, Type, },
+    {}
+);
 
 impl HasRawValue for PrefixExp {
     fn get_raw_value(&self) -> String {
@@ -151,6 +269,13 @@ impl HasRawValue for PrefixExp {
         }
     }
 }
+impl_print_enum!(
+    PrefixExp,
+    {},
+    { Var, FunctionCall, ExpressionWrap, },
+    {}
+);
+
 impl HasRawValue for Var {
     fn get_raw_value(&self) -> String {
         match self {
@@ -159,12 +284,24 @@ impl HasRawValue for Var {
         }
     }
 }
+impl_print_enum!(
+    Var,
+    {},
+    { Name, TableAccess, },
+    {}
+);
 
 impl HasRawValue for ExpressionWrap {
     fn get_raw_value(&self) -> String {
         format!("({})", self.expression.get_raw_value())
     }
 }
+impl_print_struct!(
+    ExpressionWrap,
+    { self.opening_parenthesis, print! },
+    { self.expression, print! },
+    { self.closing_parenthesis, print! }
+);
 
 impl HasRawValue for TableAccess {
     fn get_raw_value(&self) -> String {
@@ -175,6 +312,12 @@ impl HasRawValue for TableAccess {
         )
     }
 }
+impl_print_struct!(
+    TableAccess,
+    { self.prefix, print! },
+    { self.accessed_keys, print! }
+);
+
 impl HasRawValue for TableAccessPrefix {
     fn get_raw_value(&self) -> String {
         match self {
@@ -184,6 +327,13 @@ impl HasRawValue for TableAccessPrefix {
         }
     }
 }
+impl_print_enum!(
+    TableAccessPrefix,
+    {},
+    { Name, FunctionCall, ExpressionWrap, },
+    {}
+);
+
 impl HasRawValue for TableAccessKey {
     fn get_raw_value(&self) -> String {
         match self {
@@ -192,6 +342,20 @@ impl HasRawValue for TableAccessKey {
         }
     }
 }
+impl_print_enum!(
+    TableAccessKey,
+    {},
+    { Expression, },
+    {
+        {
+            Name,
+            {
+                { dot, print! },
+                { name, print! },
+            }
+        },
+    }
+);
 
 impl HasRawValue for FunctionCall {
     fn get_raw_value(&self) -> String {
@@ -202,6 +366,8 @@ impl HasRawValue for FunctionCall {
         )
     }
 }
+impl_print_struct!(FunctionCall, { self.invoked, print! }, { self.arguments, print! });
+
 impl HasRawValue for FunctionCallInvoked {
     fn get_raw_value(&self) -> String {
         match self {
@@ -212,6 +378,22 @@ impl HasRawValue for FunctionCallInvoked {
         }
     }
 }
+impl_print_enum!(
+    FunctionCallInvoked,
+    {},
+    { Function, },
+    {
+        {
+            TableMethod,
+            {
+                { table, print! },
+                { colon, print! },
+                { method, print! },
+            }
+        },
+    }
+);
+
 impl HasRawValue for FunctionArguments {
     fn get_raw_value(&self) -> String {
         match self {
@@ -221,21 +403,18 @@ impl HasRawValue for FunctionArguments {
         }
     }
 }
-
-impl_print_struct!(FunctionCall, { self.invoked, print! }, { self.arguments, print! });
-impl_print_enum!(
-    FunctionCallInvoked,
-    {},
-    { Function, },
-    {
-        { TableMethod, { table, colon, method, } },
-    }
-);
 impl_print_enum!(
     FunctionArguments,
     {},
     { String, Table, },
     {
-        { List, { open_parenthesis,arguments,close_parenthesis, } },
+        {
+            List,
+            {
+                { open_parenthesis, print! },
+                { arguments, print! },
+                { close_parenthesis, print! },
+            }
+        },
     }
 );

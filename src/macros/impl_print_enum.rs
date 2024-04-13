@@ -11,8 +11,7 @@ macro_rules! impl_print_enum {
             $({
                 $struct_enum:ident,
                 {
-                    $($field: ident,)*
-                    $( { $optional_field: ident },)*
+                    $( { $field:ident, $macro:ident! }, )*
                 }
             },)*
         }
@@ -23,10 +22,9 @@ macro_rules! impl_print_enum {
                     $( $struct::$empty_enum => String::new(), )*
                     $( $struct::$unit_enum(item) => item.print(), )*
                     $(
-                        $struct::$struct_enum { $($field,)* $($optional_field,)* } => {
+                        $struct::$struct_enum { $($field,)* } => {
                             let mut str = String::new();
-                            $(str.push_str(&$field.print());)*
-                            $(str.push_str(&$crate::optional_print!($optional_field));)*
+                            $(str.push_str(&$macro!($field));)*
                             str
                         },
                     )*

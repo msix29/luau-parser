@@ -1,10 +1,12 @@
 //! Implements display traits for type definitions.
 
 use crate::{
-    impl_print_enum, impl_print_struct, optional_print, prelude::{
+    impl_print_enum, impl_print_struct, optional_print,
+    prelude::{
         GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo,
         GenericParameterInfoDefault, HasRawValue, TypeDefinition, TypeValue,
-    }, print
+    },
+    print,
 };
 
 /// Try turning generics to a string
@@ -92,25 +94,103 @@ impl_print_enum!(
         Table,
     },
     {
-        { Wrap, { opening_parenthesis, r#type, closing_parenthesis, } },
-        { Function, {
-            opening_parenthesis,
-            parameters,
-            closing_parenthesis,
-            arrow,
-            return_type,
-            { generics },
-        }},
-        { Generic, { base, right_arrows, generics, left_arrows, } },
-        { GenericPack, { name, ellipsis, } },
-        { Intersection, { left, ampersand, right, } },
-        { Union, { left, pipe, right, } },
-        { Module, { module, dot, type_info, } },
-        { Optional, { base, question_mark, } },
-        { Typeof, { typeof_token, opening_parenthesis, inner, closing_parenthesis, } },
-        { Tuple, { opening_parenthesis, types, closing_parenthesis, } },
-        { Variadic, { ellipsis, type_info, } },
-        { VariadicPack, { ellipsis, name, } },
+        {
+            Wrap,
+            {
+                { opening_parenthesis, print! },
+                { r#type, print! },
+                { closing_parenthesis, print! },
+            }
+        },
+        {
+            Function,
+            {
+                { generics, optional_print! },
+                { opening_parenthesis, print! },
+                { parameters, print! },
+                { closing_parenthesis, print! },
+                { arrow, print! },
+                { return_type, print! },
+            }
+        },
+        {
+            Generic,
+            {
+                { base, print! },
+                { right_arrows, print! },
+                { generics, print! },
+                { left_arrows, print! },
+            }
+        },
+        {
+            GenericPack,
+            {
+                { name, print! },
+                { ellipsis, print! },
+            }
+        },
+        {
+            Intersection,
+            {
+                { left, print! },
+                { ampersand, print! },
+                { right, print! },
+            }
+        },
+        {
+            Union,
+            {
+                { left, print! },
+                { pipe, print! },
+                { right, print! },
+            }
+        },
+        {
+            Module,
+            {
+                { module, print! },
+                { dot, print! },
+                { type_info, print! },
+            }
+        },
+        {
+            Optional,
+            {
+                { base, print! },
+                { question_mark, print! },
+            }
+        },
+        {
+            Typeof,
+            {
+                { typeof_token, print! },
+                { opening_parenthesis, print! },
+                { inner, print! },
+                { closing_parenthesis, print! },
+            }
+        },
+        {
+            Tuple,
+            {
+                { opening_parenthesis, print! },
+                { types, print! },
+                { closing_parenthesis, print! },
+            }
+        },
+        {
+            Variadic,
+            {
+                { ellipsis, print! },
+                { type_info, print! },
+            }
+        },
+        {
+            VariadicPack,
+            {
+                { ellipsis, print! },
+                { name, print! },
+            }
+        },
     }
 );
 
@@ -168,8 +248,18 @@ impl_print_enum!(
     {},
     {},
     {
-        { Name, { equal_sign, name, } },
-        { Pack, { equal_sign, r#type, } },
+        { Name,
+            {
+                { equal_sign, print! },
+                { name, print! },
+            }
+        },
+        { Pack,
+            {
+                { equal_sign, print! },
+                { r#type, print! },
+            }
+        },
     }
 );
 
@@ -186,6 +276,12 @@ impl_print_enum!(
     {},
     { Name, },
     {
-        { Pack, { name, ellipsis, } }
+        {
+            Pack,
+            {
+                { name, print! },
+                { ellipsis, print! },
+            }
+        },
     }
 );
