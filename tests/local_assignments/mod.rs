@@ -5,7 +5,7 @@ use luau_parser::{
     prelude::LuauParser,
     types::{
         Expression, FunctionArguments, FunctionCall, FunctionCallInvoked, HasRawValue, List,
-        Location, PrefixExp, SingleToken, Statement, Var,
+        Location, PrefixExp, Print, SingleToken, Statement, Var,
     },
 };
 
@@ -14,9 +14,11 @@ use luau_parser::{
 fn local_assignment_1() {
     let mut parser = LuauParser::new();
 
-    let ast = parser.parse(r#"local foo = "Hello, World!""#, "1");
+    let code = r#"local    foo = "Hello, World!""#;
+    let ast = parser.parse(code, "1");
     assert_eq!(ast.tokens.len(), 1);
     assert!(matches!(ast.tokens[0], Statement::LocalAssignment(_)));
+
     let assignment = get_item_from_tuple_enum!(&ast.tokens[0], Statement::LocalAssignment);
     assert_eq!(assignment.name_list.items.len(), 1);
     assert_eq!(assignment.name_list.items[0].name.word, "foo");
@@ -25,6 +27,7 @@ fn local_assignment_1() {
         assignment.expressions.items[0].get_raw_value(),
         r#""Hello, World!""#
     );
+    assert_eq!(assignment.print(), code);
 }
 
 #[test]
@@ -32,9 +35,11 @@ fn local_assignment_1() {
 fn local_assignment_2() {
     let mut parser = LuauParser::new();
 
-    let ast = parser.parse(r#"local a, b, c = 1, foo()"#, "");
+    let code = r#"local a,    b,    c = 1, foo(   )"#;
+    let ast = parser.parse(code, "");
     assert_eq!(ast.tokens.len(), 1);
     assert!(matches!(ast.tokens[0], Statement::LocalAssignment(_)));
+
     let assignment = get_item_from_tuple_enum!(&ast.tokens[0], Statement::LocalAssignment);
     assert_eq!(assignment.name_list.items.len(), 3);
     assert_eq!(assignment.name_list.get_raw_value(), "a,b,c");
@@ -46,13 +51,18 @@ fn local_assignment_2() {
             invoked: FunctionCallInvoked::Function(Arc::new(PrefixExp::Var(Var::Name(
                 SingleToken::new("foo")
                     .with_spaces(" ", "")
-                    .set_location(Location::new2(0, 19, 0, 22)),
+                    .set_location(Location::new2(0, 25, 0, 28)),
             )))),
             arguments: FunctionArguments::List {
-                open_parenthesis: SingleToken::new("(").set_location(Location::new2(0, 22, 0, 23)),
+                open_parenthesis: SingleToken::new("(")
+                    .with_spaces("", "   ")
+                    .set_location(Location::new2(0, 28, 0, 29)),
                 arguments: List::default(),
-                close_parenthesis: SingleToken::new(")").set_location(Location::new2(0, 23, 0, 24)),
+                close_parenthesis: SingleToken::new(")")
+                    .with_spaces("   ", "")
+                    .set_location(Location::new2(0, 32, 0, 33)),
             },
         })
     );
+    assert_eq!(assignment.print(), code);
 }
