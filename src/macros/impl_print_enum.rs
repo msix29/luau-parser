@@ -23,9 +23,7 @@ macro_rules! impl_print_enum {
                     $( $struct::$unit_enum(item) => item.print(), )*
                     $(
                         $struct::$struct_enum { $($field,)* } => {
-                            let mut str = String::new();
-                            $(str.push_str(&$macro!($field));)*
-                            str
+                            $crate::__internal_print!($( $macro!($field), )*)
                         },
                     )*
                 }
