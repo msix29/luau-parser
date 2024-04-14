@@ -164,6 +164,9 @@ impl From<(Node<'_>, &[u8])> for Expression {
                         code_bytes,
                     )),
                     returns: build_function_returns(node, code_bytes).map(Arc::new),
+                    colon: node
+                        .child_by_field_name("colon")
+                        .map(|colon| SingleToken::from((colon, code_bytes))),
                     body: Ast {
                         tokens: Arc::new(ast_tokens),
                         uri: None,

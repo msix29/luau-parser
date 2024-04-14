@@ -10,10 +10,16 @@ use crate::{
 };
 
 /// Try turning generics to a string
-pub fn try_generics_to_string(generics: &Option<GenericDeclaration>) -> String {
+pub fn try_generics_to_string(generics: &Option<GenericDeclaration>, add_space_before: bool) -> String {
     generics
         .as_ref()
-        .map_or_else(|| "".to_string(), |generics| generics.get_raw_value())
+        .map_or_else(|| "".to_string(), |generics| {
+            if add_space_before {
+                String::from(" ") + &generics.get_raw_value()
+            } else {
+                generics.get_raw_value()
+            }
+        })
 }
 
 impl HasRawValue for TypeDefinition {
@@ -25,10 +31,11 @@ impl HasRawValue for TypeDefinition {
                 .map_or_else(|| "".to_string(), |export| export.get_raw_value());
 
             format!(
-                "{} {}{} = {}",
+                "{} {} {}{} = {}",
                 export,
                 type_keyword.get_raw_value(),
-                try_generics_to_string(&self.generics),
+                self.type_name.get_raw_value(),
+                try_generics_to_string(&self.generics, false),
                 self.type_value.get_raw_value()
             )
         } else {
@@ -60,7 +67,7 @@ impl HasRawValue for TypeValue {
                 ..
             } => format!(
                 "{}({}) -> {}",
-                try_generics_to_string(generics),
+                try_generics_to_string(generics, false),
                 parameters.get_raw_value(),
                 return_type.get_raw_value()
             ),

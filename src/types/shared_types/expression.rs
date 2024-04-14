@@ -240,6 +240,9 @@ pub enum Expression {
         /// The `)` character.
         closing_parenthesis: SingleToken,
 
+        /// The `:` character between closing parenthesis and returns.
+        colon: Option<SingleToken>,
+
         /// The return type of the function
         returns: Option<Arc<TypeValue>>,
 
