@@ -172,7 +172,7 @@ impl HasRawValue for Table {
             return format!("{{ {} }}", self.fields.items[0].get_raw_value());
         }
 
-        fix_table_indentation(&format!("{{\n{}\n}}", self.fields.get_raw_value()))
+        fix_table_indentation(&format!("{{\n{}\n}}", self.fields.raw_value_with_separator("\n")))
     }
 }
 impl_print_struct!(

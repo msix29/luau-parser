@@ -1,3 +1,5 @@
+mod table;
+
 use std::sync::Arc;
 
 use luau_parser::{
