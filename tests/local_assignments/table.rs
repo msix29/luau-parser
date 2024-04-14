@@ -1,5 +1,7 @@
 use luau_parser::{
-    get_item_from_tuple_enum, prelude::LuauParser, types::HasRawValue, types::Statement,
+    get_item_from_tuple_enum,
+    prelude::LuauParser,
+    types::{HasRawValue, Print, Statement},
 };
 
 #[test]
@@ -27,4 +29,5 @@ local t = {
     qux = "Hello, World!"
 }"#
     );
+    assert_eq!(assignment.expressions.items[0].print(), code[10..]);
 }
