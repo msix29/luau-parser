@@ -42,7 +42,7 @@ impl LuauStatement for LocalFunction {
             body: node
                 .child_by_field_name("body")
                 .map(|body| Ast {
-                    tokens: Arc::new(parse_block(body, &mut Vec::new(), code_bytes)),
+                    statements: Arc::new(parse_block(body, &mut Vec::new(), code_bytes)),
                     uri: None,
                 })
                 .unwrap_or_default(),
@@ -104,7 +104,7 @@ impl LuauStatement for GlobalFunction {
             body: node
                 .child_by_field_name("body")
                 .map(|body| Ast {
-                    tokens: Arc::new(parse_block(body, &mut Vec::new(), code_bytes)),
+                    statements: Arc::new(parse_block(body, &mut Vec::new(), code_bytes)),
                     uri: None,
                 })
                 .unwrap_or_default(),

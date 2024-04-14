@@ -23,7 +23,7 @@ impl LuauStatement for DoBlock {
                 .child_by_field_name("body")
                 .map(|body| Ast {
                     uri: None,
-                    tokens: Arc::new(parse_block(body, &mut Vec::new(), code_bytes)),
+                    statements: Arc::new(parse_block(body, &mut Vec::new(), code_bytes)),
                 })
                 .unwrap_or_default(),
             end_keyword: SingleToken::from((node.child_by_field_name("end").unwrap(), code_bytes)),

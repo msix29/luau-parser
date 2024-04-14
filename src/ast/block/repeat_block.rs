@@ -26,7 +26,7 @@ impl LuauStatement for RepeatBlock {
                 .child_by_field_name("body")
                 .map(|body| Ast {
                     uri: None,
-                    tokens: Arc::new(parse_block(body, &mut Vec::new(), code_bytes)),
+                    statements: Arc::new(parse_block(body, &mut Vec::new(), code_bytes)),
                 })
                 .unwrap_or_default(),
             until_keyword: SingleToken::from((

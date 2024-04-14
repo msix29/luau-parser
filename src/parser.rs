@@ -125,7 +125,7 @@ impl LuauParser {
         parse_block(root, &mut tokens, code_bytes);
 
         let ast = Ast {
-            tokens: Arc::new(tokens),
+            statements: Arc::new(tokens),
             uri: Some(uri.to_string()),
         };
 

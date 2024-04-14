@@ -168,7 +168,7 @@ impl From<(Node<'_>, &[u8])> for Expression {
                         .child_by_field_name("colon")
                         .map(|colon| SingleToken::from((colon, code_bytes))),
                     body: Ast {
-                        tokens: Arc::new(ast_tokens),
+                        statements: Arc::new(ast_tokens),
                         uri: None,
                     },
                     end_keyword: SingleToken::from((

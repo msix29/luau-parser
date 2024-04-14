@@ -23,14 +23,14 @@ impl Ast {
     /// Returns the code that was behind this AST as-is, without any modifications and
     /// without losing on any details.
     pub fn print(&self) -> String {
-        let len = self.tokens.len();
+        let len = self.statements.len();
         if len == 0 {
             return String::new();
         }
 
         let mut str = String::new();
         let last_index = len - 1;
-        for (i, token) in self.tokens.iter().enumerate() {
+        for (i, token) in self.statements.iter().enumerate() {
             if i == last_index {
                 str.push_str(&token.print());
             } else {
