@@ -42,7 +42,7 @@ fn local_assignment_2() {
 
     let assignment = get_item_from_tuple_enum!(&ast.tokens[0], Statement::LocalAssignment);
     assert_eq!(assignment.name_list.items.len(), 3);
-    assert_eq!(assignment.name_list.get_raw_value(), "a,b,c");
+    assert_eq!(assignment.name_list.get_raw_value(), "a, b, c");
     assert_eq!(assignment.expressions.items.len(), 2);
     assert_eq!(assignment.expressions.items[0].get_raw_value(), "1");
     assert_eq!(
