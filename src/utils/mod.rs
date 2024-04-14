@@ -112,7 +112,7 @@ pub(crate) fn fix_table_indentation(raw_value: &str) -> String {
                 indent -= 1;
             }
 
-            let indented_line = format!("{}{}", "\t".repeat(indent), line.trim());
+            let indented_line = format!("{}{}", "    ".repeat(indent), line.trim());
 
             if !ignore && contains_opening {
                 indent += 1;
