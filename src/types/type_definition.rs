@@ -1,7 +1,6 @@
 //! # Type Definition
 //!
 //! Module containg definition for type definitions.
-//!
 
 use std::sync::Arc;
 

@@ -2,46 +2,14 @@
 //!
 //! Module holding types that'll be used everywhere around the parser and most likely
 //! outside it too, like in a formatter or a lsp.
-//!
-//! ## Note
-//!
-//! This file only contains the definitions for items, for actual implementations,
-//! check the files under `src/ast`. Each type will have it's implementation in
-//! the same place, ex. types in `shared_types/value/function.rs` will have
-//! their implementations in `ast/value/function.rs`, same thing for display
-//! implementations but they'll be in `src/display` instead.
-//!
-
-mod block;
-mod comment;
-mod expression;
-mod function;
-mod list;
-mod local_assignment;
-mod name;
-mod position;
-mod range;
-mod set_expressions;
-mod token;
-mod type_definition;
-mod value;
-
-pub use block::*;
-pub use comment::*;
-pub use expression::*;
-pub use function::*;
-pub use list::*;
-pub use local_assignment::*;
-pub use name::*;
-pub use position::*;
-pub use range::*;
-pub use set_expressions::*;
-pub use token::*;
-pub use type_definition::*;
-pub use value::*;
-
 use std::sync::Arc;
 use tree_sitter::{Node, TreeCursor};
+
+use super::{
+    Comment, CompoundSetExpression, DoBlock, FunctionCall, GenericFor, GlobalFunction, IfStatement,
+    LocalAssignment, LocalFunction, NumericalFor, Range, RepeatBlock, SetExpression,
+    TypeDefinition, WhileLoop,
+};
 
 /// A trait for a token that can be represented in a more abstract form for the user to see,
 /// without maintaing original styling. This is mainly for LSPs so it's LSP-ready and can
