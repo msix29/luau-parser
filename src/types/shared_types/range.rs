@@ -1,10 +1,10 @@
-//! Location-related items.
+//! Range-related items.
 
 use crate::prelude::Position;
 
 #[derive(Clone, Copy, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
-/// A struct representing the location of any item.
-pub struct Location {
+/// A struct representing the range of any item.
+pub struct Range {
     /// Start [`position`](Position) of the node.
     pub start: Position,
 

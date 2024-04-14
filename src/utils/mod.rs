@@ -3,9 +3,9 @@
 use std::str::from_utf8;
 use tree_sitter::Node;
 
-use crate::prelude::{Location, Position};
+use crate::prelude::{Range, Position};
 
-/// Gets the text from a specific location in a `&[u8]`, which represents bytes of valid
+/// Gets the text from a specific byte range in a `&[u8]`, which represents bytes of valid
 /// text. This function does check for the passed bytes to ensure they're in the correct
 /// range.
 pub(crate) fn get_text_from_bytes(bytes: &[u8], start: usize, end: usize) -> String {
@@ -61,12 +61,12 @@ pub(crate) fn get_spaces(node: Node, code_bytes: &[u8]) -> (String, String) {
     (before.to_string(), after.to_string())
 }
 
-/// Get the location of a specific tree-sitter node.
-pub fn get_location(node: Node) -> Location {
+/// Get the range of a specific tree-sitter node.
+pub fn get_range(node: Node) -> Range {
     let start = node.start_position();
     let end = node.end_position();
 
-    Location {
+    Range {
         start: Position {
             line: start.row as u32,
             character: start.column as u32,
@@ -78,12 +78,12 @@ pub fn get_location(node: Node) -> Location {
     }
 }
 
-/// Get the location of a specific tree-sitter node.
-pub(crate) fn get_location_from_boundaries(a: Location, b: Location) -> Location {
+/// Get the range of a specific tree-sitter node.
+pub(crate) fn get_range_from_boundaries(a: Range, b: Range) -> Range {
     let start = a.start;
     let end = b.end;
 
-    Location {
+    Range {
         start: Position {
             line: start.line,
             character: start.character,

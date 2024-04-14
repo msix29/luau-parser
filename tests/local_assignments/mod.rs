@@ -7,7 +7,7 @@ use luau_parser::{
     prelude::LuauParser,
     types::{
         Expression, FunctionArguments, FunctionCall, FunctionCallInvoked, HasRawValue, List,
-        Location, PrefixExp, Print, SingleToken, Statement, Var,
+        Range, PrefixExp, Print, SingleToken, Statement, Var,
     },
 };
 
@@ -53,16 +53,16 @@ fn local_assignment_2() {
             invoked: FunctionCallInvoked::Function(Arc::new(PrefixExp::Var(Var::Name(
                 SingleToken::new("foo")
                     .with_spaces(" ", "")
-                    .set_location(Location::new2(0, 25, 0, 28)),
+                    .set_range(Range::new2(0, 25, 0, 28)),
             )))),
             arguments: FunctionArguments::List {
                 open_parenthesis: SingleToken::new("(")
                     .with_spaces("", "   ")
-                    .set_location(Location::new2(0, 28, 0, 29)),
+                    .set_range(Range::new2(0, 28, 0, 29)),
                 arguments: List::default(),
                 close_parenthesis: SingleToken::new(")")
                     .with_spaces("   ", "")
-                    .set_location(Location::new2(0, 32, 0, 33)),
+                    .set_range(Range::new2(0, 32, 0, 33)),
             },
         })
     );

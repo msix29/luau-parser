@@ -4,10 +4,10 @@ use std::sync::Arc;
 
 use crate::{
     prelude::{
-        parse_block, Ast, Expression, HasLocation, Location, LuauStatement, RepeatBlock,
+        parse_block, Ast, Expression, HasRange, Range, LuauStatement, RepeatBlock,
         SingleToken,
     },
-    utils::get_location_from_boundaries,
+    utils::get_range_from_boundaries,
 };
 
 impl LuauStatement for RepeatBlock {
@@ -41,11 +41,11 @@ impl LuauStatement for RepeatBlock {
     }
 }
 
-impl HasLocation for RepeatBlock {
-    fn get_location(&self) -> Location {
-        get_location_from_boundaries(
-            self.repeat_keyword.get_location(),
-            self.condition.get_location(),
+impl HasRange for RepeatBlock {
+    fn get_range(&self) -> Range {
+        get_range_from_boundaries(
+            self.repeat_keyword.get_range(),
+            self.condition.get_range(),
         )
     }
 }

@@ -6,8 +6,8 @@ use tree_sitter::Node;
 
 use crate::{
     call_any,
-    prelude::{HasLocation, Location, NormalizedName, SingleToken, TypeDefinition},
-    utils::get_location_from_boundaries,
+    prelude::{HasRange, Range, NormalizedName, SingleToken, TypeDefinition},
+    utils::get_range_from_boundaries,
 };
 
 impl From<(Node<'_>, &[u8])> for NormalizedName {
@@ -30,11 +30,11 @@ impl From<(Node<'_>, &[u8])> for NormalizedName {
     }
 }
 
-impl HasLocation for NormalizedName {
-    fn get_location(&self) -> Location {
-        get_location_from_boundaries(
-            self.name.get_location(),
-            call_any!(get_location, self.name, self.r#type),
+impl HasRange for NormalizedName {
+    fn get_range(&self) -> Range {
+        get_range_from_boundaries(
+            self.name.get_range(),
+            call_any!(get_range, self.name, self.r#type),
         )
     }
 }

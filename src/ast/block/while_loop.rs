@@ -1,8 +1,8 @@
 //! Implements helper traits for while loops.
 
 use crate::{
-    prelude::{DoBlock, Expression, HasLocation, Location, LuauStatement, SingleToken, WhileLoop},
-    utils::get_location_from_boundaries,
+    prelude::{DoBlock, Expression, HasRange, Range, LuauStatement, SingleToken, WhileLoop},
+    utils::get_range_from_boundaries,
 };
 
 impl LuauStatement for WhileLoop {
@@ -28,11 +28,11 @@ impl LuauStatement for WhileLoop {
     }
 }
 
-impl HasLocation for WhileLoop {
-    fn get_location(&self) -> Location {
-        get_location_from_boundaries(
-            self.while_keyword.get_location(),
-            self.do_block.get_location(),
+impl HasRange for WhileLoop {
+    fn get_range(&self) -> Range {
+        get_range_from_boundaries(
+            self.while_keyword.get_range(),
+            self.do_block.get_range(),
         )
     }
 }

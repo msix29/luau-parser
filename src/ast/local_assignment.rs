@@ -4,10 +4,10 @@ use tree_sitter::{Node, TreeCursor};
 
 use crate::{
     prelude::{
-        Expression, HasLocation, List, LocalAssignment, Location, LuauStatement, NormalizedName,
+        Expression, HasRange, List, LocalAssignment, Range, LuauStatement, NormalizedName,
         SingleToken,
     },
-    utils::get_location_from_boundaries,
+    utils::get_range_from_boundaries,
 };
 
 impl LuauStatement for LocalAssignment {
@@ -41,13 +41,13 @@ impl LuauStatement for LocalAssignment {
     }
 }
 
-impl HasLocation for LocalAssignment {
-    fn get_location(&self) -> Location {
-        get_location_from_boundaries(
-            self.local_token.get_location(),
+impl HasRange for LocalAssignment {
+    fn get_range(&self) -> Range {
+        get_range_from_boundaries(
+            self.local_token.get_range(),
             self.expressions.items.last().map_or_else(
-                || self.name_list.items.last().unwrap().get_location(),
-                |item| item.get_location(),
+                || self.name_list.items.last().unwrap().get_range(),
+                |item| item.get_range(),
             ),
         )
     }

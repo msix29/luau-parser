@@ -14,10 +14,10 @@ use tree_sitter::Node;
 use crate::{
     prelude::{
         GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo,
-        GenericParameterInfoDefault, HasLocation, List, Location, LuauStatement, SingleToken,
+        GenericParameterInfoDefault, HasRange, List, Range, LuauStatement, SingleToken,
         TypeDefinition, TypeValue,
     },
-    utils::get_location_from_boundaries,
+    utils::get_range_from_boundaries,
 };
 
 impl LuauStatement for TypeDefinition {
@@ -165,15 +165,15 @@ impl From<TypeValue> for TypeDefinition {
         }
     }
 }
-impl HasLocation for TypeDefinition {
-    fn get_location(&self) -> Location {
-        get_location_from_boundaries(
+impl HasRange for TypeDefinition {
+    fn get_range(&self) -> Range {
+        get_range_from_boundaries(
             // `call_any!` macro just doesn't wanna work for whatever reason.
             self.export_keyword
                 .as_ref()
                 .or(self.type_keyword.as_ref())
-                .map_or_else(|| self.type_value.get_location(), |a| a.get_location()),
-            self.type_value.get_location(),
+                .map_or_else(|| self.type_value.get_range(), |a| a.get_range()),
+            self.type_value.get_range(),
         )
     }
 }

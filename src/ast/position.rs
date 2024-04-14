@@ -1,6 +1,6 @@
 //! Implements helper traits for positions.
 
-use crate::prelude::{Location, Position};
+use crate::prelude::{Range, Position};
 
 impl Position {
     /// Create a new [`position`](Position).
@@ -26,9 +26,9 @@ impl Position {
         self.character = character;
     }
 
-    /// Checks whether or not this position is inside the passed location.
-    pub fn is_in_bounds(&self, location: &Location) -> bool {
-        self.is_after(&location.start) & self.is_before(&location.end)
+    /// Checks whether or not this position is inside the passed range.
+    pub fn is_in_bounds(&self, range: &Range) -> bool {
+        self.is_after(&range.start) & self.is_before(&range.end)
     }
 
     /// Checks whether or not this position is after the passed position

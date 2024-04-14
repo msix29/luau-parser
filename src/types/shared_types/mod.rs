@@ -7,7 +7,7 @@
 //!
 //! This file only contains the definitions for items, for actual implementations,
 //! check the files under `src/ast`. Each type will have it's implementation in
-//! the same location, ex. types in `shared_types/value/function.rs` will have
+//! the same place, ex. types in `shared_types/value/function.rs` will have
 //! their implementations in `ast/value/function.rs`, same thing for display
 //! implementations but they'll be in `src/display` instead.
 //!
@@ -18,7 +18,7 @@ mod expression;
 mod function;
 mod list;
 mod local_assignment;
-mod location;
+mod range;
 mod name;
 mod position;
 mod set_expressions;
@@ -32,7 +32,7 @@ pub use expression::*;
 pub use function::*;
 pub use list::*;
 pub use local_assignment::*;
-pub use location::*;
+pub use range::*;
 pub use name::*;
 pub use position::*;
 pub use set_expressions::*;
@@ -67,10 +67,10 @@ pub trait LuauStatement: Sized {
     ) -> Option<Self>;
 }
 
-/// A trait for letting the compiler know that this specifc item has a location.
-pub trait HasLocation {
-    /// Get the location of the node.
-    fn get_location(&self) -> Location;
+/// A trait for letting the compiler know that this specifc item has a range.
+pub trait HasRange {
+    /// Get the range of the node.
+    fn get_range(&self) -> Range;
 }
 
 /// All possible tokens in an [`ast`](Ast).

@@ -4,10 +4,10 @@ use std::sync::Arc;
 
 use crate::{
     prelude::{
-        parse_block, Ast, ElseIfStatement, ElseStatement, Expression, HasLocation, IfStatement,
-        Location, LuauStatement, SingleToken,
+        parse_block, Ast, ElseIfStatement, ElseStatement, Expression, HasRange, IfStatement,
+        Range, LuauStatement, SingleToken,
     },
-    utils::get_location_from_boundaries,
+    utils::get_range_from_boundaries,
 };
 
 impl LuauStatement for IfStatement {
@@ -57,37 +57,37 @@ impl LuauStatement for IfStatement {
     }
 }
 
-impl HasLocation for IfStatement {
-    fn get_location(&self) -> Location {
+impl HasRange for IfStatement {
+    fn get_range(&self) -> Range {
         let end = if let Some(else_if_statement) = self.else_if_expressions.first() {
-            else_if_statement.elseif_keyword.get_location()
+            else_if_statement.elseif_keyword.get_range()
         } else if let Some(else_statement) = &self.else_expression {
-            else_statement.else_keyword.get_location()
+            else_statement.else_keyword.get_range()
         } else {
-            self.end_keyword.get_location()
+            self.end_keyword.get_range()
         };
 
-        get_location_from_boundaries(self.if_keyword.get_location(), end)
+        get_range_from_boundaries(self.if_keyword.get_range(), end)
     }
 }
 impl ElseIfStatement {
-    /// Get the location of this else if statement.
-    pub fn get_location(&self, if_statement: &IfStatement) -> Location {
-        get_location_from_boundaries(
-            self.elseif_keyword.get_location(),
+    /// Get the range of this else if statement.
+    pub fn get_range(&self, if_statement: &IfStatement) -> Range {
+        get_range_from_boundaries(
+            self.elseif_keyword.get_range(),
             if_statement.else_expression.as_ref().map_or_else(
-                || if_statement.end_keyword.get_location(),
-                |else_statement| else_statement.else_keyword.get_location(),
+                || if_statement.end_keyword.get_range(),
+                |else_statement| else_statement.else_keyword.get_range(),
             ),
         )
     }
 }
 impl ElseStatement {
-    /// Get the location of this else statement.
-    pub fn get_location(&self, if_statement: &IfStatement) -> Location {
-        get_location_from_boundaries(
-            self.else_keyword.get_location(),
-            if_statement.end_keyword.get_location(),
+    /// Get the range of this else statement.
+    pub fn get_range(&self, if_statement: &IfStatement) -> Range {
+        get_range_from_boundaries(
+            self.else_keyword.get_range(),
+            if_statement.end_keyword.get_range(),
         )
     }
 }

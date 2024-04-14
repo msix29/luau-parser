@@ -1,6 +1,6 @@
 //! Just a single token that can't be broke down to smaller tokens.
 
-use super::Location;
+use super::Range;
 
 /// A struct represnting a single token, aka a single word.
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -14,6 +14,6 @@ pub struct SingleToken {
     /// All the spaces after the word.
     pub spaces_after: String,
 
-    /// Exact location of the word, excluding spaces.
-    pub location: Location,
+    /// Exact range of the word, excluding spaces.
+    pub range: Range,
 }

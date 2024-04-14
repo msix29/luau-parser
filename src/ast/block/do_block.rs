@@ -3,8 +3,8 @@
 use std::sync::Arc;
 
 use crate::{
-    prelude::{parse_block, Ast, DoBlock, HasLocation, Location, LuauStatement, SingleToken},
-    utils::get_location_from_boundaries,
+    prelude::{parse_block, Ast, DoBlock, HasRange, Range, LuauStatement, SingleToken},
+    utils::get_range_from_boundaries,
 };
 
 impl LuauStatement for DoBlock {
@@ -31,11 +31,11 @@ impl LuauStatement for DoBlock {
     }
 }
 
-impl HasLocation for DoBlock {
-    fn get_location(&self) -> Location {
-        get_location_from_boundaries(
-            self.do_keyword.get_location(),
-            self.end_keyword.get_location(),
+impl HasRange for DoBlock {
+    fn get_range(&self) -> Range {
+        get_range_from_boundaries(
+            self.do_keyword.get_range(),
+            self.end_keyword.get_range(),
         )
     }
 }

@@ -9,10 +9,10 @@ use tree_sitter::Node;
 use crate::{
     prelude::{
         parse_block, type_definition::functions::build_generics, Ast, ElseIfExpression, Expression,
-        HasLocation, List, ListItem, Location, PrefixExp, SingleToken, Table, TableField,
+        HasRange, List, ListItem, Range, PrefixExp, SingleToken, Table, TableField,
         TableFieldValue, TableKey, TypeDefinition,
     },
-    utils::get_location_from_boundaries,
+    utils::get_range_from_boundaries,
 };
 
 use crate::prelude::type_definition::functions::{
@@ -251,56 +251,56 @@ impl From<(Node<'_>, &[u8])> for Expression {
     }
 }
 
-impl HasLocation for Expression {
-    fn get_location(&self) -> Location {
+impl HasRange for Expression {
+    fn get_range(&self) -> Range {
         match self {
-            Expression::Nil(value) => value.get_location(),
-            Expression::Boolean(value) => value.get_location(),
-            Expression::Number(value) => value.get_location(),
-            Expression::String(value) => value.get_location(),
+            Expression::Nil(value) => value.get_range(),
+            Expression::Boolean(value) => value.get_range(),
+            Expression::Number(value) => value.get_range(),
+            Expression::String(value) => value.get_range(),
             Expression::Function {
                 function_keyword,
                 end_keyword,
                 ..
-            } => get_location_from_boundaries(
-                function_keyword.get_location(),
-                end_keyword.get_location(),
+            } => get_range_from_boundaries(
+                function_keyword.get_range(),
+                end_keyword.get_range(),
             ),
-            Expression::FunctionCall(value) => value.get_location(),
-            Expression::ExpressionWrap(value) => value.get_location(),
-            Expression::Var(value) => value.get_location(),
-            Expression::Table(value) => value.get_location(),
+            Expression::FunctionCall(value) => value.get_range(),
+            Expression::ExpressionWrap(value) => value.get_range(),
+            Expression::Var(value) => value.get_range(),
+            Expression::Table(value) => value.get_range(),
             Expression::UnaryExpression {
                 operator,
                 expression,
-            } => get_location_from_boundaries(operator.get_location(), expression.get_location()),
+            } => get_range_from_boundaries(operator.get_range(), expression.get_range()),
             Expression::BinaryExpression {
                 left,
                 operator: _,
                 right,
-            } => get_location_from_boundaries(left.get_location(), right.get_location()),
+            } => get_range_from_boundaries(left.get_range(), right.get_range()),
             Expression::Cast {
                 expression,
                 operator: _,
                 cast_to,
-            } => get_location_from_boundaries(expression.get_location(), cast_to.get_location()),
+            } => get_range_from_boundaries(expression.get_range(), cast_to.get_range()),
             Expression::IfExpression {
                 if_token,
                 else_expression,
                 ..
-            } => get_location_from_boundaries(
-                if_token.get_location(),
-                else_expression.get_location(),
+            } => get_range_from_boundaries(
+                if_token.get_range(),
+                else_expression.get_range(),
             ),
         }
     }
 }
 
-impl HasLocation for ElseIfExpression {
-    fn get_location(&self) -> Location {
-        get_location_from_boundaries(
-            self.else_if_token.get_location(),
-            self.expression.get_location(),
+impl HasRange for ElseIfExpression {
+    fn get_range(&self) -> Range {
+        get_range_from_boundaries(
+            self.else_if_token.get_range(),
+            self.expression.get_range(),
         )
     }
 }

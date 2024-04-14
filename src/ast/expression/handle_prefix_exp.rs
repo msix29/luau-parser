@@ -7,10 +7,10 @@ use tree_sitter::Node;
 use crate::{
     prelude::{
         Expression, ExpressionWrap, FunctionArguments, FunctionCall, FunctionCallInvoked,
-        HasLocation, Location, LuauStatement, PrefixExp, SingleToken, TableAccess, TableAccessKey,
+        HasRange, Range, LuauStatement, PrefixExp, SingleToken, TableAccess, TableAccessKey,
         TableAccessPrefix, TableKey, Var,
     },
-    utils::get_location_from_boundaries,
+    utils::get_range_from_boundaries,
 };
 
 use super::build_table;
@@ -138,92 +138,92 @@ impl LuauStatement for FunctionCall {
     }
 }
 
-impl HasLocation for TableAccess {
-    fn get_location(&self) -> Location {
-        get_location_from_boundaries(
-            self.prefix.get_location(),
+impl HasRange for TableAccess {
+    fn get_range(&self) -> Range {
+        get_range_from_boundaries(
+            self.prefix.get_range(),
             // There's at least one key.
-            self.accessed_keys.last().unwrap().get_location(),
+            self.accessed_keys.last().unwrap().get_range(),
         )
     }
 }
-impl HasLocation for TableAccessPrefix {
-    fn get_location(&self) -> Location {
+impl HasRange for TableAccessPrefix {
+    fn get_range(&self) -> Range {
         match self {
-            TableAccessPrefix::Name(value) => value.get_location(),
-            TableAccessPrefix::FunctionCall(value) => value.get_location(),
-            TableAccessPrefix::ExpressionWrap(value) => value.get_location(),
+            TableAccessPrefix::Name(value) => value.get_range(),
+            TableAccessPrefix::FunctionCall(value) => value.get_range(),
+            TableAccessPrefix::ExpressionWrap(value) => value.get_range(),
         }
     }
 }
-impl HasLocation for TableAccessKey {
-    fn get_location(&self) -> Location {
+impl HasRange for TableAccessKey {
+    fn get_range(&self) -> Range {
         match self {
-            TableAccessKey::Expression(value) => value.get_location(),
+            TableAccessKey::Expression(value) => value.get_range(),
             TableAccessKey::Name { dot, name } => {
-                get_location_from_boundaries(dot.get_location(), name.get_location())
+                get_range_from_boundaries(dot.get_range(), name.get_range())
             }
         }
     }
 }
 
-impl HasLocation for FunctionCall {
-    fn get_location(&self) -> Location {
-        get_location_from_boundaries(self.invoked.get_location(), self.arguments.get_location())
+impl HasRange for FunctionCall {
+    fn get_range(&self) -> Range {
+        get_range_from_boundaries(self.invoked.get_range(), self.arguments.get_range())
     }
 }
-impl HasLocation for FunctionArguments {
-    fn get_location(&self) -> Location {
+impl HasRange for FunctionArguments {
+    fn get_range(&self) -> Range {
         match self {
-            FunctionArguments::String(value) => value.get_location(),
-            FunctionArguments::Table(value) => value.get_location(),
+            FunctionArguments::String(value) => value.get_range(),
+            FunctionArguments::Table(value) => value.get_range(),
             FunctionArguments::List {
                 open_parenthesis,
                 arguments: _,
                 close_parenthesis,
-            } => get_location_from_boundaries(
-                open_parenthesis.get_location(),
-                close_parenthesis.get_location(),
+            } => get_range_from_boundaries(
+                open_parenthesis.get_range(),
+                close_parenthesis.get_range(),
             ),
         }
     }
 }
-impl HasLocation for FunctionCallInvoked {
-    fn get_location(&self) -> Location {
+impl HasRange for FunctionCallInvoked {
+    fn get_range(&self) -> Range {
         match self {
-            FunctionCallInvoked::Function(value) => value.get_location(),
+            FunctionCallInvoked::Function(value) => value.get_range(),
             FunctionCallInvoked::TableMethod {
                 table,
                 colon: _,
                 method,
-            } => get_location_from_boundaries(table.get_location(), method.get_location()),
+            } => get_range_from_boundaries(table.get_range(), method.get_range()),
         }
     }
 }
 
-impl HasLocation for Var {
-    fn get_location(&self) -> Location {
+impl HasRange for Var {
+    fn get_range(&self) -> Range {
         match self {
-            Var::Name(value) => value.get_location(),
-            Var::TableAccess(value) => value.get_location(),
+            Var::Name(value) => value.get_range(),
+            Var::TableAccess(value) => value.get_range(),
         }
     }
 }
-impl HasLocation for ExpressionWrap {
-    fn get_location(&self) -> Location {
-        get_location_from_boundaries(
-            self.opening_parenthesis.get_location(),
-            self.closing_parenthesis.get_location(),
+impl HasRange for ExpressionWrap {
+    fn get_range(&self) -> Range {
+        get_range_from_boundaries(
+            self.opening_parenthesis.get_range(),
+            self.closing_parenthesis.get_range(),
         )
     }
 }
 
-impl HasLocation for PrefixExp {
-    fn get_location(&self) -> Location {
+impl HasRange for PrefixExp {
+    fn get_range(&self) -> Range {
         match self {
-            PrefixExp::Var(value) => value.get_location(),
-            PrefixExp::FunctionCall(value) => value.get_location(),
-            PrefixExp::ExpressionWrap(value) => value.get_location(),
+            PrefixExp::Var(value) => value.get_range(),
+            PrefixExp::FunctionCall(value) => value.get_range(),
+            PrefixExp::ExpressionWrap(value) => value.get_range(),
         }
     }
 }

@@ -5,10 +5,10 @@ use tree_sitter::Node;
 
 use crate::{
     prelude::{
-        ConversionError, ElseIfExpression, Expression, HasLocation, List, ListItem, Location,
+        ConversionError, ElseIfExpression, Expression, HasRange, List, ListItem, Range,
         SingleToken, Table, TableField, TableFieldValue, TableKey, TypeValue,
     },
-    utils::get_location_from_boundaries,
+    utils::get_range_from_boundaries,
 };
 
 use super::functions::{build_function_type, build_table_type, from_singleton_type};
@@ -136,19 +136,19 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
     }
 }
 
-impl HasLocation for TypeValue {
-    fn get_location(&self) -> Location {
+impl HasRange for TypeValue {
+    fn get_range(&self) -> Range {
         match self {
             TypeValue::Basic(value) | TypeValue::String(value) | TypeValue::Boolean(value) => {
-                value.location
+                value.get_range()
             }
             TypeValue::Wrap {
                 opening_parenthesis,
                 r#type: _,
                 closing_parenthesis,
-            } => get_location_from_boundaries(
-                opening_parenthesis.get_location(),
-                closing_parenthesis.get_location(),
+            } => get_range_from_boundaries(
+                opening_parenthesis.get_range(),
+                closing_parenthesis.get_range(),
             ),
             TypeValue::Function {
                 generics: _,
@@ -157,113 +157,113 @@ impl HasLocation for TypeValue {
                 closing_parenthesis: _,
                 arrow: _,
                 return_type,
-            } => get_location_from_boundaries(
+            } => get_range_from_boundaries(
                 //TODO: Try generics here.
-                opening_parenthesis.get_location(),
-                return_type.get_location(),
+                opening_parenthesis.get_range(),
+                return_type.get_range(),
             ),
             TypeValue::Generic {
                 base,
                 right_arrows: _,
                 generics: _,
                 left_arrows,
-            } => get_location_from_boundaries(base.get_location(), left_arrows.get_location()),
+            } => get_range_from_boundaries(base.get_range(), left_arrows.get_range()),
             TypeValue::GenericPack { name, ellipsis } => {
-                get_location_from_boundaries(name.get_location(), ellipsis.get_location())
+                get_range_from_boundaries(name.get_range(), ellipsis.get_range())
             }
             TypeValue::Intersection {
                 left,
                 ampersand: _,
                 right,
-            } => get_location_from_boundaries(left.get_location(), right.get_location()),
+            } => get_range_from_boundaries(left.get_range(), right.get_range()),
             TypeValue::Union {
                 left,
                 pipe: _,
                 right,
-            } => get_location_from_boundaries(left.get_location(), right.get_location()),
+            } => get_range_from_boundaries(left.get_range(), right.get_range()),
             TypeValue::Module {
                 module,
                 dot: _,
                 type_info,
-            } => get_location_from_boundaries(module.get_location(), type_info.get_location()),
+            } => get_range_from_boundaries(module.get_range(), type_info.get_range()),
             TypeValue::Optional {
                 base,
                 question_mark,
-            } => get_location_from_boundaries(base.get_location(), question_mark.get_location()),
-            TypeValue::Table(table) => table.get_location(),
+            } => get_range_from_boundaries(base.get_range(), question_mark.get_range()),
+            TypeValue::Table(table) => table.get_range(),
             TypeValue::Typeof {
                 typeof_token,
                 opening_parenthesis: _,
                 inner: _,
                 closing_parenthesis,
-            } => get_location_from_boundaries(
-                typeof_token.get_location(),
-                closing_parenthesis.get_location(),
+            } => get_range_from_boundaries(
+                typeof_token.get_range(),
+                closing_parenthesis.get_range(),
             ),
             TypeValue::Tuple {
                 opening_parenthesis,
                 types: _,
                 closing_parenthesis,
-            } => get_location_from_boundaries(
-                opening_parenthesis.get_location(),
-                closing_parenthesis.get_location(),
+            } => get_range_from_boundaries(
+                opening_parenthesis.get_range(),
+                closing_parenthesis.get_range(),
             ),
             TypeValue::Variadic {
                 ellipsis,
                 type_info,
-            } => get_location_from_boundaries(ellipsis.get_location(), type_info.get_location()),
+            } => get_range_from_boundaries(ellipsis.get_range(), type_info.get_range()),
             TypeValue::VariadicPack { ellipsis, name } => {
-                get_location_from_boundaries(ellipsis.get_location(), name.get_location())
+                get_range_from_boundaries(ellipsis.get_range(), name.get_range())
             }
         }
     }
 }
 
-impl HasLocation for Table {
-    fn get_location(&self) -> Location {
-        get_location_from_boundaries(
-            self.opening_brackets.get_location(),
-            self.closing_brackets.get_location(),
+impl HasRange for Table {
+    fn get_range(&self) -> Range {
+        get_range_from_boundaries(
+            self.opening_brackets.get_range(),
+            self.closing_brackets.get_range(),
         )
     }
 }
 
-impl HasLocation for TableKey {
-    fn get_location(&self) -> Location {
+impl HasRange for TableKey {
+    fn get_range(&self) -> Range {
         match self {
-            TableKey::String(value) => value.get_location(),
+            TableKey::String(value) => value.get_range(),
             TableKey::Expression {
                 open_square_brackets,
                 expression: _,
                 close_square_brackets,
-            } => get_location_from_boundaries(
-                open_square_brackets.get_location(),
-                close_square_brackets.get_location(),
+            } => get_range_from_boundaries(
+                open_square_brackets.get_range(),
+                close_square_brackets.get_range(),
             ),
             TableKey::Type {
                 open_square_brackets,
                 r#type: _,
                 close_square_brackets,
-            } => get_location_from_boundaries(
-                open_square_brackets.get_location(),
-                close_square_brackets.get_location(),
+            } => get_range_from_boundaries(
+                open_square_brackets.get_range(),
+                close_square_brackets.get_range(),
             ),
-            TableKey::UndefinedNumber(_) => Location::default(),
-            TableKey::UndefinedString(_) => Location::default(),
+            TableKey::UndefinedNumber(_) => Range::default(),
+            TableKey::UndefinedString(_) => Range::default(),
         }
     }
 }
-impl HasLocation for TableFieldValue {
-    fn get_location(&self) -> Location {
+impl HasRange for TableFieldValue {
+    fn get_range(&self) -> Range {
         match self {
-            TableFieldValue::Expression(value) => value.get_location(),
-            TableFieldValue::Type(value) => value.get_location(),
+            TableFieldValue::Expression(value) => value.get_range(),
+            TableFieldValue::Type(value) => value.get_range(),
         }
     }
 }
-impl HasLocation for TableField {
-    fn get_location(&self) -> Location {
-        get_location_from_boundaries(self.key.get_location(), self.value.get_location())
+impl HasRange for TableField {
+    fn get_range(&self) -> Range {
+        get_range_from_boundaries(self.key.get_range(), self.value.get_range())
     }
 }
 

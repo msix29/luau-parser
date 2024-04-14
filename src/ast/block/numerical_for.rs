@@ -2,10 +2,10 @@
 
 use crate::{
     prelude::{
-        DoBlock, Expression, HasLocation, Location, LuauStatement, NormalizedName, NumericalFor,
+        DoBlock, Expression, HasRange, Range, LuauStatement, NormalizedName, NumericalFor,
         SingleToken,
     },
-    utils::get_location_from_boundaries,
+    utils::get_range_from_boundaries,
 };
 
 impl LuauStatement for NumericalFor {
@@ -41,11 +41,11 @@ impl LuauStatement for NumericalFor {
     }
 }
 
-impl HasLocation for NumericalFor {
-    fn get_location(&self) -> Location {
-        get_location_from_boundaries(
-            self.for_keyword.get_location(),
-            self.do_block.get_location(),
+impl HasRange for NumericalFor {
+    fn get_range(&self) -> Range {
+        get_range_from_boundaries(
+            self.for_keyword.get_range(),
+            self.do_block.get_range(),
         )
     }
 }

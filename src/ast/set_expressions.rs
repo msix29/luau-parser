@@ -4,10 +4,10 @@ use tree_sitter::{Node, TreeCursor};
 
 use crate::{
     prelude::{
-        CompoundSetExpression, Expression, HasLocation, List, Location, LuauStatement, PrefixExp,
+        CompoundSetExpression, Expression, HasRange, List, Range, LuauStatement, PrefixExp,
         SetExpression, SingleToken,
     },
-    utils::get_location_from_boundaries,
+    utils::get_range_from_boundaries,
 };
 
 use super::expression::handle_prefix_exp::handle_prefix_exp;
@@ -45,11 +45,11 @@ impl LuauStatement for SetExpression {
         })
     }
 }
-impl HasLocation for SetExpression {
-    fn get_location(&self) -> Location {
-        get_location_from_boundaries(
-            self.variables.items.last().unwrap().get_location(),
-            self.values.items.last().unwrap().get_location(),
+impl HasRange for SetExpression {
+    fn get_range(&self) -> Range {
+        get_range_from_boundaries(
+            self.variables.items.last().unwrap().get_range(),
+            self.values.items.last().unwrap().get_range(),
         )
     }
 }
@@ -76,8 +76,8 @@ impl LuauStatement for CompoundSetExpression {
         })
     }
 }
-impl HasLocation for CompoundSetExpression {
-    fn get_location(&self) -> Location {
-        get_location_from_boundaries(self.variable.get_location(), self.value.get_location())
+impl HasRange for CompoundSetExpression {
+    fn get_range(&self) -> Range {
+        get_range_from_boundaries(self.variable.get_range(), self.value.get_range())
     }
 }

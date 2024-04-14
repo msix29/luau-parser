@@ -10,14 +10,14 @@ pub mod expression;
 pub mod function;
 pub mod list;
 pub mod local_assignment;
-pub mod location;
+pub mod range;
 pub mod name;
 pub mod position;
 pub mod set_expressions;
 pub mod token;
 pub mod type_definition;
 
-use crate::prelude::{Ast, HasLocation, Location, Print, Statement};
+use crate::prelude::{Ast, HasRange, Range, Print, Statement};
 
 impl Ast {
     /// Returns the code that was behind this AST as-is, without any modifications and
@@ -68,7 +68,7 @@ macro_rules! impl_statement {
     };
 }
 
-impl_statement!(HasLocation, get_location, Location);
+impl_statement!(HasRange, get_range, Range);
 impl_statement!(Print, print, String);
 
 impl Statement {

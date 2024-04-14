@@ -1,6 +1,6 @@
 //! Implements helper traits for comments.
 
-use crate::prelude::{Comment, HasLocation, Location, LuauStatement, SingleToken};
+use crate::prelude::{Comment, HasRange, Range, LuauStatement, SingleToken};
 
 impl LuauStatement for Comment {
     fn try_from_node<'a>(
@@ -16,8 +16,8 @@ impl LuauStatement for Comment {
     }
 }
 
-impl HasLocation for Comment {
-    fn get_location(&self) -> Location {
-        self.0.get_location()
+impl HasRange for Comment {
+    fn get_range(&self) -> Range {
+        self.0.get_range()
     }
 }
