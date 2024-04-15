@@ -10,8 +10,8 @@ use tree_sitter::{Node, Parser};
 
 use crate::prelude::{
     Ast, Comment, CompoundSetExpression, DoBlock, FunctionCall, GenericFor, GlobalFunction,
-    IfStatement, LocalAssignment, LocalFunction, LuauStatement, NumericalFor, RepeatBlock,
-    SetExpression, SingleToken, Statement, TypeDefinition, WhileLoop,
+    IfStatement, LastStatement, LocalAssignment, LocalFunction, LuauStatement, NumericalFor,
+    RepeatBlock, SetExpression, SingleToken, Statement, TypeDefinition, WhileLoop,
 };
 
 /// Parses a code block and fills `tokens` with the parsed ones. The tokens can then
@@ -94,6 +94,9 @@ pub(crate) fn parse_block(body: &Node, code_bytes: &[u8], uri: Option<String>) -
     Ast {
         uri,
         statements: Arc::new(statements),
+        last_statement: body
+            .child_by_field_name("lastStatement")
+            .map(|last_statement| Arc::new(LastStatement::from((last_statement, code_bytes)))),
     }
 }
 

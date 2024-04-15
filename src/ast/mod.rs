@@ -14,6 +14,7 @@ pub mod name;
 pub mod position;
 pub mod range;
 pub mod set_expressions;
+pub mod statement;
 pub mod token;
 pub mod type_definition;
 
@@ -72,7 +73,7 @@ impl_statement!(HasRange, get_range, Range);
 impl_statement!(Print, print, String);
 
 impl Statement {
-    /// Get th body of this rule, if this rule doesn't start a new scope, `None` is returned.
+    /// Get the body of this rule, if this rule doesn't start a new scope, `None` is returned.
     ///
     /// # Note
     ///

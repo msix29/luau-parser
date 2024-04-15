@@ -6,7 +6,7 @@ use std::sync::Arc;
 use tree_sitter::{Node, TreeCursor};
 
 use super::{
-    Comment, CompoundSetExpression, DoBlock, FunctionCall, GenericFor, GlobalFunction, IfStatement, LocalAssignment, LocalFunction, NumericalFor, Range, RepeatBlock, SetExpression, SingleToken, TypeDefinition, WhileLoop
+    Comment, CompoundSetExpression, DoBlock, Expression, FunctionCall, GenericFor, GlobalFunction, IfStatement, List, LocalAssignment, LocalFunction, NumericalFor, Range, RepeatBlock, SetExpression, SingleToken, TypeDefinition, WhileLoop
 };
 
 /// A trait for a token that can be represented in a more abstract form for the user to see,
@@ -174,6 +174,47 @@ pub enum Statement {
     Comment(Comment),
 }
 
+/// An enum representing different types of statements that can end a block of code.
+/// These statements may or may not be present.
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+pub enum LastStatement {
+    /// The `break` keyword. The first is the `break` word and the second is the optional
+    /// `;` after it.
+    ///
+    /// ```lua
+    /// break
+    /// ```
+    Break((SingleToken, Option<SingleToken>)),
+
+    /// The `continue` keyword. The first is the `continue` word and the second is the
+    /// optional `;` after it.
+    ///
+    /// ```lua
+    /// continue
+    /// ```
+    Continue((SingleToken, Option<SingleToken>)),
+
+    /// A `return` statement. Can be in multiple forms:
+    ///
+    /// ```lua
+    /// return
+    /// -- or
+    /// return value
+    /// -- or
+    /// return value1, value2, ...
+    /// ```
+    Return {
+        /// The `return` keyword.
+        return_keyword: SingleToken,
+
+        /// The list of expressions after it.
+        expressions: List<Expression>,
+
+        /// The `;` character.
+        semicolon: Option<SingleToken>,
+    },
+}
+
 /// A struct representing a scope in a file. This ast is lossless, meaning it can be
 /// printed back to the code it was created from without losing any details.
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -187,4 +228,7 @@ pub struct Ast {
     /// be included. The optional [`SingleToken`] is the optional semicolon after the
     /// statement.
     pub statements: Arc<Vec<(Statement, Option<SingleToken>)>>,
+
+    /// The [`last statement`](LastStatement) in this scope.
+    pub last_statement: Option<Arc<LastStatement>>,
 }
