@@ -19,9 +19,9 @@ fn local_assignment_1() {
     let code = r#"local    foo = "Hello, World!""#;
     let ast = parser.parse(code, "1");
     assert_eq!(ast.statements.len(), 1);
-    assert!(matches!(ast.statements[0], Statement::LocalAssignment(_)));
+    assert!(matches!(ast.statements[0].0, Statement::LocalAssignment(_)));
 
-    let assignment = get_item_from_tuple_enum!(&ast.statements[0], Statement::LocalAssignment);
+    let assignment = get_item_from_tuple_enum!(&ast.statements[0].0, Statement::LocalAssignment);
     assert_eq!(assignment.name_list.items.len(), 1);
     assert_eq!(assignment.name_list.items[0].name.word, "foo");
     assert_eq!(assignment.expressions.items.len(), 1);
@@ -40,9 +40,9 @@ fn local_assignment_2() {
     let code = r#"local a,    b,    c = 1, foo(   )"#;
     let ast = parser.parse(code, "");
     assert_eq!(ast.statements.len(), 1);
-    assert!(matches!(ast.statements[0], Statement::LocalAssignment(_)));
+    assert!(matches!(ast.statements[0].0, Statement::LocalAssignment(_)));
 
-    let assignment = get_item_from_tuple_enum!(&ast.statements[0], Statement::LocalAssignment);
+    let assignment = get_item_from_tuple_enum!(&ast.statements[0].0, Statement::LocalAssignment);
     assert_eq!(assignment.name_list.items.len(), 3);
     assert_eq!(assignment.name_list.get_raw_value(), "a, b, c");
     assert_eq!(assignment.expressions.items.len(), 2);

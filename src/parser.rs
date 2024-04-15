@@ -11,16 +11,16 @@ use tree_sitter::{Node, Parser};
 use crate::prelude::{
     Ast, Comment, CompoundSetExpression, DoBlock, FunctionCall, GenericFor, GlobalFunction,
     IfStatement, LocalAssignment, LocalFunction, LuauStatement, NumericalFor, RepeatBlock,
-    SetExpression, Statement, TypeDefinition, WhileLoop,
+    SetExpression, SingleToken, Statement, TypeDefinition, WhileLoop,
 };
 
 /// Parses a code block and fills `tokens` with the parsed ones. The tokens can then
 /// be used to make the syntax tre.
 pub(crate) fn parse_block(
     body: Node,
-    tokens: &mut Vec<Statement>,
-    full_code_bytes: &[u8],
-) -> Vec<Statement> {
+    tokens: &mut Vec<(Statement, Option<SingleToken>)>,
+    code_bytes: &[u8],
+) -> Vec<(Statement, Option<SingleToken>)> {
     let mut cursor = body.walk();
     for i in 0..body.child_count() {
         let node = body.child(i).unwrap();
@@ -28,59 +28,73 @@ pub(crate) fn parse_block(
             continue;
         }
 
-        if let Some(variable_declaration) =
-            LocalAssignment::try_from_node(node, &mut cursor, full_code_bytes)
+        let statement = node.child(0).unwrap();
+        let token = if let Some(variable_declaration) =
+            LocalAssignment::try_from_node(statement, &mut cursor, code_bytes)
         {
-            tokens.push(Statement::LocalAssignment(variable_declaration));
+            Statement::LocalAssignment(variable_declaration)
         } else if let Some(type_declaration) =
-            TypeDefinition::try_from_node(node, &mut cursor, full_code_bytes)
+            TypeDefinition::try_from_node(statement, &mut cursor, code_bytes)
         {
-            tokens.push(Statement::TypeDefinition(type_declaration))
+            Statement::TypeDefinition(type_declaration)
         } else if let Some(if_statement) =
-            IfStatement::try_from_node(node, &mut cursor, full_code_bytes)
+            IfStatement::try_from_node(statement, &mut cursor, code_bytes)
         {
-            tokens.push(Statement::IfStatement(if_statement))
-        } else if let Some(do_block) = DoBlock::try_from_node(node, &mut cursor, full_code_bytes) {
-            tokens.push(Statement::DoBlock(do_block))
+            Statement::IfStatement(if_statement)
+        } else if let Some(do_block) =
+            DoBlock::try_from_node(statement, &mut cursor, code_bytes)
+        {
+            Statement::DoBlock(do_block)
         } else if let Some(generic_for) =
-            GenericFor::try_from_node(node, &mut cursor, full_code_bytes)
+            GenericFor::try_from_node(statement, &mut cursor, code_bytes)
         {
-            tokens.push(Statement::GenericFor(generic_for))
+            Statement::GenericFor(generic_for)
         } else if let Some(numerical_for) =
-            NumericalFor::try_from_node(node, &mut cursor, full_code_bytes)
+            NumericalFor::try_from_node(statement, &mut cursor, code_bytes)
         {
-            tokens.push(Statement::NumericalFor(numerical_for))
+            Statement::NumericalFor(numerical_for)
         } else if let Some(repeat_block) =
-            RepeatBlock::try_from_node(node, &mut cursor, full_code_bytes)
+            RepeatBlock::try_from_node(statement, &mut cursor, code_bytes)
         {
-            tokens.push(Statement::RepeatBlock(repeat_block))
+            Statement::RepeatBlock(repeat_block)
         } else if let Some(while_loop) =
-            WhileLoop::try_from_node(node, &mut cursor, full_code_bytes)
+            WhileLoop::try_from_node(statement, &mut cursor, code_bytes)
         {
-            tokens.push(Statement::WhileLoop(while_loop))
+            Statement::WhileLoop(while_loop)
         } else if let Some(set_expression) =
-            SetExpression::try_from_node(node, &mut cursor, full_code_bytes)
+            SetExpression::try_from_node(statement, &mut cursor, code_bytes)
         {
-            tokens.push(Statement::SetExpression(set_expression))
+            Statement::SetExpression(set_expression)
         } else if let Some(compound_set_expression) =
-            CompoundSetExpression::try_from_node(node, &mut cursor, full_code_bytes)
+            CompoundSetExpression::try_from_node(statement, &mut cursor, code_bytes)
         {
-            tokens.push(Statement::CompoundSetExpression(compound_set_expression))
+            Statement::CompoundSetExpression(compound_set_expression)
         } else if let Some(function_call) =
-            FunctionCall::try_from_node(node, &mut cursor, full_code_bytes)
+            FunctionCall::try_from_node(statement, &mut cursor, code_bytes)
         {
-            tokens.push(Statement::FunctionCall(function_call))
+            Statement::FunctionCall(function_call)
         } else if let Some(local_function) =
-            LocalFunction::try_from_node(node, &mut cursor, full_code_bytes)
+            LocalFunction::try_from_node(statement, &mut cursor, code_bytes)
         {
-            tokens.push(Statement::LocalFunction(local_function))
+            Statement::LocalFunction(local_function)
         } else if let Some(global_function) =
-            GlobalFunction::try_from_node(node, &mut cursor, full_code_bytes)
+            GlobalFunction::try_from_node(statement, &mut cursor, code_bytes)
         {
-            tokens.push(Statement::GlobalFunction(global_function))
-        } else if let Some(comment) = Comment::try_from_node(node, &mut cursor, full_code_bytes) {
-            tokens.push(Statement::Comment(comment))
-        }
+            Statement::GlobalFunction(global_function)
+        } else if let Some(comment) =
+            Comment::try_from_node(statement, &mut cursor, code_bytes)
+        {
+            Statement::Comment(comment)
+        } else {
+            // Should be unreachable, but just to be sure, we won't continue the loop.
+            continue;
+        };
+
+        tokens.push((
+            token,
+            node.child(1)
+                .map(|node| SingleToken::from((node, code_bytes))),
+        ))
     }
 
     tokens.to_owned()

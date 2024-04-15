@@ -6,9 +6,7 @@ use std::sync::Arc;
 use tree_sitter::{Node, TreeCursor};
 
 use super::{
-    Comment, CompoundSetExpression, DoBlock, FunctionCall, GenericFor, GlobalFunction, IfStatement,
-    LocalAssignment, LocalFunction, NumericalFor, Range, RepeatBlock, SetExpression,
-    TypeDefinition, WhileLoop,
+    Comment, CompoundSetExpression, DoBlock, FunctionCall, GenericFor, GlobalFunction, IfStatement, LocalAssignment, LocalFunction, NumericalFor, Range, RepeatBlock, SetExpression, SingleToken, TypeDefinition, WhileLoop
 };
 
 /// A trait for a token that can be represented in a more abstract form for the user to see,
@@ -186,6 +184,7 @@ pub struct Ast {
     pub uri: Option<String>,
 
     /// The tokens in the of this [`ast`](Ast) **only**. Parent [`asts`](Ast)' tokens won't
-    /// be included.
-    pub statements: Arc<Vec<Statement>>,
+    /// be included. The optional [`SingleToken`] is the optional semicolon after the
+    /// statement.
+    pub statements: Arc<Vec<(Statement, Option<SingleToken>)>>,
 }

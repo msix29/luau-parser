@@ -18,9 +18,9 @@ local t = {
 "#;
     let ast = parser.parse(code, "");
     assert_eq!(ast.statements.len(), 1);
-    assert!(matches!(ast.statements[0], Statement::LocalAssignment(_)));
+    assert!(matches!(ast.statements[0].0, Statement::LocalAssignment(_)));
 
-    let assignment = get_item_from_tuple_enum!(&ast.statements[0], Statement::LocalAssignment);
+    let assignment = get_item_from_tuple_enum!(&ast.statements[0].0, Statement::LocalAssignment);
     assert_eq!(
         assignment.expressions.items[0].get_raw_value(),
         r#"{

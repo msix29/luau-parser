@@ -10,14 +10,14 @@ pub mod expression;
 pub mod function;
 pub mod list;
 pub mod local_assignment;
-pub mod range;
 pub mod name;
 pub mod position;
+pub mod range;
 pub mod set_expressions;
 pub mod token;
 pub mod type_definition;
 
-use crate::prelude::{Ast, HasRange, Range, Print, Statement};
+use crate::prelude::{Ast, HasRange, Print, Range, SingleToken, Statement};
 
 impl Ast {
     /// Returns the code that was behind this AST as-is, without any modifications and
@@ -89,5 +89,11 @@ impl Statement {
             Statement::GlobalFunction(value) => Some(&value.body),
             _ => None,
         }
+    }
+}
+
+impl Print for (Statement, Option<SingleToken>) {
+    fn print(&self) -> String {
+        format!("{}{}", self.0.print(), self.1.as_ref().map_or("", |_| ";"))
     }
 }
