@@ -1,3 +1,5 @@
+//! Implements helper traits for statements.
+
 use tree_sitter::Node;
 
 use crate::prelude::{Expression, LastStatement, SingleToken};
