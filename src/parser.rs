@@ -16,11 +16,9 @@ use crate::prelude::{
 
 /// Parses a code block and fills `tokens` with the parsed ones. The tokens can then
 /// be used to make the syntax tre.
-pub(crate) fn parse_block(
-    body: Node,
-    tokens: &mut Vec<(Statement, Option<SingleToken>)>,
-    code_bytes: &[u8],
-) -> Vec<(Statement, Option<SingleToken>)> {
+pub(crate) fn parse_block(body: &Node, code_bytes: &[u8], uri: Option<String>) -> Ast {
+    let mut statements = Vec::new();
+
     let mut cursor = body.walk();
     for i in 0..body.child_count() {
         let node = body.child(i).unwrap();
@@ -41,9 +39,7 @@ pub(crate) fn parse_block(
             IfStatement::try_from_node(statement, &mut cursor, code_bytes)
         {
             Statement::IfStatement(if_statement)
-        } else if let Some(do_block) =
-            DoBlock::try_from_node(statement, &mut cursor, code_bytes)
-        {
+        } else if let Some(do_block) = DoBlock::try_from_node(statement, &mut cursor, code_bytes) {
             Statement::DoBlock(do_block)
         } else if let Some(generic_for) =
             GenericFor::try_from_node(statement, &mut cursor, code_bytes)
@@ -81,23 +77,24 @@ pub(crate) fn parse_block(
             GlobalFunction::try_from_node(statement, &mut cursor, code_bytes)
         {
             Statement::GlobalFunction(global_function)
-        } else if let Some(comment) =
-            Comment::try_from_node(statement, &mut cursor, code_bytes)
-        {
+        } else if let Some(comment) = Comment::try_from_node(statement, &mut cursor, code_bytes) {
             Statement::Comment(comment)
         } else {
             // Should be unreachable, but just to be sure, we won't continue the loop.
             continue;
         };
 
-        tokens.push((
+        statements.push((
             token,
             node.child(1)
                 .map(|node| SingleToken::from((node, code_bytes))),
         ))
     }
 
-    tokens.to_owned()
+    Ast {
+        uri,
+        statements: Arc::new(statements),
+    }
 }
 
 /// A Luau parser.
@@ -131,17 +128,11 @@ impl LuauParser {
     pub fn parse(&mut self, code: &str, uri: &str) -> Ast {
         let tree = self.parser.parse(code, None).unwrap();
 
-        let mut tokens = Vec::default();
         let code_bytes = code.as_bytes();
-
         let root = tree.root_node();
         // println!("\n{}\n", &root.to_sexp());
-        parse_block(root, &mut tokens, code_bytes);
 
-        let ast = Ast {
-            statements: Arc::new(tokens),
-            uri: Some(uri.to_string()),
-        };
+        let ast = parse_block(&root, code_bytes, Some(uri.to_string()));
 
         #[cfg(feature = "cache")]
         {

@@ -9,7 +9,7 @@ use tree_sitter::Node;
 use crate::{
     prelude::{
         parse_block, type_definition::functions::build_generics, Ast, ElseIfExpression, Expression,
-        HasRange, List, ListItem, Range, PrefixExp, SingleToken, Table, TableField,
+        HasRange, List, ListItem, PrefixExp, Range, SingleToken, Table, TableField,
         TableFieldValue, TableKey, TypeDefinition,
     },
     utils::get_range_from_boundaries,
@@ -142,11 +142,6 @@ impl From<(Node<'_>, &[u8])> for Expression {
             "string" => Expression::String(SingleToken::from((node, code_bytes))),
             "string_interp" => Expression::String(SingleToken::from((node, code_bytes))),
             "anon_fn" => {
-                let mut ast_tokens = Vec::new();
-                if let Some(body) = node.child_by_field_name("body") {
-                    parse_block(body, &mut ast_tokens, code_bytes);
-                }
-
                 Expression::Function {
                     function_keyword: SingleToken::from((
                         node.child_by_field_name("function").unwrap(),
@@ -167,10 +162,14 @@ impl From<(Node<'_>, &[u8])> for Expression {
                     colon: node
                         .child_by_field_name("colon")
                         .map(|colon| SingleToken::from((colon, code_bytes))),
-                    body: Ast {
-                        statements: Arc::new(ast_tokens),
-                        uri: None,
-                    },
+                    body: node
+                        .child_by_field_name("body")
+                        .map(|body| parse_block(&body, code_bytes, None))
+                        .unwrap_or_default(),
+                    //  Ast {
+                    //     statements: Arc::new(ast_tokens),
+                    //     uri: None,
+                    // },
                     end_keyword: SingleToken::from((
                         node.child_by_field_name("end").unwrap(),
                         code_bytes,
@@ -262,10 +261,7 @@ impl HasRange for Expression {
                 function_keyword,
                 end_keyword,
                 ..
-            } => get_range_from_boundaries(
-                function_keyword.get_range(),
-                end_keyword.get_range(),
-            ),
+            } => get_range_from_boundaries(function_keyword.get_range(), end_keyword.get_range()),
             Expression::FunctionCall(value) => value.get_range(),
             Expression::ExpressionWrap(value) => value.get_range(),
             Expression::Var(value) => value.get_range(),
@@ -288,19 +284,13 @@ impl HasRange for Expression {
                 if_token,
                 else_expression,
                 ..
-            } => get_range_from_boundaries(
-                if_token.get_range(),
-                else_expression.get_range(),
-            ),
+            } => get_range_from_boundaries(if_token.get_range(), else_expression.get_range()),
         }
     }
 }
 
 impl HasRange for ElseIfExpression {
     fn get_range(&self) -> Range {
-        get_range_from_boundaries(
-            self.else_if_token.get_range(),
-            self.expression.get_range(),
-        )
+        get_range_from_boundaries(self.else_if_token.get_range(), self.expression.get_range())
     }
 }

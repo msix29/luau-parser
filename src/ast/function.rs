@@ -1,13 +1,11 @@
 //! Implements helper traits for local and global functions.
 
-use std::sync::Arc;
-
 use tree_sitter::{Node, TreeCursor};
 
 use crate::{
     prelude::{
-        parse_block, Ast, GlobalFunction, GlobalFunctionName, HasRange, List, LocalFunction,
-        Range, LuauStatement, SingleToken,
+        parse_block, GlobalFunction, GlobalFunctionName, HasRange, List, LocalFunction,
+        LuauStatement, Range, SingleToken,
     },
     utils::get_range_from_boundaries,
 };
@@ -41,10 +39,7 @@ impl LuauStatement for LocalFunction {
             returns: build_function_returns(node, code_bytes),
             body: node
                 .child_by_field_name("body")
-                .map(|body| Ast {
-                    statements: Arc::new(parse_block(body, &mut Vec::new(), code_bytes)),
-                    uri: None,
-                })
+                .map(|body| parse_block(&body, code_bytes, None))
                 .unwrap_or_default(),
             end_keyword: SingleToken::from((node.child_by_field_name("end").unwrap(), code_bytes)),
         })
@@ -52,10 +47,7 @@ impl LuauStatement for LocalFunction {
 }
 impl HasRange for LocalFunction {
     fn get_range(&self) -> Range {
-        get_range_from_boundaries(
-            self.local_keyword.get_range(),
-            self.end_keyword.get_range(),
-        )
+        get_range_from_boundaries(self.local_keyword.get_range(), self.end_keyword.get_range())
     }
 }
 
@@ -103,10 +95,7 @@ impl LuauStatement for GlobalFunction {
             returns: build_function_returns(node, code_bytes),
             body: node
                 .child_by_field_name("body")
-                .map(|body| Ast {
-                    statements: Arc::new(parse_block(body, &mut Vec::new(), code_bytes)),
-                    uri: None,
-                })
+                .map(|body| parse_block(&body, code_bytes, None))
                 .unwrap_or_default(),
             end_keyword: SingleToken::from((node.child_by_field_name("end").unwrap(), code_bytes)),
         })
