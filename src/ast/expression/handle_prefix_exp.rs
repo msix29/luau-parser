@@ -6,8 +6,8 @@ use tree_sitter::Node;
 
 use crate::{
     prelude::{
-        Expression, ExpressionWrap, FunctionArguments, FunctionCall, FunctionCallInvoked,
-        HasRange, Range, LuauStatement, PrefixExp, SingleToken, TableAccess, TableAccessKey,
+        Expression, ExpressionWrap, FunctionArguments, FunctionCall, FunctionCallInvoked, HasRange,
+        LuauStatement, PrefixExp, Range, SingleToken, TableAccess, TableAccessKey,
         TableAccessPrefix, TableKey, Var,
     },
     utils::get_range_from_boundaries,
@@ -76,12 +76,6 @@ fn handle_function_call(prefix_exp: Node, code_bytes: &[u8]) -> FunctionCall {
         "table" => FunctionArguments::Table(build_table(prefix_exp, code_bytes)),
         "string" => FunctionArguments::String(SingleToken::from((arguments_node, code_bytes))),
         _ => {
-            let arguments = Expression::from_nodes(
-                arguments_node.children_by_field_name("arguments", &mut arguments_node.walk()),
-                code_bytes,
-            )
-            .to::<Expression>();
-
             FunctionArguments::List {
                 open_parenthesis: SingleToken::from((
                     arguments_node
@@ -89,7 +83,10 @@ fn handle_function_call(prefix_exp: Node, code_bytes: &[u8]) -> FunctionCall {
                         .unwrap(),
                     code_bytes,
                 )),
-                arguments,
+                arguments: Expression::from_nodes(
+                    arguments_node.children_by_field_name("arguments", &mut arguments_node.walk()),
+                    code_bytes,
+                ),
                 close_parenthesis: SingleToken::from((
                     arguments_node
                         .child_by_field_name("close_parenthesis")

@@ -31,8 +31,7 @@ impl LuauStatement for GenericFor {
             expressions: Expression::from_nodes(
                 node.children_by_field_name("value", cursor),
                 code_bytes,
-            )
-            .to::<Expression>(),
+            ),
             do_block: DoBlock::try_from_node(
                 node.child_by_field_name("doBlock").unwrap(),
                 cursor,

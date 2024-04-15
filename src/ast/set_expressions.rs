@@ -40,8 +40,7 @@ impl LuauStatement for SetExpression {
             values: Expression::from_nodes(
                 node.children_by_field_name("value", &mut node.walk()),
                 code_bytes,
-            )
-            .to::<Expression>(),
+            ),
         })
     }
 }
