@@ -242,7 +242,7 @@ impl From<(Node<'_>, &[u8])> for Expression {
                     code_bytes,
                 ))),
             },
-            _ => todo!(
+            _ => unreachable!(
                 "This should never be reached. But it did? Node: {}",
                 node.to_sexp()
             ),
