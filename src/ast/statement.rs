@@ -88,8 +88,8 @@ impl From<(Node<'_>, &[u8])> for Statement {
         } else if let Some(comment) = Comment::try_from_node(statement, &mut cursor, code_bytes) {
             Statement::Comment(comment)
         } else {
-            // Should be unreachable, but just to be sure, we won't continue the loop.
-            unreachable!();
+            // Should be unreachable.
+            unreachable!("Reached unhandled statement: {}", statement.to_sexp());
         }
     }
 }

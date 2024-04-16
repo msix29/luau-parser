@@ -15,8 +15,7 @@ use crate::prelude::{Ast, AstStatus, LastStatement, SingleToken, Statement};
 pub(crate) fn parse_block(body: &Node, code_bytes: &[u8], uri: Option<String>) -> Ast {
     let mut statements = Vec::new();
 
-    for i in 0..body.child_count() {
-        let node = body.child(i).unwrap();
+    for node in body.children_by_field_name("statement", &mut body.walk()) {
         if node.has_error() {
             continue;
         }
