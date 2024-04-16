@@ -6,7 +6,9 @@ use std::sync::Arc;
 use tree_sitter::{Node, TreeCursor};
 
 use super::{
-    Comment, CompoundSetExpression, DoBlock, Expression, FunctionCall, GenericFor, GlobalFunction, IfStatement, List, LocalAssignment, LocalFunction, NumericalFor, Range, RepeatBlock, SetExpression, SingleToken, TypeDefinition, WhileLoop
+    Comment, CompoundSetExpression, DoBlock, Expression, FunctionCall, GenericFor, GlobalFunction,
+    IfStatement, List, LocalAssignment, LocalFunction, NumericalFor, Range, RepeatBlock,
+    SetExpression, SingleToken, TypeDefinition, WhileLoop,
 };
 
 /// A trait for a token that can be represented in a more abstract form for the user to see,
@@ -215,6 +217,17 @@ pub enum LastStatement {
     },
 }
 
+/// An enum representing different states of an Ast.
+#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
+pub enum AstStatus {
+    /// Indicates that the parsed Ast is a perfect clone of the code passed to it and that no errors has occurred.
+    #[default]
+    Complete,
+
+    /// Indicates that the parsed Ast is incomplete because the code had syntax errors.
+    HasErrors,
+}
+
 /// A struct representing a scope in a file. This ast is lossless, meaning it can be
 /// printed back to the code it was created from without losing any details.
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -231,4 +244,9 @@ pub struct Ast {
 
     /// The [`last statement`](LastStatement) in this scope.
     pub last_statement: Option<Arc<LastStatement>>,
+
+    /// The status of the Ast. If it isn't [`complete`](AstStatus::Complete), it's better
+    /// to not use it for operations which affect the source code, like formatting; the
+    /// output will have missing parts of the code.
+    pub status: AstStatus,
 }

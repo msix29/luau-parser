@@ -8,7 +8,7 @@ use std::sync::Arc;
 use tree_sitter::Tree;
 use tree_sitter::{Node, Parser};
 
-use crate::prelude::{Ast, LastStatement, SingleToken, Statement};
+use crate::prelude::{Ast, AstStatus, LastStatement, SingleToken, Statement};
 
 /// Parses a code block and fills `tokens` with the parsed ones. The tokens can then
 /// be used to make the syntax tre.
@@ -34,6 +34,11 @@ pub(crate) fn parse_block(body: &Node, code_bytes: &[u8], uri: Option<String>) -
         last_statement: body
             .child_by_field_name("lastStatement")
             .map(|last_statement| Arc::new(LastStatement::from((last_statement, code_bytes)))),
+        status: if body.has_error() {
+            AstStatus::HasErrors
+        } else {
+            AstStatus::Complete
+        },
     }
 }
 
