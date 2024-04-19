@@ -72,29 +72,29 @@ fn handle_function_call(prefix_exp: Node, code_bytes: &[u8]) -> FunctionCall {
     };
 
     let arguments_node = prefix_exp.child_by_field_name("arguments").unwrap();
-    let arguments = match arguments_node.kind() {
-        "table" => FunctionArguments::Table(build_table(prefix_exp, code_bytes)),
-        "string" => FunctionArguments::String(SingleToken::from((arguments_node, code_bytes))),
-        _ => {
-            FunctionArguments::List {
-                open_parenthesis: SingleToken::from((
-                    arguments_node
-                        .child_by_field_name("open_parenthesis")
-                        .unwrap(),
-                    code_bytes,
-                )),
-                arguments: Expression::from_nodes(
-                    arguments_node.children_by_field_name("arguments", &mut arguments_node.walk()),
-                    code_bytes,
-                ),
-                close_parenthesis: SingleToken::from((
-                    arguments_node
-                        .child_by_field_name("close_parenthesis")
-                        .unwrap(),
-                    code_bytes,
-                )),
-            }
-        }
+    let actual_argument = arguments_node.child(0).unwrap();
+
+    let arguments = match actual_argument.kind() {
+        "table" => FunctionArguments::Table(build_table(actual_argument, code_bytes)),
+        "string" => FunctionArguments::String(SingleToken::from((actual_argument, code_bytes))),
+        _ => FunctionArguments::List {
+            open_parenthesis: SingleToken::from((
+                arguments_node
+                    .child_by_field_name("open_parenthesis")
+                    .unwrap(),
+                code_bytes,
+            )),
+            arguments: Expression::from_nodes(
+                arguments_node.children_by_field_name("arguments", &mut arguments_node.walk()),
+                code_bytes,
+            ),
+            close_parenthesis: SingleToken::from((
+                arguments_node
+                    .child_by_field_name("close_parenthesis")
+                    .unwrap(),
+                code_bytes,
+            )),
+        },
     };
 
     FunctionCall { invoked, arguments }
