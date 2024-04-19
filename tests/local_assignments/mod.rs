@@ -3,7 +3,7 @@ mod table;
 use std::sync::Arc;
 
 #[cfg(feature = "raw-values")]
-use crate::prelude::HasRawValue;
+use luau_parser::prelude::HasRawValue;
 use luau_parser::{
     get_item_from_tuple_enum,
     prelude::LuauParser,
