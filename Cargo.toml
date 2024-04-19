@@ -10,7 +10,8 @@ tree-sitter = "^0.22.1"
 tree-sitter-luau = { path = "../grammar" }
 
 [features]
-default = ["cache"]
+default = ["cache", "lsp-ready"]
 cache = []
+lsp-ready = ["regex", "raw-values"]
 raw-values = []
 regex = ["dep:regex", "raw-values", "dep:lazy_static"]

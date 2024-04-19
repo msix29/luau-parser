@@ -3,6 +3,11 @@
 use std::str::from_utf8;
 use tree_sitter::Node;
 
+#[cfg(feature = "lsp-ready")]
+mod find_variable;
+#[cfg(feature = "lsp-ready")]
+pub use find_variable::*;
+
 use crate::prelude::{Position, Range};
 
 /// Gets the text from a specific byte range in a `&[u8]`, which represents bytes of valid
