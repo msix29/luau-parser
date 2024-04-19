@@ -1,5 +1,7 @@
 //! Implements display traits for lists.
-use crate::prelude::{HasRawValue, List, ListItem, Print};
+#[cfg(feature = "raw-values")]
+use crate::prelude::HasRawValue;
+use crate::prelude::{List, ListItem, Print};
 
 /// Gets a vector for implementing a specific trait for [`List<T>`]. It'll
 /// contain all value inside the self but as a `String`.
@@ -33,13 +35,27 @@ macro_rules! impl_list_vec {
     }};
 }
 
+#[cfg(feature = "raw-values")]
 impl<T: HasRawValue> List<T> {
     /// Gets the raw value but instead of a simple space as a separator,
     /// uses the passed one.
     pub fn raw_value_with_separator(&self, separator: &str) -> String {
         impl_list_vec!(get_raw_value, self).join(separator)
     }
+
+    /// Gets the raw value but instead of a simple space as a separator,
+    /// uses the passed one, and instead of caring about trailing and not
+    /// traling, it will only use raw values of `T` and ignore the separator,
+    /// thus it should be included in the `separator` parameter.
+    pub fn bare_raw_value_with_separator(&self, separator: &str) -> String {
+        self.items
+            .iter()
+            .map(|item| item.get_raw_value())
+            .collect::<Vec<String>>()
+            .join(separator)
+    }
 }
+#[cfg(feature = "raw-values")]
 impl<T: HasRawValue> HasRawValue for List<T> {
     fn get_raw_value(&self) -> String {
         self.raw_value_with_separator(" ")

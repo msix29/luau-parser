@@ -3,7 +3,7 @@
 use std::str::from_utf8;
 use tree_sitter::Node;
 
-use crate::prelude::{Range, Position};
+use crate::prelude::{Position, Range};
 
 /// Gets the text from a specific byte range in a `&[u8]`, which represents bytes of valid
 /// text. This function does check for the passed bytes to ensure they're in the correct
@@ -96,6 +96,7 @@ pub(crate) fn get_range_from_boundaries(a: Range, b: Range) -> Range {
 }
 
 /// Fix the indentation of a string representing a table.
+#[cfg(feature = "raw-values")]
 pub(crate) fn fix_table_indentation(raw_value: &str) -> String {
     if raw_value.is_empty() {
         return raw_value.to_string();

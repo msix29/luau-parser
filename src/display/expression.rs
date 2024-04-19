@@ -1,17 +1,18 @@
 //! Implements display traits for expressions.
 
+#[cfg(feature = "raw-values")]
+use super::type_definition::try_generics_to_string;
 use crate::{
     impl_print_enum, impl_print_struct, optional_print,
     prelude::{
         ElseIfExpression, Expression, ExpressionWrap, FunctionArguments, FunctionCall,
-        FunctionCallInvoked, HasRawValue, PrefixExp, Table, TableAccess, TableAccessKey,
-        TableAccessPrefix, TableField, TableFieldValue, TableKey, Var,
+        FunctionCallInvoked, PrefixExp, Table, TableAccess, TableAccessKey, TableAccessPrefix,
+        TableField, TableFieldValue, TableKey, Var,
     },
     print,
-    utils::fix_table_indentation,
 };
-
-use super::type_definition::try_generics_to_string;
+#[cfg(feature = "raw-values")]
+use crate::{prelude::HasRawValue, utils::fix_table_indentation};
 
 impl_print_struct!(
     ElseIfExpression,
@@ -21,6 +22,8 @@ impl_print_struct!(
     { self.expression, print! }
 );
 
+#[cfg(feature = "raw-values")]
+#[cfg(feature = "raw-values")]
 impl HasRawValue for Expression {
     fn get_raw_value(&self) -> String {
         match self {
@@ -164,6 +167,7 @@ impl_print_enum!(
     }
 );
 
+#[cfg(feature = "raw-values")]
 impl HasRawValue for Table {
     fn get_raw_value(&self) -> String {
         let len = self.fields.items.len();
@@ -173,7 +177,10 @@ impl HasRawValue for Table {
             return format!("{{ {} }}", self.fields.items[0].get_raw_value());
         }
 
-        fix_table_indentation(&format!("{{\n{}\n}}", self.fields.raw_value_with_separator("\n")))
+        fix_table_indentation(&format!(
+            "{{\n{}\n}}",
+            self.fields.raw_value_with_separator("\n")
+        ))
     }
 }
 impl_print_struct!(
@@ -183,6 +190,7 @@ impl_print_struct!(
     { self.closing_brackets, print! }
 );
 
+#[cfg(feature = "raw-values")]
 impl HasRawValue for TableField {
     fn get_raw_value(&self) -> String {
         let key = self.key.get_raw_value();
@@ -206,6 +214,7 @@ impl_print_struct!(
     { self.value, print! }
 );
 
+#[cfg(feature = "raw-values")]
 impl HasRawValue for TableKey {
     fn get_raw_value(&self) -> String {
         match self {
@@ -240,6 +249,7 @@ impl_print_enum!(
     }
 );
 
+#[cfg(feature = "raw-values")]
 impl HasRawValue for TableFieldValue {
     fn get_raw_value(&self) -> String {
         match self {
@@ -255,6 +265,7 @@ impl_print_enum!(
     {}
 );
 
+#[cfg(feature = "raw-values")]
 impl HasRawValue for PrefixExp {
     fn get_raw_value(&self) -> String {
         match self {
@@ -271,6 +282,7 @@ impl_print_enum!(
     {}
 );
 
+#[cfg(feature = "raw-values")]
 impl HasRawValue for Var {
     fn get_raw_value(&self) -> String {
         match self {
@@ -286,6 +298,7 @@ impl_print_enum!(
     {}
 );
 
+#[cfg(feature = "raw-values")]
 impl HasRawValue for ExpressionWrap {
     fn get_raw_value(&self) -> String {
         format!("({})", self.expression.get_raw_value())
@@ -298,6 +311,7 @@ impl_print_struct!(
     { self.closing_parenthesis, print! }
 );
 
+#[cfg(feature = "raw-values")]
 impl HasRawValue for TableAccess {
     fn get_raw_value(&self) -> String {
         format!(
@@ -313,6 +327,7 @@ impl_print_struct!(
     { self.accessed_keys, print! }
 );
 
+#[cfg(feature = "raw-values")]
 impl HasRawValue for TableAccessPrefix {
     fn get_raw_value(&self) -> String {
         match self {
@@ -329,6 +344,7 @@ impl_print_enum!(
     {}
 );
 
+#[cfg(feature = "raw-values")]
 impl HasRawValue for TableAccessKey {
     fn get_raw_value(&self) -> String {
         match self {
@@ -352,6 +368,7 @@ impl_print_enum!(
     }
 );
 
+#[cfg(feature = "raw-values")]
 impl HasRawValue for FunctionCall {
     fn get_raw_value(&self) -> String {
         format!(
@@ -363,6 +380,7 @@ impl HasRawValue for FunctionCall {
 }
 impl_print_struct!(FunctionCall, { self.invoked, print! }, { self.arguments, print! });
 
+#[cfg(feature = "raw-values")]
 impl HasRawValue for FunctionCallInvoked {
     fn get_raw_value(&self) -> String {
         match self {
@@ -389,6 +407,7 @@ impl_print_enum!(
     }
 );
 
+#[cfg(feature = "raw-values")]
 impl HasRawValue for FunctionArguments {
     fn get_raw_value(&self) -> String {
         match self {

@@ -1,7 +1,9 @@
+#[cfg(feature = "raw-values")]
+use crate::prelude::HasRawValue;
 use luau_parser::{
     get_item_from_tuple_enum,
     prelude::LuauParser,
-    types::{HasRawValue, Print, Statement},
+    types::{Print, Statement},
 };
 
 #[test]
@@ -21,6 +23,7 @@ local t = {
     assert!(matches!(ast.statements[0].0, Statement::LocalAssignment(_)));
 
     let assignment = get_item_from_tuple_enum!(&ast.statements[0].0, Statement::LocalAssignment);
+    #[cfg(feature = "raw-values")]
     assert_eq!(
         assignment.expressions.items[0].get_raw_value(),
         r#"{

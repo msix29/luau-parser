@@ -1,27 +1,35 @@
 //! Implements display traits for type definitions.
 
+#[cfg(feature = "raw-values")]
+use crate::prelude::HasRawValue;
 use crate::{
     impl_print_enum, impl_print_struct, optional_print,
     prelude::{
         GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo,
-        GenericParameterInfoDefault, HasRawValue, TypeDefinition, TypeValue,
+        GenericParameterInfoDefault, TypeDefinition, TypeValue,
     },
     print,
 };
 
 /// Try turning generics to a string
-pub fn try_generics_to_string(generics: &Option<GenericDeclaration>, add_space_before: bool) -> String {
-    generics
-        .as_ref()
-        .map_or_else(|| "".to_string(), |generics| {
+#[cfg(feature = "raw-values")]
+pub fn try_generics_to_string(
+    generics: &Option<GenericDeclaration>,
+    add_space_before: bool,
+) -> String {
+    generics.as_ref().map_or_else(
+        || "".to_string(),
+        |generics| {
             if add_space_before {
                 String::from(" ") + &generics.get_raw_value()
             } else {
                 generics.get_raw_value()
             }
-        })
+        },
+    )
 }
 
+#[cfg(feature = "raw-values")]
 impl HasRawValue for TypeDefinition {
     fn get_raw_value(&self) -> String {
         if let Some(type_keyword) = &self.type_keyword {
@@ -53,6 +61,7 @@ impl_print_struct!(
     { self.type_value, print! }
 );
 
+#[cfg(feature = "raw-values")]
 impl HasRawValue for TypeValue {
     fn get_raw_value(&self) -> String {
         match self {
@@ -201,6 +210,7 @@ impl_print_enum!(
     }
 );
 
+#[cfg(feature = "raw-values")]
 impl HasRawValue for GenericDeclaration {
     fn get_raw_value(&self) -> String {
         format!(
@@ -223,6 +233,7 @@ impl_print_struct!(
     { self.left_arrow, print! }
 );
 
+#[cfg(feature = "raw-values")]
 impl HasRawValue for GenericDeclarationParameter {
     fn get_raw_value(&self) -> String {
         if let Some(default) = &self.default {
@@ -242,6 +253,7 @@ impl_print_struct!(
     { self.default, optional_print! }
 );
 
+#[cfg(feature = "raw-values")]
 impl HasRawValue for GenericParameterInfoDefault {
     fn get_raw_value(&self) -> String {
         match self {
@@ -270,6 +282,7 @@ impl_print_enum!(
     }
 );
 
+#[cfg(feature = "raw-values")]
 impl HasRawValue for GenericParameterInfo {
     fn get_raw_value(&self) -> String {
         match self {

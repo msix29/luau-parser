@@ -2,12 +2,14 @@ mod table;
 
 use std::sync::Arc;
 
+#[cfg(feature = "raw-values")]
+use crate::prelude::HasRawValue;
 use luau_parser::{
     get_item_from_tuple_enum,
     prelude::LuauParser,
     types::{
-        Expression, FunctionArguments, FunctionCall, FunctionCallInvoked, HasRawValue, List,
-        Range, PrefixExp, Print, SingleToken, Statement, Var,
+        Expression, FunctionArguments, FunctionCall, FunctionCallInvoked, List, PrefixExp, Print,
+        Range, SingleToken, Statement, Var,
     },
 };
 
@@ -25,6 +27,7 @@ fn local_assignment_1() {
     assert_eq!(assignment.name_list.items.len(), 1);
     assert_eq!(assignment.name_list.items[0].name.word, "foo");
     assert_eq!(assignment.expressions.items.len(), 1);
+    #[cfg(feature = "raw-values")]
     assert_eq!(
         assignment.expressions.items[0].get_raw_value(),
         r#""Hello, World!""#
@@ -44,8 +47,10 @@ fn local_assignment_2() {
 
     let assignment = get_item_from_tuple_enum!(&ast.statements[0].0, Statement::LocalAssignment);
     assert_eq!(assignment.name_list.items.len(), 3);
+    #[cfg(feature = "raw-values")]
     assert_eq!(assignment.name_list.get_raw_value(), "a, b, c");
     assert_eq!(assignment.expressions.items.len(), 2);
+    #[cfg(feature = "raw-values")]
     assert_eq!(assignment.expressions.items[0].get_raw_value(), "1");
     assert_eq!(
         *assignment.expressions.items[1],

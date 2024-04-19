@@ -1,11 +1,10 @@
 //! Implements display traits for names.
 
-use crate::{
-    impl_print_struct, optional_print,
-    prelude::{HasRawValue, NormalizedName},
-    print,
-};
+#[cfg(feature = "raw-values")]
+use crate::prelude::HasRawValue;
+use crate::{impl_print_struct, optional_print, prelude::NormalizedName, print};
 
+#[cfg(feature = "raw-values")]
 impl HasRawValue for NormalizedName {
     fn get_raw_value(&self) -> String {
         if let Some(r#type) = &self.r#type {

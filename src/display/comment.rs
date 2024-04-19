@@ -12,7 +12,9 @@ lazy_static! {
         Regex::new(r"^--\[(=)*\[\n*|^--[-]*\n*|\n*[-]*\](=)*\]$").unwrap();
 }
 
-use crate::prelude::{Comment, HasRawValue, Print};
+use crate::prelude::{Comment, Print};
+#[cfg(feature = "raw-values")]
+use crate::prelude::HasRawValue;
 
 /// Fixes indentation of a string, it just removes common spaces at the start.
 #[cfg(feature = "regex")]
@@ -45,6 +47,7 @@ fn fix_indentation(input: &str) -> String {
     result
 }
 
+#[cfg(feature = "raw-values")]
 impl HasRawValue for Comment {
     /// If the `regex` feature isn't enabled, you will need to edit the returned value so
     /// that it can actually be used for hover, but if it's enabled, you can use it

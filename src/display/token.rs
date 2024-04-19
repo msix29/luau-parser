@@ -1,7 +1,10 @@
 //! Implements display traits for single tokens.
 
-use crate::prelude::{HasRawValue, Print, SingleToken};
+#[cfg(feature = "raw-values")]
+use crate::prelude::HasRawValue;
+use crate::prelude::{Print, SingleToken};
 
+#[cfg(feature = "raw-values")]
 impl HasRawValue for SingleToken {
     fn get_raw_value(&self) -> String {
         self.word.to_string()
