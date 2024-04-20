@@ -5,8 +5,7 @@ use crate::prelude::HasRawValue;
 use crate::{
     impl_print_enum, impl_print_struct, optional_print,
     prelude::{
-        GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo,
-        GenericParameterInfoDefault, TypeDefinition, TypeValue,
+        GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo, GenericParameterInfoDefault, GenericParameters, TypeDefinition, TypeValue
     },
     print,
 };
@@ -90,7 +89,7 @@ impl HasRawValue for TypeValue {
             TypeValue::Union { left, right, .. } => {
                 format!("{} | {}", left.get_raw_value(), right.get_raw_value())
             }
-            TypeValue::Module { type_info, .. } => type_info.get_raw_value(),
+            TypeValue::Module { type_value, .. } => type_value.get_raw_value(),
             TypeValue::Optional { base, .. } => format!("{}?", base.get_raw_value()),
             TypeValue::Table(value) => value.get_raw_value(),
             TypeValue::Typeof { inner, .. } => format!("typeof({})", inner.get_raw_value()),
@@ -166,7 +165,8 @@ impl_print_enum!(
             {
                 { module, print! },
                 { dot, print! },
-                { type_info, print! },
+                { type_value, print! },
+                // { generics, optional_print! },
             }
         },
         {
@@ -228,6 +228,29 @@ impl HasRawValue for GenericDeclaration {
 }
 impl_print_struct!(
     GenericDeclaration,
+    { self.opening_arrow, print! },
+    { self.generics, print! },
+    { self.closing_arrow, print! }
+);
+
+#[cfg(feature = "raw-values")]
+impl HasRawValue for GenericParameters {
+    fn get_raw_value(&self) -> String {
+        format!(
+            "{}{}{}",
+            self.opening_arrow.get_raw_value(),
+            self.generics
+                .items
+                .iter()
+                .map(|generic| generic.get_raw_value())
+                .collect::<Vec<String>>()
+                .join(", "),
+            self.closing_arrow.get_raw_value(),
+        )
+    }
+}
+impl_print_struct!(
+    GenericParameters,
     { self.opening_arrow, print! },
     { self.generics, print! },
     { self.closing_arrow, print! }

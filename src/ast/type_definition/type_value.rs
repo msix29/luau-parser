@@ -16,6 +16,36 @@ use super::functions::{build_function_type, build_table_type, from_singleton_typ
 impl From<(Node<'_>, &[u8])> for TypeValue {
     fn from((node, code_bytes): (Node<'_>, &[u8])) -> Self {
         match node.kind() {
+            "name" => {
+                let parent_node = node.parent().unwrap();
+                
+                if let Some(opening_arrows) = parent_node.child_by_field_name("opening_arrows") {
+                    Self::Generic {
+                        base: SingleToken::from((node, code_bytes)),
+                        right_arrows: SingleToken::from((opening_arrows, code_bytes)),
+                        generics: List::from_iter(
+                            parent_node
+                                .children_by_field_name("typeparam", &mut parent_node.walk()),
+                            parent_node,
+                            "typeParamSeparator",
+                            code_bytes,
+                            |_, node| match node.kind() {
+                                "typeparam" => {
+                                    TypeValue::from((node.child(0).unwrap(), code_bytes))
+                                }
+                                "typepack" => TypeValue::from((node, code_bytes)),
+                                _ => unreachable!("{}", node.kind()),
+                            },
+                        ),
+                        left_arrows: SingleToken::from((
+                            parent_node.child_by_field_name("closing_arrows").unwrap(),
+                            code_bytes,
+                        )),
+                    }
+                } else {
+                    from_singleton_type(node, code_bytes)
+                }
+            }
             "namedtype" => {
                 if let Some(module) = node.child_by_field_name("module") {
                     TypeValue::Module {
@@ -24,13 +54,37 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
                             node.child_by_field_name("dot").unwrap(),
                             code_bytes,
                         )),
-                        type_info: SingleToken::from((
-                            node.child_by_field_name("name").unwrap(),
+                        type_value: Arc::new(TypeValue::from((
+                            node.child_by_field_name("nameWithGenerics").unwrap(),
                             code_bytes,
-                        )),
+                        ))),
+                        // generics: node.child_by_field_name("geneircs").map(|generics| {
+                        //     GenericParameters {
+                        //         opening_arrow: SingleToken::from((
+                        //             generics.child_by_field_name("opening_arrow").unwrap(),
+                        //             code_bytes,
+                        //         )),
+                        //         generics: List::from_iter(
+                        //             node.children_by_field_name("type_param", &mut node.walk()),
+                        //             node,
+                        //             "separator",
+                        //             code_bytes,
+                        //             |_, node| {
+                        //                 todo!()
+                        //             },
+                        //         ),
+                        //         closing_arrow: SingleToken::from((
+                        //             generics.child_by_field_name("closing_arrow").unwrap(),
+                        //             code_bytes,
+                        //         )),
+                        //     }
+                        // }),
                     }
                 } else {
-                    from_singleton_type(node, code_bytes)
+                    TypeValue::from((
+                        node.child_by_field_name("nameWithGenerics").unwrap(),
+                        code_bytes,
+                    ))
                 }
             }
             "wraptype" => TypeValue::Wrap {
@@ -112,24 +166,18 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
                             closing_parenthesis,
                         }
                     }
-                    "variadic" => TypeValue::Variadic {
-                        ellipsis: SingleToken::from((pack.child(1).unwrap(), code_bytes)),
-                        type_info: Arc::new(TypeValue::from((pack.child(0).unwrap(), code_bytes))),
-                    },
-                    "genpack" => TypeValue::GenericPack {
-                        name: SingleToken::from((pack.child(1).unwrap(), code_bytes)),
-                        ellipsis: SingleToken::from((pack.child(0).unwrap(), code_bytes)),
-                    },
+                    "variadic" => Self::from((node.child(0).unwrap(), code_bytes)),
+                    "genpack" => Self::from((node.child(0).unwrap(), code_bytes)),
                     _ => unreachable!(),
                 }
             }
             "variadic" => TypeValue::Variadic {
-                ellipsis: SingleToken::from((node.child(1).unwrap(), code_bytes)),
-                type_info: Arc::new(TypeValue::from((node.child(0).unwrap(), code_bytes))),
+                ellipsis: SingleToken::from((node.child(0).unwrap(), code_bytes)),
+                type_info: Arc::new(TypeValue::from((node.child(1).unwrap(), code_bytes))),
             },
             "genpack" => TypeValue::GenericPack {
-                name: SingleToken::from((node.child(1).unwrap(), code_bytes)),
-                ellipsis: SingleToken::from((node.child(0).unwrap(), code_bytes)),
+                name: SingleToken::from((node.child(0).unwrap(), code_bytes)),
+                ellipsis: SingleToken::from((node.child(1).unwrap(), code_bytes)),
             },
             _ => panic!("Reached unhandled type. {}", node.to_sexp()),
         }
@@ -184,8 +232,8 @@ impl HasRange for TypeValue {
             TypeValue::Module {
                 module,
                 dot: _,
-                type_info,
-            } => get_range_from_boundaries(module.get_range(), type_info.get_range()),
+                type_value,
+            } => get_range_from_boundaries(module.get_range(), type_value.get_range()),
             TypeValue::Optional {
                 base,
                 question_mark,
@@ -196,10 +244,9 @@ impl HasRange for TypeValue {
                 opening_parenthesis: _,
                 inner: _,
                 closing_parenthesis,
-            } => get_range_from_boundaries(
-                typeof_token.get_range(),
-                closing_parenthesis.get_range(),
-            ),
+            } => {
+                get_range_from_boundaries(typeof_token.get_range(), closing_parenthesis.get_range())
+            }
             TypeValue::Tuple {
                 opening_parenthesis,
                 types: _,

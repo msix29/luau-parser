@@ -154,8 +154,10 @@ pub enum TypeValue {
         dot: SingleToken,
 
         /// The actual name of the type being accessed.
-        type_info: SingleToken,
-        //TODO: Generics
+        type_value: Arc<TypeValue>,
+
+        // /// The generics for this type.
+        // generics: Option<GenericParameters>,
     },
 
     /// An optional type.
@@ -287,6 +289,19 @@ pub struct TypeDefinition {
 
     /// The [`actual definition`](TypeValue) of the type.
     pub type_value: Arc<TypeValue>,
+}
+
+/// Generics parameters used when referencing another type.
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+pub struct GenericParameters {
+    /// The `<` character.
+    pub opening_arrow: SingleToken,
+
+    /// The actual generics.
+    pub generics: List<GenericParameterInfo>,
+
+    /// The `>` character.
+    pub closing_arrow: SingleToken,
 }
 
 /// A generic declaration parameter used in [`generics declarations`](GenericDeclaration).
