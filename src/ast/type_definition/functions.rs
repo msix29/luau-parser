@@ -127,7 +127,7 @@ pub(crate) fn build_function_parameters(
     let mut parameters = List::from_iter(
         node.children_by_field_name("parameter", &mut node.walk()),
         node,
-        "separator",
+        "parameterSeparator",
         code_bytes,
         |_, parameter| {
             let normalized_name = NormalizedName::from((parameter, code_bytes));
@@ -197,7 +197,7 @@ pub(crate) fn build_generics(node: Node, code_bytes: &[u8]) -> Option<GenericDec
         let mut generics = List::from_iter(
             node.children_by_field_name("generic", &mut node.walk()),
             node,
-            "separator",
+            "genericsSeparator",
             code_bytes,
             |_, child| GenericDeclarationParameter {
                 parameter: GenericParameterInfo::Name(SingleToken::from((child, code_bytes))),
