@@ -6,6 +6,7 @@ use super::DoBlock;
 
 /// A struct representing a numerical for loop.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct NumericalFor {
     /// The `for` keyword.
     pub for_keyword: SingleToken,

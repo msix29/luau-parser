@@ -4,6 +4,7 @@ use super::{Expression, List, NormalizedName, SingleToken};
 
 /// A struct holding data for local assignments.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct LocalAssignment {
     /// The `local` keyword.
     pub local_token: SingleToken,

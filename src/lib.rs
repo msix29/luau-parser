@@ -32,7 +32,6 @@
 //!     won't work, for example attributes in lua 5.3.
 
 #![forbid(unsafe_code)]
-#![forbid(clippy::disallowed_types)]
 #![warn(clippy::missing_docs_in_private_items)]
 #![warn(clippy::arc_with_non_send_sync)]
 #![warn(missing_docs)]

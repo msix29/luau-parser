@@ -9,6 +9,7 @@ use crate::prelude::Expression;
 
 /// Possible values for a type.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum TypeValue {
     /// Just a reference to another type.
     ///
@@ -269,6 +270,7 @@ pub enum TypeValue {
 /// A struct for a type definition. Holds needed data to be able to write it back as valid
 /// luau.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct TypeDefinition {
     /// The `export` keyword.
     pub export_keyword: Option<SingleToken>,
@@ -293,6 +295,7 @@ pub struct TypeDefinition {
 
 /// Generics parameters used when referencing another type.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct GenericParameters {
     /// The `<` character.
     pub opening_arrow: SingleToken,
@@ -307,6 +310,7 @@ pub struct GenericParameters {
 /// A generic declaration parameter used in [`generics declarations`](GenericDeclaration).
 /// Can either be a name or a variadic pack.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum GenericParameterInfo {
     /// A simple name, such as `T`.
     Name(SingleToken),
@@ -322,6 +326,7 @@ pub enum GenericParameterInfo {
 /// A generic declaration parameter used in [`generic declarations`](GenericDeclaration).
 /// Consists of a [`parameter info`](GenericParameterInfo) and an optional default type.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct GenericDeclarationParameter {
     /// The parameter passed as a generic type, can be a simple name or a generic pack.
     pub parameter: GenericParameterInfo,
@@ -332,6 +337,7 @@ pub struct GenericDeclarationParameter {
 
 /// Struct holding **default** values for generic arguments.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum GenericParameterInfoDefault {
     /// A simple name.
     ///
@@ -364,6 +370,7 @@ pub enum GenericParameterInfoDefault {
 
 /// The generics used in a [`type definition`](TypeDefinition).
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct GenericDeclaration {
     /// The `<` character.
     pub opening_arrow: SingleToken,
@@ -377,6 +384,7 @@ pub struct GenericDeclaration {
 
 /// Possible errors converting from an expression to a type definition.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum ConversionError {
     /// Function calls can't be converted to types since the parser won't look for the
     /// variable and thus can't get it's return type.

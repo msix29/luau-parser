@@ -4,6 +4,7 @@ use super::{Ast, List, NormalizedName, SingleToken, TypeValue};
 
 /// A struct representing a local function.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct LocalFunction {
     /// The `local` keyword.
     pub local_keyword: SingleToken,
@@ -35,6 +36,7 @@ pub struct LocalFunction {
 
 /// An enum representing possible ways in which a global function's name can be.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum GlobalFunctionName {
     /// Just a simple name, this is usually in local functions but some people don't do so.
     SimpleName(SingleToken),
@@ -95,6 +97,7 @@ pub enum GlobalFunctionName {
 
 /// A struct representing a local function.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct GlobalFunction {
     /// The `function` keyword.
     pub function_keyword: SingleToken,

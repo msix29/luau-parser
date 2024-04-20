@@ -28,6 +28,7 @@ use crate::prelude::{Expression, List, SingleToken, TypeDefinition};
 /// }
 /// ```
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum TableKey {
     /// Cases in which a key wasn't provided, it's guessed as a number in that case.
     UndefinedNumber(i32),
@@ -68,6 +69,7 @@ pub enum TableKey {
 /// value that's either a [`type`](TypeDefinition) or an [`expression`](Expression). See
 /// [`table field values`](TableFieldValue).
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct TableField {
     /// The [`key`](TableKey) used to index field.
     pub key: Arc<TableKey>,
@@ -82,6 +84,7 @@ pub struct TableField {
 
 /// A possible value for a [`table field`](TableField).
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum TableFieldValue {
     /// An [`expression`](Expression), can be found in declarations of tables as variables
     /// only.
@@ -93,6 +96,7 @@ pub enum TableFieldValue {
 
 /// Struct representing a luau table.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Table {
     /// The `{` character.
     pub opening_brackets: SingleToken,

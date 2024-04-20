@@ -9,6 +9,7 @@ use super::{
 
 /// An enum representing different ways in which a table value can be returned from.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum TableAccessPrefix {
     /// Just a simple access.
     ///
@@ -35,6 +36,7 @@ pub enum TableAccessPrefix {
 
 /// Represents an access to a table index.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct TableAccess {
     /// The actual table being indexed
     pub prefix: TableAccessPrefix,
@@ -51,6 +53,7 @@ pub struct TableAccess {
 
 /// Enum representing different ways in which a table's index can be accessed.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum TableAccessKey {
     /// An expression, this'll only have the enum [`TableKey::Expression`].
     Expression(TableKey),
@@ -67,6 +70,7 @@ pub enum TableAccessKey {
 
 /// Possible ways in which a variable can be referenced.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum Var {
     /// A simple reference to the variable.
     ///
@@ -85,6 +89,7 @@ pub enum Var {
 
 /// Different ways a function can be called.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum FunctionCallInvoked {
     /// A standalone function call or one in a table.
     /// ```lua
@@ -117,6 +122,7 @@ pub enum FunctionCallInvoked {
 /// local _ = foo(1, 2, 3)
 /// ```
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct FunctionCall {
     /// The function being called.
     pub invoked: FunctionCallInvoked,
@@ -127,6 +133,7 @@ pub struct FunctionCall {
 
 /// All possible arguments that can be passed to a function.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum FunctionArguments {
     /// A standalone string.
     ///
@@ -161,6 +168,7 @@ pub enum FunctionArguments {
 
 /// A struct representing an expression wrapped in parenthesis.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct ExpressionWrap {
     /// The `(` character.
     pub opening_parenthesis: SingleToken,
@@ -180,6 +188,7 @@ pub struct ExpressionWrap {
 /// local _ = (foo)
 /// ```
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum PrefixExp {
     /// A normal variable reference.
     ///
@@ -204,6 +213,7 @@ pub enum PrefixExp {
 
 /// An enum representing all possible values for an expression.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum Expression {
     /// The `nil` value.
     Nil(SingleToken),
@@ -362,6 +372,7 @@ pub enum Expression {
 
 /// A struct representing an elseif **expression**, only exists in variable declarations.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct ElseIfExpression {
     /// The `elseif` keyword.
     pub else_if_token: SingleToken,

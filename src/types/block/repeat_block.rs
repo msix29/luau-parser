@@ -4,6 +4,7 @@ use crate::prelude::{Ast, Expression, SingleToken};
 
 /// A struct representing a repeat block.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct RepeatBlock {
     /// The "repeat" keyword.
     pub repeat_keyword: SingleToken,

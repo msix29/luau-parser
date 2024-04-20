@@ -1,8 +1,9 @@
 //! Position
 
 /// A struct representing a specific point in a document. Lines and characters are
-///     zero-based.
+/// zero-based.
 #[derive(Clone, Copy, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Position {
     /// The line in which this position points to, starting from 0.
     pub line: u32,

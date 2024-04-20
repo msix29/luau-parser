@@ -45,6 +45,7 @@ pub trait HasRange {
 
 /// All possible tokens in an [`ast`](Ast).
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum Statement {
     /// A variable declaration.
     ///
@@ -181,6 +182,7 @@ pub enum Statement {
 /// An enum representing different types of statements that can end a block of code.
 /// These statements may or may not be present.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum LastStatement {
     /// The `break` keyword. The first is the `break` word and the second is the optional
     /// `;` after it.
@@ -221,6 +223,7 @@ pub enum LastStatement {
 
 /// An enum representing different states of an Ast.
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum AstStatus {
     /// Indicates that the parsed Ast is a perfect clone of the code passed to it and that no errors has occurred.
     #[default]
@@ -233,6 +236,7 @@ pub enum AstStatus {
 /// A struct representing a scope in a file. This ast is lossless, meaning it can be
 /// printed back to the code it was created from without losing any details.
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Ast {
     /// The path pointing to the file that this [`ast`](Ast) represents, if any.
     /// For scopes like functions, if statements, etc. it'll be `None` but for actual

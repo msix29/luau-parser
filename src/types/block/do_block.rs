@@ -2,8 +2,9 @@
 
 use crate::prelude::{Ast, SingleToken};
 
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 /// A struct representing a do statement
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct DoBlock {
     /// The `do` keyword.
     pub do_keyword: SingleToken,
