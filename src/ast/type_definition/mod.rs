@@ -5,7 +5,7 @@
 //! traits for both [`type definitions`](TypeDefinition) and [`type values`](TypeValue).
 //!
 
-pub(crate) mod functions;
+pub(crate) mod helper_functions;
 mod type_value;
 
 use std::sync::Arc;
@@ -14,7 +14,7 @@ use tree_sitter::Node;
 use crate::{
     prelude::{
         GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo,
-        GenericParameterInfoDefault, HasRange, List, Range, LuauStatement, SingleToken,
+        GenericParameterInfoDefault, HasRange, List, LuauStatement, Range, SingleToken,
         TypeDefinition, TypeValue,
     },
     utils::get_range_from_boundaries,
@@ -30,7 +30,7 @@ impl LuauStatement for TypeDefinition {
             return None;
         }
 
-        Some(TypeDefinition::from((node, code_bytes, true)))
+        Some(Self::from((node, code_bytes, true)))
     }
 }
 
@@ -108,7 +108,7 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
                 }
             });
 
-            TypeDefinition {
+            Self {
                 export_keyword: node
                     .child_by_field_name("export")
                     .map(|node| SingleToken::from((node, code_bytes))),
@@ -129,7 +129,7 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
                 ))),
             }
         } else {
-            TypeDefinition {
+            Self {
                 export_keyword: None,
                 type_keyword: None,
                 type_name: SingleToken::default(),
@@ -143,7 +143,7 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
 
 impl From<SingleToken> for TypeDefinition {
     fn from(type_name: SingleToken) -> Self {
-        TypeDefinition {
+        Self {
             export_keyword: None,
             type_keyword: None,
             type_name: type_name.clone(),
@@ -155,7 +155,7 @@ impl From<SingleToken> for TypeDefinition {
 }
 impl From<TypeValue> for TypeDefinition {
     fn from(type_value: TypeValue) -> Self {
-        TypeDefinition {
+        Self {
             export_keyword: None,
             type_keyword: None,
             type_name: SingleToken::default(),

@@ -10,7 +10,7 @@ use crate::{
     utils::get_range_from_boundaries,
 };
 
-use super::type_definition::functions::{build_function_parameters, build_function_returns};
+use super::type_definition::helper_functions::{build_function_parameters, build_function_returns};
 
 impl LuauStatement for LocalFunction {
     fn try_from_node<'a>(

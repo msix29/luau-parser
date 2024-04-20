@@ -8,14 +8,14 @@ use tree_sitter::Node;
 
 use crate::{
     prelude::{
-        parse_block, type_definition::functions::build_generics, Ast, ElseIfExpression, Expression,
+        parse_block, type_definition::helper_functions::build_generics, Ast, ElseIfExpression, Expression,
         HasRange, List, ListItem, PrefixExp, Range, SingleToken, Table, TableField,
         TableFieldValue, TableKey, TypeDefinition,
     },
     utils::get_range_from_boundaries,
 };
 
-use crate::prelude::type_definition::functions::{
+use crate::prelude::type_definition::helper_functions::{
     build_function_parameters, build_function_returns,
 };
 

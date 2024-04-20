@@ -38,55 +38,55 @@ impl From<(Node<'_>, &[u8])> for Statement {
         if let Some(variable_declaration) =
             LocalAssignment::try_from_node(statement, &mut cursor, code_bytes)
         {
-            Statement::LocalAssignment(variable_declaration)
+            Self::LocalAssignment(variable_declaration)
         } else if let Some(type_declaration) =
             TypeDefinition::try_from_node(statement, &mut cursor, code_bytes)
         {
-            Statement::TypeDefinition(type_declaration)
+            Self::TypeDefinition(type_declaration)
         } else if let Some(if_statement) =
             IfStatement::try_from_node(statement, &mut cursor, code_bytes)
         {
-            Statement::IfStatement(if_statement)
+            Self::IfStatement(if_statement)
         } else if let Some(do_block) = DoBlock::try_from_node(statement, &mut cursor, code_bytes) {
-            Statement::DoBlock(do_block)
+            Self::DoBlock(do_block)
         } else if let Some(generic_for) =
             GenericFor::try_from_node(statement, &mut cursor, code_bytes)
         {
-            Statement::GenericFor(generic_for)
+            Self::GenericFor(generic_for)
         } else if let Some(numerical_for) =
             NumericalFor::try_from_node(statement, &mut cursor, code_bytes)
         {
-            Statement::NumericalFor(numerical_for)
+            Self::NumericalFor(numerical_for)
         } else if let Some(repeat_block) =
             RepeatBlock::try_from_node(statement, &mut cursor, code_bytes)
         {
-            Statement::RepeatBlock(repeat_block)
+            Self::RepeatBlock(repeat_block)
         } else if let Some(while_loop) =
             WhileLoop::try_from_node(statement, &mut cursor, code_bytes)
         {
-            Statement::WhileLoop(while_loop)
+            Self::WhileLoop(while_loop)
         } else if let Some(set_expression) =
             SetExpression::try_from_node(statement, &mut cursor, code_bytes)
         {
-            Statement::SetExpression(set_expression)
+            Self::SetExpression(set_expression)
         } else if let Some(compound_set_expression) =
             CompoundSetExpression::try_from_node(statement, &mut cursor, code_bytes)
         {
-            Statement::CompoundSetExpression(compound_set_expression)
+            Self::CompoundSetExpression(compound_set_expression)
         } else if let Some(function_call) =
             FunctionCall::try_from_node(statement, &mut cursor, code_bytes)
         {
-            Statement::FunctionCall(function_call)
+            Self::FunctionCall(function_call)
         } else if let Some(local_function) =
             LocalFunction::try_from_node(statement, &mut cursor, code_bytes)
         {
-            Statement::LocalFunction(local_function)
+            Self::LocalFunction(local_function)
         } else if let Some(global_function) =
             GlobalFunction::try_from_node(statement, &mut cursor, code_bytes)
         {
-            Statement::GlobalFunction(global_function)
+            Self::GlobalFunction(global_function)
         } else if let Some(comment) = Comment::try_from_node(statement, &mut cursor, code_bytes) {
-            Statement::Comment(comment)
+            Self::Comment(comment)
         } else {
             // Should be unreachable.
             unreachable!("Reached unhandled statement: {}", statement.to_sexp());

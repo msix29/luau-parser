@@ -4,7 +4,7 @@ use tree_sitter::{Node, TreeCursor};
 
 use crate::{
     prelude::{
-        CompoundSetExpression, Expression, HasRange, List, Range, LuauStatement, PrefixExp,
+        CompoundSetExpression, Expression, HasRange, List, LuauStatement, PrefixExp, Range,
         SetExpression, SingleToken,
     },
     utils::get_range_from_boundaries,
@@ -22,7 +22,7 @@ impl LuauStatement for SetExpression {
             return None;
         }
 
-        Some(SetExpression {
+        Some(Self {
             variables: List::from_iter(
                 node.children_by_field_name("variable", &mut node.walk()),
                 node,
@@ -68,7 +68,7 @@ impl LuauStatement for CompoundSetExpression {
             _ => unreachable!(),
         };
 
-        Some(CompoundSetExpression {
+        Some(Self {
             variable,
             operation: SingleToken::from((node.child(1).unwrap(), code_bytes)),
             value: Expression::from((node.child(2).unwrap(), code_bytes)),

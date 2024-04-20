@@ -1,6 +1,6 @@
 //! Implements helper traits for comments.
 
-use crate::prelude::{Comment, HasRange, Range, LuauStatement, SingleToken};
+use crate::prelude::{Comment, HasRange, LuauStatement, Range, SingleToken};
 
 impl LuauStatement for Comment {
     fn try_from_node<'a>(
@@ -12,7 +12,7 @@ impl LuauStatement for Comment {
             return None;
         }
 
-        Some(Comment(SingleToken::from((node, code_bytes))))
+        Some(Self(SingleToken::from((node, code_bytes))))
     }
 }
 

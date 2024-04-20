@@ -49,20 +49,20 @@ macro_rules! impl_statement {
         impl $trait for Statement {
             fn $fn_name(&self) -> $return {
                 match self {
-                    Statement::LocalAssignment(value) => value.$fn_name(),
-                    Statement::TypeDefinition(value) => value.$fn_name(),
-                    Statement::IfStatement(value) => value.$fn_name(),
-                    Statement::DoBlock(value) => value.$fn_name(),
-                    Statement::GenericFor(value) => value.$fn_name(),
-                    Statement::NumericalFor(value) => value.$fn_name(),
-                    Statement::RepeatBlock(value) => value.$fn_name(),
-                    Statement::WhileLoop(value) => value.$fn_name(),
-                    Statement::SetExpression(value) => value.$fn_name(),
-                    Statement::CompoundSetExpression(value) => value.$fn_name(),
-                    Statement::FunctionCall(value) => value.$fn_name(),
-                    Statement::LocalFunction(value) => value.$fn_name(),
-                    Statement::GlobalFunction(value) => value.$fn_name(),
-                    Statement::Comment(value) => value.$fn_name(),
+                    Self::LocalAssignment(value) => value.$fn_name(),
+                    Self::TypeDefinition(value) => value.$fn_name(),
+                    Self::IfStatement(value) => value.$fn_name(),
+                    Self::DoBlock(value) => value.$fn_name(),
+                    Self::GenericFor(value) => value.$fn_name(),
+                    Self::NumericalFor(value) => value.$fn_name(),
+                    Self::RepeatBlock(value) => value.$fn_name(),
+                    Self::WhileLoop(value) => value.$fn_name(),
+                    Self::SetExpression(value) => value.$fn_name(),
+                    Self::CompoundSetExpression(value) => value.$fn_name(),
+                    Self::FunctionCall(value) => value.$fn_name(),
+                    Self::LocalFunction(value) => value.$fn_name(),
+                    Self::GlobalFunction(value) => value.$fn_name(),
+                    Self::Comment(value) => value.$fn_name(),
                 }
             }
         }
@@ -80,14 +80,14 @@ impl Statement {
     /// This returns `None` for variables and set expressions.
     pub fn try_get_body(&self) -> Option<&Ast> {
         match self {
-            Statement::IfStatement(value) => Some(&value.body),
-            Statement::DoBlock(value) => Some(&value.body),
-            Statement::GenericFor(value) => Some(&value.do_block.body),
-            Statement::NumericalFor(value) => Some(&value.do_block.body),
-            Statement::RepeatBlock(value) => Some(&value.body),
-            Statement::WhileLoop(value) => Some(&value.do_block.body),
-            Statement::LocalFunction(value) => Some(&value.body),
-            Statement::GlobalFunction(value) => Some(&value.body),
+            Self::IfStatement(value) => Some(&value.body),
+            Self::DoBlock(value) => Some(&value.body),
+            Self::GenericFor(value) => Some(&value.do_block.body),
+            Self::NumericalFor(value) => Some(&value.do_block.body),
+            Self::RepeatBlock(value) => Some(&value.body),
+            Self::WhileLoop(value) => Some(&value.do_block.body),
+            Self::LocalFunction(value) => Some(&value.body),
+            Self::GlobalFunction(value) => Some(&value.body),
             _ => None,
         }
     }

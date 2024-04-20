@@ -13,13 +13,6 @@ use crate::prelude::{
 /// Get a type value from a node representing a singleton type.
 pub(crate) fn from_singleton_type(node: Node, code_bytes: &[u8]) -> TypeValue {
     TypeValue::Basic(SingleToken::from((node, code_bytes)))
-    // match node.kind() {
-    //     "string" => TypeValue::Basic(SingleToken::from((node.utf8_text(code_bytes).unwrap(), node))),
-    //     "name" => TypeValue::Basic(SingleToken::from(("<other value here>", node))),
-    //     "false" => TypeValue::Basic(SingleToken::from(("false", node))),
-    //     "true" => TypeValue::Basic(SingleToken::from(("true", node))),
-    //     _ => TypeValue::Basic(SingleToken::from(("any", node))),
-    // }
 }
 
 /// Build a table value from a node representing a table.

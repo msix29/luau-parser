@@ -20,7 +20,7 @@ impl LuauStatement for LocalAssignment {
             return None;
         }
 
-        Some(LocalAssignment {
+        Some(Self {
             local_token: SingleToken::from((node.child(0).unwrap(), code_bytes)),
             name_list: List::from_iter(
                 node.children_by_field_name("binding", cursor),

@@ -8,7 +8,7 @@ use crate::prelude::{List, ListItem, SingleToken};
 
 impl<T> Default for List<T> {
     fn default() -> Self {
-        List { items: Vec::new() }
+        Self { items: Vec::new() }
     }
 }
 
@@ -59,6 +59,7 @@ impl<T: Clone> List<T> {
         }
     }
 }
+
 impl<'a, T> List<T> {
     /// Builds a list from an iterator.
     pub fn from_iter<'b>(
@@ -67,12 +68,12 @@ impl<'a, T> List<T> {
         separators_name: &str,
         code_bytes: &[u8],
         mut get_item: impl FnMut(usize, Node) -> T,
-    ) -> List<T> {
+    ) -> Self {
         let separators = parent_node
             .children_by_field_name(separators_name, &mut parent_node.walk())
             .collect::<Vec<Node>>();
 
-        List {
+        Self {
             items: iterator
                 .enumerate()
                 .map(|(i, binding)| {
@@ -92,10 +93,11 @@ impl<'a, T> List<T> {
 
 impl<T> Deref for ListItem<T> {
     type Target = T;
+
     fn deref(&self) -> &Self::Target {
         match self {
-            ListItem::Trailing { item, separator: _ } => item,
-            ListItem::NonTrailing(item) => item,
+            Self::Trailing { item, separator: _ } => item,
+            Self::NonTrailing(item) => item,
         }
     }
 }
