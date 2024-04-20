@@ -2,6 +2,8 @@
 
 use std::sync::Arc;
 
+use smol_str::SmolStr;
+
 use crate::prelude::{Expression, List, SingleToken, TypeDefinition};
 
 /// A possible key entry in a table. The key is usually a string, but it can be a value
@@ -32,7 +34,7 @@ pub enum TableKey {
 
     /// Cases in which a key wasn't provided, it's guessed as `[number]`. It has no other
     /// possible values than `[number]`.
-    UndefinedString(String),
+    UndefinedString(SmolStr),
 
     /// Simple key
     String(SingleToken),

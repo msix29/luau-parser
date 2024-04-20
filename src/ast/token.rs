@@ -13,9 +13,9 @@ impl From<(Node<'_>, &[u8])> for SingleToken {
         let (spaces_before, spaces_after) = get_spaces(node, code_bytes);
 
         Self {
-            spaces_before,
-            word,
-            spaces_after,
+            spaces_before: spaces_before.into(),
+            word: word.into(),
+            spaces_after: spaces_after.into(),
             range: get_range(node),
         }
     }
@@ -24,9 +24,9 @@ impl From<(Node<'_>, &[u8])> for SingleToken {
 impl From<&str> for SingleToken {
     fn from(value: &str) -> Self {
         Self {
-            spaces_before: "".to_string(),
-            word: value.to_string(),
-            spaces_after: "".to_string(),
+            spaces_before: "".into(),
+            word: value.into(),
+            spaces_after: "".into(),
             range: Range::default(),
         }
     }
@@ -47,9 +47,9 @@ impl SingleToken {
     /// range at 0, 0 to 0, 0.
     pub fn new(word: &str) -> Self {
         Self {
-            spaces_before: "".to_string(),
-            word: word.to_string(),
-            spaces_after: "".to_string(),
+            spaces_before: "".into(),
+            word: word.into(),
+            spaces_after: "".into(),
             ..Default::default()
         }
     }
@@ -69,9 +69,9 @@ impl SingleToken {
     /// before and after.
     pub fn with_spaces(self, spaces_before: &str, spaces_after: &str) -> Self {
         Self {
-            spaces_before: spaces_before.to_string(),
+            spaces_before: spaces_before.into(),
             word: self.word,
-            spaces_after: spaces_after.to_string(),
+            spaces_after: spaces_after.into(),
             range: self.range,
         }
     }

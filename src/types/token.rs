@@ -1,18 +1,20 @@
 //! Just a single token that can't be broke down to smaller tokens.
 
+use smol_str::SmolStr;
+
 use super::Range;
 
 /// A struct represnting a single token, aka a single word.
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct SingleToken {
     /// All the spaces before the word.
-    pub spaces_before: String,
+    pub spaces_before: SmolStr,
 
     /// The actual word itself, excluding any leading or trailing spaces.
-    pub word: String,
+    pub word: SmolStr,
 
     /// All the spaces after the word.
-    pub spaces_after: String,
+    pub spaces_after: SmolStr,
 
     /// Exact range of the word, excluding spaces.
     pub range: Range,

@@ -2,6 +2,7 @@
 
 use std::sync::Arc;
 
+use smol_str::SmolStr;
 use tree_sitter::Node;
 
 use crate::prelude::{
@@ -92,7 +93,7 @@ pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> Table {
             }
         }
         _ => table_fields.push(ListItem::NonTrailing(TableField {
-            key: Arc::new(TableKey::UndefinedString("[number]".to_string())),
+            key: Arc::new(TableKey::UndefinedString(SmolStr::new("[number]"))),
             equal_or_colon: None,
             value: Arc::new(TableFieldValue::Type(TypeDefinition::from((
                 fields_list,

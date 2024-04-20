@@ -3,6 +3,7 @@
 //! Module holding types that'll be used everywhere around the parser and most likely
 //! outside it too, like in a formatter or a lsp.
 use std::sync::Arc;
+use smol_str::SmolStr;
 use tree_sitter::{Node, TreeCursor};
 
 use super::{
@@ -236,7 +237,7 @@ pub struct Ast {
     /// The path pointing to the file that this [`ast`](Ast) represents, if any.
     /// For scopes like functions, if statements, etc. it'll be `None` but for actual
     /// files it'll always be `Some`.
-    pub uri: Option<String>,
+    pub uri: Option<SmolStr>,
 
     /// The tokens in the of this [`ast`](Ast) **only**. Parent [`asts`](Ast)' tokens won't
     /// be included. The optional [`SingleToken`] is the optional semicolon after the

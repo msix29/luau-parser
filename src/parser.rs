@@ -28,7 +28,7 @@ pub(crate) fn parse_block(body: &Node, code_bytes: &[u8], uri: Option<String>) -
     }
 
     Ast {
-        uri,
+        uri: uri.map(|uri| uri.into()),
         statements: Arc::new(statements),
         last_statement: body
             .child_by_field_name("lastStatement")
