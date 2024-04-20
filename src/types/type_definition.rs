@@ -351,13 +351,13 @@ pub enum GenericParameterInfoDefault {
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct GenericDeclaration {
     /// The `<` character.
-    pub right_arrow: SingleToken,
+    pub opening_arrow: SingleToken,
 
     /// The actual generics.
     pub generics: List<GenericDeclarationParameter>,
 
     /// The `>` character.
-    pub left_arrow: SingleToken,
+    pub closing_arrow: SingleToken,
 }
 
 /// Possible errors converting from an expression to a type definition.

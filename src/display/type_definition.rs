@@ -215,22 +215,22 @@ impl HasRawValue for GenericDeclaration {
     fn get_raw_value(&self) -> String {
         format!(
             "{}{}{}",
-            self.right_arrow.get_raw_value(),
+            self.opening_arrow.get_raw_value(),
             self.generics
                 .items
                 .iter()
                 .map(|generic| generic.get_raw_value())
                 .collect::<Vec<String>>()
                 .join(", "),
-            self.left_arrow.get_raw_value()
+            self.closing_arrow.get_raw_value(),
         )
     }
 }
 impl_print_struct!(
     GenericDeclaration,
-    { self.right_arrow, print! },
+    { self.opening_arrow, print! },
     { self.generics, print! },
-    { self.left_arrow, print! }
+    { self.closing_arrow, print! }
 );
 
 #[cfg(feature = "raw-values")]

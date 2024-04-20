@@ -96,13 +96,13 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
                 );
 
                 GenericDeclaration {
-                    left_arrow: SingleToken::from((
-                        node.child_by_field_name("left_arrow").unwrap(),
+                    opening_arrow: SingleToken::from((
+                        node.child_by_field_name("opening_arrow").unwrap(),
                         code_bytes,
                     )),
                     generics,
-                    right_arrow: SingleToken::from((
-                        node.child_by_field_name("right_arrow").unwrap(),
+                    closing_arrow: SingleToken::from((
+                        node.child_by_field_name("closing_arrow").unwrap(),
                         code_bytes,
                     )),
                 }

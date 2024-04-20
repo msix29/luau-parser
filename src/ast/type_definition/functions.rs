@@ -222,13 +222,13 @@ pub(crate) fn build_generics(node: Node, code_bytes: &[u8]) -> Option<GenericDec
         );
 
         Some(GenericDeclaration {
-            left_arrow: SingleToken::from((
-                node.child_by_field_name("left_arrow").unwrap(),
+            opening_arrow: SingleToken::from((
+                node.child_by_field_name("opening_arrow").unwrap(),
                 code_bytes,
             )),
             generics,
-            right_arrow: SingleToken::from((
-                node.child_by_field_name("right_arrow").unwrap(),
+            closing_arrow: SingleToken::from((
+                node.child_by_field_name("closing_arrow").unwrap(),
                 code_bytes,
             )),
         })
