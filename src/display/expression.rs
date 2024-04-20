@@ -1,6 +1,9 @@
 //! Implements display traits for expressions.
 
 #[cfg(feature = "raw-values")]
+use std::fmt::Write;
+
+#[cfg(feature = "raw-values")]
 use super::type_definition::try_generics_to_string;
 use crate::{
     impl_print_enum, impl_print_struct, optional_print,
@@ -317,7 +320,12 @@ impl HasRawValue for TableAccess {
         format!(
             "{}{}",
             self.prefix.get_raw_value(),
-            self.accessed_keys.last().unwrap().get_raw_value()
+            self.accessed_keys
+                .iter()
+                .fold(String::new(), |mut string, key| {
+                    let _ = write!(string, "{}{}", key.get_separator(), key.get_raw_value());
+                    string
+                }),
         )
     }
 }
@@ -350,6 +358,17 @@ impl HasRawValue for TableAccessKey {
         match self {
             TableAccessKey::Expression(value) => value.get_raw_value(),
             TableAccessKey::Name { name, .. } => name.get_raw_value(),
+        }
+    }
+}
+#[cfg(feature = "raw-values")]
+impl TableAccessKey {
+    /// Get the separator that's leading this table access, if it's a name it'll
+    /// be a `.`, else it'll be an empty string.
+    pub fn get_separator(&self) -> String {
+        match self {
+            TableAccessKey::Expression(_) => String::new(),
+            TableAccessKey::Name { .. } => String::from("."),
         }
     }
 }
