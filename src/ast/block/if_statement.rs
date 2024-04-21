@@ -36,7 +36,7 @@ impl LuauStatement for IfStatement {
             .map(|node| ElseStatement {
                 else_keyword: SingleToken::from((node.child(0).unwrap(), code_bytes)),
                 body: node
-                    .child(2)
+                    .child(1)
                     .map_or_else(Ast::default, |body| parse_block(&body, code_bytes, None)),
             });
 
