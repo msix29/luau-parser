@@ -58,27 +58,6 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
                             node.child_by_field_name("nameWithGenerics").unwrap(),
                             code_bytes,
                         ))),
-                        // generics: node.child_by_field_name("geneircs").map(|generics| {
-                        //     GenericParameters {
-                        //         opening_arrow: SingleToken::from((
-                        //             generics.child_by_field_name("opening_arrow").unwrap(),
-                        //             code_bytes,
-                        //         )),
-                        //         generics: List::from_iter(
-                        //             node.children_by_field_name("type_param", &mut node.walk()),
-                        //             node,
-                        //             "separator",
-                        //             code_bytes,
-                        //             |_, node| {
-                        //                 todo!()
-                        //             },
-                        //         ),
-                        //         closing_arrow: SingleToken::from((
-                        //             generics.child_by_field_name("closing_arrow").unwrap(),
-                        //             code_bytes,
-                        //         )),
-                        //     }
-                        // }),
                     }
                 } else {
                     Self::from((
