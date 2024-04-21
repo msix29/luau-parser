@@ -177,3 +177,43 @@ impl HasRange for TypeDefinition {
         )
     }
 }
+
+impl HasRange for GenericDeclaration {
+    fn get_range(&self) -> Range {
+        get_range_from_boundaries(
+            self.opening_arrow.get_range(),
+            self.closing_arrow.get_range(),
+        )
+    }
+}
+impl HasRange for GenericDeclarationParameter {
+    fn get_range(&self) -> Range {
+        if let Some(default) = &self.default {
+            get_range_from_boundaries(self.parameter.get_range(), default.get_range())
+        } else {
+            self.parameter.get_range()
+        }
+    }
+}
+impl HasRange for GenericParameterInfo {
+    fn get_range(&self) -> Range {
+        match self {
+            GenericParameterInfo::Name(name) => name.get_range(),
+            GenericParameterInfo::Pack { name, ellipsis } => {
+                get_range_from_boundaries(name.get_range(), ellipsis.get_range())
+            }
+        }
+    }
+}
+impl HasRange for GenericParameterInfoDefault {
+    fn get_range(&self) -> Range {
+        match self {
+            GenericParameterInfoDefault::Name { equal_sign, name } => {
+                get_range_from_boundaries(equal_sign.get_range(), name.get_range())
+            }
+            GenericParameterInfoDefault::Pack { equal_sign, r#type } => {
+                get_range_from_boundaries(equal_sign.get_range(), r#type.get_range())
+            }
+        }
+    }
+}

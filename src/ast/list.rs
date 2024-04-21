@@ -4,11 +4,24 @@ use std::ops::Deref;
 
 use tree_sitter::Node;
 
-use crate::prelude::{List, ListItem, SingleToken};
+use crate::{
+    prelude::{HasRange, List, ListItem, Range, SingleToken},
+    utils::get_range_from_boundaries,
+};
 
 impl<T> Default for List<T> {
     fn default() -> Self {
         Self { items: Vec::new() }
+    }
+}
+impl<T> Deref for ListItem<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        match self {
+            Self::Trailing { item, separator: _ } => item,
+            Self::NonTrailing(item) => item,
+        }
     }
 }
 
@@ -59,7 +72,6 @@ impl<T: Clone> List<T> {
         }
     }
 }
-
 impl<'a, T> List<T> {
     /// Builds a list from an iterator.
     pub fn from_iter<'b>(
@@ -90,14 +102,18 @@ impl<'a, T> List<T> {
         }
     }
 }
-
-impl<T> Deref for ListItem<T> {
-    type Target = T;
-
-    fn deref(&self) -> &Self::Target {
-        match self {
-            Self::Trailing { item, separator: _ } => item,
-            Self::NonTrailing(item) => item,
+impl<T: HasRange> List<T> {
+    /// Try getting the range of this list. This function will always return `Some` as
+    /// long as there's at least 1 item inside it. If the list is empty it'll be `None`.
+    pub fn try_get_range(&self) -> Option<Range> {
+        //HACK: If there's only 1 item, no need to call first and last!
+        if self.items.len() == 1 {
+            Some(self.items[0].get_range())
+        } else {
+            Some(get_range_from_boundaries(
+                self.items.first()?.get_range(),
+                self.items.last()?.get_range(),
+            ))
         }
     }
 }

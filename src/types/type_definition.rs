@@ -156,7 +156,6 @@ pub enum TypeValue {
 
         /// The actual name of the type being accessed.
         type_value: Arc<TypeValue>,
-
         // /// The generics for this type.
         // generics: Option<GenericParameters>,
     },
@@ -323,6 +322,7 @@ pub enum GenericParameterInfo {
         ellipsis: SingleToken,
     },
 }
+
 /// A generic declaration parameter used in [`generic declarations`](GenericDeclaration).
 /// Consists of a [`parameter info`](GenericParameterInfo) and an optional default type.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
