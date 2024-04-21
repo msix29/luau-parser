@@ -1,12 +1,17 @@
 //! Utility functions.
 
-use std::str::from_utf8;
-use tree_sitter::Node;
-
+#[cfg(feature = "lsp-ready")]
+mod find_type;
 #[cfg(feature = "lsp-ready")]
 mod find_variable;
+
+#[cfg(feature = "lsp-ready")]
+pub use find_type::*;
 #[cfg(feature = "lsp-ready")]
 pub use find_variable::*;
+
+use std::str::from_utf8;
+use tree_sitter::Node;
 
 use crate::prelude::{Position, Range};
 

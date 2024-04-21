@@ -95,7 +95,7 @@ pub enum TypeValue {
         right_arrows: SingleToken,
 
         /// The actual generics.
-        generics: List<TypeValue>,
+        generics: List<Arc<TypeValue>>,
 
         /// The `>` character.
         left_arrows: SingleToken,

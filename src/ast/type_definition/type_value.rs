@@ -30,8 +30,10 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
                             "typeParamSeparator",
                             code_bytes,
                             |_, node| match node.kind() {
-                                "typeparam" => Self::from((node.child(0).unwrap(), code_bytes)),
-                                "typepack" => Self::from((node, code_bytes)),
+                                "typeparam" => {
+                                    Arc::new(Self::from((node.child(0).unwrap(), code_bytes)))
+                                }
+                                "typepack" => Arc::new(Self::from((node, code_bytes))),
                                 _ => unreachable!("{}", node.kind()),
                             },
                         ),

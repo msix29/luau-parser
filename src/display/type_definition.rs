@@ -1,11 +1,13 @@
 //! Implements display traits for type definitions.
 
+use std::sync::Arc;
+
 #[cfg(feature = "raw-values")]
 use crate::prelude::HasRawValue;
 use crate::{
     impl_print_enum, impl_print_struct, optional_print,
     prelude::{
-        GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo, GenericParameterInfoDefault, GenericParameters, TypeDefinition, TypeValue
+        GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo, GenericParameterInfoDefault, GenericParameters, Print, TypeDefinition, TypeValue
     },
     print,
 };

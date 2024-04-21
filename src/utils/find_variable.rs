@@ -1,14 +1,12 @@
 //! The `find_variable` function.
 
-// use crate::{Ast, Expression, HasRange, NormalizedName, Statement};
-
 use std::sync::Arc;
 
 use crate::prelude::{
     Ast, Expression, HasRange, Position, SingleToken, Statement, TypeDefinition, Var,
 };
 
-/// Finds a variable in a specific name in a specific [`ast`](Ast). The
+/// Finds a variable with a specific name in a specific [`ast`](Ast). The
 /// [`position`](Position) is needed so that it finds the variable that's before it.
 pub fn find_variable<'a>(
     ast: &'a Ast,

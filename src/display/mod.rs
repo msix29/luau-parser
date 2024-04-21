@@ -1,7 +1,5 @@
 //! Implements display traits for most of the structs.
 
-use crate::prelude::Print;
-
 mod block;
 mod comment;
 mod expression;
@@ -12,6 +10,12 @@ mod name;
 mod set_expressions;
 mod token;
 mod type_definition;
+
+use std::sync::Arc;
+
+use crate::prelude::Print;
+#[cfg(feature = "raw-values")]
+use crate::prelude::HasRawValue;
 
 impl Print for i32 {
     fn print(&self) -> String {
@@ -28,3 +32,17 @@ impl<T: Print> Print for Vec<T> {
         self.iter().map(|item| item.print()).collect::<String>()
     }
 }
+
+
+impl<T: Print> Print for Arc<T> {
+    fn print(&self) -> String {
+        (**self).print()
+    }
+}
+#[cfg(feature = "raw-values")]
+impl<T: HasRawValue> HasRawValue for Arc<T> {
+    fn get_raw_value(&self) -> String {
+        (**self).get_raw_value()
+    }
+}
+
