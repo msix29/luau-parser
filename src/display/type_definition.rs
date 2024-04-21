@@ -1,13 +1,12 @@
 //! Implements display traits for type definitions.
 
-use std::sync::Arc;
-
 #[cfg(feature = "raw-values")]
 use crate::prelude::HasRawValue;
 use crate::{
     impl_print_enum, impl_print_struct, optional_print,
     prelude::{
-        GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo, GenericParameterInfoDefault, GenericParameters, Print, TypeDefinition, TypeValue
+        GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo,
+        GenericParameterInfoDefault, GenericParameters, TypeDefinition, TypeValue,
     },
     print,
 };
@@ -37,10 +36,10 @@ impl HasRawValue for TypeDefinition {
             let export = self
                 .export_keyword
                 .as_ref()
-                .map_or_else(|| "".to_string(), |export| export.get_raw_value());
+                .map_or_else(|| "".to_string(), |export| export.get_raw_value() + " ");
 
             format!(
-                "{} {} {}{} = {}",
+                "{}{} {}{} = {}",
                 export,
                 type_keyword.get_raw_value(),
                 self.type_name.get_raw_value(),

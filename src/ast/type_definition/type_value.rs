@@ -150,13 +150,13 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
                             node,
                             "separator",
                             code_bytes,
-                            |_, node| Self::from((node, code_bytes)),
+                            |_, node| Arc::new(Self::from((node, code_bytes))),
                         );
 
                         if let Some(typepack) = node.child_by_field_name("variadic") {
-                            types
-                                .items
-                                .push(ListItem::NonTrailing(Self::from((typepack, code_bytes))))
+                            types.items.push(ListItem::NonTrailing(Arc::new(Self::from((
+                                typepack, code_bytes,
+                            )))))
                         }
 
                         Self::Tuple {

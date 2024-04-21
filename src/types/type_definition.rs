@@ -220,7 +220,7 @@ pub enum TypeValue {
         opening_parenthesis: SingleToken,
 
         /// The list of types between the parenthesis.
-        types: List<TypeValue>,
+        types: List<Arc<TypeValue>>,
 
         /// The `)` character.
         closing_parenthesis: SingleToken,
