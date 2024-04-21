@@ -50,8 +50,7 @@ impl<T: Clone> List<T> {
         }
     }
 
-    /// Turns `List<T>` into `List<U>` where `U: From<(T, P)>`. `U::from` gets called
-    /// with the first paramter being `T` and the second being `P`.
+    /// Turns `List<T>` into `List<U>`.
     pub fn to<U: From<T>>(&self) -> List<U> {
         if self.items.is_empty() {
             return List::default();
