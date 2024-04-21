@@ -159,7 +159,7 @@ pub enum FunctionArguments {
         open_parenthesis: SingleToken,
 
         /// List of arguments passed to the function.
-        arguments: List<Expression>,
+        arguments: List<Arc<Expression>>,
 
         /// The `)` character.
         close_parenthesis: SingleToken,

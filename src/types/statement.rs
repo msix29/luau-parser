@@ -214,7 +214,7 @@ pub enum LastStatement {
         return_keyword: SingleToken,
 
         /// The list of expressions after it.
-        expressions: List<Expression>,
+        expressions: List<Arc<Expression>>,
 
         /// The `;` character.
         semicolon: Option<SingleToken>,

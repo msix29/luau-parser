@@ -1,5 +1,7 @@
 //! Holding all needed information for local assignments.
 
+use std::sync::Arc;
+
 use super::{Expression, List, NormalizedName, SingleToken};
 
 /// A struct holding data for local assignments.
@@ -16,5 +18,5 @@ pub struct LocalAssignment {
     pub equal_token: Option<SingleToken>,
 
     /// The list of [`expressions`](Expression) after the `=` sign.
-    pub expressions: List<Expression>,
+    pub expressions: List<Arc<Expression>>,
 }

@@ -84,7 +84,7 @@ impl Expression {
     pub(crate) fn from_nodes<'a>(
         nodes_iter: impl Iterator<Item = Node<'a>>,
         code_bytes: &[u8],
-    ) -> List<Expression> {
+    ) -> List<Arc<Expression>> {
         let nodes = nodes_iter.collect::<Vec<Node>>();
         if nodes.is_empty() {
             return List::default();
@@ -99,10 +99,10 @@ impl Expression {
                 .step_by(2)
                 .map(|(i, node)| {
                     if i == last_index {
-                        ListItem::NonTrailing(Expression::from((*node, code_bytes)))
+                        ListItem::NonTrailing(Arc::new(Expression::from((*node, code_bytes))))
                     } else {
                         ListItem::Trailing {
-                            item: Expression::from((*node, code_bytes)),
+                            item: Arc::new(Expression::from((*node, code_bytes))),
                             separator: SingleToken::from((nodes[i + 1], code_bytes)),
                         }
                     }

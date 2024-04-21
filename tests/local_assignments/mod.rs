@@ -53,7 +53,7 @@ fn local_assignment_2() {
     #[cfg(feature = "raw-values")]
     assert_eq!(assignment.expressions.items[0].get_raw_value(), "1");
     assert_eq!(
-        *assignment.expressions.items[1],
+        **assignment.expressions.items[1],
         Expression::FunctionCall(FunctionCall {
             invoked: FunctionCallInvoked::Function(Arc::new(PrefixExp::Var(Var::Name(
                 SingleToken::new("foo")

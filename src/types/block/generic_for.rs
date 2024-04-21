@@ -1,5 +1,7 @@
 //! For in struct.
 
+use std::sync::Arc;
+
 use crate::prelude::{Expression, List, NormalizedName, SingleToken};
 
 use super::DoBlock;
@@ -18,7 +20,7 @@ pub struct GenericFor {
     pub in_keyword: SingleToken,
 
     /// The expressions after.
-    pub expressions: List<Expression>,
+    pub expressions: List<Arc<Expression>>,
 
     /// The do block.
     pub do_block: DoBlock,
