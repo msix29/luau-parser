@@ -70,6 +70,10 @@ impl LuauParser {
 
     /// Parse Luau code into an [`ast`](Ast).
     pub fn parse(&mut self, code: &str, uri: &str) -> Ast {
+        // NOTE: Can a text editor use `\r` by itself independant of the OS? If so, remove
+        // this `cfg`.
+        #[cfg(windows)]
+        let code = &code.replace('\r', "");
         let tree = self.parser.parse(code, None).unwrap();
 
         let code_bytes = code.as_bytes();
