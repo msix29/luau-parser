@@ -66,7 +66,7 @@ impl HasRawValue for GlobalFunctionName {
                 format!(
                     "{}{}{}",
                     table.get_raw_value(),
-                    keys.bare_raw_value_with_separator("."),
+                    keys.get_raw_value(),
                     method
                 )
             }
