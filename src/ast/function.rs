@@ -77,13 +77,21 @@ impl LuauStatement for GlobalFunction {
                     keys: List::from_iter(
                         node.children_by_field_name("index", &mut node.walk()),
                         node,
-                        "dot",
+                        "_", // Matches nothing.
                         code_bytes,
-                        |_, name| SingleToken::from((name, code_bytes)),
+                        |_, node| {
+                            (
+                                SingleToken::from((node.prev_sibling().unwrap(), code_bytes)),
+                                SingleToken::from((node, code_bytes)),
+                            )
+                        },
                     ),
-                    method: node
-                        .child_by_field_name("method")
-                        .map(|method| SingleToken::from((method, code_bytes))),
+                    method: node.child_by_field_name("method").map(|method| {
+                        (
+                            SingleToken::from((method.prev_sibling().unwrap(), code_bytes)),
+                            SingleToken::from((method, code_bytes)),
+                        )
+                    }),
                 }
             },
             generics: build_generics(node, code_bytes),

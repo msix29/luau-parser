@@ -73,7 +73,15 @@ pub enum GlobalFunctionName {
         /// ```
         ///
         /// Here, the keys are `bar` and `qux`.
-        keys: List<SingleToken>,
+        ///
+        /// # Note
+        ///
+        /// All [`ListItem`]s here will be will be [`NonTrailing`]. Amd `key.0` will always
+        /// be the dot character instead.
+        ///
+        /// [`ListItem`]: crate::types::ListItem
+        /// [`NonTrailing`]: crate::types::ListItem::NonTrailing
+        keys: List<(SingleToken, SingleToken)>,
 
         /// The final name of the function, if it exists.
         ///
@@ -94,7 +102,7 @@ pub enum GlobalFunctionName {
         /// ```
         ///
         /// The method is `None` as there's no `:`.
-        method: Option<SingleToken>,
+        method: Option<(SingleToken, SingleToken)>,
     },
 }
 

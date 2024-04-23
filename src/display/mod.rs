@@ -13,9 +13,9 @@ mod type_definition;
 
 use std::sync::Arc;
 
-use crate::prelude::Print;
 #[cfg(feature = "raw-values")]
 use crate::prelude::HasRawValue;
+use crate::prelude::Print;
 
 impl Print for i32 {
     fn print(&self) -> String {
@@ -33,6 +33,18 @@ impl<T: Print> Print for Vec<T> {
     }
 }
 
+impl<A: Print, B: Print> Print for (A, B) {
+    fn print(&self) -> String {
+        format!("{}{}", self.0.print(), self.1.print())
+    }
+}
+
+#[cfg(feature = "raw-values")]
+impl<A: HasRawValue, B: HasRawValue> HasRawValue for (A, B) {
+    fn get_raw_value(&self) -> String {
+        format!("{}{}", self.0.get_raw_value(), self.1.get_raw_value())
+    }
+}
 
 impl<T: Print> Print for Arc<T> {
     fn print(&self) -> String {
@@ -45,4 +57,3 @@ impl<T: HasRawValue> HasRawValue for Arc<T> {
         (**self).get_raw_value()
     }
 }
-
