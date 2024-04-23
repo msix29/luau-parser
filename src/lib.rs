@@ -17,7 +17,7 @@
 //! let ast = parser.parse(code, uri);
 //!
 //! println!("{:#?}", ast);
-//! assert_eq!(ast.tokens.len(), 1);
+//! assert_eq!(ast.statements.len(), 1);
 //! ```
 //!
 //! # Note
