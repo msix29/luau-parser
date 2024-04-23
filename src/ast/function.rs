@@ -10,7 +10,9 @@ use crate::{
     utils::get_range_from_boundaries,
 };
 
-use super::type_definition::helper_functions::{build_function_parameters, build_function_returns};
+use super::type_definition::helper_functions::{
+    build_function_parameters, build_function_returns, build_generics,
+};
 
 impl LuauStatement for LocalFunction {
     fn try_from_node<'a>(
@@ -26,6 +28,7 @@ impl LuauStatement for LocalFunction {
             local_keyword: SingleToken::from((node.child(0).unwrap(), code_bytes)),
             function_keyword: SingleToken::from((node.child(1).unwrap(), code_bytes)),
             function_name: SingleToken::from((node.child(2).unwrap(), code_bytes)),
+            generics: build_generics(node, code_bytes),
             opening_parenthesis: SingleToken::from((
                 node.child_by_field_name("opening_parenthesis").unwrap(),
                 code_bytes,
@@ -83,6 +86,7 @@ impl LuauStatement for GlobalFunction {
                         .map(|method| SingleToken::from((method, code_bytes))),
                 }
             },
+            generics: build_generics(node, code_bytes),
             opening_parenthesis: SingleToken::from((
                 node.child_by_field_name("opening_parenthesis").unwrap(),
                 code_bytes,

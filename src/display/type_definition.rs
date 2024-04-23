@@ -18,7 +18,7 @@ pub fn try_generics_to_string(
     add_space_before: bool,
 ) -> String {
     generics.as_ref().map_or_else(
-        || "".to_string(),
+        String::new,
         |generics| {
             if add_space_before {
                 String::from(" ") + &generics.get_raw_value()

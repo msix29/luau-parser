@@ -1,6 +1,6 @@
 //! Local and global functions.
 
-use super::{Ast, List, NormalizedName, SingleToken, TypeValue};
+use super::{Ast, GenericDeclaration, List, NormalizedName, SingleToken, TypeValue};
 
 /// A struct representing a local function.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -14,6 +14,9 @@ pub struct LocalFunction {
 
     /// The name of the function.
     pub function_name: SingleToken,
+
+    /// The generics of the function.
+    pub generics: Option<GenericDeclaration>,
 
     /// The `(` character.
     pub opening_parenthesis: SingleToken,
@@ -104,6 +107,9 @@ pub struct GlobalFunction {
 
     /// The name of the function.
     pub function_name: GlobalFunctionName,
+
+    /// The generics of the function.
+    pub generics: Option<GenericDeclaration>,
 
     /// The `(` character.
     pub opening_parenthesis: SingleToken,
