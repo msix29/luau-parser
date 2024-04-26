@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use smol_str::SmolStr;
 
-use crate::prelude::{Expression, List, SingleToken, TypeDefinition};
+use crate::prelude::{Expression, List, SingleToken, StringLiteral, TypeDefinition};
 
 /// A possible key entry in a table. The key is usually a string, but it can be a value
 /// (from an expression) in tables or a type in type definitions.
@@ -38,7 +38,7 @@ pub enum TableKey {
     UndefinedString(SmolStr),
 
     /// Simple key
-    String(SingleToken),
+    String(StringLiteral),
 
     /// An expression, can only be used in definitions and not in types.
     Expression {

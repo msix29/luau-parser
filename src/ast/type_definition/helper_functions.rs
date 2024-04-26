@@ -6,9 +6,7 @@ use smol_str::SmolStr;
 use tree_sitter::Node;
 
 use crate::prelude::{
-    GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo, List, ListItem,
-    NormalizedName, SingleToken, Table, TableField, TableFieldValue, TableKey, TypeDefinition,
-    TypeValue,
+    GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo, List, ListItem, NormalizedName, SingleToken, StringLiteral, Table, TableField, TableFieldValue, TableKey, TypeDefinition, TypeValue
 };
 
 /// Get a type value from a node representing a singleton type.
@@ -45,7 +43,7 @@ pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> Table {
                 match field.kind() {
                     "tableProperty" => {
                         table_fields.push(ListItem::NonTrailing(TableField {
-                            key: Arc::new(TableKey::String(SingleToken::from((
+                            key: Arc::new(TableKey::String(StringLiteral::from((
                                 field.child(0).unwrap(),
                                 code_bytes,
                             )))),

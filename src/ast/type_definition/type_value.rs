@@ -6,7 +6,7 @@ use tree_sitter::Node;
 use crate::{
     prelude::{
         ConversionError, ElseIfExpression, Expression, HasRange, List, ListItem, Range,
-        SingleToken, Table, TableField, TableFieldValue, TableKey, TypeValue,
+        SingleToken, StringLiteral, Table, TableField, TableFieldValue, TableKey, TypeValue,
     },
     utils::get_range_from_boundaries,
 };
@@ -165,7 +165,9 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
 impl HasRange for TypeValue {
     fn get_range(&self) -> Range {
         match self {
-            Self::Basic(value) | Self::String(value) | Self::Boolean(value) => value.get_range(),
+            Self::Basic(value) | Self::String(StringLiteral(value)) | Self::Boolean(value) => {
+                value.get_range()
+            }
             Self::Wrap {
                 opening_parenthesis,
                 r#type: _,

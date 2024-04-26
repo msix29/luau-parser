@@ -6,16 +6,18 @@ use std::fmt::Write;
 #[cfg(feature = "raw-values")]
 use super::type_definition::try_generics_to_string;
 use crate::{
-    impl_print_enum, impl_print_struct, optional_print,
-    prelude::{
+    impl_print_enum, impl_print_struct, optional_print, print,
+    types::{
         ElseIfExpression, Expression, ExpressionWrap, FunctionArguments, FunctionCall,
         FunctionCallInvoked, PrefixExp, Table, TableAccess, TableAccessKey, TableAccessPrefix,
         TableField, TableFieldValue, TableKey, Var,
     },
-    print,
 };
 #[cfg(feature = "raw-values")]
-use crate::{prelude::HasRawValue, utils::fix_table_indentation};
+use crate::{
+    types::{HasRawValue, StringLiteral},
+    utils::fix_table_indentation,
+};
 
 impl_print_struct!(
     ElseIfExpression,
@@ -26,14 +28,13 @@ impl_print_struct!(
 );
 
 #[cfg(feature = "raw-values")]
-#[cfg(feature = "raw-values")]
 impl HasRawValue for Expression {
     fn get_raw_value(&self) -> String {
         match self {
             Expression::Nil(value)
             | Expression::Boolean(value)
             | Expression::Number(value)
-            | Expression::String(value) => value.get_raw_value(),
+            | Expression::String(StringLiteral(value)) => value.get_raw_value(),
             Expression::Function {
                 generics,
                 parameters,

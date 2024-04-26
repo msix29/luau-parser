@@ -4,7 +4,7 @@
 
 use std::sync::Arc;
 
-use super::{FunctionCall, List, NormalizedName, SingleToken, Table, Var};
+use super::{FunctionCall, List, NormalizedName, SingleToken, StringLiteral, Table, Var};
 use crate::prelude::Expression;
 
 /// Possible values for a type.
@@ -23,7 +23,7 @@ pub enum TypeValue {
     /// ```lua
     /// type Foo = "Bar"
     /// ```
-    String(SingleToken),
+    String(StringLiteral),
 
     /// A boolean value
     ///

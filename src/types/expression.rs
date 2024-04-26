@@ -225,7 +225,7 @@ pub enum Expression {
 
     /// A string, be it double quotes, single quotes, interpolated string, or multi-line.
     //TODO: Support interpolated string as a type by itself for better diagnostics?
-    String(SingleToken),
+    String(StringLiteral),
 
     /// An **anonymous** function.
     ///

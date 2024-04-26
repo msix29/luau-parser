@@ -1,14 +1,13 @@
 //! Implements display traits for type definitions.
 
 #[cfg(feature = "raw-values")]
-use crate::prelude::HasRawValue;
+use crate::types::{HasRawValue, StringLiteral};
 use crate::{
-    impl_print_enum, impl_print_struct, optional_print,
-    prelude::{
+    impl_print_enum, impl_print_struct, optional_print, print,
+    types::{
         GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo,
         GenericParameterInfoDefault, GenericParameters, TypeDefinition, TypeValue,
     },
-    print,
 };
 
 /// Try turning generics to a string
@@ -17,16 +16,13 @@ pub fn try_generics_to_string(
     generics: &Option<GenericDeclaration>,
     add_space_before: bool,
 ) -> String {
-    generics.as_ref().map_or_else(
-        String::new,
-        |generics| {
-            if add_space_before {
-                String::from(" ") + &generics.get_raw_value()
-            } else {
-                generics.get_raw_value()
-            }
-        },
-    )
+    generics.as_ref().map_or_else(String::new, |generics| {
+        if add_space_before {
+            String::from(" ") + &generics.get_raw_value()
+        } else {
+            generics.get_raw_value()
+        }
+    })
 }
 
 #[cfg(feature = "raw-values")]
@@ -65,9 +61,9 @@ impl_print_struct!(
 impl HasRawValue for TypeValue {
     fn get_raw_value(&self) -> String {
         match self {
-            TypeValue::Basic(value) | TypeValue::String(value) | TypeValue::Boolean(value) => {
-                value.get_raw_value()
-            }
+            TypeValue::Basic(value)
+            | TypeValue::String(StringLiteral(value))
+            | TypeValue::Boolean(value) => value.get_raw_value(),
             TypeValue::Wrap { r#type, .. } => format!("({})", r#type.get_raw_value()),
             TypeValue::Function {
                 generics,

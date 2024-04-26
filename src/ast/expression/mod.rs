@@ -8,9 +8,9 @@ use tree_sitter::Node;
 
 use crate::{
     prelude::{
-        parse_block, type_definition::helper_functions::build_generics, Ast, ElseIfExpression, Expression,
-        HasRange, List, ListItem, PrefixExp, Range, SingleToken, Table, TableField,
-        TableFieldValue, TableKey, TypeDefinition,
+        parse_block, type_definition::helper_functions::build_generics, Ast, ElseIfExpression,
+        Expression, HasRange, List, ListItem, PrefixExp, Range, SingleToken, StringLiteral, Table,
+        TableField, TableFieldValue, TableKey, TypeDefinition,
     },
     utils::get_range_from_boundaries,
 };
@@ -39,7 +39,7 @@ pub(crate) fn build_table(node: Node, code_bytes: &[u8]) -> Table {
             code_bytes,
             |_, node| {
                 let key = if let Some(key) = node.child_by_field_name("keyName") {
-                    TableKey::String(SingleToken::from((key, code_bytes)))
+                    TableKey::String(StringLiteral::from((key, code_bytes)))
                 } else if let Some(key) = node.child_by_field_name("keyExp") {
                     TableKey::Expression {
                         open_square_brackets: SingleToken::from((
@@ -139,8 +139,8 @@ impl From<(Node<'_>, &[u8])> for Expression {
             "nil" => Expression::Nil(SingleToken::from((node, code_bytes))),
             "boolean" => Expression::Boolean(SingleToken::from((node, code_bytes))),
             "number" => Expression::Number(SingleToken::from((node, code_bytes))),
-            "string" => Expression::String(SingleToken::from((node, code_bytes))),
-            "string_interp" => Expression::String(SingleToken::from((node, code_bytes))),
+            "string" => Expression::String(StringLiteral::from((node, code_bytes))),
+            "string_interp" => Expression::String(StringLiteral::from((node, code_bytes))),
             "anon_fn" => {
                 Expression::Function {
                     function_keyword: SingleToken::from((
