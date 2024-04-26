@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use super::{
-    Ast, GenericDeclaration, List, NormalizedName, SingleToken, StringLiteral, Table, TableKey, TypeDefinition, TypeValue
+    Ast, GenericDeclaration, List, NormalizedName, Number, SingleToken, StringLiteral, Table, TableKey, TypeDefinition, TypeValue
 };
 
 /// An enum representing different ways in which a table value can be returned from.
@@ -221,7 +221,7 @@ pub enum Expression {
     Boolean(SingleToken),
 
     /// Any number, be it a float, an unsigned integer, an integer or a hex digit.
-    Number(SingleToken),
+    Number(Number),
 
     /// A string, be it double quotes, single quotes, interpolated string, or multi-line.
     //TODO: Support interpolated string as a type by itself for better diagnostics?

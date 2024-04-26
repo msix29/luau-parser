@@ -8,9 +8,7 @@ use tree_sitter::Node;
 
 use crate::{
     prelude::{
-        parse_block, type_definition::helper_functions::build_generics, Ast, ElseIfExpression,
-        Expression, HasRange, List, ListItem, PrefixExp, Range, SingleToken, StringLiteral, Table,
-        TableField, TableFieldValue, TableKey, TypeDefinition,
+        parse_block, type_definition::helper_functions::build_generics, Ast, ElseIfExpression, Expression, HasRange, List, ListItem, Number, PrefixExp, Range, SingleToken, StringLiteral, Table, TableField, TableFieldValue, TableKey, TypeDefinition
     },
     utils::get_range_from_boundaries,
 };
@@ -138,7 +136,7 @@ impl From<(Node<'_>, &[u8])> for Expression {
         match node.kind() {
             "nil" => Expression::Nil(SingleToken::from((node, code_bytes))),
             "boolean" => Expression::Boolean(SingleToken::from((node, code_bytes))),
-            "number" => Expression::Number(SingleToken::from((node, code_bytes))),
+            "number" => Expression::Number(Number::from((node, code_bytes))),
             "string" => Expression::String(StringLiteral::from((node, code_bytes))),
             "string_interp" => Expression::String(StringLiteral::from((node, code_bytes))),
             "anon_fn" => {

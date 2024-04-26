@@ -15,7 +15,7 @@ use crate::{
 };
 #[cfg(feature = "raw-values")]
 use crate::{
-    types::{HasRawValue, StringLiteral},
+    types::{HasRawValue, StringLiteral, Number},
     utils::fix_table_indentation,
 };
 
@@ -33,7 +33,7 @@ impl HasRawValue for Expression {
         match self {
             Expression::Nil(value)
             | Expression::Boolean(value)
-            | Expression::Number(value)
+            | Expression::Number(Number(value))
             | Expression::String(StringLiteral(value)) => value.get_raw_value(),
             Expression::Function {
                 generics,
