@@ -20,10 +20,10 @@ pub mod type_definition;
 
 use crate::prelude::{Ast, HasRange, Print, Range, SingleToken, Statement};
 
-impl Ast {
+impl Print for Ast {
     /// Returns the code that was behind this AST as-is, without any modifications and
     /// without losing on any details.
-    pub fn print(&self) -> String {
+    fn print(&self) -> String {
         let len = self.statements.len();
         if len == 0 {
             return String::new();
@@ -73,7 +73,8 @@ impl_statement!(HasRange, get_range, Range);
 impl_statement!(Print, print, String);
 
 impl Statement {
-    /// Get the body of this rule, if this rule doesn't start a new scope, `None` is returned.
+    /// Get the body of this rule, if this rule doesn't start a new scope, `None` is
+    /// returned.
     ///
     /// # Note
     ///

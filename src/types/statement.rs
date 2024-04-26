@@ -251,8 +251,8 @@ pub struct Ast {
     /// The [`last statement`](LastStatement) in this scope.
     pub last_statement: Option<Arc<LastStatement>>,
 
-    /// The status of the Ast. If it isn't [`complete`](AstStatus::Complete), it's better
-    /// to not use it for operations which affect the source code, like formatting; the
-    /// output will have missing parts of the code.
+    /// The status of the [`ast`](Ast). If it isn't [`complete`](AstStatus::Complete), it's
+    /// better to not use it for operations which affect the source code, like formatting;
+    /// the output will have missing parts of the code.
     pub status: AstStatus,
 }

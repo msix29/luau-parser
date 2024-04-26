@@ -37,7 +37,7 @@ pub(crate) fn parse_block(body: &Node, code_bytes: &[u8], uri: Option<String>) -
             AstStatus::HasErrors
         } else {
             AstStatus::Complete
-        },
+        }
     }
 }
 
