@@ -134,26 +134,3 @@ pub(crate) fn fix_table_indentation(raw_value: &str) -> String {
         .collect::<Vec<_>>()
         .join("\n")
 }
-
-/// Removes the first and last characters of the string.
-fn remove_surrounding_pair(string: &str) -> String {
-    string[1..(string.len() - 1)].to_string()
-}
-
-/// Removes string delimeters from a string. Assuming they're there. String
-/// delimeters can be:
-/// * `"`
-/// * `'`
-/// * `` ` ``
-/// * `[[` and the matching `]]` (with _n_ `=`).
-pub fn strip_string_delimiters(string: &str) -> String {
-    if string.starts_with('"') | string.starts_with('\'') | string.starts_with('`') {
-        remove_surrounding_pair(string)
-    } else if string.starts_with('[') {
-        // Remove the outermost `[]`, then trim `=` at both ends, then finally the
-        // innermost `[]`.
-        remove_surrounding_pair(remove_surrounding_pair(string).trim_matches('='))
-    } else {
-        string.to_string()
-    }
-}

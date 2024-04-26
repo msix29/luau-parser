@@ -7,7 +7,7 @@ use tree_sitter::Node;
 use crate::{
     prelude::{
         Expression, ExpressionWrap, FunctionArguments, FunctionCall, FunctionCallInvoked, HasRange,
-        LuauStatement, PrefixExp, Range, SingleToken, TableAccess, TableAccessKey,
+        LuauStatement, PrefixExp, Range, SingleToken, StringLiteral, TableAccess, TableAccessKey,
         TableAccessPrefix, TableKey, Var,
     },
     utils::get_range_from_boundaries,
@@ -76,7 +76,7 @@ fn handle_function_call(prefix_exp: Node, code_bytes: &[u8]) -> FunctionCall {
 
     let arguments = match actual_argument.kind() {
         "table" => FunctionArguments::Table(build_table(actual_argument, code_bytes)),
-        "string" => FunctionArguments::String(SingleToken::from((actual_argument, code_bytes))),
+        "string" => FunctionArguments::String(StringLiteral::from((actual_argument, code_bytes))),
         _ => FunctionArguments::List {
             open_parenthesis: SingleToken::from((
                 arguments_node

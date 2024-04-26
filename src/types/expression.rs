@@ -3,8 +3,7 @@
 use std::sync::Arc;
 
 use super::{
-    Ast, GenericDeclaration, List, NormalizedName, SingleToken, Table, TableKey, TypeDefinition,
-    TypeValue,
+    Ast, GenericDeclaration, List, NormalizedName, SingleToken, StringLiteral, Table, TableKey, TypeDefinition, TypeValue
 };
 
 /// An enum representing different ways in which a table value can be returned from.
@@ -140,7 +139,7 @@ pub enum FunctionArguments {
     /// ```lua
     /// local _ = foo"Hello, World!"
     /// ```
-    String(SingleToken),
+    String(StringLiteral),
 
     /// A standalone table.
     ///
