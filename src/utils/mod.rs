@@ -13,7 +13,7 @@ pub use find_variable::*;
 use std::str::from_utf8;
 use tree_sitter::Node;
 
-use crate::prelude::{Position, Range};
+use crate::prelude::Range;
 
 /// Gets the text from a specific byte range in a `&[u8]`, which represents bytes of valid
 /// text. This function does check for the passed bytes to ensure they're in the correct
@@ -76,33 +76,18 @@ pub fn get_range(node: Node) -> Range {
     let start = node.start_position();
     let end = node.end_position();
 
-    Range {
-        start: Position {
-            line: start.row as u32,
-            character: start.column as u32,
-        },
-        end: Position {
-            line: end.row as u32,
-            character: end.column as u32,
-        },
-    }
+    Range::new2(
+        start.row as u32,
+        start.column as u32,
+        end.row as u32,
+        end.column as u32,
+    )
 }
 
 /// Get the range of a specific tree-sitter node.
+#[inline]
 pub(crate) fn get_range_from_boundaries(a: Range, b: Range) -> Range {
-    let start = a.start;
-    let end = b.end;
-
-    Range {
-        start: Position {
-            line: start.line,
-            character: start.character,
-        },
-        end: Position {
-            line: end.line,
-            character: end.character,
-        },
-    }
+    Range::new(a.start, b.end)
 }
 
 /// Fix the indentation of a string representing a table.

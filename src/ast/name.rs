@@ -6,7 +6,7 @@ use tree_sitter::Node;
 
 use crate::{
     call_any,
-    prelude::{HasRange, NormalizedName, Range, SingleToken, TypeDefinition, TypeValue},
+    prelude::{HasRange, NormalizedName, Range, SingleToken, TypeValue},
     utils::get_range_from_boundaries,
 };
 
