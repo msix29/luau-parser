@@ -214,7 +214,6 @@ impl HasRawValue for GenericDeclaration {
             "{}{}{}",
             self.opening_arrow.get_raw_value(),
             self.generics
-                .items
                 .iter()
                 .map(|generic| generic.get_raw_value())
                 .collect::<Vec<String>>()
@@ -237,7 +236,6 @@ impl HasRawValue for GenericParameters {
             "{}{}{}",
             self.opening_arrow.get_raw_value(),
             self.generics
-                .items
                 .iter()
                 .map(|generic| generic.get_raw_value())
                 .collect::<Vec<String>>()

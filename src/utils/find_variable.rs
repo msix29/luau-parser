@@ -25,9 +25,9 @@ pub fn find_variable<'a>(
                 continue;
             }
 
-            for (i, normalized_name) in value.name_list.items.iter().enumerate() {
+            for (i, normalized_name) in value.name_list.iter().enumerate() {
                 if normalized_name.name.word == variable_name {
-                    if let Some(expression) = value.expressions.items.get(i) {
+                    if let Some(expression) = value.expressions.get(i) {
                         return Some((
                             &normalized_name.name,
                             normalized_name.r#type.clone(),
@@ -47,10 +47,10 @@ pub fn find_variable<'a>(
                 continue;
             }
 
-            for (i, var) in value.variables.items.iter().enumerate() {
+            for (i, var) in value.variables.iter().enumerate() {
                 if let Var::Name(name) = &**var {
                     if name.word == variable_name {
-                        if let Some(expression) = value.values.items.get(i) {
+                        if let Some(expression) = value.values.get(i) {
                             return Some((&name, None, (&**expression).clone()));
                         } else {
                             return Some((

@@ -44,8 +44,8 @@ impl HasRange for LocalAssignment {
     fn get_range(&self) -> Range {
         get_range_from_boundaries(
             self.local_token.get_range(),
-            self.expressions.items.last().map_or_else(
-                || self.name_list.items.last().unwrap().get_range(),
+            self.expressions.last().map_or_else(
+                || self.name_list.last().unwrap().get_range(),
                 |item| item.get_range(),
             ),
         )

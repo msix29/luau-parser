@@ -25,12 +25,12 @@ local t = {
     let assignment = get_item_from_tuple_enum!(&ast.statements[0].0, Statement::LocalAssignment);
     #[cfg(feature = "raw-values")]
     assert_eq!(
-        assignment.expressions.items[0].get_raw_value(),
+        assignment.expressions[0].get_raw_value(),
         r#"{
     foo = "bar";
     fn = function(),
     qux = "Hello, World!"
 }"#
     );
-    assert_eq!(assignment.expressions.items[0].print(), code[10..]);
+    assert_eq!(assignment.expressions[0].print(), code[10..]);
 }

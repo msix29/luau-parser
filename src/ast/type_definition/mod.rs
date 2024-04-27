@@ -59,41 +59,38 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
                         }),
                     },
                 );
-                generics.items.extend_from_slice(
-                    &List::from_iter(
-                        generics_node.children_by_field_name(
-                            "generic_pack_with_default",
-                            &mut generics_node.walk(),
-                        ),
-                        generics_node,
-                        "generic_pack_with_default_separator",
-                        code_bytes,
-                        |_, child| {
-                            let generic_pack = child.child(0).unwrap();
-                            GenericDeclarationParameter {
-                                parameter: GenericParameterInfo::Pack {
-                                    name: SingleToken::from((
-                                        generic_pack.child(0).unwrap(),
-                                        code_bytes,
-                                    )),
-                                    ellipsis: SingleToken::from((
-                                        generic_pack.child(1).unwrap(),
-                                        code_bytes,
-                                    )),
-                                },
-                                default: child.child(1).map(|equal| {
-                                    let genpack = child.child(2).unwrap();
+                generics.extend_from_slice(&List::from_iter(
+                    generics_node.children_by_field_name(
+                        "generic_pack_with_default",
+                        &mut generics_node.walk(),
+                    ),
+                    generics_node,
+                    "generic_pack_with_default_separator",
+                    code_bytes,
+                    |_, child| {
+                        let generic_pack = child.child(0).unwrap();
+                        GenericDeclarationParameter {
+                            parameter: GenericParameterInfo::Pack {
+                                name: SingleToken::from((
+                                    generic_pack.child(0).unwrap(),
+                                    code_bytes,
+                                )),
+                                ellipsis: SingleToken::from((
+                                    generic_pack.child(1).unwrap(),
+                                    code_bytes,
+                                )),
+                            },
+                            default: child.child(1).map(|equal| {
+                                let genpack = child.child(2).unwrap();
 
-                                    GenericParameterInfoDefault::Pack {
-                                        equal_sign: SingleToken::from((equal, code_bytes)),
-                                        r#type: TypeValue::from((genpack, code_bytes)),
-                                    }
-                                }),
-                            }
-                        },
-                    )
-                    .items,
-                );
+                                GenericParameterInfoDefault::Pack {
+                                    equal_sign: SingleToken::from((equal, code_bytes)),
+                                    r#type: TypeValue::from((genpack, code_bytes)),
+                                }
+                            }),
+                        }
+                    },
+                ));
 
                 GenericDeclaration {
                     opening_arrow: SingleToken::from((

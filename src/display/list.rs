@@ -7,14 +7,13 @@ use crate::prelude::{List, ListItem, Print};
 /// contain all value inside the self but as a `String`.
 macro_rules! impl_list_vec {
     ($fn_name: ident, $self: ident) => {{
-        let len = $self.items.len();
+        let len = $self.len();
         if len == 0 {
             return String::new();
         }
         let last_index = len - 1;
 
         $self
-            .items
             .iter()
             .enumerate()
             .map(|(i, item)| {
@@ -48,8 +47,7 @@ impl<T: HasRawValue> List<T> {
     /// traling, it will only use raw values of `T` and ignore the separator,
     /// thus it should be included in the `separator` parameter.
     pub fn bare_raw_value_with_separator(&self, separator: &str) -> String {
-        self.items
-            .iter()
+        self.iter()
             .map(|item| item.get_raw_value())
             .collect::<Vec<String>>()
             .join(separator)

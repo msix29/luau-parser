@@ -24,12 +24,12 @@ fn local_assignment_1() {
     assert!(matches!(ast.statements[0].0, Statement::LocalAssignment(_)));
 
     let assignment = get_item_from_tuple_enum!(&ast.statements[0].0, Statement::LocalAssignment);
-    assert_eq!(assignment.name_list.items.len(), 1);
-    assert_eq!(assignment.name_list.items[0].name.word, "foo");
-    assert_eq!(assignment.expressions.items.len(), 1);
+    assert_eq!(assignment.name_list.len(), 1);
+    assert_eq!(assignment.name_list[0].name.word, "foo");
+    assert_eq!(assignment.expressions.len(), 1);
     #[cfg(feature = "raw-values")]
     assert_eq!(
-        assignment.expressions.items[0].get_raw_value(),
+        assignment.expressions[0].get_raw_value(),
         r#""Hello, World!""#
     );
     assert_eq!(assignment.print(), code);
@@ -46,14 +46,14 @@ fn local_assignment_2() {
     assert!(matches!(ast.statements[0].0, Statement::LocalAssignment(_)));
 
     let assignment = get_item_from_tuple_enum!(&ast.statements[0].0, Statement::LocalAssignment);
-    assert_eq!(assignment.name_list.items.len(), 3);
+    assert_eq!(assignment.name_list.len(), 3);
     #[cfg(feature = "raw-values")]
     assert_eq!(assignment.name_list.get_raw_value(), "a, b, c");
-    assert_eq!(assignment.expressions.items.len(), 2);
+    assert_eq!(assignment.expressions.len(), 2);
     #[cfg(feature = "raw-values")]
-    assert_eq!(assignment.expressions.items[0].get_raw_value(), "1");
+    assert_eq!(assignment.expressions[0].get_raw_value(), "1");
     assert_eq!(
-        **assignment.expressions.items[1],
+        **assignment.expressions[1],
         Expression::FunctionCall(FunctionCall {
             invoked: FunctionCallInvoked::Function(Arc::new(PrefixExp::Var(Var::Name(
                 SingleToken::new("foo")

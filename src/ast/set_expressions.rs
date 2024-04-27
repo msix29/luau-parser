@@ -49,8 +49,8 @@ impl LuauStatement for SetExpression {
 impl HasRange for SetExpression {
     fn get_range(&self) -> Range {
         get_range_from_boundaries(
-            self.variables.items.last().unwrap().get_range(),
-            self.values.items.last().unwrap().get_range(),
+            self.variables.last().unwrap().get_range(),
+            self.values.last().unwrap().get_range(),
         )
     }
 }

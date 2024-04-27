@@ -133,7 +133,7 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
                         );
 
                         if let Some(typepack) = node.child_by_field_name("variadic") {
-                            types.items.push(ListItem::NonTrailing(Arc::new(Self::from((
+                            types.push(ListItem::NonTrailing(Arc::new(Self::from((
                                 typepack, code_bytes,
                             )))))
                         }

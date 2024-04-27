@@ -6,7 +6,9 @@ use smol_str::SmolStr;
 use tree_sitter::Node;
 
 use crate::prelude::{
-    GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo, List, ListItem, NormalizedName, SingleToken, StringLiteral, Table, TableField, TableFieldValue, TableKey, TypeDefinition, TypeValue
+    GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo, List, ListItem,
+    NormalizedName, SingleToken, StringLiteral, Table, TableField, TableFieldValue, TableKey,
+    TypeDefinition, TypeValue,
 };
 
 /// Get a type value from a node representing a singleton type.
@@ -170,7 +172,7 @@ pub(crate) fn build_function_parameters(
             }
         };
 
-        parameters.items.push(ListItem::NonTrailing(name));
+        parameters.push(ListItem::NonTrailing(name));
     }
 
     parameters
@@ -196,22 +198,19 @@ pub(crate) fn build_generics(node: Node, code_bytes: &[u8]) -> Option<GenericDec
                 default: None,
             },
         );
-        generics.items.extend_from_slice(
-            &List::from_iter(
-                node.children_by_field_name("genericPack", &mut node.walk()),
-                node,
-                "genericPackSeparator",
-                code_bytes,
-                |_, child| GenericDeclarationParameter {
-                    parameter: GenericParameterInfo::Pack {
-                        name: SingleToken::from((child.child(0).unwrap(), code_bytes)),
-                        ellipsis: SingleToken::from((child.child(1).unwrap(), code_bytes)),
-                    },
-                    default: None,
+        generics.extend_from_slice(&List::from_iter(
+            node.children_by_field_name("genericPack", &mut node.walk()),
+            node,
+            "genericPackSeparator",
+            code_bytes,
+            |_, child| GenericDeclarationParameter {
+                parameter: GenericParameterInfo::Pack {
+                    name: SingleToken::from((child.child(0).unwrap(), code_bytes)),
+                    ellipsis: SingleToken::from((child.child(1).unwrap(), code_bytes)),
                 },
-            )
-            .items,
-        );
+                default: None,
+            },
+        ));
 
         Some(GenericDeclaration {
             opening_arrow: SingleToken::from((

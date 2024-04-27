@@ -1,6 +1,6 @@
 //! Implements helper traits for [`lists`](List).
 
-use std::ops::Deref;
+use std::ops::{Deref, DerefMut};
 
 use tree_sitter::Node;
 
@@ -29,13 +29,12 @@ impl<T: Clone> List<T> {
     /// Turns `List<T>` into `List<U>` where `U: From<(T, P)>`. `U::from` gets called
     /// with the first paramter being `T` and the second being `P`.
     pub fn to_with_parameters<U: From<(T, P)>, P: Copy>(&self, parameter: P) -> List<U> {
-        if self.items.is_empty() {
+        if self.is_empty() {
             return List::default();
         }
 
         List {
             items: self
-                .items
                 .iter()
                 .map(|item| match item {
                     ListItem::Trailing { item, separator } => ListItem::Trailing {
@@ -52,13 +51,12 @@ impl<T: Clone> List<T> {
 
     /// Turns `List<T>` into `List<U>`.
     pub fn to<U: From<T>>(&self) -> List<U> {
-        if self.items.is_empty() {
+        if self.is_empty() {
             return List::default();
         }
 
         List {
             items: self
-                .items
                 .iter()
                 .map(|item| match item {
                     ListItem::Trailing { item, separator } => ListItem::Trailing {
@@ -106,13 +104,25 @@ impl<T: HasRange> List<T> {
     /// long as there's at least 1 item inside it. If the list is empty it'll be `None`.
     pub fn try_get_range(&self) -> Option<Range> {
         //HACK: If there's only 1 item, no need to call first and last!
-        if self.items.len() == 1 {
-            Some(self.items[0].get_range())
+        if self.len() == 1 {
+            Some(self[0].get_range())
         } else {
             Some(get_range_from_boundaries(
-                self.items.first()?.get_range(),
-                self.items.last()?.get_range(),
+                self.first()?.get_range(),
+                self.last()?.get_range(),
             ))
         }
+    }
+}
+impl<T> Deref for List<T> {
+    type Target = Vec<ListItem<T>>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.items
+    }
+}
+impl<T> DerefMut for List<T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.items
     }
 }

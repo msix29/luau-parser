@@ -15,7 +15,7 @@ use crate::{
 };
 #[cfg(feature = "raw-values")]
 use crate::{
-    types::{HasRawValue, StringLiteral, Number},
+    types::{HasRawValue, Number, StringLiteral},
     utils::fix_table_indentation,
 };
 
@@ -174,11 +174,11 @@ impl_print_enum!(
 #[cfg(feature = "raw-values")]
 impl HasRawValue for Table {
     fn get_raw_value(&self) -> String {
-        let len = self.fields.items.len();
+        let len = self.fields.len();
         if len == 0 {
             return "{}".to_string();
         } else if len == 1 {
-            return format!("{{ {} }}", self.fields.items[0].get_raw_value());
+            return format!("{{ {} }}", self.fields[0].get_raw_value());
         }
 
         fix_table_indentation(&format!(
