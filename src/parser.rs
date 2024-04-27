@@ -4,6 +4,8 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
+#[cfg(feature = "incremental-parsing")]
+use tree_sitter::InputEdit;
 #[cfg(feature = "cache")]
 use tree_sitter::Tree;
 use tree_sitter::{Node, Parser};
@@ -37,7 +39,7 @@ pub(crate) fn parse_block(body: &Node, code_bytes: &[u8], uri: Option<String>) -
             AstStatus::HasErrors
         } else {
             AstStatus::Complete
-        }
+        },
     }
 }
 
@@ -68,13 +70,32 @@ impl LuauParser {
         }
     }
 
+    /// Edit a tree for incremental parsing.
+    #[cfg(feature = "incremental-parsing")]
+    pub fn edit_tree(&mut self, uri: &str, edits: Vec<InputEdit>) {
+        if let Some(cached) = self.cache.get_mut(uri) {
+            let tree = &mut cached.1;
+            for edit in edits {
+                tree.edit(&edit);
+            }
+        }
+    }
+
     /// Parse Luau code into an [`ast`](Ast).
     pub fn parse(&mut self, code: &str, uri: &str) -> Ast {
         // NOTE: Can a text editor use `\r` by itself independant of the OS? If so, remove
         // this `cfg`.
         #[cfg(windows)]
         let code = &code.replace('\r', "");
+
+        #[cfg(not(feature = "incremental-parsing"))]
         let tree = self.parser.parse(code, None).unwrap();
+
+        #[cfg(feature = "incremental-parsing")]
+        let tree = {
+            let old_tree = self.cache.get(uri).map(|cached| &cached.1);
+            self.parser.parse(code, old_tree).unwrap()
+        };
 
         let code_bytes = code.as_bytes();
         let root = tree.root_node();

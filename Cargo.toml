@@ -13,8 +13,9 @@ tree-sitter-luau = { path = "../grammar" }
 
 [features]
 default = ["cache"]
+incremental-parsing = ["cache"]
 cache = []
-lsp-ready = ["regex", "raw-values", "cache"]
+lsp-ready = ["regex", "incremental-parsing"]
 raw-values = []
 regex = ["dep:regex", "raw-values", "dep:lazy_static"]
 serde = ["dep:serde"]
