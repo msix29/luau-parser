@@ -31,5 +31,5 @@ pub struct CompoundSetExpression {
 
     /// The values that are being set, in the same order as variables, the length of
     /// these values may be more or less than the variables list.
-    pub value: Expression,
+    pub value: Arc<Expression>,
 }

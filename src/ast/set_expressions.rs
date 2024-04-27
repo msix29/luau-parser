@@ -1,5 +1,7 @@
 //! Implements helper traits for set expressions.
 
+use std::sync::Arc;
+
 use tree_sitter::{Node, TreeCursor};
 
 use crate::{
@@ -71,7 +73,7 @@ impl LuauStatement for CompoundSetExpression {
         Some(Self {
             variable,
             operation: SingleToken::from((node.child(1).unwrap(), code_bytes)),
-            value: Expression::from((node.child(2).unwrap(), code_bytes)),
+            value: Arc::new(Expression::from((node.child(2).unwrap(), code_bytes))),
         })
     }
 }

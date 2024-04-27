@@ -1,5 +1,7 @@
 //! Numerical for loop struct
 
+use std::sync::Arc;
+
 use crate::prelude::{Expression, NormalizedName, SingleToken};
 
 use super::DoBlock;
@@ -18,19 +20,19 @@ pub struct NumericalFor {
     pub equal_keyword: SingleToken,
 
     /// The start of the loop.
-    pub start: Expression,
+    pub start: Arc<Expression>,
 
     /// The comma after the start.
     pub start_comma: SingleToken,
 
     /// The end of the loop.
-    pub end: Expression,
+    pub end: Arc<Expression>,
 
     /// The comma after the end of the loop.
     pub end_comma: Option<SingleToken>,
 
     /// The optional step of the loop.
-    pub step: Option<Expression>,
+    pub step: Option<Arc<Expression>>,
 
     /// The do block at the end
     pub do_block: DoBlock,

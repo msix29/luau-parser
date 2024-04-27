@@ -1,5 +1,7 @@
 //! Implements helper traits for repeat blocks.
 
+use std::sync::Arc;
+
 use crate::{
     prelude::{parse_block, Expression, HasRange, LuauStatement, Range, RepeatBlock, SingleToken},
     utils::get_range_from_boundaries,
@@ -25,10 +27,10 @@ impl LuauStatement for RepeatBlock {
                 node.child_by_field_name("until").unwrap(),
                 code_bytes,
             )),
-            condition: Expression::from((
+            condition: Arc::new(Expression::from((
                 node.child_by_field_name("condition").unwrap(),
                 code_bytes,
-            )),
+            ))),
         })
     }
 }

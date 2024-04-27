@@ -1,5 +1,7 @@
 //! While loops.
 
+use std::sync::Arc;
+
 use crate::prelude::{DoBlock, Expression, SingleToken};
 
 /// A struct representing a while loop.
@@ -10,7 +12,7 @@ pub struct WhileLoop {
     pub while_keyword: SingleToken,
 
     /// The condition of the while loop.
-    pub condition: Expression,
+    pub condition: Arc<Expression>,
 
     /// The do block.
     pub do_block: DoBlock,
