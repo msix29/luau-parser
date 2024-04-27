@@ -13,9 +13,9 @@ impl From<(Node<'_>, &[u8])> for SingleToken {
         let (spaces_before, spaces_after) = get_spaces(node, code_bytes);
 
         Self {
-            spaces_before: spaces_before.into(),
+            spaces_before,
             word: word.into(),
-            spaces_after: spaces_after.into(),
+            spaces_after,
             range: get_range(node),
         }
     }
