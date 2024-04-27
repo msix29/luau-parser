@@ -134,10 +134,9 @@ pub(crate) fn build_function_parameters(
                 NormalizedName {
                     name: SingleToken::from("_"),
                     colon: None,
-                    r#type: Some(Arc::new(TypeDefinition::from((
+                    r#type: Some(Arc::new(TypeValue::from((
                         parameter.child(0).unwrap(),
                         code_bytes,
-                        false,
                     )))),
                 }
             } else {
@@ -150,10 +149,9 @@ pub(crate) fn build_function_parameters(
             NormalizedName {
                 name: SingleToken::from(""),
                 colon: None,
-                r#type: Some(Arc::new(TypeDefinition::from((
+                r#type: Some(Arc::new(TypeValue::from((
                     variadic.child(0).unwrap(),
                     code_bytes,
-                    false,
                 )))),
             }
         } else {
@@ -164,9 +162,9 @@ pub(crate) fn build_function_parameters(
                     .map(|colon| SingleToken::from((colon, code_bytes))),
                 r#type: variadic.child(2).map(|r#type| {
                     if let Some(r#type) = r#type.child_by_field_name("type") {
-                        Arc::new(TypeDefinition::from((r#type, code_bytes, false)))
+                        Arc::new(TypeValue::from((r#type, code_bytes)))
                     } else {
-                        Arc::new(TypeDefinition::from(TypeValue::from((r#type, code_bytes))))
+                        Arc::new(TypeValue::from((r#type, code_bytes)))
                     }
                 }),
             }

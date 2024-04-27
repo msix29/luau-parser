@@ -2,15 +2,9 @@
 
 use std::sync::Arc;
 
-use crate::prelude::{
-    Ast, Expression, HasRange, Position, SingleToken, Statement, TypeDefinition, Var,
-};
+use crate::prelude::{Ast, Expression, HasRange, Position, SingleToken, Statement, TypeValue, Var};
 
-type Variable<'a> = Option<(
-    &'a SingleToken,
-    Option<Arc<TypeDefinition>>,
-    Arc<Expression>,
-)>;
+type Variable<'a> = Option<(&'a SingleToken, Option<Arc<TypeValue>>, Arc<Expression>)>;
 
 /// Finds a variable with a specific name in a specific [`ast`](Ast). The
 /// [`position`](Position) is needed so that it finds the variable that's before it.

@@ -6,7 +6,7 @@ use tree_sitter::Node;
 
 use crate::{
     call_any,
-    prelude::{HasRange, NormalizedName, Range, SingleToken, TypeDefinition},
+    prelude::{HasRange, NormalizedName, Range, SingleToken, TypeDefinition, TypeValue},
     utils::get_range_from_boundaries,
 };
 
@@ -16,9 +16,7 @@ impl From<(Node<'_>, &[u8])> for NormalizedName {
             Self {
                 name: SingleToken::from((node.child(0).unwrap(), code_bytes)),
                 colon: Some(SingleToken::from((node.child(1).unwrap(), code_bytes))),
-                r#type: Some(Arc::new(TypeDefinition::from((
-                    type_node, code_bytes, false,
-                )))),
+                r#type: Some(Arc::new(TypeValue::from((type_node, code_bytes)))),
             }
         } else {
             Self {

@@ -6,9 +6,7 @@
 
 use std::sync::Arc;
 
-use crate::prelude::TypeDefinition;
-
-use super::SingleToken;
+use super::{SingleToken, TypeValue};
 
 /// A struct that provides a high level abstraction of `name` and `typedName` from the
 /// grammar for easier usability..
@@ -22,5 +20,5 @@ pub struct NormalizedName {
     pub colon: Option<SingleToken>,
 
     /// The type that was with this name, defined with the `: type` syntax.
-    pub r#type: Option<Arc<TypeDefinition>>,
+    pub r#type: Option<Arc<TypeValue>>,
 }
