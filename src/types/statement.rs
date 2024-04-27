@@ -9,7 +9,7 @@ use tree_sitter::{Node, TreeCursor};
 use super::{
     Comment, CompoundSetExpression, DoBlock, Expression, FunctionCall, GenericFor, GlobalFunction,
     IfStatement, List, LocalAssignment, LocalFunction, NumericalFor, Range, RepeatBlock,
-    SetExpression, SingleToken, TypeDefinition, WhileLoop,
+    SetExpression, Token, TypeDefinition, WhileLoop,
 };
 
 /// A trait for a token that can be represented in a more abstract form for the user to see,
@@ -190,7 +190,7 @@ pub enum LastStatement {
     /// ```lua
     /// break
     /// ```
-    Break((SingleToken, Option<SingleToken>)),
+    Break((Token, Option<Token>)),
 
     /// The `continue` keyword. The first is the `continue` word and the second is the
     /// optional `;` after it.
@@ -198,7 +198,7 @@ pub enum LastStatement {
     /// ```lua
     /// continue
     /// ```
-    Continue((SingleToken, Option<SingleToken>)),
+    Continue((Token, Option<Token>)),
 
     /// A `return` statement. Can be in multiple forms:
     ///
@@ -211,13 +211,13 @@ pub enum LastStatement {
     /// ```
     Return {
         /// The `return` keyword.
-        return_keyword: SingleToken,
+        return_keyword: Token,
 
         /// The list of expressions after it.
         expressions: List<Arc<Expression>>,
 
         /// The `;` character.
-        semicolon: Option<SingleToken>,
+        semicolon: Option<Token>,
     },
 }
 
@@ -253,7 +253,7 @@ pub struct Ast {
     /// The tokens in the of this [`ast`](Ast) **only**. Parent [`asts`](Ast)' tokens won't
     /// be included. The optional [`SingleToken`] is the optional semicolon after the
     /// statement.
-    pub statements: Arc<Vec<(Statement, Option<SingleToken>)>>,
+    pub statements: Arc<Vec<(Statement, Option<Token>)>>,
 
     /// The [`last statement`](LastStatement) in this scope.
     pub last_statement: Option<Arc<LastStatement>>,

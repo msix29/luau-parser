@@ -2,7 +2,7 @@
 
 use std::ops::Deref;
 
-use crate::prelude::{Number, ParseNumberError, ParsedNumber, SingleToken, StringLiteral};
+use crate::prelude::{Number, ParseNumberError, ParsedNumber, Token, StringLiteral};
 #[cfg(feature = "raw-value")]
 use crate::types::HasRawValue;
 
@@ -10,7 +10,7 @@ use crate::types::HasRawValue;
 macro_rules! __impl_deref_literal {
     ($struct: ident) => {
         impl Deref for $struct {
-            type Target = SingleToken;
+            type Target = Token;
 
             fn deref(&self) -> &Self::Target {
                 &self.0
@@ -22,15 +22,15 @@ __impl_deref_literal!(StringLiteral);
 __impl_deref_literal!(Number);
 
 /// Implements the [`From`] trait for a struct representing a literal type, it
-/// only calls that trait function from the inner [`SingleToken`].
+/// only calls that trait function from the inner [`Token`].
 macro_rules! __impl_from_node_literal {
     ($struct: ident) => {
         impl<T> From<T> for $struct
         where
-            SingleToken: From<T>,
+            Token: From<T>,
         {
             fn from(value: T) -> Self {
-                Self(SingleToken::from(value))
+                Self(Token::from(value))
             }
         }
     };

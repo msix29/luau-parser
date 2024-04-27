@@ -3,11 +3,11 @@
 use tree_sitter::Node;
 
 use crate::{
-    prelude::{HasRange, Range, SingleToken},
+    prelude::{HasRange, Range, Token},
     utils::{get_range, get_spaces, get_text_from_bytes},
 };
 
-impl From<(Node<'_>, &[u8])> for SingleToken {
+impl From<(Node<'_>, &[u8])> for Token {
     fn from((node, code_bytes): (Node<'_>, &[u8])) -> Self {
         let word = get_text_from_bytes(code_bytes, node.start_byte(), node.end_byte());
         let (spaces_before, spaces_after) = get_spaces(node, code_bytes);
@@ -21,7 +21,7 @@ impl From<(Node<'_>, &[u8])> for SingleToken {
     }
 }
 
-impl From<&str> for SingleToken {
+impl From<&str> for Token {
     fn from(value: &str) -> Self {
         Self {
             spaces_before: "".into(),
@@ -32,17 +32,17 @@ impl From<&str> for SingleToken {
     }
 }
 
-impl HasRange for &SingleToken {
+impl HasRange for &Token {
     fn get_range(&self) -> Range {
         self.range
     }
 }
-impl HasRange for SingleToken {
+impl HasRange for Token {
     fn get_range(&self) -> Range {
         self.range
     }
 }
-impl SingleToken {
+impl Token {
     /// Create a new single token from the passed word with no spaces and
     /// range at 0, 0 to 0, 0.
     pub fn new(word: &str) -> Self {

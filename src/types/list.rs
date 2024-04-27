@@ -1,7 +1,7 @@
 //! A list made of any length of trailing items and optionally ending with a non-trailing
 //! item
 
-use super::SingleToken;
+use super::Token;
 
 /// A possible list item of type `T`.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -19,7 +19,7 @@ pub enum ListItem<T> {
         item: T,
 
         /// The separator trailing after it.
-        separator: SingleToken,
+        separator: Token,
     },
 
     /// A non trailing one.

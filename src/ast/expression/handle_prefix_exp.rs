@@ -7,7 +7,7 @@ use tree_sitter::Node;
 use crate::{
     prelude::{
         Expression, ExpressionWrap, FunctionArguments, FunctionCall, FunctionCallInvoked, HasRange,
-        LuauStatement, PrefixExp, Range, SingleToken, StringLiteral, TableAccess, TableAccessKey,
+        LuauStatement, PrefixExp, Range, Token, StringLiteral, TableAccess, TableAccessKey,
         TableAccessPrefix, TableKey, Var,
     },
     utils::get_range_from_boundaries,
@@ -26,7 +26,7 @@ fn handle_table_var(node: Node, code_bytes: &[u8]) -> TableAccess {
             PrefixExp::ExpressionWrap(value) => TableAccessPrefix::ExpressionWrap(Arc::new(value)),
             _ => unreachable!("This'll always evaluate to a wrap."),
         },
-        _ => TableAccessPrefix::Name(SingleToken::from((table_node, code_bytes))),
+        _ => TableAccessPrefix::Name(Token::from((table_node, code_bytes))),
     };
 
     TableAccess {
@@ -36,13 +36,13 @@ fn handle_table_var(node: Node, code_bytes: &[u8]) -> TableAccess {
             .map(|key| match key.kind() {
                 //TODO:
                 "field_named" => TableAccessKey::Name {
-                    dot: SingleToken::from((key.child(0).unwrap(), code_bytes)),
-                    name: SingleToken::from((key.child(1).unwrap(), code_bytes)),
+                    dot: Token::from((key.child(0).unwrap(), code_bytes)),
+                    name: Token::from((key.child(1).unwrap(), code_bytes)),
                 },
                 "field_indexed" => TableAccessKey::Expression(TableKey::Expression {
-                    open_square_brackets: SingleToken::from((key.child(0).unwrap(), code_bytes)),
+                    open_square_brackets: Token::from((key.child(0).unwrap(), code_bytes)),
                     expression: Arc::new(Expression::from((key.child(1).unwrap(), code_bytes))),
-                    close_square_brackets: SingleToken::from((key.child(2).unwrap(), code_bytes)),
+                    close_square_brackets: Token::from((key.child(2).unwrap(), code_bytes)),
                 }),
                 _ => unreachable!("Key can't be anything else. Got {}", key.to_sexp()),
             })
@@ -60,11 +60,11 @@ fn handle_function_call(prefix_exp: Node, code_bytes: &[u8]) -> FunctionCall {
                 prefix_exp.child_by_field_name("table").unwrap(),
                 code_bytes,
             )),
-            colon: SingleToken::from((
+            colon: Token::from((
                 prefix_exp.child_by_field_name("colon").unwrap(),
                 code_bytes,
             )),
-            method: SingleToken::from((
+            method: Token::from((
                 prefix_exp.child_by_field_name("method").unwrap(),
                 code_bytes,
             )),
@@ -78,7 +78,7 @@ fn handle_function_call(prefix_exp: Node, code_bytes: &[u8]) -> FunctionCall {
         "table" => FunctionArguments::Table(build_table(actual_argument, code_bytes)),
         "string" => FunctionArguments::String(StringLiteral::from((actual_argument, code_bytes))),
         _ => FunctionArguments::List {
-            open_parenthesis: SingleToken::from((
+            open_parenthesis: Token::from((
                 arguments_node
                     .child_by_field_name("open_parenthesis")
                     .unwrap(),
@@ -88,7 +88,7 @@ fn handle_function_call(prefix_exp: Node, code_bytes: &[u8]) -> FunctionCall {
                 arguments_node.children_by_field_name("arguments", &mut arguments_node.walk()),
                 code_bytes,
             ),
-            close_parenthesis: SingleToken::from((
+            close_parenthesis: Token::from((
                 arguments_node
                     .child_by_field_name("close_parenthesis")
                     .unwrap(),
@@ -106,16 +106,16 @@ pub(crate) fn handle_prefix_exp(prefix_exp: Node, code_bytes: &[u8]) -> PrefixEx
         "var" => {
             // let node = prefix_exp.child(0).unwrap();
             if prefix_exp.child_count() == 1 {
-                PrefixExp::Var(Var::Name(SingleToken::from((prefix_exp, code_bytes))))
+                PrefixExp::Var(Var::Name(Token::from((prefix_exp, code_bytes))))
             } else {
                 PrefixExp::Var(Var::TableAccess(handle_table_var(prefix_exp, code_bytes)))
             }
         }
         "functionCall" => PrefixExp::FunctionCall(handle_function_call(prefix_exp, code_bytes)),
         "exp_wrap" => PrefixExp::ExpressionWrap(ExpressionWrap {
-            opening_parenthesis: SingleToken::from((prefix_exp.child(0).unwrap(), code_bytes)),
+            opening_parenthesis: Token::from((prefix_exp.child(0).unwrap(), code_bytes)),
             expression: Arc::new(Expression::from((prefix_exp.child(1).unwrap(), code_bytes))),
-            closing_parenthesis: SingleToken::from((prefix_exp.child(2).unwrap(), code_bytes)),
+            closing_parenthesis: Token::from((prefix_exp.child(2).unwrap(), code_bytes)),
         }),
         _ => panic!("This shouldn't be reached."),
     }

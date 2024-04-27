@@ -9,7 +9,7 @@ use tree_sitter::Node;
 use crate::{
     prelude::{
         parse_block, type_definition::helper_functions::build_generics, Ast, ElseIfExpression,
-        Expression, HasRange, List, ListItem, Number, PrefixExp, Range, SingleToken, StringLiteral,
+        Expression, HasRange, List, ListItem, Number, PrefixExp, Range, Token, StringLiteral,
         Table, TableField, TableFieldValue, TableKey, TypeDefinition,
     },
     utils::get_range_from_boundaries,
@@ -27,7 +27,7 @@ pub(crate) fn build_table(node: Node, code_bytes: &[u8]) -> Table {
     let field_list = node.child_by_field_name("fieldList").unwrap();
 
     Table {
-        opening_brackets: SingleToken::from((
+        opening_brackets: Token::from((
             node.child_by_field_name("opening_brackets").unwrap(),
             code_bytes,
         )),
@@ -42,12 +42,12 @@ pub(crate) fn build_table(node: Node, code_bytes: &[u8]) -> Table {
                     TableKey::String(StringLiteral::from((key, code_bytes)))
                 } else if let Some(key) = node.child_by_field_name("keyExp") {
                     TableKey::Expression {
-                        open_square_brackets: SingleToken::from((
+                        open_square_brackets: Token::from((
                             key.prev_sibling().unwrap(),
                             code_bytes,
                         )),
                         expression: Arc::new(Expression::from((key, code_bytes))),
-                        close_square_brackets: SingleToken::from((
+                        close_square_brackets: Token::from((
                             key.next_sibling().unwrap(),
                             code_bytes,
                         )),
@@ -62,13 +62,13 @@ pub(crate) fn build_table(node: Node, code_bytes: &[u8]) -> Table {
                     key: Arc::new(key),
                     equal_or_colon: node
                         .child_by_field_name("equal")
-                        .map(|node| SingleToken::from((node, code_bytes))),
+                        .map(|node| Token::from((node, code_bytes))),
                     value: Arc::new(TableFieldValue::Expression(value)),
                 }
             },
         ),
 
-        closing_brackets: SingleToken::from((
+        closing_brackets: Token::from((
             node.child_by_field_name("closing_brackets").unwrap(),
             code_bytes,
         )),
@@ -103,7 +103,7 @@ impl Expression {
                     } else {
                         ListItem::Trailing {
                             item: Arc::new(Expression::from((*node, code_bytes))),
-                            separator: SingleToken::from((nodes[i + 1], code_bytes)),
+                            separator: Token::from((nodes[i + 1], code_bytes)),
                         }
                     }
                 })
@@ -140,32 +140,32 @@ impl From<(Node<'_>, &[u8])> for Expression {
         }
 
         match node.kind() {
-            "nil" => Expression::Nil(SingleToken::from((node, code_bytes))),
-            "boolean" => Expression::Boolean(SingleToken::from((node, code_bytes))),
+            "nil" => Expression::Nil(Token::from((node, code_bytes))),
+            "boolean" => Expression::Boolean(Token::from((node, code_bytes))),
             "number" => Expression::Number(Number::from((node, code_bytes))),
             "string" => Expression::String(StringLiteral::from((node, code_bytes))),
             "string_interp" => Expression::String(StringLiteral::from((node, code_bytes))),
             "anon_fn" => {
                 Expression::Function {
-                    function_keyword: SingleToken::from((
+                    function_keyword: Token::from((
                         node.child_by_field_name("function").unwrap(),
                         code_bytes,
                     )),
                     generics: build_generics(node, code_bytes),
-                    opening_parenthesis: SingleToken::from((
+                    opening_parenthesis: Token::from((
                         node.child_by_field_name("opening_parenthesis").unwrap(),
                         code_bytes,
                     )),
 
                     parameters: build_function_parameters(node, code_bytes, false),
-                    closing_parenthesis: SingleToken::from((
+                    closing_parenthesis: Token::from((
                         node.child_by_field_name("closing_parenthesis").unwrap(),
                         code_bytes,
                     )),
                     returns: build_function_returns(node, code_bytes).map(Arc::new),
                     colon: node
                         .child_by_field_name("colon")
-                        .map(|colon| SingleToken::from((colon, code_bytes))),
+                        .map(|colon| Token::from((colon, code_bytes))),
                     body: node
                         .child_by_field_name("body")
                         .map(|body| parse_block(&body, code_bytes, None))
@@ -174,7 +174,7 @@ impl From<(Node<'_>, &[u8])> for Expression {
                     //     statements: Arc::new(ast_tokens),
                     //     uri: None,
                     // },
-                    end_keyword: SingleToken::from((
+                    end_keyword: Token::from((
                         node.child_by_field_name("end").unwrap(),
                         code_bytes,
                     )),
@@ -185,7 +185,7 @@ impl From<(Node<'_>, &[u8])> for Expression {
             }
             "table" => Expression::Table(build_table(node, code_bytes)),
             "unexp" => Expression::UnaryExpression {
-                operator: SingleToken::from((node.child_by_field_name("op").unwrap(), code_bytes)),
+                operator: Token::from((node.child_by_field_name("op").unwrap(), code_bytes)),
                 expression: Arc::new(Expression::from((
                     node.child_by_field_name("arg").unwrap(),
                     code_bytes,
@@ -196,7 +196,7 @@ impl From<(Node<'_>, &[u8])> for Expression {
                     node.child_by_field_name("arg0").unwrap(),
                     code_bytes,
                 ))),
-                operator: SingleToken::from((node.child_by_field_name("op").unwrap(), code_bytes)),
+                operator: Token::from((node.child_by_field_name("op").unwrap(), code_bytes)),
                 right: Arc::new(Expression::from((
                     node.child_by_field_name("arg1").unwrap(),
                     code_bytes,
@@ -212,23 +212,23 @@ impl From<(Node<'_>, &[u8])> for Expression {
                     code_bytes,
                     false,
                 ))),
-                operator: SingleToken::from((node.child_by_field_name("op").unwrap(), code_bytes)),
+                operator: Token::from((node.child_by_field_name("op").unwrap(), code_bytes)),
             },
             "ifexp" => Expression::IfExpression {
-                if_token: SingleToken::from((node.child(0).unwrap(), code_bytes)),
+                if_token: Token::from((node.child(0).unwrap(), code_bytes)),
                 condition: Arc::new(Expression::from((node.child(1).unwrap(), code_bytes))),
-                then_token: SingleToken::from((node.child(2).unwrap(), code_bytes)),
+                then_token: Token::from((node.child(2).unwrap(), code_bytes)),
                 if_expression: Arc::new(Expression::from((node.child(3).unwrap(), code_bytes))),
 
                 else_if_expressions: Arc::new(
                     node.children_by_field_name("elseif", &mut node.walk())
                         .map(|node| ElseIfExpression {
-                            else_if_token: SingleToken::from((node.child(0).unwrap(), code_bytes)),
+                            else_if_token: Token::from((node.child(0).unwrap(), code_bytes)),
                             condition: Arc::new(Expression::from((
                                 node.child(1).unwrap(),
                                 code_bytes,
                             ))),
-                            then_token: SingleToken::from((node.child(2).unwrap(), code_bytes)),
+                            then_token: Token::from((node.child(2).unwrap(), code_bytes)),
                             expression: Arc::new(Expression::from((
                                 node.child(3).unwrap(),
                                 code_bytes,
@@ -237,7 +237,7 @@ impl From<(Node<'_>, &[u8])> for Expression {
                         .collect::<Vec<ElseIfExpression>>(),
                 ),
 
-                else_token: SingleToken::from((
+                else_token: Token::from((
                     node.child_by_field_name("else").unwrap(),
                     code_bytes,
                 )),

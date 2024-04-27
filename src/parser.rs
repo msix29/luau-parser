@@ -10,7 +10,7 @@ use tree_sitter::InputEdit;
 use tree_sitter::Tree;
 use tree_sitter::{Node, Parser};
 
-use crate::prelude::{Ast, AstStatus, LastStatement, SingleToken, Statement};
+use crate::prelude::{Ast, AstStatus, LastStatement, Token, Statement};
 
 /// Parses a code block and fills `tokens` with the parsed ones. The tokens can then
 /// be used to make the syntax tre.
@@ -25,7 +25,7 @@ pub(crate) fn parse_block(body: &Node, code_bytes: &[u8], uri: Option<String>) -
         statements.push((
             Statement::from((node.child(0).unwrap(), code_bytes)),
             node.child(1)
-                .map(|node| SingleToken::from((node, code_bytes))),
+                .map(|node| Token::from((node, code_bytes))),
         ))
     }
 

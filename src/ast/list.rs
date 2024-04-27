@@ -5,7 +5,7 @@ use std::ops::{Deref, DerefMut};
 use tree_sitter::Node;
 
 use crate::{
-    prelude::{HasRange, List, ListItem, Range, SingleToken},
+    prelude::{HasRange, List, ListItem, Range, Token},
     utils::get_range_from_boundaries,
 };
 
@@ -89,7 +89,7 @@ impl<'a, T> List<T> {
                     if let Some(separator) = separators.get(i) {
                         ListItem::Trailing {
                             item: get_item(i, binding),
-                            separator: SingleToken::from((*separator, code_bytes)),
+                            separator: Token::from((*separator, code_bytes)),
                         }
                     } else {
                         ListItem::NonTrailing(get_item(i, binding))

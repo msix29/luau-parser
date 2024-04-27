@@ -14,7 +14,7 @@ use tree_sitter::Node;
 use crate::{
     prelude::{
         GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo,
-        GenericParameterInfoDefault, HasRange, List, LuauStatement, Range, SingleToken,
+        GenericParameterInfoDefault, HasRange, List, LuauStatement, Range, Token,
         TypeDefinition, TypeValue,
     },
     utils::get_range_from_boundaries,
@@ -45,7 +45,7 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
                     "generic_with_default_separator",
                     code_bytes,
                     |_, child| GenericDeclarationParameter {
-                        parameter: GenericParameterInfo::Name(SingleToken::from((
+                        parameter: GenericParameterInfo::Name(Token::from((
                             child.child(0).unwrap().child(0).unwrap(),
                             code_bytes,
                         ))),
@@ -53,8 +53,8 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
                             let genpack = child.child(2).unwrap();
 
                             GenericParameterInfoDefault::Name {
-                                equal_sign: SingleToken::from((equal, code_bytes)),
-                                name: SingleToken::from((genpack.child(0).unwrap(), code_bytes)),
+                                equal_sign: Token::from((equal, code_bytes)),
+                                name: Token::from((genpack.child(0).unwrap(), code_bytes)),
                             }
                         }),
                     },
@@ -71,11 +71,11 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
                         let generic_pack = child.child(0).unwrap();
                         GenericDeclarationParameter {
                             parameter: GenericParameterInfo::Pack {
-                                name: SingleToken::from((
+                                name: Token::from((
                                     generic_pack.child(0).unwrap(),
                                     code_bytes,
                                 )),
-                                ellipsis: SingleToken::from((
+                                ellipsis: Token::from((
                                     generic_pack.child(1).unwrap(),
                                     code_bytes,
                                 )),
@@ -84,7 +84,7 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
                                 let genpack = child.child(2).unwrap();
 
                                 GenericParameterInfoDefault::Pack {
-                                    equal_sign: SingleToken::from((equal, code_bytes)),
+                                    equal_sign: Token::from((equal, code_bytes)),
                                     r#type: TypeValue::from((genpack, code_bytes)),
                                 }
                             }),
@@ -93,12 +93,12 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
                 ));
 
                 GenericDeclaration {
-                    opening_arrow: SingleToken::from((
+                    opening_arrow: Token::from((
                         node.child_by_field_name("opening_arrow").unwrap(),
                         code_bytes,
                     )),
                     generics,
-                    closing_arrow: SingleToken::from((
+                    closing_arrow: Token::from((
                         node.child_by_field_name("closing_arrow").unwrap(),
                         code_bytes,
                     )),
@@ -108,18 +108,18 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
             Self {
                 export_keyword: node
                     .child_by_field_name("export")
-                    .map(|node| SingleToken::from((node, code_bytes))),
+                    .map(|node| Token::from((node, code_bytes))),
                 type_keyword: node
                     .child_by_field_name("typeKeyword")
-                    .map(|node| SingleToken::from((node, code_bytes))),
+                    .map(|node| Token::from((node, code_bytes))),
                 generics,
-                type_name: SingleToken::from((
+                type_name: Token::from((
                     node.child_by_field_name("typeName").unwrap(),
                     code_bytes,
                 )),
                 equal_sign: node
                     .child_by_field_name("equal")
-                    .map(|node| SingleToken::from((node, code_bytes))),
+                    .map(|node| Token::from((node, code_bytes))),
                 type_value: Arc::new(TypeValue::from((
                     node.child_by_field_name("type").unwrap(),
                     code_bytes,
@@ -129,7 +129,7 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
             Self {
                 export_keyword: None,
                 type_keyword: None,
-                type_name: SingleToken::default(),
+                type_name: Token::default(),
                 generics: None,
                 equal_sign: None,
                 type_value: Arc::new(TypeValue::from((node, code_bytes))),
@@ -138,8 +138,8 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
     }
 }
 
-impl From<SingleToken> for TypeDefinition {
-    fn from(type_name: SingleToken) -> Self {
+impl From<Token> for TypeDefinition {
+    fn from(type_name: Token) -> Self {
         Self {
             export_keyword: None,
             type_keyword: None,
@@ -155,7 +155,7 @@ impl From<TypeValue> for TypeDefinition {
         Self {
             export_keyword: None,
             type_keyword: None,
-            type_name: SingleToken::default(),
+            type_name: Token::default(),
             generics: None,
             equal_sign: None,
             type_value: Arc::new(type_value),

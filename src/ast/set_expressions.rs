@@ -7,7 +7,7 @@ use tree_sitter::{Node, TreeCursor};
 use crate::{
     prelude::{
         CompoundSetExpression, Expression, HasRange, List, LuauStatement, PrefixExp, Range,
-        SetExpression, SingleToken,
+        SetExpression, Token,
     },
     utils::get_range_from_boundaries,
 };
@@ -38,7 +38,7 @@ impl LuauStatement for SetExpression {
                     }
                 },
             ),
-            equal: SingleToken::from((node.child_by_field_name("equal").unwrap(), code_bytes)),
+            equal: Token::from((node.child_by_field_name("equal").unwrap(), code_bytes)),
             values: Expression::from_nodes(
                 node.children_by_field_name("value", &mut node.walk()),
                 code_bytes,
@@ -72,7 +72,7 @@ impl LuauStatement for CompoundSetExpression {
 
         Some(Self {
             variable,
-            operation: SingleToken::from((node.child(1).unwrap(), code_bytes)),
+            operation: Token::from((node.child(1).unwrap(), code_bytes)),
             value: Arc::new(Expression::from((node.child(2).unwrap(), code_bytes))),
         })
     }

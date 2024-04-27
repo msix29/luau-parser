@@ -5,7 +5,7 @@ use std::sync::Arc;
 use crate::{
     prelude::{
         DoBlock, Expression, HasRange, LuauStatement, NormalizedName, NumericalFor, Range,
-        SingleToken,
+        Token,
     },
     utils::get_range_from_boundaries,
 };
@@ -21,15 +21,15 @@ impl LuauStatement for NumericalFor {
         }
 
         Some(NumericalFor {
-            for_keyword: SingleToken::from((node.child(0).unwrap(), code_bytes)),
+            for_keyword: Token::from((node.child(0).unwrap(), code_bytes)),
             variable: NormalizedName::from((node.child(1).unwrap(), code_bytes)),
-            equal_keyword: SingleToken::from((node.child(2).unwrap(), code_bytes)),
+            equal_keyword: Token::from((node.child(2).unwrap(), code_bytes)),
             start: Arc::new(Expression::from((node.child(3).unwrap(), code_bytes))),
-            start_comma: SingleToken::from((node.child(4).unwrap(), code_bytes)),
+            start_comma: Token::from((node.child(4).unwrap(), code_bytes)),
             end: Arc::new(Expression::from((node.child(5).unwrap(), code_bytes))),
             end_comma: node
                 .child(6)
-                .map(|node| SingleToken::from((node, code_bytes))),
+                .map(|node| Token::from((node, code_bytes))),
             step: node
                 .child(7)
                 .map(|node| Arc::new(Expression::from((node, code_bytes)))),

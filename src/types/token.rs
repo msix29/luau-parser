@@ -7,7 +7,7 @@ use super::Range;
 /// A struct represnting a single token, aka a single word.
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
-pub struct SingleToken {
+pub struct Token {
     /// All the spaces before the word.
     pub spaces_before: SmolStr,
 

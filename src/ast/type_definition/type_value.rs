@@ -6,7 +6,7 @@ use tree_sitter::Node;
 use crate::{
     prelude::{
         ConversionError, ElseIfExpression, Expression, HasRange, List, ListItem, Range,
-        SingleToken, StringLiteral, Table, TableField, TableFieldValue, TableKey, TypeValue,
+        Token, StringLiteral, Table, TableField, TableFieldValue, TableKey, TypeValue,
     },
     utils::get_range_from_boundaries,
 };
@@ -25,8 +25,8 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
 
                 if let Some(opening_arrows) = parent_node.child_by_field_name("opening_arrows") {
                     Self::Generic {
-                        base: SingleToken::from((node, code_bytes)),
-                        right_arrows: SingleToken::from((opening_arrows, code_bytes)),
+                        base: Token::from((node, code_bytes)),
+                        right_arrows: Token::from((opening_arrows, code_bytes)),
                         generics: List::from_iter(
                             parent_node
                                 .children_by_field_name("typeparam", &mut parent_node.walk()),
@@ -41,7 +41,7 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
                                 _ => unreachable!("{}", node.kind()),
                             },
                         ),
-                        left_arrows: SingleToken::from((
+                        left_arrows: Token::from((
                             parent_node.child_by_field_name("closing_arrows").unwrap(),
                             code_bytes,
                         )),
@@ -53,8 +53,8 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
             "namedtype" => {
                 if let Some(module) = node.child_by_field_name("module") {
                     Self::Module {
-                        module: SingleToken::from((module, code_bytes)),
-                        dot: SingleToken::from((
+                        module: Token::from((module, code_bytes)),
+                        dot: Token::from((
                             node.child_by_field_name("dot").unwrap(),
                             code_bytes,
                         )),
@@ -71,22 +71,22 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
                 }
             }
             "wraptype" => Self::Wrap {
-                opening_parenthesis: SingleToken::from((node.child(0).unwrap(), code_bytes)),
+                opening_parenthesis: Token::from((node.child(0).unwrap(), code_bytes)),
                 r#type: Arc::new(Self::from((node.child(1).unwrap(), code_bytes))),
-                closing_parenthesis: SingleToken::from((node.child(2).unwrap(), code_bytes)),
+                closing_parenthesis: Token::from((node.child(2).unwrap(), code_bytes)),
             },
             "typeof" => Self::Typeof {
-                typeof_token: SingleToken::from((node.child(0).unwrap(), code_bytes)),
-                opening_parenthesis: SingleToken::from((node.child(1).unwrap(), code_bytes)),
+                typeof_token: Token::from((node.child(0).unwrap(), code_bytes)),
+                opening_parenthesis: Token::from((node.child(1).unwrap(), code_bytes)),
                 inner: Arc::new(Expression::from((node.child(2).unwrap(), code_bytes))),
-                closing_parenthesis: SingleToken::from((node.child(3).unwrap(), code_bytes)),
+                closing_parenthesis: Token::from((node.child(3).unwrap(), code_bytes)),
             },
             "functionType" => build_function_type(node, code_bytes),
             "tableType" => Self::Table(build_table_type(node, code_bytes)),
             "singleton" => from_singleton_type(node, code_bytes),
             "bintype" => {
                 let operator =
-                    SingleToken::from((node.child_by_field_name("op").unwrap(), code_bytes));
+                    Token::from((node.child_by_field_name("op").unwrap(), code_bytes));
 
                 let left = Self::from((node.child_by_field_name("arg0").unwrap(), code_bytes));
                 let right = Self::from((node.child_by_field_name("arg1").unwrap(), code_bytes));
@@ -110,7 +110,7 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
                     node.child_by_field_name("arg").unwrap(),
                     code_bytes,
                 ))),
-                question_mark: SingleToken::from((
+                question_mark: Token::from((
                     node.child_by_field_name("op").unwrap(),
                     code_bytes,
                 )),
@@ -119,11 +119,11 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
                 let pack = node.child(0).unwrap();
                 match pack.kind() {
                     "(" => {
-                        let opening_parenthesis = SingleToken::from((
+                        let opening_parenthesis = Token::from((
                             node.child_by_field_name("opening_parenthesis").unwrap(),
                             code_bytes,
                         ));
-                        let closing_parenthesis = SingleToken::from((
+                        let closing_parenthesis = Token::from((
                             node.child_by_field_name("closing_parenthesis").unwrap(),
                             code_bytes,
                         ));
@@ -154,12 +154,12 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
                 }
             }
             "variadic" => Self::Variadic {
-                ellipsis: SingleToken::from((node.child(0).unwrap(), code_bytes)),
+                ellipsis: Token::from((node.child(0).unwrap(), code_bytes)),
                 type_info: Arc::new(Self::from((node.child(1).unwrap(), code_bytes))),
             },
             "genpack" => Self::GenericPack {
-                name: SingleToken::from((node.child(0).unwrap(), code_bytes)),
-                ellipsis: SingleToken::from((node.child(1).unwrap(), code_bytes)),
+                name: Token::from((node.child(0).unwrap(), code_bytes)),
+                ellipsis: Token::from((node.child(1).unwrap(), code_bytes)),
             },
             _ => panic!("Reached unhandled type. {}", node.to_sexp()),
         }
@@ -307,7 +307,7 @@ fn else_if_to_type(
             left: Arc::new(TypeValue::try_from(
                 (*else_if_expressions.get(i).unwrap().expression).clone(),
             )?),
-            pipe: SingleToken::from(" | "),
+            pipe: Token::from(" | "),
             right: Arc::new(else_if_to_type(else_if_expressions, i + 1)?),
         })
     } else {
@@ -323,7 +323,7 @@ impl TryFrom<Expression> for TypeValue {
             Expression::ERROR => Ok(Self::ERROR),
             Expression::Nil(value) => Ok(Self::Basic(value)),
             Expression::Boolean(word) => Ok(Self::Boolean(word)),
-            Expression::Number(_) => Ok(Self::Basic(SingleToken::new("number"))),
+            Expression::Number(_) => Ok(Self::Basic(Token::new("number"))),
             Expression::String(value) => Ok(Self::String(value)),
             Expression::Function {
                 generics,
@@ -337,11 +337,11 @@ impl TryFrom<Expression> for TypeValue {
                 opening_parenthesis,
                 parameters,
                 closing_parenthesis,
-                arrow: SingleToken::new("->"),
+                arrow: Token::new("->"),
                 return_type: returns.unwrap_or(Arc::new(Self::Tuple {
-                    opening_parenthesis: SingleToken::from("("),
+                    opening_parenthesis: Token::from("("),
                     types: List::default(),
-                    closing_parenthesis: SingleToken::from(")"),
+                    closing_parenthesis: Token::from(")"),
                 })),
             }),
             Expression::FunctionCall(value) => Err(ConversionError::FunctionCall(value)),
@@ -372,10 +372,10 @@ impl TryFrom<Expression> for TypeValue {
                 ..
             } => Ok(Self::Union {
                 left: Arc::new(Self::try_from((*if_expression).clone())?),
-                pipe: SingleToken::from(" | "),
+                pipe: Token::from(" | "),
                 right: Arc::new(Self::Union {
                     left: Arc::new(Self::try_from((*else_expression).clone())?),
-                    pipe: SingleToken::from(" | "),
+                    pipe: Token::from(" | "),
                     right: Arc::new(else_if_to_type(else_if_expressions.to_vec(), 0)?),
                 }),
             }),

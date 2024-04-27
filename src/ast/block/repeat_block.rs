@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use crate::{
-    prelude::{parse_block, Expression, HasRange, LuauStatement, Range, RepeatBlock, SingleToken},
+    prelude::{parse_block, Expression, HasRange, LuauStatement, Range, RepeatBlock, Token},
     utils::get_range_from_boundaries,
 };
 
@@ -18,12 +18,12 @@ impl LuauStatement for RepeatBlock {
         }
 
         Some(RepeatBlock {
-            repeat_keyword: SingleToken::from((node.child(0).unwrap(), code_bytes)),
+            repeat_keyword: Token::from((node.child(0).unwrap(), code_bytes)),
             body: node
                 .child_by_field_name("body")
                 .map(|body| parse_block(&body, code_bytes, None))
                 .unwrap_or_default(),
-            until_keyword: SingleToken::from((
+            until_keyword: Token::from((
                 node.child_by_field_name("until").unwrap(),
                 code_bytes,
             )),

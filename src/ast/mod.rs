@@ -20,7 +20,7 @@ pub mod token;
 pub mod type_definition;
 
 use crate::prelude::{
-    Ast, AstStatus, HasRange, Print, PrintingError, Range, SingleToken, Statement,
+    Ast, AstStatus, HasRange, Print, PrintingError, Range, Token, Statement,
 };
 
 impl Print for Ast {
@@ -113,7 +113,7 @@ impl Statement {
     }
 }
 
-impl Print for (Statement, Option<SingleToken>) {
+impl Print for (Statement, Option<Token>) {
     fn print(&self) -> String {
         format!("{}{}", self.0.print(), self.1.as_ref().map_or("", |_| ";"))
     }

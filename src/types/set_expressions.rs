@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 
-use super::{Expression, List, SingleToken, Var};
+use super::{Expression, List, Token, Var};
 
 /// A struct representing a set expression.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -12,7 +12,7 @@ pub struct SetExpression {
     pub variables: List<Var>,
 
     /// The `=` character.
-    pub equal: SingleToken,
+    pub equal: Token,
 
     /// The values that are being set, in the same order as variables, the length of
     /// these values may be more or less than the variables list.
@@ -27,7 +27,7 @@ pub struct CompoundSetExpression {
     pub variable: Var,
 
     /// The compound operation like `+=`, `//=`, etc.
-    pub operation: SingleToken,
+    pub operation: Token,
 
     /// The values that are being set, in the same order as variables, the length of
     /// these values may be more or less than the variables list.

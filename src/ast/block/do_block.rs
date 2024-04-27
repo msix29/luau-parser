@@ -1,7 +1,7 @@
 //! Implements helper traits for do block
 
 use crate::{
-    prelude::{parse_block, DoBlock, HasRange, LuauStatement, Range, SingleToken},
+    prelude::{parse_block, DoBlock, HasRange, LuauStatement, Range, Token},
     utils::get_range_from_boundaries,
 };
 
@@ -16,12 +16,12 @@ impl LuauStatement for DoBlock {
         }
 
         Some(DoBlock {
-            do_keyword: SingleToken::from((node.child(0).unwrap(), code_bytes)),
+            do_keyword: Token::from((node.child(0).unwrap(), code_bytes)),
             body: node
                 .child_by_field_name("body")
                 .map(|body| parse_block(&body, code_bytes, None))
                 .unwrap_or_default(),
-            end_keyword: SingleToken::from((node.child_by_field_name("end").unwrap(), code_bytes)),
+            end_keyword: Token::from((node.child_by_field_name("end").unwrap(), code_bytes)),
         })
     }
 }

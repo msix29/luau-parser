@@ -2,12 +2,12 @@
 
 use std::num::{ParseFloatError, ParseIntError};
 
-use crate::prelude::SingleToken;
+use crate::prelude::Token;
 
 /// A struct represnting a string literal.
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
-pub struct StringLiteral(pub SingleToken);
+pub struct StringLiteral(pub Token);
 
 /// An enum represnting the return type of [`Number::parse`]..
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
@@ -39,4 +39,4 @@ pub enum ParseNumberError {
 /// A struct represnting a number literal.
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
-pub struct Number(pub SingleToken);
+pub struct Number(pub Token);

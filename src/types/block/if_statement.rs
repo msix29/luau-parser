@@ -2,20 +2,20 @@
 
 use std::sync::Arc;
 
-use crate::prelude::{Ast, Expression, SingleToken};
+use crate::prelude::{Ast, Expression, Token};
 
 /// A struct representing an if statement
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct IfStatement {
     /// The `if` keyword.
-    pub if_keyword: SingleToken,
+    pub if_keyword: Token,
 
     /// The condition for this statement.
     pub condition: Arc<Expression>,
 
     /// The `then` keyword.
-    pub then_keyword: SingleToken,
+    pub then_keyword: Token,
 
     /// The body that'll be excuted if condition is truthy.
     pub body: Ast,
@@ -27,7 +27,7 @@ pub struct IfStatement {
     pub else_expression: Option<ElseStatement>,
 
     /// The `end` keyword
-    pub end_keyword: SingleToken,
+    pub end_keyword: Token,
 }
 
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -35,13 +35,13 @@ pub struct IfStatement {
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct ElseIfStatement {
     /// The `elseif` keyword.
-    pub elseif_keyword: SingleToken,
+    pub elseif_keyword: Token,
 
     /// The condition for this statement.
     pub condition: Arc<Expression>,
 
     /// The `then` keyword.
-    pub then_keyword: SingleToken,
+    pub then_keyword: Token,
 
     /// The body that'll be excuted if condition is truthy.
     pub body: Ast,
@@ -52,7 +52,7 @@ pub struct ElseIfStatement {
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct ElseStatement {
     /// The `else` keyword.
-    pub else_keyword: SingleToken,
+    pub else_keyword: Token,
 
     /// The body of the else statement.
     pub body: Ast,

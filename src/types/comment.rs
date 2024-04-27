@@ -1,6 +1,6 @@
 //! Comments
 
-use super::SingleToken;
+use super::Token;
 
 /// A struct representing a comment. Single line comments:
 ///
@@ -19,4 +19,4 @@ use super::SingleToken;
 
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub struct Comment(pub SingleToken);
+pub struct Comment(pub Token);

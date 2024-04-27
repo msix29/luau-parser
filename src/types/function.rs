@@ -1,31 +1,31 @@
 //! Local and global functions.
 
-use super::{Ast, GenericDeclaration, List, NormalizedName, SingleToken, TypeValue};
+use super::{Ast, GenericDeclaration, List, NormalizedName, Token, TypeValue};
 
 /// A struct representing a local function.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct LocalFunction {
     /// The `local` keyword.
-    pub local_keyword: SingleToken,
+    pub local_keyword: Token,
 
     /// The `function` keyword.
-    pub function_keyword: SingleToken,
+    pub function_keyword: Token,
 
     /// The name of the function.
-    pub function_name: SingleToken,
+    pub function_name: Token,
 
     /// The generics of the function.
     pub generics: Option<GenericDeclaration>,
 
     /// The `(` character.
-    pub opening_parenthesis: SingleToken,
+    pub opening_parenthesis: Token,
 
     /// The parameters that this function accepts.
     pub parameters: List<NormalizedName>,
 
     /// The `)` character.
-    pub closing_parenthesis: SingleToken,
+    pub closing_parenthesis: Token,
 
     /// The return type of the function
     pub returns: Option<TypeValue>,
@@ -34,7 +34,7 @@ pub struct LocalFunction {
     pub body: Ast,
 
     /// The `end` keyword.
-    pub end_keyword: SingleToken,
+    pub end_keyword: Token,
 }
 
 /// An enum representing possible ways in which a global function's name can be.
@@ -42,7 +42,7 @@ pub struct LocalFunction {
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum GlobalFunctionName {
     /// Just a simple name, this is usually in local functions but some people don't do so.
-    SimpleName(SingleToken),
+    SimpleName(Token),
 
     /// A table.
     ///
@@ -61,7 +61,7 @@ pub enum GlobalFunctionName {
         /// ```
         ///
         /// Here, the table is `foo`.
-        table: SingleToken,
+        table: Token,
 
         /// Fields accessed from the table.
         ///
@@ -81,7 +81,7 @@ pub enum GlobalFunctionName {
         ///
         /// [`ListItem`]: crate::types::ListItem
         /// [`NonTrailing`]: crate::types::ListItem::NonTrailing
-        keys: List<(SingleToken, SingleToken)>,
+        keys: List<(Token, Token)>,
 
         /// The final name of the function, if it exists.
         ///
@@ -102,7 +102,7 @@ pub enum GlobalFunctionName {
         /// ```
         ///
         /// The method is `None` as there's no `:`.
-        method: Option<(SingleToken, SingleToken)>,
+        method: Option<(Token, Token)>,
     },
 }
 
@@ -111,7 +111,7 @@ pub enum GlobalFunctionName {
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct GlobalFunction {
     /// The `function` keyword.
-    pub function_keyword: SingleToken,
+    pub function_keyword: Token,
 
     /// The name of the function.
     pub function_name: GlobalFunctionName,
@@ -120,13 +120,13 @@ pub struct GlobalFunction {
     pub generics: Option<GenericDeclaration>,
 
     /// The `(` character.
-    pub opening_parenthesis: SingleToken,
+    pub opening_parenthesis: Token,
 
     /// The parameters that this function accepts.
     pub parameters: List<NormalizedName>,
 
     /// The `)` character.
-    pub closing_parenthesis: SingleToken,
+    pub closing_parenthesis: Token,
 
     /// The return type of the function
     pub returns: Option<TypeValue>,
@@ -135,5 +135,5 @@ pub struct GlobalFunction {
     pub body: Ast,
 
     /// The `end` keyword.
-    pub end_keyword: SingleToken,
+    pub end_keyword: Token,
 }

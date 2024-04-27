@@ -6,7 +6,7 @@
 
 use std::sync::Arc;
 
-use super::{SingleToken, TypeValue};
+use super::{Token, TypeValue};
 
 /// A struct that provides a high level abstraction of `name` and `typedName` from the
 /// grammar for easier usability..
@@ -14,10 +14,10 @@ use super::{SingleToken, TypeValue};
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct NormalizedName {
     /// The actual name.
-    pub name: SingleToken,
+    pub name: Token,
 
     /// The type that was with this name, defined with the `: type` syntax.
-    pub colon: Option<SingleToken>,
+    pub colon: Option<Token>,
 
     /// The type that was with this name, defined with the `: type` syntax.
     pub r#type: Option<Arc<TypeValue>>,

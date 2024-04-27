@@ -3,7 +3,7 @@
 use crate::{
     prelude::{
         DoBlock, Expression, GenericFor, HasRange, List, Range, LuauStatement,
-        NormalizedName, SingleToken,
+        NormalizedName, Token,
     },
     utils::get_range_from_boundaries,
 };
@@ -19,7 +19,7 @@ impl LuauStatement for GenericFor {
         }
 
         Some(GenericFor {
-            for_keyword: SingleToken::from((node.child_by_field_name("for").unwrap(), code_bytes)),
+            for_keyword: Token::from((node.child_by_field_name("for").unwrap(), code_bytes)),
             names: List::from_iter(
                 node.children_by_field_name("binding", cursor),
                 node,
@@ -27,7 +27,7 @@ impl LuauStatement for GenericFor {
                 code_bytes,
                 |_, binding| NormalizedName::from((binding.child(0).unwrap(), code_bytes)),
             ),
-            in_keyword: SingleToken::from((node.child_by_field_name("in").unwrap(), code_bytes)),
+            in_keyword: Token::from((node.child_by_field_name("in").unwrap(), code_bytes)),
             expressions: Expression::from_nodes(
                 node.children_by_field_name("value", cursor),
                 code_bytes,

@@ -5,7 +5,7 @@ use tree_sitter::{Node, TreeCursor};
 use crate::{
     prelude::{
         parse_block, GlobalFunction, GlobalFunctionName, HasRange, List, LocalFunction,
-        LuauStatement, Range, SingleToken,
+        LuauStatement, Range, Token,
     },
     utils::get_range_from_boundaries,
 };
@@ -25,17 +25,17 @@ impl LuauStatement for LocalFunction {
         }
 
         Some(LocalFunction {
-            local_keyword: SingleToken::from((node.child(0).unwrap(), code_bytes)),
-            function_keyword: SingleToken::from((node.child(1).unwrap(), code_bytes)),
-            function_name: SingleToken::from((node.child(2).unwrap(), code_bytes)),
+            local_keyword: Token::from((node.child(0).unwrap(), code_bytes)),
+            function_keyword: Token::from((node.child(1).unwrap(), code_bytes)),
+            function_name: Token::from((node.child(2).unwrap(), code_bytes)),
             generics: build_generics(node, code_bytes),
-            opening_parenthesis: SingleToken::from((
+            opening_parenthesis: Token::from((
                 node.child_by_field_name("opening_parenthesis").unwrap(),
                 code_bytes,
             )),
 
             parameters: build_function_parameters(node, code_bytes, false),
-            closing_parenthesis: SingleToken::from((
+            closing_parenthesis: Token::from((
                 node.child_by_field_name("closing_parenthesis").unwrap(),
                 code_bytes,
             )),
@@ -44,7 +44,7 @@ impl LuauStatement for LocalFunction {
                 .child_by_field_name("body")
                 .map(|body| parse_block(&body, code_bytes, None))
                 .unwrap_or_default(),
-            end_keyword: SingleToken::from((node.child_by_field_name("end").unwrap(), code_bytes)),
+            end_keyword: Token::from((node.child_by_field_name("end").unwrap(), code_bytes)),
         })
     }
 }
@@ -65,12 +65,12 @@ impl LuauStatement for GlobalFunction {
         }
 
         Some(GlobalFunction {
-            function_keyword: SingleToken::from((node.child(0).unwrap(), code_bytes)),
+            function_keyword: Token::from((node.child(0).unwrap(), code_bytes)),
             function_name: if let Some(name) = node.child_by_field_name("name") {
-                GlobalFunctionName::SimpleName(SingleToken::from((name, code_bytes)))
+                GlobalFunctionName::SimpleName(Token::from((name, code_bytes)))
             } else {
                 GlobalFunctionName::Table {
-                    table: SingleToken::from((
+                    table: Token::from((
                         node.child_by_field_name("table").unwrap(),
                         code_bytes,
                     )),
@@ -81,26 +81,26 @@ impl LuauStatement for GlobalFunction {
                         code_bytes,
                         |_, node| {
                             (
-                                SingleToken::from((node.prev_sibling().unwrap(), code_bytes)),
-                                SingleToken::from((node, code_bytes)),
+                                Token::from((node.prev_sibling().unwrap(), code_bytes)),
+                                Token::from((node, code_bytes)),
                             )
                         },
                     ),
                     method: node.child_by_field_name("method").map(|method| {
                         (
-                            SingleToken::from((method.prev_sibling().unwrap(), code_bytes)),
-                            SingleToken::from((method, code_bytes)),
+                            Token::from((method.prev_sibling().unwrap(), code_bytes)),
+                            Token::from((method, code_bytes)),
                         )
                     }),
                 }
             },
             generics: build_generics(node, code_bytes),
-            opening_parenthesis: SingleToken::from((
+            opening_parenthesis: Token::from((
                 node.child_by_field_name("opening_parenthesis").unwrap(),
                 code_bytes,
             )),
             parameters: build_function_parameters(node, code_bytes, false),
-            closing_parenthesis: SingleToken::from((
+            closing_parenthesis: Token::from((
                 node.child_by_field_name("closing_parenthesis").unwrap(),
                 code_bytes,
             )),
@@ -109,7 +109,7 @@ impl LuauStatement for GlobalFunction {
                 .child_by_field_name("body")
                 .map(|body| parse_block(&body, code_bytes, None))
                 .unwrap_or_default(),
-            end_keyword: SingleToken::from((node.child_by_field_name("end").unwrap(), code_bytes)),
+            end_keyword: Token::from((node.child_by_field_name("end").unwrap(), code_bytes)),
         })
     }
 }

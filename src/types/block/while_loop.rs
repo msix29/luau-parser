@@ -2,14 +2,14 @@
 
 use std::sync::Arc;
 
-use crate::prelude::{DoBlock, Expression, SingleToken};
+use crate::prelude::{DoBlock, Expression, Token};
 
 /// A struct representing a while loop.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct WhileLoop {
     /// The "while" keyword.
-    pub while_keyword: SingleToken,
+    pub while_keyword: Token,
 
     /// The condition of the while loop.
     pub condition: Arc<Expression>,

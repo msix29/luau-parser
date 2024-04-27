@@ -4,7 +4,7 @@
 
 use std::sync::Arc;
 
-use super::{FunctionCall, List, NormalizedName, SingleToken, StringLiteral, Table, Var};
+use super::{FunctionCall, List, NormalizedName, Token, StringLiteral, Table, Var};
 use crate::prelude::Expression;
 
 /// Possible values for a type.
@@ -19,7 +19,7 @@ pub enum TypeValue {
     /// ```lua
     /// type Foo = Bar
     /// ```
-    Basic(SingleToken),
+    Basic(Token),
 
     /// A singletone string.
     ///
@@ -34,7 +34,7 @@ pub enum TypeValue {
     /// type Foo = true
     /// type Bar = false
     /// ```
-    Boolean(SingleToken),
+    Boolean(Token),
 
     /// A wrape of another type, the difference between this and a
     /// [`tuple`](TypeValue::Tuple) is that this item always have one type and only one
@@ -45,13 +45,13 @@ pub enum TypeValue {
     /// ```
     Wrap {
         /// The `(` character.
-        opening_parenthesis: SingleToken,
+        opening_parenthesis: Token,
 
         /// The type wrapped in between the parenthesis.
         r#type: Arc<TypeValue>,
 
         /// The `)` character.
-        closing_parenthesis: SingleToken,
+        closing_parenthesis: Token,
     },
 
     /// A function type.
@@ -68,16 +68,16 @@ pub enum TypeValue {
         generics: Option<GenericDeclaration>,
 
         /// The `(` character at the start of the function.
-        opening_parenthesis: SingleToken,
+        opening_parenthesis: Token,
 
         /// The parameters this function accepts.
         parameters: List<NormalizedName>,
 
         /// The `)` character at the end of parameters and before returns
-        closing_parenthesis: SingleToken,
+        closing_parenthesis: Token,
 
         /// The `->` character.
-        arrow: SingleToken,
+        arrow: Token,
 
         /// The return type of this function
         return_type: Arc<TypeValue>,
@@ -92,16 +92,16 @@ pub enum TypeValue {
     /// The [`generic`](TypeValue::Generic) here is `Signal`.
     Generic {
         /// The name of the type that has the generics.
-        base: SingleToken,
+        base: Token,
 
         /// The `<` character.
-        right_arrows: SingleToken,
+        right_arrows: Token,
 
         /// The actual generics.
         generics: List<Arc<TypeValue>>,
 
         /// The `>` character.
-        left_arrows: SingleToken,
+        left_arrows: Token,
     },
 
     /// A generic pack.
@@ -111,10 +111,10 @@ pub enum TypeValue {
     /// ```
     GenericPack {
         /// The name.
-        name: SingleToken,
+        name: Token,
 
         /// The `...` characters.
-        ellipsis: SingleToken,
+        ellipsis: Token,
     },
 
     /// An intersection between two types.
@@ -127,7 +127,7 @@ pub enum TypeValue {
         left: Arc<TypeValue>,
 
         /// The `&` character.
-        ampersand: SingleToken,
+        ampersand: Token,
 
         /// The type at the end.
         right: Arc<TypeValue>,
@@ -143,7 +143,7 @@ pub enum TypeValue {
         left: Arc<TypeValue>,
 
         /// The `|` character.
-        pipe: SingleToken,
+        pipe: Token,
 
         /// The type at the end.
         right: Arc<TypeValue>,
@@ -152,10 +152,10 @@ pub enum TypeValue {
     /// An access to an exported type from a module.
     Module {
         /// the name of the module.
-        module: SingleToken,
+        module: Token,
 
         /// The `.` between the module name and the type.
-        dot: SingleToken,
+        dot: Token,
 
         /// The actual name of the type being accessed.
         type_value: Arc<TypeValue>,
@@ -179,7 +179,7 @@ pub enum TypeValue {
         base: Arc<TypeValue>,
 
         /// The `?` character.
-        question_mark: SingleToken,
+        question_mark: Token,
     },
 
     /// A table type.
@@ -193,16 +193,16 @@ pub enum TypeValue {
     /// A `typeof` expression.
     Typeof {
         /// The `typeof` word.
-        typeof_token: SingleToken,
+        typeof_token: Token,
 
         /// The `(` character.
-        opening_parenthesis: SingleToken,
+        opening_parenthesis: Token,
 
         /// The expression passed to `typeof`.
         inner: Arc<Expression>,
 
         /// The `)` character.
-        closing_parenthesis: SingleToken,
+        closing_parenthesis: Token,
     },
 
     /// A tuple of types
@@ -219,13 +219,13 @@ pub enum TypeValue {
     /// ```
     Tuple {
         /// The `(` character.
-        opening_parenthesis: SingleToken,
+        opening_parenthesis: Token,
 
         /// The list of types between the parenthesis.
         types: List<Arc<TypeValue>>,
 
         /// The `)` character.
-        closing_parenthesis: SingleToken,
+        closing_parenthesis: Token,
     },
 
     /// A variadic type.
@@ -245,7 +245,7 @@ pub enum TypeValue {
     /// variadic packs are used for generics.
     Variadic {
         /// The `...` characters.
-        ellipsis: SingleToken,
+        ellipsis: Token,
 
         /// The actual type.
         type_info: Arc<TypeValue>,
@@ -262,10 +262,10 @@ pub enum TypeValue {
     /// See [`variadic type`](TypeValue::Variadic) to learn the difference between them.
     VariadicPack {
         /// The `...` characters.
-        ellipsis: SingleToken,
+        ellipsis: Token,
 
         /// The name
-        name: SingleToken,
+        name: Token,
     },
 }
 
@@ -275,21 +275,21 @@ pub enum TypeValue {
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct TypeDefinition {
     /// The `export` keyword.
-    pub export_keyword: Option<SingleToken>,
+    pub export_keyword: Option<Token>,
 
     /// The `type` keyword.
-    pub type_keyword: Option<SingleToken>,
+    pub type_keyword: Option<Token>,
 
     /// The generics for this type.
     pub generics: Option<GenericDeclaration>,
 
     /// The name of the type.
-    pub type_name: SingleToken,
+    pub type_name: Token,
 
     /// The `=` sign between the name and the actual value of the type.
     /// This will be `None` if this isn't it's own statement but rather
     /// in another place like parameter's type or a variable's type.
-    pub equal_sign: Option<SingleToken>,
+    pub equal_sign: Option<Token>,
 
     /// The [`actual definition`](TypeValue) of the type.
     pub type_value: Arc<TypeValue>,
@@ -300,13 +300,13 @@ pub struct TypeDefinition {
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct GenericParameters {
     /// The `<` character.
-    pub opening_arrow: SingleToken,
+    pub opening_arrow: Token,
 
     /// The actual generics.
     pub generics: List<GenericParameterInfo>,
 
     /// The `>` character.
-    pub closing_arrow: SingleToken,
+    pub closing_arrow: Token,
 }
 
 /// A generic declaration parameter used in [`generics declarations`](GenericDeclaration).
@@ -315,14 +315,14 @@ pub struct GenericParameters {
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum GenericParameterInfo {
     /// A simple name, such as `T`.
-    Name(SingleToken),
+    Name(Token),
 
     /// A variadic type pack: `T...`.
     Pack {
         /// The name of the type.
-        name: SingleToken,
+        name: Token,
         /// The `...` characters.
-        ellipsis: SingleToken,
+        ellipsis: Token,
     },
 }
 
@@ -349,10 +349,10 @@ pub enum GenericParameterInfoDefault {
     /// ```
     Name {
         /// The `=` character.
-        equal_sign: SingleToken,
+        equal_sign: Token,
 
         /// The name of the type.
-        name: SingleToken,
+        name: Token,
     },
 
     /// A generic pack.
@@ -364,7 +364,7 @@ pub enum GenericParameterInfoDefault {
     /// ```
     Pack {
         /// The `=` character.
-        equal_sign: SingleToken,
+        equal_sign: Token,
 
         /// The type itself..
         r#type: TypeValue,
@@ -376,13 +376,13 @@ pub enum GenericParameterInfoDefault {
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct GenericDeclaration {
     /// The `<` character.
-    pub opening_arrow: SingleToken,
+    pub opening_arrow: Token,
 
     /// The actual generics.
     pub generics: List<GenericDeclarationParameter>,
 
     /// The `>` character.
-    pub closing_arrow: SingleToken,
+    pub closing_arrow: Token,
 }
 
 /// Possible errors converting from an expression to a type definition.
@@ -400,7 +400,7 @@ pub enum ConversionError {
     /// expression, pass the inner one and not the unary.
     UnaryExpression {
         /// The operator.
-        operator: SingleToken,
+        operator: Token,
 
         /// The actual expression this operator is affecting.
         expression: Arc<Expression>,
@@ -413,7 +413,7 @@ pub enum ConversionError {
         left: Arc<Expression>,
 
         /// The operator between the expressions.
-        operator: SingleToken,
+        operator: Token,
 
         /// The right expression.
         right: Arc<Expression>,

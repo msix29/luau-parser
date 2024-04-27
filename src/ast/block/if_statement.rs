@@ -5,7 +5,7 @@ use std::sync::Arc;
 use crate::{
     prelude::{
         parse_block, Ast, ElseIfStatement, ElseStatement, Expression, HasRange, IfStatement,
-        LuauStatement, Range, SingleToken,
+        LuauStatement, Range, Token,
     },
     utils::get_range_from_boundaries,
 };
@@ -23,9 +23,9 @@ impl LuauStatement for IfStatement {
         let else_if_expressions = node
             .children_by_field_name("elseif_clause", &mut node.walk())
             .map(|elseif| ElseIfStatement {
-                elseif_keyword: SingleToken::from((elseif.child(0).unwrap(), code_bytes)),
+                elseif_keyword: Token::from((elseif.child(0).unwrap(), code_bytes)),
                 condition: Arc::new(Expression::from((elseif.child(1).unwrap(), code_bytes))),
-                then_keyword: SingleToken::from((elseif.child(2).unwrap(), code_bytes)),
+                then_keyword: Token::from((elseif.child(2).unwrap(), code_bytes)),
                 body: elseif
                     .child(3)
                     .map_or_else(Ast::default, |body| parse_block(&body, code_bytes, None)),
@@ -34,22 +34,22 @@ impl LuauStatement for IfStatement {
         let else_expression = node
             .child_by_field_name("else_clause")
             .map(|node| ElseStatement {
-                else_keyword: SingleToken::from((node.child(0).unwrap(), code_bytes)),
+                else_keyword: Token::from((node.child(0).unwrap(), code_bytes)),
                 body: node
                     .child(1)
                     .map_or_else(Ast::default, |body| parse_block(&body, code_bytes, None)),
             });
 
         Some(IfStatement {
-            if_keyword: SingleToken::from((node.child(0).unwrap(), code_bytes)),
+            if_keyword: Token::from((node.child(0).unwrap(), code_bytes)),
             condition: Arc::new(Expression::from((node.child(1).unwrap(), code_bytes))),
-            then_keyword: SingleToken::from((node.child(2).unwrap(), code_bytes)),
+            then_keyword: Token::from((node.child(2).unwrap(), code_bytes)),
             body: node
                 .child(3)
                 .map_or_else(Ast::default, |body| parse_block(&body, code_bytes, None)),
             else_if_expressions,
             else_expression,
-            end_keyword: SingleToken::from((node.child_by_field_name("end").unwrap(), code_bytes)),
+            end_keyword: Token::from((node.child_by_field_name("end").unwrap(), code_bytes)),
         })
     }
 }

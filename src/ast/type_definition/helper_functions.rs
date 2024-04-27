@@ -7,22 +7,22 @@ use tree_sitter::Node;
 
 use crate::prelude::{
     GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo, List, ListItem,
-    NormalizedName, SingleToken, StringLiteral, Table, TableField, TableFieldValue, TableKey,
+    NormalizedName, Token, StringLiteral, Table, TableField, TableFieldValue, TableKey,
     TypeDefinition, TypeValue,
 };
 
 /// Get a type value from a node representing a singleton type.
 pub(crate) fn from_singleton_type(node: Node, code_bytes: &[u8]) -> TypeValue {
-    TypeValue::Basic(SingleToken::from((node, code_bytes)))
+    TypeValue::Basic(Token::from((node, code_bytes)))
 }
 
 /// Build a table value from a node representing a table.
 pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> Table {
-    let opening_brackets = SingleToken::from((
+    let opening_brackets = Token::from((
         node.child_by_field_name("opening_brackets").unwrap(),
         code_bytes,
     ));
-    let closing_brackets = SingleToken::from((
+    let closing_brackets = Token::from((
         node.child_by_field_name("closing_brackets").unwrap(),
         code_bytes,
     ));
@@ -49,7 +49,7 @@ pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> Table {
                                 field.child(0).unwrap(),
                                 code_bytes,
                             )))),
-                            equal_or_colon: Some(SingleToken::from((
+                            equal_or_colon: Some(Token::from((
                                 field.child(1).unwrap(),
                                 code_bytes,
                             ))),
@@ -63,7 +63,7 @@ pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> Table {
                     "tableIndexer" => {
                         table_fields.push(ListItem::NonTrailing(TableField {
                             key: Arc::new(TableKey::Type {
-                                open_square_brackets: SingleToken::from((
+                                open_square_brackets: Token::from((
                                     field.child(0).unwrap(),
                                     code_bytes,
                                 )),
@@ -72,12 +72,12 @@ pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> Table {
                                     code_bytes,
                                     false,
                                 ))),
-                                close_square_brackets: SingleToken::from((
+                                close_square_brackets: Token::from((
                                     field.child(2).unwrap(),
                                     code_bytes,
                                 )),
                             }),
-                            equal_or_colon: Some(SingleToken::from((
+                            equal_or_colon: Some(Token::from((
                                 field.child(3).unwrap(),
                                 code_bytes,
                             ))),
@@ -132,7 +132,7 @@ pub(crate) fn build_function_parameters(
                 // the sake of making it "better", we use `_`, which is globally known as a
                 // placeholder.
                 NormalizedName {
-                    name: SingleToken::from("_"),
+                    name: Token::from("_"),
                     colon: None,
                     r#type: Some(Arc::new(TypeValue::from((
                         parameter.child(0).unwrap(),
@@ -147,7 +147,7 @@ pub(crate) fn build_function_parameters(
     if let Some(variadic) = node.child_by_field_name("variadic") {
         let name = if node.kind() == "functionType" {
             NormalizedName {
-                name: SingleToken::from(""),
+                name: Token::from(""),
                 colon: None,
                 r#type: Some(Arc::new(TypeValue::from((
                     variadic.child(0).unwrap(),
@@ -156,10 +156,10 @@ pub(crate) fn build_function_parameters(
             }
         } else {
             NormalizedName {
-                name: SingleToken::from((variadic.child(0).unwrap(), code_bytes)),
+                name: Token::from((variadic.child(0).unwrap(), code_bytes)),
                 colon: variadic
                     .child(1)
-                    .map(|colon| SingleToken::from((colon, code_bytes))),
+                    .map(|colon| Token::from((colon, code_bytes))),
                 r#type: variadic.child(2).map(|r#type| {
                     if let Some(r#type) = r#type.child_by_field_name("type") {
                         Arc::new(TypeValue::from((r#type, code_bytes)))
@@ -192,7 +192,7 @@ pub(crate) fn build_generics(node: Node, code_bytes: &[u8]) -> Option<GenericDec
             "genericsSeparator",
             code_bytes,
             |_, child| GenericDeclarationParameter {
-                parameter: GenericParameterInfo::Name(SingleToken::from((child, code_bytes))),
+                parameter: GenericParameterInfo::Name(Token::from((child, code_bytes))),
                 default: None,
             },
         );
@@ -203,20 +203,20 @@ pub(crate) fn build_generics(node: Node, code_bytes: &[u8]) -> Option<GenericDec
             code_bytes,
             |_, child| GenericDeclarationParameter {
                 parameter: GenericParameterInfo::Pack {
-                    name: SingleToken::from((child.child(0).unwrap(), code_bytes)),
-                    ellipsis: SingleToken::from((child.child(1).unwrap(), code_bytes)),
+                    name: Token::from((child.child(0).unwrap(), code_bytes)),
+                    ellipsis: Token::from((child.child(1).unwrap(), code_bytes)),
                 },
                 default: None,
             },
         ));
 
         Some(GenericDeclaration {
-            opening_arrow: SingleToken::from((
+            opening_arrow: Token::from((
                 node.child_by_field_name("opening_arrow").unwrap(),
                 code_bytes,
             )),
             generics,
-            closing_arrow: SingleToken::from((
+            closing_arrow: Token::from((
                 node.child_by_field_name("closing_arrow").unwrap(),
                 code_bytes,
             )),
@@ -230,16 +230,16 @@ pub(crate) fn build_generics(node: Node, code_bytes: &[u8]) -> Option<GenericDec
 pub(crate) fn build_function_type(node: Node, code_bytes: &[u8]) -> TypeValue {
     TypeValue::Function {
         generics: build_generics(node, code_bytes),
-        opening_parenthesis: SingleToken::from((
+        opening_parenthesis: Token::from((
             node.child_by_field_name("opening_parenthesis").unwrap(),
             code_bytes,
         )),
         parameters: build_function_parameters(node, code_bytes, true),
-        closing_parenthesis: SingleToken::from((
+        closing_parenthesis: Token::from((
             node.child_by_field_name("closing_parenthesis").unwrap(),
             code_bytes,
         )),
-        arrow: SingleToken::from((node.child_by_field_name("arrow").unwrap(), code_bytes)),
+        arrow: Token::from((node.child_by_field_name("arrow").unwrap(), code_bytes)),
         // Function types will always have a return.
         return_type: Arc::new(build_function_returns(node, code_bytes).unwrap()),
     }

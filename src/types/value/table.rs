@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use smol_str::SmolStr;
 
-use crate::prelude::{Expression, List, SingleToken, StringLiteral, TypeDefinition};
+use crate::prelude::{Expression, List, Token, StringLiteral, TypeDefinition};
 
 /// A possible key entry in a table. The key is usually a string, but it can be a value
 /// (from an expression) in tables or a type in type definitions.
@@ -43,25 +43,25 @@ pub enum TableKey {
     /// An expression, can only be used in definitions and not in types.
     Expression {
         /// The `[` character.
-        open_square_brackets: SingleToken,
+        open_square_brackets: Token,
 
         /// The actual expression between the `[...]`.
         expression: Arc<Expression>,
 
         /// The `]` character.
-        close_square_brackets: SingleToken,
+        close_square_brackets: Token,
     },
 
     /// A type definition, can only be used in other types and not definitions.
     Type {
         /// The `[` character.
-        open_square_brackets: SingleToken,
+        open_square_brackets: Token,
 
         /// The actual type between the `[...]`.
         r#type: Arc<TypeDefinition>,
 
         /// The `]` character.
-        close_square_brackets: SingleToken,
+        close_square_brackets: Token,
     },
 }
 
@@ -75,7 +75,7 @@ pub struct TableField {
     pub key: Arc<TableKey>,
 
     /// The `=` or `:` tokens, it's `=` in variables and `:` in types.
-    pub equal_or_colon: Option<SingleToken>,
+    pub equal_or_colon: Option<Token>,
 
     /// The value of theis field. An expression in variables and a type in type
     /// definitions.
@@ -99,11 +99,11 @@ pub enum TableFieldValue {
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Table {
     /// The `{` character.
-    pub opening_brackets: SingleToken,
+    pub opening_brackets: Token,
 
     /// The actual [`fields`](TableField) of the table.
     pub fields: List<TableField>,
 
     /// The `}` character.
-    pub closing_brackets: SingleToken,
+    pub closing_brackets: Token,
 }

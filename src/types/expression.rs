@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use super::{
-    Ast, GenericDeclaration, List, NormalizedName, Number, SingleToken, StringLiteral, Table, TableKey, TypeDefinition, TypeValue
+    Ast, GenericDeclaration, List, NormalizedName, Number, Token, StringLiteral, Table, TableKey, TypeDefinition, TypeValue
 };
 
 /// An enum representing different ways in which a table value can be returned from.
@@ -15,7 +15,7 @@ pub enum TableAccessPrefix {
     /// ```lua
     /// local _ = t.name
     /// ```
-    Name(SingleToken),
+    Name(Token),
 
     /// A function call
     ///
@@ -60,10 +60,10 @@ pub enum TableAccessKey {
     /// A simple name.
     Name {
         /// The `.` **before** the key.
-        dot: SingleToken,
+        dot: Token,
 
         /// The actual key being accessed.
-        name: SingleToken,
+        name: Token,
     },
 }
 
@@ -76,7 +76,7 @@ pub enum Var {
     /// ```lua
     /// local _ = foo
     /// ```
-    Name(SingleToken),
+    Name(Token),
 
     /// A field accessed from a table.
     ///
@@ -108,10 +108,10 @@ pub enum FunctionCallInvoked {
         table: Arc<PrefixExp>,
 
         /// The colon between the table and the method name.
-        colon: SingleToken,
+        colon: Token,
 
         /// The actual name of the method being called.
-        method: SingleToken,
+        method: Token,
     },
 }
 
@@ -155,13 +155,13 @@ pub enum FunctionArguments {
     /// ```
     List {
         /// The `(` character.
-        open_parenthesis: SingleToken,
+        open_parenthesis: Token,
 
         /// List of arguments passed to the function.
         arguments: List<Arc<Expression>>,
 
         /// The `)` character.
-        close_parenthesis: SingleToken,
+        close_parenthesis: Token,
     },
 }
 
@@ -170,13 +170,13 @@ pub enum FunctionArguments {
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct ExpressionWrap {
     /// The `(` character.
-    pub opening_parenthesis: SingleToken,
+    pub opening_parenthesis: Token,
 
     /// The actual [`expression`](Expression) being wrapped.
     pub expression: Arc<Expression>,
 
     /// The `)` character.
-    pub closing_parenthesis: SingleToken,
+    pub closing_parenthesis: Token,
 }
 
 /// Part of expressions that are usually at the start of actual expressions.
@@ -218,10 +218,10 @@ pub enum Expression {
     ERROR,
 
     /// The `nil` value.
-    Nil(SingleToken),
+    Nil(Token),
 
     /// A `true` or `false` value.
-    Boolean(SingleToken),
+    Boolean(Token),
 
     /// Any number, be it a float, an unsigned integer, an integer or a hex digit.
     Number(Number),
@@ -238,22 +238,22 @@ pub enum Expression {
     /// ```
     Function {
         /// The `function` keyword at the start
-        function_keyword: SingleToken,
+        function_keyword: Token,
 
         /// The generics of this function.
         generics: Option<GenericDeclaration>,
 
         /// The `(` character.
-        opening_parenthesis: SingleToken,
+        opening_parenthesis: Token,
 
         /// All [`parameters`](NormalizedName) of the function.
         parameters: List<NormalizedName>,
 
         /// The `)` character.
-        closing_parenthesis: SingleToken,
+        closing_parenthesis: Token,
 
         /// The `:` character between closing parenthesis and returns.
-        colon: Option<SingleToken>,
+        colon: Option<Token>,
 
         /// The return type of the function
         returns: Option<Arc<TypeValue>>,
@@ -262,7 +262,7 @@ pub enum Expression {
         body: Ast,
 
         /// The `end` keyword.
-        end_keyword: SingleToken,
+        end_keyword: Token,
     },
 
     /// A function call.
@@ -303,7 +303,7 @@ pub enum Expression {
     /// ```
     UnaryExpression {
         /// The operator.
-        operator: SingleToken,
+        operator: Token,
 
         /// The actual expression this operator is affecting.
         expression: Arc<Expression>,
@@ -322,7 +322,7 @@ pub enum Expression {
         left: Arc<Expression>,
 
         /// The operator between the expressions.
-        operator: SingleToken,
+        operator: Token,
 
         /// The right expression.
         right: Arc<Expression>,
@@ -340,7 +340,7 @@ pub enum Expression {
         expression: Arc<Expression>,
 
         /// The `::` operator.
-        operator: SingleToken,
+        operator: Token,
 
         /// The type that's being casted to.
         cast_to: Arc<TypeDefinition>,
@@ -349,13 +349,13 @@ pub enum Expression {
     /// An if expression.
     IfExpression {
         /// The `if` keyword.
-        if_token: SingleToken,
+        if_token: Token,
 
         /// The condition after the `if` keyword.
         condition: Arc<Expression>,
 
         /// The `then` keyword after the condition.
-        then_token: SingleToken,
+        then_token: Token,
 
         /// The [`expression`](Expression) that this statement would resolve to if the
         /// [`condition`](Expression::IfExpression::condition) evaluated to `true`.
@@ -365,7 +365,7 @@ pub enum Expression {
         else_if_expressions: Arc<Vec<ElseIfExpression>>,
 
         /// The final part of the expression, the `else` keyword.
-        else_token: SingleToken,
+        else_token: Token,
 
         /// The final value if all other conditions were not met.
         else_expression: Arc<Expression>,
@@ -377,13 +377,13 @@ pub enum Expression {
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct ElseIfExpression {
     /// The `elseif` keyword.
-    pub else_if_token: SingleToken,
+    pub else_if_token: Token,
 
     /// The condition after the `elseif`.
     pub condition: Arc<Expression>,
 
     /// The `then` keyword after the condition.
-    pub then_token: SingleToken,
+    pub then_token: Token,
 
     /// The [`expression`](Expression) that this statement would resolve to if the
     /// [`condition`](ElseIfExpression::condition) evaluated to `true`.

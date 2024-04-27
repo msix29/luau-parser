@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 
-use crate::prelude::{Expression, NormalizedName, SingleToken};
+use crate::prelude::{Expression, NormalizedName, Token};
 
 use super::DoBlock;
 
@@ -11,25 +11,25 @@ use super::DoBlock;
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct NumericalFor {
     /// The `for` keyword.
-    pub for_keyword: SingleToken,
+    pub for_keyword: Token,
 
     /// The name afer the `for` keyword.
     pub variable: NormalizedName,
 
     /// The `=` character.
-    pub equal_keyword: SingleToken,
+    pub equal_keyword: Token,
 
     /// The start of the loop.
     pub start: Arc<Expression>,
 
     /// The comma after the start.
-    pub start_comma: SingleToken,
+    pub start_comma: Token,
 
     /// The end of the loop.
     pub end: Arc<Expression>,
 
     /// The comma after the end of the loop.
-    pub end_comma: Option<SingleToken>,
+    pub end_comma: Option<Token>,
 
     /// The optional step of the loop.
     pub step: Option<Arc<Expression>>,
