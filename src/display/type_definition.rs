@@ -61,6 +61,7 @@ impl_print_struct!(
 impl HasRawValue for TypeValue {
     fn get_raw_value(&self) -> String {
         match self {
+            TypeValue::ERROR => "*error*".to_string(),
             TypeValue::Basic(value)
             | TypeValue::String(StringLiteral(value))
             | TypeValue::Boolean(value) => value.get_raw_value(),
@@ -98,7 +99,9 @@ impl HasRawValue for TypeValue {
 }
 impl_print_enum!(
     TypeValue,
-    {},
+    {
+        ERROR,
+    },
     {
         Basic,
         String,

@@ -233,6 +233,13 @@ pub enum AstStatus {
     HasErrors,
 }
 
+/// An enum representing printing errors that stopped [`Ast::try_print`] from working.
+#[derive(Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+pub enum PrintingError {
+    /// The [`ast`](Ast) has syntax errors.
+    IncompleteAst,
+}
+
 /// A struct representing a scope in a file. This ast is lossless, meaning it can be
 /// printed back to the code it was created from without losing any details.
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]

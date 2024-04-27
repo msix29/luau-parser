@@ -19,11 +19,18 @@ pub mod statement;
 pub mod token;
 pub mod type_definition;
 
-use crate::prelude::{Ast, HasRange, Print, Range, SingleToken, Statement};
+use crate::prelude::{
+    Ast, AstStatus, HasRange, Print, PrintingError, Range, SingleToken, Statement,
+};
 
 impl Print for Ast {
     /// Returns the code that was behind this AST as-is, without any modifications and
     /// without losing on any details.
+    ///
+    /// # Note
+    ///
+    /// This function doesn't check whether or not this [`ast`](Ast) is complete, and
+    /// thus might produce wrong code. If you want to check, use [`Ast::try_print`].
     fn print(&self) -> String {
         let len = self.statements.len();
         if len == 0 {
@@ -41,6 +48,17 @@ impl Print for Ast {
         }
 
         str
+    }
+}
+
+impl Ast {
+    /// Safer version of [`Ast::print`].
+    pub fn try_print(&self) -> Result<String, PrintingError> {
+        if self.status == AstStatus::HasErrors {
+            Err(PrintingError::IncompleteAst)
+        } else {
+            Ok(self.print())
+        }
     }
 }
 

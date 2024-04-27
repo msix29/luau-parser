@@ -11,6 +11,9 @@ use crate::prelude::Expression;
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum TypeValue {
+    /// Indicates that this type had a syntax error.
+    ERROR,
+
     /// Just a reference to another type.
     ///
     /// ```lua

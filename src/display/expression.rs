@@ -31,6 +31,7 @@ impl_print_struct!(
 impl HasRawValue for Expression {
     fn get_raw_value(&self) -> String {
         match self {
+            Expression::ERROR => "*error*".to_string(),
             Expression::Nil(value)
             | Expression::Boolean(value)
             | Expression::Number(Number(value))
@@ -107,7 +108,9 @@ impl HasRawValue for Expression {
 }
 impl_print_enum!(
     Expression,
-    {},
+    {
+        ERROR,
+    },
     {
         Nil,
         Boolean,

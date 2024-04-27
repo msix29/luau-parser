@@ -16,9 +16,9 @@ pub(crate) fn parse_block(body: &Node, code_bytes: &[u8], uri: Option<String>) -
     let mut statements = Vec::new();
 
     for node in body.children_by_field_name("statement", &mut body.walk()) {
-        if node.has_error() {
-            continue;
-        }
+        // if node.has_error() {
+        //     continue;
+        // }
 
         statements.push((
             Statement::from((node.child(0).unwrap(), code_bytes)),

@@ -15,6 +15,10 @@ use super::helper_functions::{build_function_type, build_table_type, from_single
 
 impl From<(Node<'_>, &[u8])> for TypeValue {
     fn from((node, code_bytes): (Node<'_>, &[u8])) -> Self {
+        if node.is_error() | node.is_missing() {
+            return Self::ERROR;
+        }
+
         match node.kind() {
             "name" => {
                 let parent_node = node.parent().unwrap();
@@ -165,6 +169,7 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
 impl HasRange for TypeValue {
     fn get_range(&self) -> Range {
         match self {
+            Self::ERROR => Range::default(),
             Self::Basic(value) | Self::String(StringLiteral(value)) | Self::Boolean(value) => {
                 value.get_range()
             }
@@ -315,6 +320,7 @@ impl TryFrom<Expression> for TypeValue {
 
     fn try_from(value: Expression) -> Result<Self, Self::Error> {
         match value {
+            Expression::ERROR => Ok(Self::ERROR),
             Expression::Nil(value) => Ok(Self::Basic(value)),
             Expression::Boolean(word) => Ok(Self::Boolean(word)),
             Expression::Number(_) => Ok(Self::Basic(SingleToken::new("number"))),

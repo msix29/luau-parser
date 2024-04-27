@@ -214,6 +214,9 @@ pub enum PrefixExp {
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum Expression {
+    /// Indicates that this expression had a syntax error.
+    ERROR,
+
     /// The `nil` value.
     Nil(SingleToken),
 
