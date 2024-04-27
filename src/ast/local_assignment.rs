@@ -27,7 +27,7 @@ impl LuauStatement for LocalAssignment {
                 node,
                 "separator",
                 code_bytes,
-                |_, binding| NormalizedName::from((binding.child(0).unwrap(), code_bytes)),
+                |_, binding| NormalizedName::from((binding, code_bytes)),
             ),
             equal_token: node
                 .child_by_field_name("equal")
