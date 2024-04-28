@@ -19,3 +19,10 @@ lsp-ready = ["regex", "cache"]
 raw-values = []
 regex = ["dep:regex", "raw-values", "dep:lazy_static"]
 serde = ["dep:serde"]
+
+[dev-dependencies]
+criterion = { version = "0.5.1", features = ["html_reports"] }
+
+[[bench]]
+name = "big_code"
+harness = false

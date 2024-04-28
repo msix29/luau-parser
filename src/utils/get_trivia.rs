@@ -1,10 +1,7 @@
 //! All functions related to getting trivia around a token.
 
 use smol_str::SmolStr;
-use std::{
-    slice::SliceIndex,
-    str::{self, from_utf8_unchecked},
-};
+use std::str::{from_utf8, from_utf8_unchecked};
 use tree_sitter::Node;
 
 use crate::prelude::{Comment, Trivia};
@@ -44,7 +41,7 @@ fn get_comment_before(code_bytes: &[u8], byte: usize) -> SmolStr {
     }
 
     if let Some(start) = comment_start {
-        SmolStr::new(std::str::from_utf8(&code_bytes[start..byte]).unwrap_or_default())
+        SmolStr::new(from_utf8(&code_bytes[start..byte]).unwrap_or_default())
     } else {
         SmolStr::new("")
     }
@@ -63,7 +60,7 @@ fn get_spaces_after(code_bytes: &[u8], byte: usize) -> SmolStr {
 
     // SAFETY: Theortically, the code passed should always be valid utf8.
     unsafe {
-        SmolStr::new(str::from_utf8_unchecked(
+        SmolStr::new(from_utf8_unchecked(
             &code_bytes[byte..byte + spaces_len],
         ))
     }
@@ -86,11 +83,15 @@ fn get_comment_after(code_bytes: &[u8], byte: usize) -> SmolStr {
         }
     }
 
-    // SAFETY: Theortically, the code passed should always be valid utf8.
-    unsafe {
-        SmolStr::new(str::from_utf8_unchecked(
-            &code_bytes[byte + 2..byte + 2 + comment_len],
-        ))
+    if comment_len == 0 {
+        SmolStr::new("")
+    } else {
+        // SAFETY: Theortically, the code passed should always be valid utf8.
+        unsafe {
+            SmolStr::new(from_utf8_unchecked(
+                &code_bytes[byte + 2..byte + 2 + comment_len],
+            ))
+        }
     }
 }
 
