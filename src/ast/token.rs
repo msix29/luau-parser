@@ -10,6 +10,10 @@ use crate::{
 
 impl From<(Node<'_>, &[u8])> for Token {
     fn from((node, code_bytes): (Node<'_>, &[u8])) -> Self {
+        if node.is_error() | node.is_missing() {
+            return Self::new("*error*");
+        }
+
         let word = get_text_from_bytes(code_bytes, node.start_byte(), node.end_byte());
         let (spaces_before, spaces_after) = get_trivia(node, code_bytes);
 

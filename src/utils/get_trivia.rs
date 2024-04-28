@@ -1,116 +1,97 @@
 //! All functions related to getting trivia around a token.
 
-use std::{io::Read, slice::SliceIndex};
-
 use smol_str::SmolStr;
+use std::{
+    slice::SliceIndex,
+    str::{self, from_utf8_unchecked},
+};
 use tree_sitter::Node;
 
 use crate::prelude::{Comment, Trivia};
 
-/// Does the `item[key]` operation safely by checking bounds before calling it.
-fn safe_index<I: Copy, K>(item: &[I], key: K) -> Option<I>
-where
-    K: PartialOrd<usize> + SliceIndex<[I], Output = I>,
-{
-    if key < item.len() {
-        Some(item[key])
-    } else {
-        None
-    }
-}
-
-/// Compares `Option<T>` with `U`, if `item` is `None`, this will return false, else will
-/// do the normal comparison using `==`.
-fn compare_option<T, U>(item: Option<T>, other: U) -> bool
-where
-    T: PartialEq<U>,
-{
-    if let Some(item) = item {
-        item == other
-    } else {
-        false
-    }
-}
-
 /// Get whitespaces before an index.
 fn get_spaces_before(code_bytes: &[u8], byte: usize) -> SmolStr {
-    let mut whitespace = String::new();
+    let mut spaces_end = byte;
 
-    for character_byte in code_bytes.iter().take(byte).rev() {
-        let character = *character_byte as char;
-        if !character.is_whitespace() {
+    for (i, &b) in code_bytes.iter().take(byte).rev().enumerate() {
+        if !b.is_ascii_whitespace() {
+            spaces_end = byte - i;
             break;
         }
-        whitespace.push(character);
     }
 
-    SmolStr::new(whitespace)
+    unsafe { SmolStr::new(from_utf8_unchecked(&code_bytes[spaces_end..byte])) }
 }
 
 /// Get whitespaces before an index.
 fn get_comment_before(code_bytes: &[u8], byte: usize) -> SmolStr {
-    let mut comment = String::new();
+    let mut comment_start = None;
 
     for i in (0..byte).rev() {
-        let character = code_bytes[i] as char;
-        if character != '\n' {
-            continue;
-        }
-
-        for i in i..byte {
-            let character = code_bytes[i] as char;
-            if character.is_whitespace() {
-                continue;
-            }
-
-            if character == '-' && (code_bytes[i + 1] as char) == '-' {
-                for character_byte in code_bytes.iter().take(byte).skip(i) {
-                    comment.push(*character_byte as char);
+        if code_bytes[i] == b'\n' {
+            for j in (i + 1)..byte {
+                if code_bytes[j].is_ascii_whitespace() {
+                    continue;
                 }
+                if code_bytes[j] == b'-' && code_bytes.get(j + 1) == Some(&b'-') {
+                    comment_start = Some(j);
+                    break;
+                }
+                break;
             }
-
             break;
         }
-
-        break;
     }
 
-    SmolStr::new(comment)
+    if let Some(start) = comment_start {
+        SmolStr::new(std::str::from_utf8(&code_bytes[start..byte]).unwrap_or_default())
+    } else {
+        SmolStr::new("")
+    }
 }
 
 /// Get whitespaces after an index.
 fn get_spaces_after(code_bytes: &[u8], byte: usize) -> SmolStr {
-    let mut whitespace = String::new();
+    let mut spaces_len = 0;
 
-    for character_byte in code_bytes.iter().skip(byte) {
-        let character = *character_byte as char;
-        if !character.is_whitespace() {
+    for &b in code_bytes.iter().skip(byte) {
+        if !b.is_ascii_whitespace() {
             break;
         }
-        whitespace.push(character);
+        spaces_len += 1;
     }
 
-    SmolStr::new(whitespace)
+    // SAFETY: Theortically, the code passed should always be valid utf8.
+    unsafe {
+        SmolStr::new(str::from_utf8_unchecked(
+            &code_bytes[byte..byte + spaces_len],
+        ))
+    }
 }
 
 /// Get whitespaces after an index.
 fn get_comment_after(code_bytes: &[u8], byte: usize) -> SmolStr {
-    let mut comment = String::new();
-    let is_dash = compare_option(safe_index(code_bytes, byte).map(|item| item as char), '-');
+    let mut comment_len = 0;
 
-    if is_dash
-        && compare_option(
-            safe_index(code_bytes, byte + 1).map(|item| item as char),
-            '-',
-        )
-    {
-        comment.push_str("--");
-        for character_byte in code_bytes.iter().skip(byte + 2) {
-            comment.push(*character_byte as char);
+    if let Some(b'-') = code_bytes.get(byte) {
+        if let Some(b'-') = code_bytes.get(byte + 1) {
+            let mut end_index = byte + 2;
+            while let Some(&b) = code_bytes.get(end_index) {
+                if b == b'\n' {
+                    break;
+                }
+                end_index += 1;
+            }
+            comment_len = end_index - byte - 2;
         }
     }
 
-    SmolStr::new(comment)
+    // SAFETY: Theortically, the code passed should always be valid utf8.
+    unsafe {
+        SmolStr::new(str::from_utf8_unchecked(
+            &code_bytes[byte + 2..byte + 2 + comment_len],
+        ))
+    }
 }
 
 /// Get trivia before a byte index.
