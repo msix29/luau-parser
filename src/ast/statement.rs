@@ -3,9 +3,9 @@
 use tree_sitter::Node;
 
 use crate::prelude::{
-    Comment, CompoundSetExpression, DoBlock, Expression, FunctionCall, GenericFor, GlobalFunction,
+    CompoundSetExpression, DoBlock, Expression, FunctionCall, GenericFor, GlobalFunction,
     IfStatement, LastStatement, LocalAssignment, LocalFunction, LuauStatement, NumericalFor,
-    RepeatBlock, SetExpression, Token, Statement, TypeDefinition, WhileLoop,
+    RepeatBlock, SetExpression, Statement, Token, TypeDefinition, WhileLoop,
 };
 
 impl From<(Node<'_>, &[u8])> for LastStatement {
@@ -85,9 +85,11 @@ impl From<(Node<'_>, &[u8])> for Statement {
             GlobalFunction::try_from_node(statement, &mut cursor, code_bytes)
         {
             Self::GlobalFunction(global_function)
-        } else if let Some(comment) = Comment::try_from_node(statement, &mut cursor, code_bytes) {
+        }
+        /* else if let Some(comment) = Comment::try_from_node(statement, &mut cursor, code_bytes) {
             Self::Comment(comment)
-        } else {
+        }  */
+        else {
             // Should be unreachable.
             unreachable!("Reached unhandled statement: {}", statement.to_sexp());
         }

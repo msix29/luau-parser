@@ -5,7 +5,7 @@
 //!
 
 pub mod block;
-pub mod comment;
+// pub mod comment;
 pub mod expression;
 pub mod function;
 pub mod list;
@@ -81,7 +81,7 @@ macro_rules! impl_statement {
                     Self::FunctionCall(value) => value.$fn_name(),
                     Self::LocalFunction(value) => value.$fn_name(),
                     Self::GlobalFunction(value) => value.$fn_name(),
-                    Self::Comment(value) => value.$fn_name(),
+                    // Self::Comment(value) => value.$fn_name(),
                 }
             }
         }

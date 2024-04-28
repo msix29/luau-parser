@@ -4,12 +4,12 @@ use std::num::{ParseFloatError, ParseIntError};
 
 use crate::prelude::Token;
 
-/// A struct represnting a string literal.
+/// A struct representing a string literal.
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct StringLiteral(pub Token);
 
-/// An enum represnting the return type of [`Number::parse`]..
+/// An enum representing the return type of [`Number::parse`]..
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub enum ParsedNumber {
@@ -23,7 +23,7 @@ pub enum ParsedNumber {
     Other(f64),
 }
 
-/// An enum represnting errors that can occur during [`Number::parse`] stopping it from
+/// An enum representing errors that can occur during [`Number::parse`] stopping it from
 /// parsing the number, they should only be out-of-range errors and thus should be
 /// displayed for the user asking them to change the number.
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
@@ -36,7 +36,7 @@ pub enum ParseNumberError {
     Other(ParseFloatError),
 }
 
-/// A struct represnting a number literal.
+/// A struct representing a number literal.
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Number(pub Token);

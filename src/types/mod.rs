@@ -27,7 +27,7 @@ mod type_definition;
 mod value;
 
 pub use block::*;
-pub use comment::*;
+// pub use comment::*;
 pub use expression::*;
 pub use function::*;
 pub use list::*;

@@ -2,12 +2,12 @@
 //!
 //! Module holding types that'll be used everywhere around the parser and most likely
 //! outside it too, like in a formatter or a lsp.
-use std::sync::Arc;
 use smol_str::SmolStr;
+use std::sync::Arc;
 use tree_sitter::{Node, TreeCursor};
 
 use super::{
-    Comment, CompoundSetExpression, DoBlock, Expression, FunctionCall, GenericFor, GlobalFunction,
+    CompoundSetExpression, DoBlock, Expression, FunctionCall, GenericFor, GlobalFunction,
     IfStatement, List, LocalAssignment, LocalFunction, NumericalFor, Range, RepeatBlock,
     SetExpression, Token, TypeDefinition, WhileLoop,
 };
@@ -174,9 +174,6 @@ pub enum Statement {
     /// end
     /// ```
     GlobalFunction(GlobalFunction),
-
-    /// A comment.
-    Comment(Comment),
 }
 
 /// An enum representing different types of statements that can end a block of code.

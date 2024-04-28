@@ -4,17 +4,18 @@
 mod find_type;
 #[cfg(feature = "lsp-ready")]
 mod find_variable;
+mod get_trivia;
 
 #[cfg(feature = "lsp-ready")]
 pub use find_type::*;
 #[cfg(feature = "lsp-ready")]
 pub use find_variable::*;
-use smol_str::SmolStr;
 
 use std::str::from_utf8;
 use tree_sitter::Node;
 
-use crate::prelude::Range;
+use crate::types::Range;
+pub(crate) use get_trivia::*;
 
 /// Gets the text from a specific byte range in a `&[u8]`, which represents bytes of valid
 /// text. This function does check for the passed bytes to ensure they're in the correct
@@ -26,46 +27,6 @@ pub(crate) fn get_text_from_bytes(bytes: &[u8], start: usize, end: usize) -> Str
     }
 
     from_utf8(&bytes[start..end]).unwrap().to_string()
-}
-
-/// Get whitespaces before an index.
-fn get_spaces_before(code_bytes: &[u8], byte: usize) -> String {
-    let mut whitespace = String::new();
-
-    for character_byte in code_bytes.iter().rev().take(byte) {
-        let character = *character_byte as char;
-        if !character.is_whitespace() {
-            break;
-        }
-        whitespace.push(character);
-    }
-
-    whitespace
-}
-
-/// Get whitespaces after an index.
-fn get_spaces_after(code_bytes: &[u8], byte: usize) -> String {
-    let mut whitespace = String::new();
-
-    for character_byte in code_bytes.iter().skip(byte) {
-        let character = *character_byte as char;
-        if !character.is_whitespace() {
-            break;
-        }
-        whitespace.push(character);
-    }
-
-    whitespace
-}
-
-/// Gets spaces before and after a **token**. This function assumes this token has a parent
-/// as is only called for individual tokens (ex. `local` in `local foo`).
-#[inline]
-pub(crate) fn get_spaces(node: Node, code_bytes: &[u8]) -> (SmolStr, SmolStr) {
-    (
-        SmolStr::new(get_spaces_before(code_bytes, node.start_byte())),
-        SmolStr::new(get_spaces_after(code_bytes, node.end_byte())),
-    )
 }
 
 /// Get the range of a specific tree-sitter node.

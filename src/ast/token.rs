@@ -1,21 +1,22 @@
 //! Implements a helper `From<>` trait for `SingleToken`.
 
+use smol_str::SmolStr;
 use tree_sitter::Node;
 
 use crate::{
-    prelude::{HasRange, Range, Token},
-    utils::{get_range, get_spaces, get_text_from_bytes},
+    prelude::{HasRange, Range, Token, Trivia},
+    utils::{get_range, get_text_from_bytes, get_trivia},
 };
 
 impl From<(Node<'_>, &[u8])> for Token {
     fn from((node, code_bytes): (Node<'_>, &[u8])) -> Self {
         let word = get_text_from_bytes(code_bytes, node.start_byte(), node.end_byte());
-        let (spaces_before, spaces_after) = get_spaces(node, code_bytes);
+        let (spaces_before, spaces_after) = get_trivia(node, code_bytes);
 
         Self {
-            spaces_before,
+            leading_trivia: spaces_before,
             word: word.into(),
-            spaces_after,
+            trailing_trivia: spaces_after,
             range: get_range(node),
         }
     }
@@ -24,9 +25,9 @@ impl From<(Node<'_>, &[u8])> for Token {
 impl From<&str> for Token {
     fn from(value: &str) -> Self {
         Self {
-            spaces_before: "".into(),
+            leading_trivia: Vec::new(),
             word: value.into(),
-            spaces_after: "".into(),
+            trailing_trivia: Vec::new(),
             range: Range::default(),
         }
     }
@@ -47,9 +48,9 @@ impl Token {
     /// range at 0, 0 to 0, 0.
     pub fn new(word: &str) -> Self {
         Self {
-            spaces_before: "".into(),
+            leading_trivia: Vec::new(),
             word: word.into(),
-            spaces_after: "".into(),
+            trailing_trivia: Vec::new(),
             ..Default::default()
         }
     }
@@ -58,9 +59,9 @@ impl Token {
     /// range. The old one is dropped.
     pub fn set_range(self, range: Range) -> Self {
         Self {
-            spaces_before: self.spaces_before,
+            leading_trivia: self.leading_trivia,
             word: self.word,
-            spaces_after: self.spaces_after,
+            trailing_trivia: self.trailing_trivia,
             range,
         }
     }
@@ -69,9 +70,9 @@ impl Token {
     /// before and after.
     pub fn with_spaces(self, spaces_before: &str, spaces_after: &str) -> Self {
         Self {
-            spaces_before: spaces_before.into(),
+            leading_trivia: vec![Trivia::Spaces(SmolStr::new(spaces_before))],
             word: self.word,
-            spaces_after: spaces_after.into(),
+            trailing_trivia: vec![Trivia::Spaces(SmolStr::new(spaces_after))],
             range: self.range,
         }
     }
