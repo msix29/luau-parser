@@ -85,11 +85,7 @@ impl From<(Node<'_>, &[u8])> for Statement {
             GlobalFunction::try_from_node(statement, &mut cursor, code_bytes)
         {
             Self::GlobalFunction(global_function)
-        }
-        /* else if let Some(comment) = Comment::try_from_node(statement, &mut cursor, code_bytes) {
-            Self::Comment(comment)
-        }  */
-        else {
+        } else {
             // Should be unreachable.
             unreachable!("Reached unhandled statement: {}", statement.to_sexp());
         }
