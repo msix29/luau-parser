@@ -1,7 +1,7 @@
 //! All functions related to getting trivia around a token.
 
 use smol_str::SmolStr;
-use std::str::{from_utf8, from_utf8_unchecked};
+use std::str::from_utf8;
 use tree_sitter::Node;
 
 use crate::prelude::{Comment, Trivia};
@@ -17,7 +17,7 @@ fn get_spaces_before(code_bytes: &[u8], byte: usize) -> SmolStr {
         }
     }
 
-    unsafe { SmolStr::new(from_utf8_unchecked(&code_bytes[spaces_end..byte])) }
+    SmolStr::new(from_utf8(&code_bytes[spaces_end..byte]).unwrap_or_default())
 }
 
 /// Get whitespaces before an index.
@@ -58,12 +58,7 @@ fn get_spaces_after(code_bytes: &[u8], byte: usize) -> SmolStr {
         spaces_len += 1;
     }
 
-    // SAFETY: Theortically, the code passed should always be valid utf8.
-    unsafe {
-        SmolStr::new(from_utf8_unchecked(
-            &code_bytes[byte..byte + spaces_len],
-        ))
-    }
+    SmolStr::new(from_utf8(&code_bytes[byte..byte + spaces_len]).unwrap_or_default())
 }
 
 /// Get whitespaces after an index.
@@ -86,12 +81,7 @@ fn get_comment_after(code_bytes: &[u8], byte: usize) -> SmolStr {
     if comment_len == 0 {
         SmolStr::new("")
     } else {
-        // SAFETY: Theortically, the code passed should always be valid utf8.
-        unsafe {
-            SmolStr::new(from_utf8_unchecked(
-                &code_bytes[byte + 2..byte + 2 + comment_len],
-            ))
-        }
+        SmolStr::new(from_utf8(&code_bytes[byte + 2..byte + 2 + comment_len]).unwrap_or_default())
     }
 }
 
