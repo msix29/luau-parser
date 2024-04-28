@@ -20,23 +20,57 @@ fn get_spaces_before(code_bytes: &[u8], byte: usize) -> SmolStr {
     SmolStr::new(from_utf8(&code_bytes[spaces_end..byte]).unwrap_or_default())
 }
 
-/// Get whitespaces before an index.
+/// Count `=` before the passed byte index.
+fn count_equals_before(code_bytes: &[u8], byte: usize) -> usize {
+    let mut count = 0;
+
+    for i in (0..byte).rev() {
+        if code_bytes[i] == b'=' {
+            count += 1;
+        } else {
+            break;
+        }
+    }
+
+    count
+}
+
+/// Get comment before an index.
 fn get_comment_before(code_bytes: &[u8], byte: usize) -> SmolStr {
     let mut comment_start = None;
 
-    for i in (0..byte).rev() {
-        if code_bytes[i] == b'\n' {
-            for j in (i + 1)..byte {
-                if code_bytes[j].is_ascii_whitespace() {
-                    continue;
+    if let Some(&b']') = code_bytes.get(byte - 1) {
+        let count = count_equals_before(code_bytes, byte - 1);
+        let byte = byte - count + 1;
+        if code_bytes[byte] == b']' {
+            for i in (0..byte).rev() {
+                if code_bytes[i] == b'[' && code_bytes[i - count - 1] == b'[' {
+                    for i in (0..(i - count - 1)).rev() {
+                        let character = code_bytes[i] as char;
+                        if character != '-' {
+                            comment_start = Some(i + 1);
+                            break;
+                        }
+                    }
+                    break;
                 }
-                if code_bytes[j] == b'-' && code_bytes.get(j + 1) == Some(&b'-') {
-                    comment_start = Some(j);
+            }
+        }
+    } else {
+        for i in (0..byte).rev() {
+            if code_bytes[i] == b'\n' {
+                for j in (i + 1)..byte {
+                    if code_bytes[j].is_ascii_whitespace() {
+                        continue;
+                    }
+                    if code_bytes[j] == b'-' && code_bytes.get(j + 1) == Some(&b'-') {
+                        comment_start = Some(j);
+                        break;
+                    }
                     break;
                 }
                 break;
             }
-            break;
         }
     }
 
@@ -61,27 +95,57 @@ fn get_spaces_after(code_bytes: &[u8], byte: usize) -> SmolStr {
     SmolStr::new(from_utf8(&code_bytes[byte..byte + spaces_len]).unwrap_or_default())
 }
 
-/// Get whitespaces after an index.
-fn get_comment_after(code_bytes: &[u8], byte: usize) -> SmolStr {
-    let mut comment_len = 0;
+/// Count `=` after the passed byte index.
+fn count_equals_after(code_bytes: &[u8], byte: usize) -> usize {
+    let mut count = 0;
+    let length = code_bytes.len();
 
-    if let Some(b'-') = code_bytes.get(byte) {
-        if let Some(b'-') = code_bytes.get(byte + 1) {
-            let mut end_index = byte + 2;
-            while let Some(&b) = code_bytes.get(end_index) {
-                if b == b'\n' {
-                    break;
-                }
-                end_index += 1;
-            }
-            comment_len = end_index - byte - 2;
+    for character in code_bytes.iter().take(length).skip(byte) {
+        if character == &b'=' {
+            count += 1;
+        } else {
+            break;
         }
     }
 
-    if comment_len == 0 {
-        SmolStr::new("")
+    count
+}
+
+/// Get comment after an index.
+fn get_comment_after(code_bytes: &[u8], byte: usize) -> SmolStr {
+    let mut comment_end = None;
+
+    if let Some(b'-') = code_bytes.get(byte) {
+        if let Some(b'-') = code_bytes.get(byte + 1) {
+            if let Some(&b'[') = code_bytes.get(byte + 2) {
+                let count = count_equals_after(code_bytes, byte + 3);
+                let byte = byte + count + 3;
+                if code_bytes[byte] == b'[' {
+                    let length = code_bytes.len();
+                    for i in byte..length {
+                        if code_bytes[i] == b']' && code_bytes[i + count + 1] == b']' {
+                            comment_end = Some(i + count + 2);
+                            break;
+                        }
+                    }
+                }
+            } else {
+                let mut end_index = byte + 2;
+                while let Some(&b) = code_bytes.get(end_index) {
+                    if b == b'\n' {
+                        break;
+                    }
+                    end_index += 1;
+                }
+                comment_end = Some(end_index);
+            }
+        }
+    }
+
+    if let Some(end) = comment_end {
+        SmolStr::new(from_utf8(&code_bytes[byte..end]).unwrap_or_default())
     } else {
-        SmolStr::new(from_utf8(&code_bytes[byte + 2..byte + 2 + comment_len]).unwrap_or_default())
+        SmolStr::new("")
     }
 }
 
