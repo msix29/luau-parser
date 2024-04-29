@@ -155,6 +155,10 @@ fn get_trivia_before(code_bytes: &[u8], byte: usize) -> Vec<Trivia> {
     let mut current_byte = byte;
 
     loop {
+        if byte < 3 {
+            break;
+        }
+        
         let spaces = get_spaces_before(code_bytes, current_byte);
         if spaces.is_empty() {
             let comment = get_comment_before(code_bytes, current_byte);
