@@ -8,8 +8,6 @@ use regex::{Captures, Regex};
 #[cfg(feature = "regex")]
 lazy_static! {
     static ref AMBIGUATORS_REGEX: Regex = Regex::new(r"@\S+").unwrap();
-    static ref EXTRAS_REGEX: Regex =
-        Regex::new(r"^--\[(=)*\[\n*|^--[-]*\n*|\n*[-]*\](=)*\]$").unwrap();
 }
 
 use crate::prelude::{Comment, Print};
@@ -57,17 +55,16 @@ impl HasRawValue for Comment {
     fn get_raw_value(&self) -> String {
         #[cfg(feature = "regex")]
         {
-            let raw_value = self.0.get_raw_value();
-            let with_italics = AMBIGUATORS_REGEX.replace_all(&raw_value, &|captures: &Captures| {
+            let text = self.get_text();
+            let text = AMBIGUATORS_REGEX.replace_all(&text, &|captures: &Captures| {
                 format!("_{}_", &captures[0])
             });
-            let stripped = EXTRAS_REGEX.replace_all(&with_italics, "").to_string();
 
-            fix_indentation(&stripped)
+            fix_indentation(&text)
         }
 
         #[cfg(not(feature = "regex"))]
-        self.0.get_raw_value()
+        self.get_text()
     }
 }
 impl Print for Comment {

@@ -4,8 +4,8 @@ use smol_str::SmolStr;
 use tree_sitter::Node;
 
 use crate::{
-    prelude::{HasRange, Range, Token, Trivia},
-    utils::{get_range, get_text_from_bytes, get_trivia},
+    prelude::{Comment, HasRange, Range, Token, Trivia},
+    utils::{get_range, get_text_from_bytes, get_trivia, remove_surrounding_pair},
 };
 
 impl From<(Node<'_>, &[u8])> for Token {
@@ -25,7 +25,6 @@ impl From<(Node<'_>, &[u8])> for Token {
         }
     }
 }
-
 impl From<&str> for Token {
     fn from(value: &str) -> Self {
         Self {
@@ -47,6 +46,7 @@ impl HasRange for Token {
         self.range
     }
 }
+
 impl Token {
     /// Create a new single token from the passed word with no spaces and
     /// range at 0, 0 to 0, 0.
@@ -78,6 +78,30 @@ impl Token {
             word: self.word,
             trailing_trivia: vec![Trivia::Spaces(SmolStr::new(spaces_after))],
             range: self.range,
+        }
+    }
+}
+
+impl Trivia {
+    /// Whether or not this trivia is of type [`Comment`](Trivia::Comment).
+    pub fn is_comment(&self) -> bool {
+        matches!(self, Self::Comment(_))
+    }
+
+    /// Whether or not this trivia is of type [`Spaces`](Trivia::Spaces).
+    pub fn is_spaces(&self) -> bool {
+        matches!(self, Self::Spaces(_))
+    }
+}
+
+impl Comment {
+    /// Gets the text of the comment by removing the comment delimeters.
+    pub fn get_text(&self) -> String {
+        let trimmed = self.0.trim_start_matches('-');
+        if trimmed.starts_with('[') {
+            remove_surrounding_pair(remove_surrounding_pair(trimmed).trim_matches('='))
+        } else {
+            trimmed.to_string()
         }
     }
 }

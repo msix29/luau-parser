@@ -77,3 +77,8 @@ pub(crate) fn fix_table_indentation(raw_value: &str) -> String {
         .collect::<Vec<_>>()
         .join("\n")
 }
+
+/// Removes the first and last characters of the string.
+pub fn remove_surrounding_pair(string: &str) -> String {
+    string[1..(string.len() - 1)].to_string()
+}

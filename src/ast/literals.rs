@@ -2,7 +2,7 @@
 
 use std::ops::Deref;
 
-use crate::prelude::{Number, ParseNumberError, ParsedNumber, Token, StringLiteral};
+use crate::{prelude::{Number, ParseNumberError, ParsedNumber, StringLiteral, Token}, utils::remove_surrounding_pair};
 #[cfg(feature = "raw-value")]
 use crate::types::HasRawValue;
 
@@ -37,11 +37,6 @@ macro_rules! __impl_from_node_literal {
 }
 __impl_from_node_literal!(StringLiteral);
 __impl_from_node_literal!(Number);
-
-/// Removes the first and last characters of the string.
-fn remove_surrounding_pair(string: &str) -> String {
-    string[1..(string.len() - 1)].to_string()
-}
 
 impl StringLiteral {
     /// Removes string delimeters from a string. String delimeters are one of:
