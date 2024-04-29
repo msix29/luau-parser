@@ -7,6 +7,7 @@
 
 pub(crate) mod helper_functions;
 mod type_value;
+mod type_value_conversion;
 
 use std::sync::Arc;
 use tree_sitter::Node;
@@ -14,8 +15,8 @@ use tree_sitter::Node;
 use crate::{
     prelude::{
         GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo,
-        GenericParameterInfoDefault, HasRange, List, LuauStatement, Range, Token,
-        TypeDefinition, TypeValue,
+        GenericParameterInfoDefault, HasRange, List, LuauStatement, Range, Token, TypeDefinition,
+        TypeValue,
     },
     utils::get_range_from_boundaries,
 };
@@ -71,14 +72,8 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
                         let generic_pack = child.child(0).unwrap();
                         GenericDeclarationParameter {
                             parameter: GenericParameterInfo::Pack {
-                                name: Token::from((
-                                    generic_pack.child(0).unwrap(),
-                                    code_bytes,
-                                )),
-                                ellipsis: Token::from((
-                                    generic_pack.child(1).unwrap(),
-                                    code_bytes,
-                                )),
+                                name: Token::from((generic_pack.child(0).unwrap(), code_bytes)),
+                                ellipsis: Token::from((generic_pack.child(1).unwrap(), code_bytes)),
                             },
                             default: child.child(1).map(|equal| {
                                 let genpack = child.child(2).unwrap();
@@ -113,10 +108,7 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
                     .child_by_field_name("typeKeyword")
                     .map(|node| Token::from((node, code_bytes))),
                 generics,
-                type_name: Token::from((
-                    node.child_by_field_name("typeName").unwrap(),
-                    code_bytes,
-                )),
+                type_name: Token::from((node.child_by_field_name("typeName").unwrap(), code_bytes)),
                 equal_sign: node
                     .child_by_field_name("equal")
                     .map(|node| Token::from((node, code_bytes))),

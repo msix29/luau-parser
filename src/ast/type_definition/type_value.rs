@@ -5,8 +5,8 @@ use tree_sitter::Node;
 
 use crate::{
     prelude::{
-        ConversionError, ElseIfExpression, Expression, HasRange, List, ListItem, Range,
-        Token, StringLiteral, Table, TableField, TableFieldValue, TableKey, TypeValue,
+        Expression, HasRange, List, ListItem, Range, StringLiteral, Table, TableField,
+        TableFieldValue, TableKey, Token, TypeValue,
     },
     utils::get_range_from_boundaries,
 };
@@ -54,10 +54,7 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
                 if let Some(module) = node.child_by_field_name("module") {
                     Self::Module {
                         module: Token::from((module, code_bytes)),
-                        dot: Token::from((
-                            node.child_by_field_name("dot").unwrap(),
-                            code_bytes,
-                        )),
+                        dot: Token::from((node.child_by_field_name("dot").unwrap(), code_bytes)),
                         type_value: Arc::new(Self::from((
                             node.child_by_field_name("nameWithGenerics").unwrap(),
                             code_bytes,
@@ -85,8 +82,7 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
             "tableType" => Self::Table(build_table_type(node, code_bytes)),
             "singleton" => from_singleton_type(node, code_bytes),
             "bintype" => {
-                let operator =
-                    Token::from((node.child_by_field_name("op").unwrap(), code_bytes));
+                let operator = Token::from((node.child_by_field_name("op").unwrap(), code_bytes));
 
                 let left = Self::from((node.child_by_field_name("arg0").unwrap(), code_bytes));
                 let right = Self::from((node.child_by_field_name("arg1").unwrap(), code_bytes));
@@ -110,10 +106,7 @@ impl From<(Node<'_>, &[u8])> for TypeValue {
                     node.child_by_field_name("arg").unwrap(),
                     code_bytes,
                 ))),
-                question_mark: Token::from((
-                    node.child_by_field_name("op").unwrap(),
-                    code_bytes,
-                )),
+                question_mark: Token::from((node.child_by_field_name("op").unwrap(), code_bytes)),
             },
             "typepack" => {
                 let pack = node.child(0).unwrap();
@@ -294,91 +287,5 @@ impl HasRange for TableFieldValue {
 impl HasRange for TableField {
     fn get_range(&self) -> Range {
         get_range_from_boundaries(self.key.get_range(), self.value.get_range())
-    }
-}
-
-/// Recursively turn else if expressions to a type value.
-fn else_if_to_type(
-    else_if_expressions: Vec<ElseIfExpression>,
-    i: usize,
-) -> Result<TypeValue, ConversionError> {
-    if else_if_expressions.get(i + 1).is_some() {
-        Ok(TypeValue::Union {
-            left: Arc::new(TypeValue::try_from(
-                (*else_if_expressions.get(i).unwrap().expression).clone(),
-            )?),
-            pipe: Token::from(" | "),
-            right: Arc::new(else_if_to_type(else_if_expressions, i + 1)?),
-        })
-    } else {
-        TypeValue::try_from((*else_if_expressions.get(i).unwrap().expression).clone())
-    }
-}
-
-impl TryFrom<Expression> for TypeValue {
-    type Error = ConversionError;
-
-    fn try_from(value: Expression) -> Result<Self, Self::Error> {
-        match value {
-            Expression::ERROR => Ok(Self::ERROR),
-            Expression::Nil(value) => Ok(Self::Basic(value)),
-            Expression::Boolean(word) => Ok(Self::Boolean(word)),
-            Expression::Number(_) => Ok(Self::Basic(Token::new("number"))),
-            Expression::String(value) => Ok(Self::String(value)),
-            Expression::Function {
-                generics,
-                opening_parenthesis,
-                closing_parenthesis,
-                parameters,
-                returns,
-                ..
-            } => Ok(Self::Function {
-                generics,
-                opening_parenthesis,
-                parameters,
-                closing_parenthesis,
-                arrow: Token::new("->"),
-                return_type: returns.unwrap_or(Arc::new(Self::Tuple {
-                    opening_parenthesis: Token::from("("),
-                    types: List::default(),
-                    closing_parenthesis: Token::from(")"),
-                })),
-            }),
-            Expression::FunctionCall(value) => Err(ConversionError::FunctionCall(value)),
-            Expression::ExpressionWrap(value) => Self::try_from((*value.expression).clone()),
-            Expression::Var(value) => Err(ConversionError::Var(value)),
-            Expression::Table(value) => Ok(Self::Table(value)),
-            Expression::UnaryExpression {
-                operator,
-                expression,
-            } => Err(ConversionError::UnaryExpression {
-                operator,
-                expression,
-            }),
-            Expression::BinaryExpression {
-                left,
-                operator,
-                right,
-            } => Err(ConversionError::BinaryExpression {
-                left,
-                operator,
-                right,
-            }),
-            Expression::Cast { cast_to, .. } => Ok((*cast_to.type_value).clone()),
-            Expression::IfExpression {
-                if_expression,
-                else_if_expressions,
-                else_expression,
-                ..
-            } => Ok(Self::Union {
-                left: Arc::new(Self::try_from((*if_expression).clone())?),
-                pipe: Token::from(" | "),
-                right: Arc::new(Self::Union {
-                    left: Arc::new(Self::try_from((*else_expression).clone())?),
-                    pipe: Token::from(" | "),
-                    right: Arc::new(else_if_to_type(else_if_expressions.to_vec(), 0)?),
-                }),
-            }),
-        }
     }
 }
