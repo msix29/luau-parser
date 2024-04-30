@@ -7,7 +7,7 @@ use tree_sitter::Node;
 
 use crate::prelude::{
     GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo, List, ListItem,
-    NormalizedName, Token, StringLiteral, Table, TableField, TableFieldValue, TableKey,
+    NormalizedName, StringLiteral, Table, TableField, TableFieldValue, TableKey, Token,
     TypeDefinition, TypeValue,
 };
 
@@ -53,10 +53,9 @@ pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> Table {
                                 field.child(1).unwrap(),
                                 code_bytes,
                             ))),
-                            value: Arc::new(TableFieldValue::Type(TypeDefinition::from((
+                            value: Arc::new(TableFieldValue::Type(TypeValue::from((
                                 field.child(2).unwrap(),
                                 code_bytes,
-                                false,
                             )))),
                         }));
                     }
@@ -81,10 +80,9 @@ pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> Table {
                                 field.child(3).unwrap(),
                                 code_bytes,
                             ))),
-                            value: Arc::new(TableFieldValue::Type(TypeDefinition::from((
+                            value: Arc::new(TableFieldValue::Type(TypeValue::from((
                                 field.child(4).unwrap(),
                                 code_bytes,
-                                false,
                             )))),
                         }));
                     }
@@ -95,10 +93,9 @@ pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> Table {
         _ => table_fields.push(ListItem::NonTrailing(TableField {
             key: Arc::new(TableKey::UndefinedString(SmolStr::new("[number]"))),
             equal_or_colon: None,
-            value: Arc::new(TableFieldValue::Type(TypeDefinition::from((
+            value: Arc::new(TableFieldValue::Type(TypeValue::from((
                 fields_list,
                 code_bytes,
-                false,
             )))),
         })),
     }

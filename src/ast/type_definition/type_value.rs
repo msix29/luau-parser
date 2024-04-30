@@ -175,15 +175,17 @@ impl HasRange for TypeValue {
                 closing_parenthesis.get_range(),
             ),
             Self::Function {
-                generics: _,
+                generics,
                 opening_parenthesis,
                 parameters: _,
                 closing_parenthesis: _,
                 arrow: _,
                 return_type,
             } => get_range_from_boundaries(
-                //TODO: Try generics here.
-                opening_parenthesis.get_range(),
+                generics.as_ref().map_or_else(
+                    || opening_parenthesis.get_range(),
+                    |generics| generics.get_range(),
+                ),
                 return_type.get_range(),
             ),
             Self::Generic {

@@ -34,7 +34,6 @@ fn handle_table_var(node: Node, code_bytes: &[u8]) -> TableAccess {
         accessed_keys: node
             .children_by_field_name("key", &mut node.walk())
             .map(|key| match key.kind() {
-                //TODO:
                 "field_named" => TableAccessKey::Name {
                     dot: Token::from((key.child(0).unwrap(), code_bytes)),
                     name: Token::from((key.child(1).unwrap(), code_bytes)),

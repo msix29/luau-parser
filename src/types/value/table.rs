@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use smol_str::SmolStr;
 
-use crate::prelude::{Expression, List, Token, StringLiteral, TypeDefinition};
+use crate::prelude::{Expression, List, StringLiteral, Token, TypeDefinition, TypeValue};
 
 /// A possible key entry in a table. The key is usually a string, but it can be a value
 /// (from an expression) in tables or a type in type definitions.
@@ -90,8 +90,8 @@ pub enum TableFieldValue {
     /// only.
     Expression(Expression),
 
-    /// A [`type`](TypeDefinition), can be found in type definitions only.
-    Type(TypeDefinition),
+    /// A [`type`](TypeValue), can be found in type definitions only.
+    Type(TypeValue),
 }
 
 /// Struct representing a luau table.
