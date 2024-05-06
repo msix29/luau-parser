@@ -9,8 +9,8 @@ use tree_sitter::Node;
 use crate::{
     prelude::{
         parse_block, type_definition::helper_functions::build_generics, Ast, ElseIfExpression,
-        Expression, HasRange, List, ListItem, Number, PrefixExp, Range, Token, StringLiteral,
-        Table, TableField, TableFieldValue, TableKey, TypeDefinition,
+        Expression, HasRange, List, ListItem, Number, PrefixExp, Range, StringLiteral, Table,
+        TableField, TableFieldValue, TableKey, Token, TypeDefinition,
     },
     utils::get_range_from_boundaries,
 };
@@ -24,7 +24,6 @@ use handle_prefix_exp::handle_prefix_exp;
 /// Build a table value from a node representing a table in an expression.
 pub(crate) fn build_table(node: Node, code_bytes: &[u8]) -> Table {
     let mut index = 0;
-    let field_list = node.child_by_field_name("fieldList").unwrap();
 
     Table {
         opening_brackets: Token::from((
@@ -32,41 +31,46 @@ pub(crate) fn build_table(node: Node, code_bytes: &[u8]) -> Table {
             code_bytes,
         )),
 
-        fields: List::from_iter(
-            field_list.children_by_field_name("field", &mut node.walk()),
-            field_list,
-            "sep",
-            code_bytes,
-            |_, node| {
-                let key = if let Some(key) = node.child_by_field_name("keyName") {
-                    TableKey::String(StringLiteral::from((key, code_bytes)))
-                } else if let Some(key) = node.child_by_field_name("keyExp") {
-                    TableKey::Expression {
-                        open_square_brackets: Token::from((
-                            key.prev_sibling().unwrap(),
-                            code_bytes,
-                        )),
-                        expression: Arc::new(Expression::from((key, code_bytes))),
-                        close_square_brackets: Token::from((
-                            key.next_sibling().unwrap(),
-                            code_bytes,
-                        )),
-                    }
-                } else {
-                    index += 1;
-                    TableKey::UndefinedNumber(index)
-                };
-                let value_node = node.child_by_field_name("value").unwrap();
-                let value = Expression::from((value_node, code_bytes));
-                TableField {
-                    key: Arc::new(key),
-                    equal_or_colon: node
-                        .child_by_field_name("equal")
-                        .map(|node| Token::from((node, code_bytes))),
-                    value: Arc::new(TableFieldValue::Expression(value)),
-                }
-            },
-        ),
+        fields: node
+            .child_by_field_name("fieldList")
+            .map(|field_list| {
+                List::from_iter(
+                    field_list.children_by_field_name("field", &mut node.walk()),
+                    field_list,
+                    "sep",
+                    code_bytes,
+                    |_, node| {
+                        let key = if let Some(key) = node.child_by_field_name("keyName") {
+                            TableKey::String(StringLiteral::from((key, code_bytes)))
+                        } else if let Some(key) = node.child_by_field_name("keyExp") {
+                            TableKey::Expression {
+                                open_square_brackets: Token::from((
+                                    key.prev_sibling().unwrap(),
+                                    code_bytes,
+                                )),
+                                expression: Arc::new(Expression::from((key, code_bytes))),
+                                close_square_brackets: Token::from((
+                                    key.next_sibling().unwrap(),
+                                    code_bytes,
+                                )),
+                            }
+                        } else {
+                            index += 1;
+                            TableKey::UndefinedNumber(index)
+                        };
+                        let value_node = node.child_by_field_name("value").unwrap();
+                        let value = Expression::from((value_node, code_bytes));
+                        TableField {
+                            key: Arc::new(key),
+                            equal_or_colon: node
+                                .child_by_field_name("equal")
+                                .map(|node| Token::from((node, code_bytes))),
+                            value: Arc::new(TableFieldValue::Expression(value)),
+                        }
+                    },
+                )
+            })
+            .unwrap_or_default(),
 
         closing_brackets: Token::from((
             node.child_by_field_name("closing_brackets").unwrap(),
@@ -237,10 +241,7 @@ impl From<(Node<'_>, &[u8])> for Expression {
                         .collect::<Vec<ElseIfExpression>>(),
                 ),
 
-                else_token: Token::from((
-                    node.child_by_field_name("else").unwrap(),
-                    code_bytes,
-                )),
+                else_token: Token::from((node.child_by_field_name("else").unwrap(), code_bytes)),
                 else_expression: Arc::new(Expression::from((
                     node.child_by_field_name("elseExpression").unwrap(),
                     code_bytes,
