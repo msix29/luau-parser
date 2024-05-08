@@ -11,7 +11,6 @@
 //! implementations but they'll be in `src/display` instead.
 
 mod block;
-mod comment;
 mod expression;
 mod function;
 mod list;
@@ -27,7 +26,6 @@ mod type_definition;
 mod value;
 
 pub use block::*;
-// pub use comment::*;
 pub use expression::*;
 pub use function::*;
 pub use list::*;
