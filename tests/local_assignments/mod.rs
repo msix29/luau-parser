@@ -56,11 +56,13 @@ fn local_assignment_2() {
         **assignment.expressions[1],
         Expression::FunctionCall(FunctionCall {
             invoked: FunctionCallInvoked::Function(Arc::new(PrefixExp::Var(Var::Name(
-                VariableName(
-                    Token::new("foo")
+                VariableName {
+                    token: Token::new("foo")
                         .with_spaces(" ", "")
                         .set_range(Range::new2(0, 25, 0, 28)),
-                )
+                    #[cfg(feature = "lsp-ready")]
+                    references: Vec::new(),
+                }
             )))),
             arguments: FunctionArguments::List {
                 open_parenthesis: Token::new("(")
