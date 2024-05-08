@@ -6,6 +6,8 @@
 
 use std::sync::Arc;
 
+#[cfg(feature = "lsp-ready")]
+use super::Reference;
 use super::{Token, TypeValue};
 
 /// A struct that provides a high level abstraction of `name` and `typedName` from the
@@ -21,4 +23,8 @@ pub struct NormalizedName {
 
     /// The type that was with this name, defined with the `: type` syntax.
     pub r#type: Option<Arc<TypeValue>>,
+
+    #[cfg(feature = "lsp-ready")]
+    /// All references to this name.
+    pub references: Vec<Reference>,
 }

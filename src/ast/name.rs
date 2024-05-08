@@ -17,12 +17,16 @@ impl From<(Node<'_>, &[u8])> for NormalizedName {
                 name: Token::from((node.child(0).unwrap(), code_bytes)),
                 colon: Some(Token::from((node.child(1).unwrap(), code_bytes))),
                 r#type: Some(Arc::new(TypeValue::from((type_node, code_bytes)))),
+                #[cfg(feature = "lsp-ready")]
+                references: Vec::new(),
             }
         } else {
             Self {
                 name: Token::from((node, code_bytes)),
                 colon: None,
                 r#type: None,
+                #[cfg(feature = "lsp-ready")]
+                references: Vec::new(),
             }
         }
     }

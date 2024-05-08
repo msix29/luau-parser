@@ -135,6 +135,8 @@ pub(crate) fn build_function_parameters(
                         parameter.child(0).unwrap(),
                         code_bytes,
                     )))),
+                    #[cfg(feature = "lsp-ready")]
+                    references: Vec::new(),
                 }
             } else {
                 normalized_name
@@ -150,6 +152,8 @@ pub(crate) fn build_function_parameters(
                     variadic.child(0).unwrap(),
                     code_bytes,
                 )))),
+                #[cfg(feature = "lsp-ready")]
+                references: Vec::new(),
             }
         } else {
             NormalizedName {
@@ -164,6 +168,8 @@ pub(crate) fn build_function_parameters(
                         Arc::new(TypeValue::from((r#type, code_bytes)))
                     }
                 }),
+                #[cfg(feature = "lsp-ready")]
+                references: Vec::new(),
             }
         };
 
