@@ -74,9 +74,17 @@ impl Token {
     /// before and after.
     pub fn with_spaces(self, spaces_before: &str, spaces_after: &str) -> Self {
         Self {
-            leading_trivia: vec![Trivia::Spaces(SmolStr::new(spaces_before))],
+            leading_trivia: if spaces_before.is_empty() {
+                Vec::new()
+            } else {
+                vec![Trivia::Spaces(SmolStr::new(spaces_before))]
+            },
             word: self.word,
-            trailing_trivia: vec![Trivia::Spaces(SmolStr::new(spaces_after))],
+            trailing_trivia: if spaces_after.is_empty() {
+                Vec::new()
+            } else {
+                vec![Trivia::Spaces(SmolStr::new(spaces_after))]
+            },
             range: self.range,
         }
     }
