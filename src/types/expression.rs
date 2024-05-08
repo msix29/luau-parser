@@ -2,6 +2,8 @@
 
 use std::sync::Arc;
 
+#[cfg(feature = "lsp-ready")]
+use super::Reference;
 use super::{
     Ast, GenericDeclaration, List, NormalizedName, Number, StringLiteral, Table, TableKey, Token,
     TypeValue,
@@ -68,6 +70,18 @@ pub enum TableAccessKey {
     },
 }
 
+/// Name of a [`variable`](Var).
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+pub struct VariableName {
+    /// The actual token holding the name.
+    pub token: Token,
+
+    /// All references to this variable.
+    #[cfg(feature = "lsp-ready")]
+    pub references: Arc<Vec<Reference>>,
+}
+
 /// Possible ways in which a variable can be referenced.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
@@ -77,7 +91,7 @@ pub enum Var {
     /// ```lua
     /// local _ = foo
     /// ```
-    Name(Token),
+    Name(VariableName),
 
     /// A field accessed from a table.
     ///

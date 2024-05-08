@@ -1,14 +1,14 @@
 //! Helps with parsing prefix expressions.
 
-use std::sync::Arc;
+use std::{ops::Deref, sync::Arc};
 
 use tree_sitter::Node;
 
 use crate::{
     prelude::{
         Expression, ExpressionWrap, FunctionArguments, FunctionCall, FunctionCallInvoked, HasRange,
-        LuauStatement, PrefixExp, Range, Token, StringLiteral, TableAccess, TableAccessKey,
-        TableAccessPrefix, TableKey, Var,
+        LuauStatement, PrefixExp, Range, StringLiteral, TableAccess, TableAccessKey,
+        TableAccessPrefix, TableKey, Token, Var, VariableName,
     },
     utils::get_range_from_boundaries,
 };
@@ -59,10 +59,7 @@ fn handle_function_call(prefix_exp: Node, code_bytes: &[u8]) -> FunctionCall {
                 prefix_exp.child_by_field_name("table").unwrap(),
                 code_bytes,
             )),
-            colon: Token::from((
-                prefix_exp.child_by_field_name("colon").unwrap(),
-                code_bytes,
-            )),
+            colon: Token::from((prefix_exp.child_by_field_name("colon").unwrap(), code_bytes)),
             method: Token::from((
                 prefix_exp.child_by_field_name("method").unwrap(),
                 code_bytes,
@@ -105,7 +102,11 @@ pub(crate) fn handle_prefix_exp(prefix_exp: Node, code_bytes: &[u8]) -> PrefixEx
         "var" => {
             // let node = prefix_exp.child(0).unwrap();
             if prefix_exp.child_count() == 1 {
-                PrefixExp::Var(Var::Name(Token::from((prefix_exp, code_bytes))))
+                PrefixExp::Var(Var::Name(VariableName {
+                    token: Token::from((prefix_exp, code_bytes)),
+                    #[cfg(feature = "lsp-ready")]
+                    references: Arc::new(Vec::new()),
+                }))
             } else {
                 PrefixExp::Var(Var::TableAccess(handle_table_var(prefix_exp, code_bytes)))
             }
@@ -117,6 +118,14 @@ pub(crate) fn handle_prefix_exp(prefix_exp: Node, code_bytes: &[u8]) -> PrefixEx
             closing_parenthesis: Token::from((prefix_exp.child(2).unwrap(), code_bytes)),
         }),
         _ => panic!("This shouldn't be reached."),
+    }
+}
+
+impl Deref for VariableName {
+    type Target = Token;
+
+    fn deref(&self) -> &Self::Target {
+        &self.token
     }
 }
 

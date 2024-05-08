@@ -6,16 +6,17 @@ use crate::prelude::{
     Ast, Expression, HasRange, HasRawValue, List, Position, Statement, Token, TypeValue, Var,
 };
 
-type Variable = Option<(Token, Option<Arc<TypeValue>>, Arc<Expression>)>;
+type Variable = (Token, Option<Arc<TypeValue>>, Arc<Expression>);
 
-/// Finds a variable with a specific name in a specific [`ast`](Ast). The
-/// [`position`](Position) is needed so that it finds the variable that's before it.
-///
-/// # Note
-///
-/// This function has a lot of `clone()`ing, but it should be cheap as it's mostly for
-/// `Arc<T>`s.
-pub fn find_variable<'a>(ast: &'a Ast, variable_name: &'a str, position: &Position) -> Variable {
+/// Crate-level version of [`find_variable`], this has the ability to return `None` even
+/// if it found the variable, just to avoid all the `.clone()`ing when the only need for
+/// it so to add to the `references` table.
+pub(crate) fn find_variable_inner<'a>(
+    ast: &'a Ast,
+    variable_name: &'a str,
+    position: &Position,
+    only_increment: bool,
+) -> Option<Variable> {
     for (statement, _) in ast.statements.iter().rev() {
         match statement {
             Statement::LocalAssignment(local_assignment) => {
@@ -50,10 +51,10 @@ pub fn find_variable<'a>(ast: &'a Ast, variable_name: &'a str, position: &Positi
                     if let Var::Name(name) = &**var {
                         if name.word == variable_name {
                             if let Some(expression) = set_expression.values.get(i) {
-                                return Some((name.clone(), None, (&**expression).clone()));
+                                return Some((name.token.clone(), None, (&**expression).clone()));
                             } else {
                                 return Some((
-                                    name.clone(),
+                                    name.token.clone(),
                                     None,
                                     Arc::new(Expression::Nil(Token::new("nil"))),
                                 ));
@@ -139,4 +140,19 @@ pub fn find_variable<'a>(ast: &'a Ast, variable_name: &'a str, position: &Positi
     }
 
     None
+}
+
+/// Finds a variable with a specific name in a specific [`ast`](Ast). The
+/// [`position`](Position) is needed so that it finds the variable that's before it.
+///
+/// # Note
+///
+/// This function has a lot of `clone()`ing, but it should be cheap as it's mostly for
+/// `Arc<T>`s.
+pub fn find_variable<'a>(
+    ast: &'a Ast,
+    variable_name: &'a str,
+    position: &Position,
+) -> Option<Variable> {
+    find_variable_inner(ast, variable_name, position, false)
 }
