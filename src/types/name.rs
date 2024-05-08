@@ -26,5 +26,5 @@ pub struct NormalizedName {
 
     #[cfg(feature = "lsp-ready")]
     /// All references to this name.
-    pub references: Vec<Reference>,
+    pub references: Arc<Vec<Reference>>,
 }

@@ -18,7 +18,7 @@ impl From<(Node<'_>, &[u8])> for NormalizedName {
                 colon: Some(Token::from((node.child(1).unwrap(), code_bytes))),
                 r#type: Some(Arc::new(TypeValue::from((type_node, code_bytes)))),
                 #[cfg(feature = "lsp-ready")]
-                references: Vec::new(),
+                references: Arc::new(Vec::new()),
             }
         } else {
             Self {
@@ -26,7 +26,7 @@ impl From<(Node<'_>, &[u8])> for NormalizedName {
                 colon: None,
                 r#type: None,
                 #[cfg(feature = "lsp-ready")]
-                references: Vec::new(),
+                references: Arc::new(Vec::new()),
             }
         }
     }

@@ -116,6 +116,8 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
                     node.child_by_field_name("type").unwrap(),
                     code_bytes,
                 ))),
+                #[cfg(feature = "lsp-ready")]
+                references: Vec::new(),
             }
         } else {
             Self {
@@ -125,6 +127,8 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
                 generics: None,
                 equal_sign: None,
                 type_value: Arc::new(TypeValue::from((node, code_bytes))),
+                #[cfg(feature = "lsp-ready")]
+                references: Vec::new(),
             }
         }
     }
@@ -139,6 +143,8 @@ impl From<Token> for TypeDefinition {
             generics: None,
             equal_sign: None,
             type_value: Arc::new(TypeValue::Basic(type_name)),
+            #[cfg(feature = "lsp-ready")]
+            references: Vec::new(),
         }
     }
 }
@@ -151,6 +157,8 @@ impl From<TypeValue> for TypeDefinition {
             generics: None,
             equal_sign: None,
             type_value: Arc::new(type_value),
+            #[cfg(feature = "lsp-ready")]
+            references: Vec::new(),
         }
     }
 }

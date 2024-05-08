@@ -1,5 +1,7 @@
 //! Local and global functions.
 
+#[cfg(feature = "lsp-ready")]
+use super::Reference;
 use super::{Ast, GenericDeclaration, List, NormalizedName, Token, TypeValue};
 
 /// A struct representing a local function.
@@ -35,6 +37,10 @@ pub struct LocalFunction {
 
     /// The `end` keyword.
     pub end_keyword: Token,
+
+    /// All references to this function.
+    #[cfg(feature = "lsp-ready")]
+    pub references: Vec<Reference>,
 }
 
 /// An enum representing possible ways in which a global function's name can be.
@@ -136,4 +142,8 @@ pub struct GlobalFunction {
 
     /// The `end` keyword.
     pub end_keyword: Token,
+
+    /// All references to this function.
+    #[cfg(feature = "lsp-ready")]
+    pub references: Vec<Reference>,
 }

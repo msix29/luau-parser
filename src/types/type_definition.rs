@@ -4,7 +4,9 @@
 
 use std::sync::Arc;
 
-use super::{FunctionCall, List, NormalizedName, Token, StringLiteral, Table, Var};
+#[cfg(feature = "lsp-ready")]
+use super::Reference;
+use super::{FunctionCall, List, NormalizedName, StringLiteral, Table, Token, Var};
 use crate::prelude::Expression;
 
 /// Possible values for a type.
@@ -293,6 +295,10 @@ pub struct TypeDefinition {
 
     /// The [`actual definition`](TypeValue) of the type.
     pub type_value: Arc<TypeValue>,
+
+    /// All references to this type.
+    #[cfg(feature = "lsp-ready")]
+    pub references: Vec<Reference>,
 }
 
 /// Generics parameters used when referencing another type.

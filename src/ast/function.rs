@@ -45,6 +45,8 @@ impl LuauStatement for LocalFunction {
                 .map(|body| parse_block(&body, code_bytes, None))
                 .unwrap_or_default(),
             end_keyword: Token::from((node.child_by_field_name("end").unwrap(), code_bytes)),
+            #[cfg(feature = "lsp-ready")]
+            references: Vec::new(),
         })
     }
 }
@@ -70,10 +72,7 @@ impl LuauStatement for GlobalFunction {
                 GlobalFunctionName::SimpleName(Token::from((name, code_bytes)))
             } else {
                 GlobalFunctionName::Table {
-                    table: Token::from((
-                        node.child_by_field_name("table").unwrap(),
-                        code_bytes,
-                    )),
+                    table: Token::from((node.child_by_field_name("table").unwrap(), code_bytes)),
                     keys: List::from_iter(
                         node.children_by_field_name("index", &mut node.walk()),
                         node,
@@ -110,6 +109,8 @@ impl LuauStatement for GlobalFunction {
                 .map(|body| parse_block(&body, code_bytes, None))
                 .unwrap_or_default(),
             end_keyword: Token::from((node.child_by_field_name("end").unwrap(), code_bytes)),
+            #[cfg(feature = "lsp-ready")]
+            references: Vec::new(),
         })
     }
 }

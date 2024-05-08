@@ -134,7 +134,7 @@ pub(crate) fn build_function_parameters(
                         code_bytes,
                     )))),
                     #[cfg(feature = "lsp-ready")]
-                    references: Vec::new(),
+                    references: Arc::new(Vec::new()),
                 }
             } else {
                 normalized_name
@@ -151,7 +151,7 @@ pub(crate) fn build_function_parameters(
                     code_bytes,
                 )))),
                 #[cfg(feature = "lsp-ready")]
-                references: Vec::new(),
+                references: Arc::new(Vec::new()),
             }
         } else {
             NormalizedName {
@@ -167,7 +167,7 @@ pub(crate) fn build_function_parameters(
                     }
                 }),
                 #[cfg(feature = "lsp-ready")]
-                references: Vec::new(),
+                references: Arc::new(Vec::new()),
             }
         };
 
