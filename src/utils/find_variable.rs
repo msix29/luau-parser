@@ -10,6 +10,11 @@ type Variable = Option<(Token, Option<Arc<TypeValue>>, Arc<Expression>)>;
 
 /// Finds a variable with a specific name in a specific [`ast`](Ast). The
 /// [`position`](Position) is needed so that it finds the variable that's before it.
+///
+/// # Note
+///
+/// This function has a lot of `clone()`ing, but it should be cheap as it's mostly for
+/// `Arc<T>`s.
 pub fn find_variable<'a>(ast: &'a Ast, variable_name: &'a str, position: &Position) -> Variable {
     for (statement, _) in ast.statements.iter().rev() {
         match statement {
