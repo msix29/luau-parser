@@ -3,7 +3,8 @@
 use std::sync::Arc;
 
 use super::{
-    Ast, GenericDeclaration, List, NormalizedName, Number, Token, StringLiteral, Table, TableKey, TypeDefinition, TypeValue
+    Ast, GenericDeclaration, List, NormalizedName, Number, StringLiteral, Table, TableKey, Token,
+    TypeValue,
 };
 
 /// An enum representing different ways in which a table value can be returned from.
@@ -343,7 +344,7 @@ pub enum Expression {
         operator: Token,
 
         /// The type that's being casted to.
-        cast_to: Arc<TypeDefinition>,
+        cast_to: Arc<TypeValue>,
     },
 
     /// An if expression.

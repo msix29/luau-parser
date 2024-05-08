@@ -10,7 +10,7 @@ use crate::{
     prelude::{
         parse_block, type_definition::helper_functions::build_generics, Ast, ElseIfExpression,
         Expression, HasRange, List, ListItem, Number, PrefixExp, Range, StringLiteral, Table,
-        TableField, TableFieldValue, TableKey, Token, TypeDefinition,
+        TableField, TableFieldValue, TableKey, Token, TypeValue,
     },
     utils::get_range_from_boundaries,
 };
@@ -211,10 +211,9 @@ impl From<(Node<'_>, &[u8])> for Expression {
                     node.child_by_field_name("arg").unwrap(),
                     code_bytes,
                 ))),
-                cast_to: Arc::new(TypeDefinition::from((
+                cast_to: Arc::new(TypeValue::from((
                     node.child_by_field_name("cast").unwrap(),
                     code_bytes,
-                    false,
                 ))),
                 operator: Token::from((node.child_by_field_name("op").unwrap(), code_bytes)),
             },

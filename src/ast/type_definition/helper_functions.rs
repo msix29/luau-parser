@@ -7,8 +7,7 @@ use tree_sitter::Node;
 
 use crate::prelude::{
     GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo, List, ListItem,
-    NormalizedName, StringLiteral, Table, TableField, TableFieldValue, TableKey, Token,
-    TypeDefinition, TypeValue,
+    NormalizedName, StringLiteral, Table, TableField, TableFieldValue, TableKey, Token, TypeValue,
 };
 
 /// Get a type value from a node representing a singleton type.
@@ -66,10 +65,9 @@ pub(crate) fn build_table_type(node: Node, code_bytes: &[u8]) -> Table {
                                     field.child(0).unwrap(),
                                     code_bytes,
                                 )),
-                                r#type: Arc::new(TypeDefinition::from((
+                                r#type: Arc::new(TypeValue::from((
                                     field.child(1).unwrap(),
                                     code_bytes,
-                                    false,
                                 ))),
                                 close_square_brackets: Token::from((
                                     field.child(2).unwrap(),

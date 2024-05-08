@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use smol_str::SmolStr;
 
-use crate::prelude::{Expression, List, StringLiteral, Token, TypeDefinition, TypeValue};
+use crate::prelude::{Expression, List, StringLiteral, Token, TypeValue};
 
 /// A possible key entry in a table. The key is usually a string, but it can be a value
 /// (from an expression) in tables or a type in type definitions.
@@ -58,7 +58,7 @@ pub enum TableKey {
         open_square_brackets: Token,
 
         /// The actual type between the `[...]`.
-        r#type: Arc<TypeDefinition>,
+        r#type: Arc<TypeValue>,
 
         /// The `]` character.
         close_square_brackets: Token,

@@ -72,7 +72,7 @@ impl TypeValue {
                 operator,
                 right,
             }),
-            Expression::Cast { cast_to, .. } => Ok((*cast_to.type_value).clone()),
+            Expression::Cast { cast_to, .. } => Ok((*cast_to).clone()),
             Expression::IfExpression {
                 if_expression,
                 else_if_expressions,
