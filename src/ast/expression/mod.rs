@@ -166,7 +166,7 @@ impl From<(Node<'_>, &[u8])> for Expression {
                         node.child_by_field_name("closing_parenthesis").unwrap(),
                         code_bytes,
                     )),
-                    returns: build_function_returns(node, code_bytes).map(Arc::new),
+                    returns: build_function_returns(node, code_bytes),
                     colon: node
                         .child_by_field_name("colon")
                         .map(|colon| Token::from((colon, code_bytes))),

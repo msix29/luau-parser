@@ -39,6 +39,9 @@ impl LuauStatement for LocalFunction {
                 node.child_by_field_name("closing_parenthesis").unwrap(),
                 code_bytes,
             )),
+            colon: node
+                .child_by_field_name("colon")
+                .map(|colon| Token::from((colon, code_bytes))),
             returns: build_function_returns(node, code_bytes),
             body: node
                 .child_by_field_name("body")
@@ -103,6 +106,9 @@ impl LuauStatement for GlobalFunction {
                 node.child_by_field_name("closing_parenthesis").unwrap(),
                 code_bytes,
             )),
+            colon: node
+                .child_by_field_name("colon")
+                .map(|colon| Token::from((colon, code_bytes))),
             returns: build_function_returns(node, code_bytes),
             body: node
                 .child_by_field_name("body")

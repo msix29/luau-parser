@@ -178,10 +178,10 @@ pub(crate) fn build_function_parameters(
 }
 
 /// Build function returns from a node representing a function.
-pub(crate) fn build_function_returns(node: Node, code_bytes: &[u8]) -> Option<TypeValue> {
+pub(crate) fn build_function_returns(node: Node, code_bytes: &[u8]) -> Option<Arc<TypeValue>> {
     node.child_by_field_name("return")
         .or(node.child_by_field_name("returns"))
-        .map(|return_node| TypeValue::from((return_node, code_bytes)))
+        .map(|return_node| Arc::new(TypeValue::from((return_node, code_bytes))))
 }
 
 /// Build the generics of a function.
@@ -242,6 +242,6 @@ pub(crate) fn build_function_type(node: Node, code_bytes: &[u8]) -> TypeValue {
         )),
         arrow: Token::from((node.child_by_field_name("arrow").unwrap(), code_bytes)),
         // Function types will always have a return.
-        return_type: Arc::new(build_function_returns(node, code_bytes).unwrap()),
+        return_type: build_function_returns(node, code_bytes).unwrap(),
     }
 }

@@ -1,5 +1,7 @@
 //! Local and global functions.
 
+use std::sync::Arc;
+
 #[cfg(feature = "lsp-ready")]
 use super::Reference;
 use super::{Ast, GenericDeclaration, List, NormalizedName, Token, TypeValue};
@@ -29,8 +31,11 @@ pub struct LocalFunction {
     /// The `)` character.
     pub closing_parenthesis: Token,
 
+    /// The `:` character between closing parenthesis and returns.
+    pub colon: Option<Token>,
+
     /// The return type of the function
-    pub returns: Option<TypeValue>,
+    pub returns: Option<Arc<TypeValue>>,
 
     /// The body of the function.
     pub body: Ast,
@@ -134,8 +139,11 @@ pub struct GlobalFunction {
     /// The `)` character.
     pub closing_parenthesis: Token,
 
+    /// The `:` character between closing parenthesis and returns.
+    pub colon: Option<Token>,
+
     /// The return type of the function
-    pub returns: Option<TypeValue>,
+    pub returns: Option<Arc<TypeValue>>,
 
     /// The body of the function.
     pub body: Ast,
