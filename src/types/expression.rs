@@ -2,8 +2,6 @@
 
 use std::sync::Arc;
 
-#[cfg(feature = "lsp-ready")]
-use super::Reference;
 use super::{
     Ast, GenericDeclaration, List, NormalizedName, Number, StringLiteral, Table, TableKey, Token,
     TypeValue,
@@ -76,10 +74,6 @@ pub enum TableAccessKey {
 pub struct VariableName {
     /// The actual token holding the name.
     pub token: Token,
-
-    /// All references to this variable.
-    #[cfg(feature = "lsp-ready")]
-    pub references: Arc<Vec<Reference>>,
 }
 
 /// Possible ways in which a variable can be referenced.

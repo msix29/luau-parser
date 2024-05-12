@@ -8,14 +8,17 @@ use crate::prelude::{
 
 type Variable = (Token, Option<Arc<TypeValue>>, Arc<Expression>);
 
-/// Crate-level version of [`find_variable`], this has the ability to return `None` even
-/// if it found the variable, just to avoid all the `.clone()`ing when the only need for
-/// it so to add to the `references` table.
-pub(crate) fn find_variable_inner<'a>(
+/// Finds a variable with a specific name in a specific [`ast`](Ast). The
+/// [`position`](Position) is needed so that it finds the variable that's before it.
+///
+/// # Note
+///
+/// This function has a lot of `clone()`ing, but it should be cheap as it's mostly for
+/// `Arc<T>`s.
+pub fn find_variable<'a>(
     ast: &'a Ast,
     variable_name: &'a str,
     position: &Position,
-    only_increment: bool,
 ) -> Option<Variable> {
     for (statement, _) in ast.statements.iter().rev() {
         match statement {
@@ -140,19 +143,4 @@ pub(crate) fn find_variable_inner<'a>(
     }
 
     None
-}
-
-/// Finds a variable with a specific name in a specific [`ast`](Ast). The
-/// [`position`](Position) is needed so that it finds the variable that's before it.
-///
-/// # Note
-///
-/// This function has a lot of `clone()`ing, but it should be cheap as it's mostly for
-/// `Arc<T>`s.
-pub fn find_variable<'a>(
-    ast: &'a Ast,
-    variable_name: &'a str,
-    position: &Position,
-) -> Option<Variable> {
-    find_variable_inner(ast, variable_name, position, false)
 }

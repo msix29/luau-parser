@@ -104,8 +104,6 @@ pub(crate) fn handle_prefix_exp(prefix_exp: Node, code_bytes: &[u8]) -> PrefixEx
             if prefix_exp.child_count() == 1 {
                 PrefixExp::Var(Var::Name(VariableName {
                     token: Token::from((prefix_exp, code_bytes)),
-                    #[cfg(feature = "lsp-ready")]
-                    references: Arc::new(Vec::new()),
                 }))
             } else {
                 PrefixExp::Var(Var::TableAccess(handle_table_var(prefix_exp, code_bytes)))

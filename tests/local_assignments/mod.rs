@@ -60,8 +60,6 @@ fn local_assignment_2() {
                     token: Token::new("foo")
                         .with_spaces(" ", "")
                         .set_range(Range::new2(0, 25, 0, 28)),
-                    #[cfg(feature = "lsp-ready")]
-                    references: Vec::new(),
                 }
             )))),
             arguments: FunctionArguments::List {
