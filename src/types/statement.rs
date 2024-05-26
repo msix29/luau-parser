@@ -4,44 +4,12 @@
 //! outside it too, like in a formatter or a lsp.
 use smol_str::SmolStr;
 use std::sync::Arc;
-use tree_sitter::{Node, TreeCursor};
 
 use super::{
     CompoundSetExpression, DoBlock, Expression, FunctionCall, GenericFor, GlobalFunction,
-    IfStatement, List, LocalAssignment, LocalFunction, NumericalFor, Range, RepeatBlock,
-    SetExpression, Token, TypeDefinition, WhileLoop,
+    IfStatement, List, LocalAssignment, LocalFunction, NumericalFor, RepeatBlock, SetExpression,
+    Token, TypeDefinition, WhileLoop,
 };
-
-/// A trait for a token that can be represented in a more abstract form for the user to see,
-/// without maintaing original styling. This is mainly for LSPs so it's LSP-ready and can
-/// be used for things like hover.
-#[cfg(feature = "raw-values")]
-pub trait HasRawValue {
-    /// Get the lossy _raw value_ of this token. For lossless, see [`print`](Print).
-    fn get_raw_value(&self) -> String;
-}
-
-/// A trait to print the token as-is, while preserving all user spaces and styling.
-pub trait Print {
-    /// Prints the whole token including all surrounding spaces.
-    fn print(&self) -> String;
-}
-
-/// A trait to tell Rust that this item is a `LuauStatement`.
-pub trait LuauStatement: Sized {
-    /// Try creating this [`statement`](LuauStatement) from a [`treesitter node`](Node).
-    fn try_from_node<'a>(
-        node: Node<'a>,
-        cursor: &mut TreeCursor<'a>,
-        code_bytes: &[u8],
-    ) -> Option<Self>;
-}
-
-/// A trait for letting the compiler know that this specifc item has a range.
-pub trait HasRange {
-    /// Get the range of the node.
-    fn get_range(&self) -> Range;
-}
 
 /// All possible tokens in an [`ast`](Ast).
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]

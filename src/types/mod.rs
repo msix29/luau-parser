@@ -22,6 +22,7 @@ mod range;
 mod set_expressions;
 mod statement;
 mod token;
+mod traits;
 mod type_definition;
 mod value;
 
@@ -37,5 +38,6 @@ pub use range::*;
 pub use set_expressions::*;
 pub use statement::*;
 pub use token::*;
+pub use traits::*;
 pub use type_definition::*;
 pub use value::*;
