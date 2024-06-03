@@ -46,7 +46,7 @@ pub fn get_range(node: Node) -> Range {
 
 /// Get the range of a specific tree-sitter node.
 #[inline]
-pub(crate) fn get_range_from_boundaries(a: Range, b: Range) -> Range {
+pub fn get_range_from_boundaries(a: Range, b: Range) -> Range {
     Range::new(a.start, b.end)
 }
 
