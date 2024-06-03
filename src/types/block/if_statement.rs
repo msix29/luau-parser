@@ -21,10 +21,10 @@ pub struct IfStatement {
     pub body: Ast,
 
     /// Elseif branches.
-    pub else_if_expressions: Vec<ElseIfStatement>,
+    pub else_if_statements: Vec<ElseIfStatement>,
 
     /// The `else` part of the if statement
-    pub else_expression: Option<ElseStatement>,
+    pub else_statement: Option<ElseStatement>,
 
     /// The `end` keyword
     pub end_keyword: Token,

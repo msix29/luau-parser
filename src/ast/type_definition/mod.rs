@@ -13,12 +13,13 @@ use std::sync::Arc;
 use tree_sitter::Node;
 
 use crate::{
-    prelude::{
-        GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo,
-        GenericParameterInfoDefault, HasRange, List, LuauStatement, Range, Token, TypeDefinition,
-        TypeValue,
+    bad_range,
+    types::{
+        FromNode, FromNodeWithArgs, GenericDeclaration, GenericDeclarationParameter,
+        GenericParameterInfo, GenericParameterInfoDefault, HasRange, List, LuauStatement, Range,
+        Token, TypeDefinition, TypeValue,
     },
-    utils::get_range_from_boundaries,
+    utils::{get_range_from_boundaries, map_option},
 };
 
 impl LuauStatement for TypeDefinition {
@@ -31,33 +32,36 @@ impl LuauStatement for TypeDefinition {
             return None;
         }
 
-        Some(Self::from((node, code_bytes, true)))
+        Self::from_node(node, code_bytes, true)
     }
 }
 
-impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
-    fn from((node, code_bytes, is_definition): (Node, &[u8], bool)) -> Self {
+impl FromNodeWithArgs<bool> for TypeDefinition {
+    fn from_node(node: Node, code_bytes: &[u8], is_definition: bool) -> Option<Self> {
         if is_definition {
-            let generics = node.child_by_field_name("generics").map(|generics_node| {
+            let generics = map_option(node.child_by_field_name("generics"), |generics_node| {
+                let generics_node = generics_node?;
                 let mut generics = List::from_iter(
                     generics_node
                         .children_by_field_name("generic_with_default", &mut generics_node.walk()),
                     generics_node,
                     "generic_with_default_separator",
                     code_bytes,
-                    |_, child| GenericDeclarationParameter {
-                        parameter: GenericParameterInfo::Name(Token::from((
-                            child.child(0).unwrap().child(0).unwrap(),
-                            code_bytes,
-                        ))),
-                        default: child.child(1).map(|equal| {
-                            let genpack = child.child(2).unwrap();
+                    |_, child| {
+                        Some(GenericDeclarationParameter {
+                            parameter: GenericParameterInfo::Name(Token::from_node(
+                                child.child(0)?.child(0)?,
+                                code_bytes,
+                            )?),
+                            default: map_option(child.child(1), |equal| {
+                                let genpack = child.child(2)?;
 
-                            GenericParameterInfoDefault::Name {
-                                equal_sign: Token::from((equal, code_bytes)),
-                                name: Token::from((genpack.child(0).unwrap(), code_bytes)),
-                            }
-                        }),
+                                Some(GenericParameterInfoDefault::Name {
+                                    equal_sign: Token::from_node(equal?, code_bytes)?,
+                                    name: Token::from_node(genpack.child(0)?, code_bytes)?,
+                                })
+                            }),
+                        })
                     },
                 );
                 generics.extend_from_slice(&List::from_iter(
@@ -69,63 +73,61 @@ impl From<(Node<'_>, &[u8], bool)> for TypeDefinition {
                     "generic_pack_with_default_separator",
                     code_bytes,
                     |_, child| {
-                        let generic_pack = child.child(0).unwrap();
-                        GenericDeclarationParameter {
+                        let generic_pack = child.child(0)?;
+                        Some(GenericDeclarationParameter {
                             parameter: GenericParameterInfo::Pack {
-                                name: Token::from((generic_pack.child(0).unwrap(), code_bytes)),
-                                ellipsis: Token::from((generic_pack.child(1).unwrap(), code_bytes)),
+                                name: Token::from_node(generic_pack.child(0)?, code_bytes)?,
+                                ellipsis: Token::from_node(generic_pack.child(1)?, code_bytes)?,
                             },
-                            default: child.child(1).map(|equal| {
-                                let genpack = child.child(2).unwrap();
+                            default: map_option(child.child(1), |equal| {
+                                let genpack = child.child(2)?;
 
-                                GenericParameterInfoDefault::Pack {
-                                    equal_sign: Token::from((equal, code_bytes)),
-                                    r#type: TypeValue::from((genpack, code_bytes)),
-                                }
+                                Some(GenericParameterInfoDefault::Pack {
+                                    equal_sign: Token::from_node(equal?, code_bytes)?,
+                                    r#type: TypeValue::from_node(genpack, code_bytes)?,
+                                })
                             }),
-                        }
+                        })
                     },
                 ));
 
-                GenericDeclaration {
-                    opening_arrow: Token::from((
-                        node.child_by_field_name("opening_arrow").unwrap(),
+                Some(GenericDeclaration {
+                    opening_arrow: Token::from_node(
+                        node.child_by_field_name("opening_arrow")?,
                         code_bytes,
-                    )),
+                    )?,
                     generics,
-                    closing_arrow: Token::from((
-                        node.child_by_field_name("closing_arrow").unwrap(),
+                    closing_arrow: Token::from_node(
+                        node.child_by_field_name("closing_arrow")?,
                         code_bytes,
-                    )),
-                }
+                    )?,
+                })
             });
 
-            Self {
-                export_keyword: node
-                    .child_by_field_name("export")
-                    .map(|node| Token::from((node, code_bytes))),
-                type_keyword: node
-                    .child_by_field_name("typeKeyword")
-                    .map(|node| Token::from((node, code_bytes))),
+            Some(Self {
+                export_keyword: map_option(node.child_by_field_name("export"), |node| {
+                    Token::from_node(node?, code_bytes)
+                }),
+                type_keyword: map_option(node.child_by_field_name("typeKeyword"), |node| {
+                    Token::from_node(node?, code_bytes)
+                }),
                 generics,
-                type_name: Token::from((node.child_by_field_name("typeName").unwrap(), code_bytes)),
-                equal_sign: node
-                    .child_by_field_name("equal")
-                    .map(|node| Token::from((node, code_bytes))),
-                type_value: Arc::new(TypeValue::from((
-                    node.child_by_field_name("type").unwrap(),
-                    code_bytes,
-                ))),
-            }
+                type_name: Token::from_node(node.child_by_field_name("typeName")?, code_bytes)?,
+                equal_sign: map_option(node.child_by_field_name("equal"), |node| {
+                    Token::from_node(node?, code_bytes)
+                }),
+                type_value: TypeValue::from_node(node.child_by_field_name("type")?, code_bytes)
+                    .map(Arc::new)?,
+            })
         } else {
-            Self {
+            Some(Self {
                 export_keyword: None,
                 type_keyword: None,
                 type_name: Token::default(),
                 generics: None,
                 equal_sign: None,
-                type_value: Arc::new(TypeValue::from((node, code_bytes))),
-            }
+                type_value: TypeValue::from_node(node, code_bytes).map(Arc::new)?,
+            })
         }
     }
 }
@@ -187,6 +189,7 @@ impl HasRange for GenericDeclarationParameter {
 impl HasRange for GenericParameterInfo {
     fn get_range(&self) -> Range {
         match self {
+            GenericParameterInfo::ERROR => bad_range!("GenericParameterInfo"),
             GenericParameterInfo::Name(name) => name.get_range(),
             GenericParameterInfo::Pack { name, ellipsis } => {
                 get_range_from_boundaries(name.get_range(), ellipsis.get_range())

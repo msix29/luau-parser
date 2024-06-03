@@ -1,10 +1,14 @@
 //! Implementation for literal types.
 
 use std::ops::Deref;
+use tree_sitter::Node;
 
-use crate::{prelude::{Number, ParseNumberError, ParsedNumber, StringLiteral, Token}, utils::remove_surrounding_pair};
 #[cfg(feature = "raw-value")]
 use crate::types::HasRawValue;
+use crate::{
+    types::{FromNode, Number, ParseNumberError, ParsedNumber, StringLiteral, Token},
+    utils::remove_surrounding_pair,
+};
 
 /// Implements the [`Deref`] trait for a literal type.
 macro_rules! __impl_deref_literal {
@@ -25,12 +29,9 @@ __impl_deref_literal!(Number);
 /// only calls that trait function from the inner [`Token`].
 macro_rules! __impl_from_node_literal {
     ($struct: ident) => {
-        impl<T> From<T> for $struct
-        where
-            Token: From<T>,
-        {
-            fn from(value: T) -> Self {
-                Self(Token::from(value))
+        impl FromNode for $struct {
+            fn from_node(node: Node, code_bytes: &[u8]) -> Option<Self> {
+                Some(Self(Token::from_node(node, code_bytes)?))
             }
         }
     };

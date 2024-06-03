@@ -4,156 +4,151 @@ use std::sync::Arc;
 use tree_sitter::Node;
 
 use crate::{
+    bad_range,
     prelude::{
-        Expression, HasRange, List, ListItem, Range, StringLiteral, Table, TableField,
-        TableFieldValue, TableKey, Token, TypeValue,
+        Expression, FromNode, FromNodeWithArgs, HasRange, List, ListItem, Range, StringLiteral,
+        Table, TableField, TableFieldValue, TableKey, Token, TypeValue,
     },
+    unhandled_kind,
     utils::get_range_from_boundaries,
 };
 
-use super::helper_functions::{build_function_type, build_table_type, from_singleton_type};
+use super::helper_functions::build_function_type;
 
-impl From<(Node<'_>, &[u8])> for TypeValue {
-    fn from((node, code_bytes): (Node<'_>, &[u8])) -> Self {
-        if node.is_error() | node.is_missing() {
-            return Self::ERROR;
-        }
-
+impl FromNode for TypeValue {
+    fn from_node(node: Node, code_bytes: &[u8]) -> Option<Self> {
         match node.kind() {
             "name" => {
-                let parent_node = node.parent().unwrap();
+                let parent_node = node.parent()?;
 
                 if let Some(opening_arrows) = parent_node.child_by_field_name("opening_arrows") {
-                    Self::Generic {
-                        base: Token::from((node, code_bytes)),
-                        right_arrows: Token::from((opening_arrows, code_bytes)),
+                    Some(Self::Generic {
+                        base: Token::from_node(node, code_bytes)?,
+                        right_arrows: Token::from_node(opening_arrows, code_bytes)?,
                         generics: List::from_iter(
                             parent_node
                                 .children_by_field_name("typeparam", &mut parent_node.walk()),
                             parent_node,
                             "typeParamSeparator",
                             code_bytes,
-                            |_, node| match node.kind() {
-                                "typeparam" => {
-                                    Arc::new(Self::from((node.child(0).unwrap(), code_bytes)))
+                            |_, node| {
+                                let kind = node.kind();
+                                match kind {
+                                    "typeparam" => {
+                                        Self::from_node(node.child(0)?, code_bytes).map(Arc::new)
+                                    }
+                                    "typepack" => Self::from_node(node, code_bytes).map(Arc::new),
+                                    _ => unhandled_kind!(kind, "TypeValue"),
                                 }
-                                "typepack" => Arc::new(Self::from((node, code_bytes))),
-                                _ => unreachable!("{}", node.kind()),
                             },
                         ),
-                        left_arrows: Token::from((
-                            parent_node.child_by_field_name("closing_arrows").unwrap(),
+                        left_arrows: Token::from_node(
+                            parent_node.child_by_field_name("closing_arrows")?,
                             code_bytes,
-                        )),
-                    }
+                        )?,
+                    })
                 } else {
-                    from_singleton_type(node, code_bytes)
+                    Some(TypeValue::Basic(Token::from_node(node, code_bytes)?))
                 }
             }
             "namedtype" => {
                 if let Some(module) = node.child_by_field_name("module") {
-                    Self::Module {
-                        module: Token::from((module, code_bytes)),
-                        dot: Token::from((node.child_by_field_name("dot").unwrap(), code_bytes)),
-                        type_value: Arc::new(Self::from((
-                            node.child_by_field_name("nameWithGenerics").unwrap(),
+                    Some(Self::Module {
+                        module: Token::from_node(module, code_bytes)?,
+                        dot: Token::from_node(node.child_by_field_name("dot")?, code_bytes)?,
+                        type_value: Arc::new(Self::from_node(
+                            node.child_by_field_name("nameWithGenerics")?,
                             code_bytes,
-                        ))),
-                    }
+                        )?),
+                    })
                 } else {
-                    Self::from((
-                        node.child_by_field_name("nameWithGenerics").unwrap(),
-                        code_bytes,
-                    ))
+                    Self::from_node(node.child_by_field_name("nameWithGenerics")?, code_bytes)
                 }
             }
-            "wraptype" => Self::Wrap {
-                opening_parenthesis: Token::from((node.child(0).unwrap(), code_bytes)),
-                r#type: Arc::new(Self::from((node.child(1).unwrap(), code_bytes))),
-                closing_parenthesis: Token::from((node.child(2).unwrap(), code_bytes)),
-            },
-            "typeof" => Self::Typeof {
-                typeof_token: Token::from((node.child(0).unwrap(), code_bytes)),
-                opening_parenthesis: Token::from((node.child(1).unwrap(), code_bytes)),
-                inner: Arc::new(Expression::from((node.child(2).unwrap(), code_bytes))),
-                closing_parenthesis: Token::from((node.child(3).unwrap(), code_bytes)),
-            },
+            "wraptype" => Some(Self::Wrap {
+                opening_parenthesis: Token::from_node(node.child(0)?, code_bytes)?,
+                r#type: Self::from_node(node.child(1)?, code_bytes).map(Arc::new)?,
+                closing_parenthesis: Token::from_node(node.child(2)?, code_bytes)?,
+            }),
+            "typeof" => Some(Self::Typeof {
+                typeof_token: Token::from_node(node.child(0)?, code_bytes)?,
+                opening_parenthesis: Token::from_node(node.child(1)?, code_bytes)?,
+                inner: Expression::from_node(node.child(2)?, code_bytes).map(Arc::new)?,
+                closing_parenthesis: Token::from_node(node.child(3)?, code_bytes)?,
+            }),
             "functionType" => build_function_type(node, code_bytes),
-            "tableType" => Self::Table(build_table_type(node, code_bytes)),
-            "singleton" => from_singleton_type(node, code_bytes),
+            "tableType" => Some(Self::Table(Table::from_node(node, code_bytes, ((), ()))?)),
+            "singleton" => Some(Self::Basic(Token::from_node(node, code_bytes)?)),
             "bintype" => {
-                let operator = Token::from((node.child_by_field_name("op").unwrap(), code_bytes));
+                let operator = Token::from_node(node.child_by_field_name("op")?, code_bytes)?;
 
-                let left = Self::from((node.child_by_field_name("arg0").unwrap(), code_bytes));
-                let right = Self::from((node.child_by_field_name("arg1").unwrap(), code_bytes));
+                let left = Self::from_node(node.child_by_field_name("arg0")?, code_bytes)?;
+                let right = Self::from_node(node.child_by_field_name("arg1")?, code_bytes)?;
 
                 if operator.word == "&" {
-                    Self::Intersection {
+                    Some(Self::Intersection {
                         left: Arc::new(left),
                         ampersand: operator,
                         right: Arc::new(right),
-                    }
+                    })
                 } else {
-                    Self::Union {
+                    Some(Self::Union {
                         left: Arc::new(left),
                         pipe: operator,
                         right: Arc::new(right),
-                    }
+                    })
                 }
             }
-            "untype" => Self::Optional {
-                base: Arc::new(Self::from((
-                    node.child_by_field_name("arg").unwrap(),
-                    code_bytes,
-                ))),
-                question_mark: Token::from((node.child_by_field_name("op").unwrap(), code_bytes)),
-            },
+            "untype" => Some(Self::Optional {
+                base: Self::from_node(node.child_by_field_name("arg")?, code_bytes)
+                    .map(Arc::new)?,
+                question_mark: Token::from_node(node.child_by_field_name("op")?, code_bytes)?,
+            }),
             "typepack" => {
-                let pack = node.child(0).unwrap();
+                let pack = node.child(0)?;
                 match pack.kind() {
                     "(" => {
-                        let opening_parenthesis = Token::from((
-                            node.child_by_field_name("opening_parenthesis").unwrap(),
+                        let opening_parenthesis = Token::from_node(
+                            node.child_by_field_name("opening_parenthesis")?,
                             code_bytes,
-                        ));
-                        let closing_parenthesis = Token::from((
-                            node.child_by_field_name("closing_parenthesis").unwrap(),
+                        )?;
+                        let closing_parenthesis = Token::from_node(
+                            node.child_by_field_name("closing_parenthesis")?,
                             code_bytes,
-                        ));
+                        )?;
 
                         let mut types = List::from_iter(
                             node.children_by_field_name("type", &mut node.walk()),
                             node,
                             "separator",
                             code_bytes,
-                            |_, node| Arc::new(Self::from((node, code_bytes))),
+                            |_, node| Self::from_node(node, code_bytes).map(Arc::new),
                         );
 
                         if let Some(typepack) = node.child_by_field_name("variadic") {
-                            types.push(ListItem::NonTrailing(Arc::new(Self::from((
+                            types.push(ListItem::NonTrailing(Arc::new(Self::from_node(
                                 typepack, code_bytes,
-                            )))))
+                            )?)))
                         }
 
-                        Self::Tuple {
+                        Some(Self::Tuple {
                             opening_parenthesis,
                             types,
                             closing_parenthesis,
-                        }
+                        })
                     }
-                    "variadic" => Self::from((node.child(0).unwrap(), code_bytes)),
-                    "genpack" => Self::from((node.child(0).unwrap(), code_bytes)),
+                    "variadic" | "genpack" => Self::from_node(node.child(0)?, code_bytes),
                     _ => unreachable!(),
                 }
             }
-            "variadic" => Self::Variadic {
-                ellipsis: Token::from((node.child(0).unwrap(), code_bytes)),
-                type_info: Arc::new(Self::from((node.child(1).unwrap(), code_bytes))),
-            },
-            "genpack" => Self::GenericPack {
-                name: Token::from((node.child(0).unwrap(), code_bytes)),
-                ellipsis: Token::from((node.child(1).unwrap(), code_bytes)),
-            },
+            "variadic" => Some(Self::Variadic {
+                ellipsis: Token::from_node(node.child(0)?, code_bytes)?,
+                type_info: Self::from_node(node.child(1)?, code_bytes).map(Arc::new)?,
+            }),
+            "genpack" => Some(Self::GenericPack {
+                name: Token::from_node(node.child(0)?, code_bytes)?,
+                ellipsis: Token::from_node(node.child(1)?, code_bytes)?,
+            }),
             _ => panic!("Reached unhandled type. {}", node.to_sexp()),
         }
     }
@@ -256,33 +251,31 @@ impl HasRange for Table {
 impl HasRange for TableKey {
     fn get_range(&self) -> Range {
         match self {
-            TableKey::String(value) => value.get_range(),
-            TableKey::Expression {
+            Self::ERROR => bad_range!("TableKey"),
+            Self::String(value) => value.get_range(),
+            Self::Expression {
                 open_square_brackets,
-                expression: _,
                 close_square_brackets,
+                ..
+            }
+            | Self::Type {
+                open_square_brackets,
+                close_square_brackets,
+                ..
             } => get_range_from_boundaries(
                 open_square_brackets.get_range(),
                 close_square_brackets.get_range(),
             ),
-            TableKey::Type {
-                open_square_brackets,
-                r#type: _,
-                close_square_brackets,
-            } => get_range_from_boundaries(
-                open_square_brackets.get_range(),
-                close_square_brackets.get_range(),
-            ),
-            TableKey::UndefinedNumber(_) => Range::default(),
-            TableKey::UndefinedString(_) => Range::default(),
+            Self::UndefinedNumber(_) | Self::UndefinedString(_) => Range::default(),
         }
     }
 }
 impl HasRange for TableFieldValue {
     fn get_range(&self) -> Range {
         match self {
-            TableFieldValue::Expression(value) => value.get_range(),
-            TableFieldValue::Type(value) => value.get_range(),
+            Self::ERROR => bad_range!("TableFieldValue"),
+            Self::Expression(value) => value.get_range(),
+            Self::Type(value) => value.get_range(),
         }
     }
 }

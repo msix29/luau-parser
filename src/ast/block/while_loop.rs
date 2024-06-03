@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use crate::{
-    prelude::{DoBlock, Expression, HasRange, LuauStatement, Range, Token, WhileLoop},
+    prelude::{DoBlock, Expression, FromNode, HasRange, LuauStatement, Range, Token, WhileLoop},
     utils::get_range_from_boundaries,
 };
 
@@ -18,8 +18,8 @@ impl LuauStatement for WhileLoop {
         }
 
         Some(WhileLoop {
-            while_keyword: Token::from((node.child(0).unwrap(), code_bytes)),
-            condition: Arc::new(Expression::from((node.child(1).unwrap(), code_bytes))),
+            while_keyword: Token::from_node(node.child(0)?, code_bytes)?,
+            condition: Expression::from_node(node.child(1)?, code_bytes).map(Arc::new)?,
             do_block: DoBlock::try_from_node(
                 node.child_by_field_name("doBlock").unwrap(),
                 cursor,

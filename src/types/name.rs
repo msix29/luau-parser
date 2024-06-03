@@ -10,7 +10,7 @@ use super::{Token, TypeValue};
 
 /// A struct that provides a high level abstraction of `name` and `typedName` from the
 /// grammar for easier usability..
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct NormalizedName {
     /// The actual name.

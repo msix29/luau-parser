@@ -4,10 +4,10 @@ use tree_sitter::{Node, TreeCursor};
 
 use crate::{
     prelude::{
-        parse_block, GlobalFunction, GlobalFunctionName, HasRange, List, LocalFunction,
+        parse_block, FromNode, GlobalFunction, GlobalFunctionName, HasRange, List, LocalFunction,
         LuauStatement, Range, Token,
     },
-    utils::get_range_from_boundaries,
+    utils::{get_range_from_boundaries, map_option},
 };
 
 use super::type_definition::helper_functions::{
@@ -25,29 +25,29 @@ impl LuauStatement for LocalFunction {
         }
 
         Some(LocalFunction {
-            local_keyword: Token::from((node.child(0).unwrap(), code_bytes)),
-            function_keyword: Token::from((node.child(1).unwrap(), code_bytes)),
-            function_name: Token::from((node.child(2).unwrap(), code_bytes)),
+            local_keyword: Token::from_node(node.child(0)?, code_bytes)?,
+            function_keyword: Token::from_node(node.child(1)?, code_bytes)?,
+            function_name: Token::from_node(node.child(2)?, code_bytes)?,
             generics: build_generics(node, code_bytes),
-            opening_parenthesis: Token::from((
-                node.child_by_field_name("opening_parenthesis").unwrap(),
+            opening_parenthesis: Token::from_node(
+                node.child_by_field_name("opening_parenthesis")?,
                 code_bytes,
-            )),
+            )?,
 
             parameters: build_function_parameters(node, code_bytes, false),
-            closing_parenthesis: Token::from((
-                node.child_by_field_name("closing_parenthesis").unwrap(),
+            closing_parenthesis: Token::from_node(
+                node.child_by_field_name("closing_parenthesis")?,
                 code_bytes,
-            )),
+            )?,
             colon: node
                 .child_by_field_name("colon")
-                .map(|colon| Token::from((colon, code_bytes))),
+                .map(|colon| Token::from_node(colon, code_bytes))?,
             returns: build_function_returns(node, code_bytes),
             body: node
                 .child_by_field_name("body")
                 .map(|body| parse_block(&body, code_bytes, None))
                 .unwrap_or_default(),
-            end_keyword: Token::from((node.child_by_field_name("end").unwrap(), code_bytes)),
+            end_keyword: Token::from_node(node.child_by_field_name("end")?, code_bytes)?,
         })
     }
 }
@@ -68,51 +68,53 @@ impl LuauStatement for GlobalFunction {
         }
 
         Some(GlobalFunction {
-            function_keyword: Token::from((node.child(0).unwrap(), code_bytes)),
+            function_keyword: Token::from_node(node.child(0)?, code_bytes)?,
             function_name: if let Some(name) = node.child_by_field_name("name") {
-                GlobalFunctionName::SimpleName(Token::from((name, code_bytes)))
+                GlobalFunctionName::SimpleName(Token::from_node(name, code_bytes)?)
             } else {
                 GlobalFunctionName::Table {
-                    table: Token::from((node.child_by_field_name("table").unwrap(), code_bytes)),
+                    table: Token::from_node(node.child_by_field_name("table")?, code_bytes)?,
                     keys: List::from_iter(
                         node.children_by_field_name("index", &mut node.walk()),
                         node,
                         "_", // Matches nothing.
                         code_bytes,
                         |_, node| {
-                            (
-                                Token::from((node.prev_sibling().unwrap(), code_bytes)),
-                                Token::from((node, code_bytes)),
-                            )
+                            Some((
+                                Token::from_node(node.prev_sibling()?, code_bytes)?,
+                                Token::from_node(node, code_bytes)?,
+                            ))
                         },
                     ),
-                    method: node.child_by_field_name("method").map(|method| {
-                        (
-                            Token::from((method.prev_sibling().unwrap(), code_bytes)),
-                            Token::from((method, code_bytes)),
-                        )
+                    method: map_option(node.child_by_field_name("method"), |method| {
+                        let method = method?;
+
+                        Some((
+                            Token::from_node(method.prev_sibling()?, code_bytes)?,
+                            Token::from_node(method, code_bytes)?,
+                        ))
                     }),
                 }
             },
             generics: build_generics(node, code_bytes),
-            opening_parenthesis: Token::from((
-                node.child_by_field_name("opening_parenthesis").unwrap(),
+            opening_parenthesis: Token::from_node(
+                node.child_by_field_name("opening_parenthesis")?,
                 code_bytes,
-            )),
+            )?,
             parameters: build_function_parameters(node, code_bytes, false),
-            closing_parenthesis: Token::from((
-                node.child_by_field_name("closing_parenthesis").unwrap(),
+            closing_parenthesis: Token::from_node(
+                node.child_by_field_name("closing_parenthesis")?,
                 code_bytes,
-            )),
+            )?,
             colon: node
                 .child_by_field_name("colon")
-                .map(|colon| Token::from((colon, code_bytes))),
+                .map(|colon| Token::from_node(colon, code_bytes))?,
             returns: build_function_returns(node, code_bytes),
             body: node
                 .child_by_field_name("body")
                 .map(|body| parse_block(&body, code_bytes, None))
                 .unwrap_or_default(),
-            end_keyword: Token::from((node.child_by_field_name("end").unwrap(), code_bytes)),
+            end_keyword: Token::from_node(node.child_by_field_name("end")?, code_bytes)?,
         })
     }
 }

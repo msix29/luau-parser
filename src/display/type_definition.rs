@@ -307,14 +307,15 @@ impl_print_enum!(
 impl HasRawValue for GenericParameterInfo {
     fn get_raw_value(&self) -> String {
         match self {
-            GenericParameterInfo::Name(name) => name.get_raw_value(),
-            GenericParameterInfo::Pack { name, .. } => format!("{}...", name.get_raw_value()),
+            Self::ERROR => "*error*".to_string(),
+            Self::Name(name) => name.get_raw_value(),
+            Self::Pack { name, .. } => format!("{}...", name.get_raw_value()),
         }
     }
 }
 impl_print_enum!(
     GenericParameterInfo,
-    {},
+    { ERROR, },
     { Name, },
     {
         {

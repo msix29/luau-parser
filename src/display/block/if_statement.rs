@@ -12,8 +12,8 @@ impl_print_struct!(
     { self.condition, print! },
     { self.then_keyword, print! },
     { self.body, print! },
-    { self.else_if_expressions, print! },
-    { self.else_expression, optional_print! },
+    { self.else_if_statements, print! },
+    { self.else_statement, optional_print! },
     { self.end_keyword, print! }
 );
 impl_print_struct!(

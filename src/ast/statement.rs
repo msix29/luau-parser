@@ -2,31 +2,39 @@
 
 use tree_sitter::Node;
 
-use crate::prelude::{
-    CompoundSetExpression, DoBlock, Expression, FunctionCall, GenericFor, GlobalFunction,
-    IfStatement, LastStatement, LocalAssignment, LocalFunction, LuauStatement, NumericalFor,
-    RepeatBlock, SetExpression, Statement, Token, TypeDefinition, WhileLoop,
+use crate::{
+    prelude::{
+        CompoundSetExpression, DoBlock, Expression, FromNode, FunctionCall, GenericFor,
+        GlobalFunction, IfStatement, LastStatement, LocalAssignment, LocalFunction, LuauStatement,
+        NumericalFor, RepeatBlock, SetExpression, Statement, Token, TypeDefinition, WhileLoop,
+    },
+    utils::map_option,
 };
 
-impl From<(Node<'_>, &[u8])> for LastStatement {
-    fn from((node, code_bytes): (Node, &[u8])) -> Self {
-        let semicolon = node
-            .child_by_field_name("semicolon")
-            .map(|semicolon| Token::from((semicolon, code_bytes)));
-
-        let node = node.child(0).unwrap();
+impl FromNode for LastStatement {
+    fn from_node(node: Node, code_bytes: &[u8]) -> Option<Self> {
+        let semicolon = map_option(node.child_by_field_name("semicolon"), |semicolon| {
+            Token::from_node(semicolon?, code_bytes)
+        });
+        let node = node.child(0)?;
 
         match node.kind() {
-            "break" => Self::Break((Token::from((node, code_bytes)), semicolon)),
-            "continue" => Self::Continue((Token::from((node, code_bytes)), semicolon)),
-            "return_statement" => Self::Return {
-                return_keyword: Token::from((node.child(0).unwrap(), code_bytes)),
+            "break" => Some(Self::Break((
+                Token::from_node(node, code_bytes)?,
+                semicolon,
+            ))),
+            "continue" => Some(Self::Continue((
+                Token::from_node(node, code_bytes)?,
+                semicolon,
+            ))),
+            "return_statement" => Some(Self::Return {
+                return_keyword: Token::from_node(node.child(0)?, code_bytes)?,
                 expressions: Expression::from_nodes(
                     node.children_by_field_name("expressions", &mut node.walk()),
                     code_bytes,
                 ),
                 semicolon,
-            },
+            }),
             _ => unreachable!(),
         }
     }

@@ -2,18 +2,20 @@
 
 use std::sync::Arc;
 
+use tree_sitter::{Node, TreeCursor};
+
 use crate::{
     prelude::{
-        DoBlock, Expression, HasRange, LuauStatement, NormalizedName, NumericalFor, Range,
-        Token,
+        DoBlock, Expression, FromNode, HasRange, LuauStatement, NormalizedName, NumericalFor,
+        Range, Token,
     },
     utils::get_range_from_boundaries,
 };
 
 impl LuauStatement for NumericalFor {
     fn try_from_node<'a>(
-        node: tree_sitter::Node<'a>,
-        cursor: &mut tree_sitter::TreeCursor<'a>,
+        node: Node<'a>,
+        cursor: &mut TreeCursor<'a>,
         code_bytes: &[u8],
     ) -> Option<Self> {
         if node.kind() != "numericalFor" {
@@ -21,18 +23,18 @@ impl LuauStatement for NumericalFor {
         }
 
         Some(NumericalFor {
-            for_keyword: Token::from((node.child(0).unwrap(), code_bytes)),
-            variable: NormalizedName::from((node.child(1).unwrap(), code_bytes)),
-            equal_keyword: Token::from((node.child(2).unwrap(), code_bytes)),
-            start: Arc::new(Expression::from((node.child(3).unwrap(), code_bytes))),
-            start_comma: Token::from((node.child(4).unwrap(), code_bytes)),
-            end: Arc::new(Expression::from((node.child(5).unwrap(), code_bytes))),
+            for_keyword: Token::from_node(node.child(0)?, code_bytes)?,
+            variable: NormalizedName::from_node(node.child(1)?, code_bytes)?,
+            equal_keyword: Token::from_node(node.child(2)?, code_bytes)?,
+            start: Expression::from_node(node.child(3)?, code_bytes).map(Arc::new)?,
+            start_comma: Token::from_node(node.child(4)?, code_bytes)?,
+            end: Expression::from_node(node.child(5)?, code_bytes).map(Arc::new)?,
             end_comma: node
                 .child(6)
-                .map(|node| Token::from((node, code_bytes))),
+                .map(|node| Token::from_node(node, code_bytes).unwrap()), //todo
             step: node
                 .child(7)
-                .map(|node| Arc::new(Expression::from((node, code_bytes)))),
+                .map(|node| Expression::from_node(node, code_bytes).map(Arc::new))?,
             do_block: DoBlock::try_from_node(
                 node.child_by_field_name("doBlock").unwrap(),
                 cursor,

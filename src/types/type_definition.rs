@@ -8,10 +8,11 @@ use super::{FunctionCall, List, NormalizedName, StringLiteral, Table, Token, Var
 use crate::prelude::Expression;
 
 /// Possible values for a type.
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum TypeValue {
-    /// Indicates that this type had a syntax error.
+    /// This [`TypeValue`] had a syntax error.
+    #[default]
     ERROR,
 
     /// Just a reference to another type.
@@ -311,9 +312,13 @@ pub struct GenericParameters {
 
 /// A generic declaration parameter used in [`generics declarations`](GenericDeclaration).
 /// Can either be a name or a variadic pack.
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum GenericParameterInfo {
+    /// This [`GenericParameterInfo`] had a syntax error.
+    #[default]
+    ERROR,
+
     /// A simple name, such as `T`.
     Name(Token),
 
@@ -328,7 +333,7 @@ pub enum GenericParameterInfo {
 
 /// A generic declaration parameter used in [`generic declarations`](GenericDeclaration).
 /// Consists of a [`parameter info`](GenericParameterInfo) and an optional default type.
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct GenericDeclarationParameter {
     /// The parameter passed as a generic type, can be a simple name or a generic pack.

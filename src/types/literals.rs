@@ -26,7 +26,6 @@ pub enum ParsedNumber {
 /// An enum representing errors that can occur during [`Number::parse`] stopping it from
 /// parsing the number, they should only be out-of-range errors and thus should be
 /// displayed for the user asking them to change the number.
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum ParseNumberError {
     /// Hexadecimal and binary numbers are always integers.

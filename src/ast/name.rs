@@ -6,24 +6,24 @@ use tree_sitter::Node;
 
 use crate::{
     call_any,
-    prelude::{HasRange, NormalizedName, Range, Token, TypeValue},
+    prelude::{FromNode, HasRange, NormalizedName, Range, Token, TypeValue},
     utils::get_range_from_boundaries,
 };
 
-impl From<(Node<'_>, &[u8])> for NormalizedName {
-    fn from((node, code_bytes): (Node<'_>, &[u8])) -> Self {
+impl FromNode for NormalizedName {
+    fn from_node(node: Node, code_bytes: &[u8]) -> Option<Self> {
         if let Some(type_node) = node.child(2) {
-            Self {
-                name: Token::from((node.child(0).unwrap(), code_bytes)),
-                colon: Some(Token::from((node.child(1).unwrap(), code_bytes))),
-                r#type: Some(Arc::new(TypeValue::from((type_node, code_bytes)))),
-            }
+            Some(Self {
+                name: Token::from_node(node.child(0)?, code_bytes)?,
+                colon: Token::from_node(node.child(1)?, code_bytes),
+                r#type: TypeValue::from_node(type_node, code_bytes).map(Arc::new),
+            })
         } else {
-            Self {
-                name: Token::from((node, code_bytes)),
+            Some(Self {
+                name: Token::from_node(node, code_bytes)?,
                 colon: None,
                 r#type: None,
-            }
+            })
         }
     }
 }

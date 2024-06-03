@@ -1,3 +1,5 @@
+//! Module holding all trait definitions in this parser.
+
 use tree_sitter::{Node, TreeCursor};
 
 use super::Range;

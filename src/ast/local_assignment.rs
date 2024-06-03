@@ -4,10 +4,10 @@ use tree_sitter::{Node, TreeCursor};
 
 use crate::{
     prelude::{
-        Expression, HasRange, List, LocalAssignment, LuauStatement, NormalizedName, Range,
-        Token,
+        Expression, FromNode, HasRange, List, LocalAssignment, LuauStatement, NormalizedName,
+        Range, Token,
     },
-    utils::get_range_from_boundaries,
+    utils::{get_range_from_boundaries, map_option},
 };
 
 impl LuauStatement for LocalAssignment {
@@ -21,17 +21,17 @@ impl LuauStatement for LocalAssignment {
         }
 
         Some(Self {
-            local_token: Token::from((node.child(0).unwrap(), code_bytes)),
+            local_token: Token::from_node(node.child(0)?, code_bytes)?,
             name_list: List::from_iter(
                 node.children_by_field_name("binding", cursor),
                 node,
                 "separator",
                 code_bytes,
-                |_, binding| NormalizedName::from((binding, code_bytes)),
+                |_, binding| NormalizedName::from_node(binding, code_bytes),
             ),
-            equal_token: node
-                .child_by_field_name("equal")
-                .map(|equal| Token::from((equal, code_bytes))),
+            equal_token: map_option(node.child_by_field_name("equal"), |equal| {
+                Token::from_node(equal?, code_bytes)
+            }),
             expressions: Expression::from_nodes(
                 node.children_by_field_name("value", cursor),
                 code_bytes,

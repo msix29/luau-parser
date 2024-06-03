@@ -6,13 +6,11 @@ use tree_sitter::{Node, TreeCursor};
 
 use crate::{
     prelude::{
-        CompoundSetExpression, Expression, HasRange, List, LuauStatement, PrefixExp, Range,
-        SetExpression, Token,
+        CompoundSetExpression, Expression, FromNode, HasRange, List, LuauStatement, PrefixExp,
+        Range, SetExpression, Token,
     },
     utils::get_range_from_boundaries,
 };
-
-use super::expression::handle_prefix_exp::handle_prefix_exp;
 
 impl LuauStatement for SetExpression {
     fn try_from_node<'a>(
@@ -30,15 +28,12 @@ impl LuauStatement for SetExpression {
                 node,
                 "separator",
                 code_bytes,
-                |_, node| {
-                    let prefix_exp = handle_prefix_exp(node, code_bytes);
-                    match prefix_exp {
-                        PrefixExp::Var(var) => var,
-                        _ => unreachable!(),
-                    }
+                |_, node| match PrefixExp::from_node(node, code_bytes)? {
+                    PrefixExp::Var(var) => Some(var),
+                    _ => unreachable!(),
                 },
             ),
-            equal: Token::from((node.child_by_field_name("equal").unwrap(), code_bytes)),
+            equal: Token::from_node(node.child_by_field_name("equal")?, code_bytes)?,
             values: Expression::from_nodes(
                 node.children_by_field_name("value", &mut node.walk()),
                 code_bytes,
@@ -64,16 +59,15 @@ impl LuauStatement for CompoundSetExpression {
         if node.kind() != "compoundSetExpression" {
             return None;
         }
-        let prefix_exp = handle_prefix_exp(node.child(0).unwrap(), code_bytes);
-        let variable = match prefix_exp {
+        let variable = match PrefixExp::from_node(node.child(0)?, code_bytes)? {
             PrefixExp::Var(var) => var,
             _ => unreachable!(),
         };
 
         Some(Self {
             variable,
-            operation: Token::from((node.child(1).unwrap(), code_bytes)),
-            value: Arc::new(Expression::from((node.child(2).unwrap(), code_bytes))),
+            operation: Token::from_node(node.child(1)?, code_bytes)?,
+            value: Expression::from_node(node.child(2)?, code_bytes).map(Arc::new)?,
         })
     }
 }

@@ -1,17 +1,19 @@
 //! Implemens helper traits for for-in loops.
 
+use tree_sitter::{Node, TreeCursor};
+
 use crate::{
     prelude::{
-        DoBlock, Expression, GenericFor, HasRange, List, Range, LuauStatement,
-        NormalizedName, Token,
+        DoBlock, Expression, FromNode, GenericFor, HasRange, List, LuauStatement, NormalizedName,
+        Range, Token,
     },
     utils::get_range_from_boundaries,
 };
 
 impl LuauStatement for GenericFor {
     fn try_from_node<'a>(
-        node: tree_sitter::Node<'a>,
-        cursor: &mut tree_sitter::TreeCursor<'a>,
+        node: Node<'a>,
+        cursor: &mut TreeCursor<'a>,
         code_bytes: &[u8],
     ) -> Option<Self> {
         if node.kind() != "forIn" {
@@ -19,15 +21,15 @@ impl LuauStatement for GenericFor {
         }
 
         Some(GenericFor {
-            for_keyword: Token::from((node.child_by_field_name("for").unwrap(), code_bytes)),
+            for_keyword: Token::from_node(node.child_by_field_name("for")?, code_bytes)?,
             names: List::from_iter(
                 node.children_by_field_name("binding", cursor),
                 node,
                 "separator",
                 code_bytes,
-                |_, binding| NormalizedName::from((binding.child(0).unwrap(), code_bytes)),
+                |_, binding| NormalizedName::from_node(binding.child(0)?, code_bytes),
             ),
-            in_keyword: Token::from((node.child_by_field_name("in").unwrap(), code_bytes)),
+            in_keyword: Token::from_node(node.child_by_field_name("in")?, code_bytes)?,
             expressions: Expression::from_nodes(
                 node.children_by_field_name("value", cursor),
                 code_bytes,
@@ -44,9 +46,6 @@ impl LuauStatement for GenericFor {
 
 impl HasRange for GenericFor {
     fn get_range(&self) -> Range {
-        get_range_from_boundaries(
-            self.for_keyword.get_range(),
-            self.do_block.get_range(),
-        )
+        get_range_from_boundaries(self.for_keyword.get_range(), self.do_block.get_range())
     }
 }

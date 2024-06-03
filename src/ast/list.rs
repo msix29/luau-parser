@@ -5,7 +5,7 @@ use std::ops::{Deref, DerefMut};
 use tree_sitter::Node;
 
 use crate::{
-    prelude::{HasRange, List, ListItem, Range, Token},
+    prelude::{FromNode, HasRange, List, ListItem, Range, Token},
     utils::get_range_from_boundaries,
 };
 
@@ -69,14 +69,14 @@ impl<T: Clone> List<T> {
         }
     }
 }
-impl<'a, T> List<T> {
+impl<'a, T: Default> List<T> {
     /// Builds a list from an iterator.
     pub fn from_iter<'b>(
         iterator: impl Iterator<Item = Node<'a>> + 'b,
         parent_node: Node,
         separators_name: &str,
         code_bytes: &[u8],
-        mut get_item: impl FnMut(usize, Node) -> T,
+        mut get_item: impl FnMut(usize, Node) -> Option<T>,
     ) -> Self {
         let separators = parent_node
             .children_by_field_name(separators_name, &mut parent_node.walk())
@@ -86,13 +86,14 @@ impl<'a, T> List<T> {
             items: iterator
                 .enumerate()
                 .map(|(i, binding)| {
-                    if let Some(separator) = separators.get(i) {
-                        ListItem::Trailing {
-                            item: get_item(i, binding),
-                            separator: Token::from((*separator, code_bytes)),
-                        }
+                    let item = get_item(i, binding).unwrap_or_default();
+                    if let Some(Some(separator)) = separators
+                        .get(i)
+                        .map(|node| Token::from_node(*node, code_bytes))
+                    {
+                        ListItem::Trailing { item, separator }
                     } else {
-                        ListItem::NonTrailing(get_item(i, binding))
+                        ListItem::NonTrailing(item)
                     }
                 })
                 .collect::<Vec<ListItem<T>>>(),

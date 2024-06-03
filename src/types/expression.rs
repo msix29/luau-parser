@@ -77,9 +77,13 @@ pub struct VariableName {
 }
 
 /// Possible ways in which a variable can be referenced.
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum Var {
+    /// This [`Var`] had a syntax error.
+    #[default]
+    ERROR,
+
     /// A simple reference to the variable.
     ///
     /// ```lua
@@ -220,10 +224,11 @@ pub enum PrefixExp {
 }
 
 /// An enum representing all possible values for an expression.
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum Expression {
-    /// Indicates that this expression had a syntax error.
+    /// This [`Expression`] had a syntax error.
+    #[default]
     ERROR,
 
     /// The `nil` value.

@@ -225,16 +225,17 @@ impl_print_struct!(
 impl HasRawValue for TableKey {
     fn get_raw_value(&self) -> String {
         match self {
-            TableKey::UndefinedNumber(_) | TableKey::UndefinedString(_) => "".to_string(),
-            TableKey::String(value) => value.get_raw_value(),
-            TableKey::Expression { expression, .. } => format!("[{}]", expression.get_raw_value()),
-            TableKey::Type { r#type, .. } => format!("[{}]", r#type.get_raw_value()),
+            Self::ERROR => "*error*".to_string(),
+            Self::UndefinedNumber(_) | Self::UndefinedString(_) => "".to_string(),
+            Self::String(value) => value.get_raw_value(),
+            Self::Expression { expression, .. } => format!("[{}]", expression.get_raw_value()),
+            Self::Type { r#type, .. } => format!("[{}]", r#type.get_raw_value()),
         }
     }
 }
 impl_print_enum!(
     TableKey,
-    {},
+    { ERROR, },
     { UndefinedNumber, UndefinedString, String, },
     {
         {
@@ -260,14 +261,15 @@ impl_print_enum!(
 impl HasRawValue for TableFieldValue {
     fn get_raw_value(&self) -> String {
         match self {
-            TableFieldValue::Expression(value) => value.get_raw_value(),
-            TableFieldValue::Type(value) => value.get_raw_value(),
+            Self::ERROR => "*error*".to_string(),
+            Self::Expression(value) => value.get_raw_value(),
+            Self::Type(value) => value.get_raw_value(),
         }
     }
 }
 impl_print_enum!(
     TableFieldValue,
-    {},
+    { ERROR, },
     { Expression, Type, },
     {}
 );
@@ -293,14 +295,15 @@ impl_print_enum!(
 impl HasRawValue for Var {
     fn get_raw_value(&self) -> String {
         match self {
-            Var::Name(value) => value.get_raw_value(),
-            Var::TableAccess(value) => value.get_raw_value(),
+            Self::ERROR => "*error*".to_string(),
+            Self::Name(value) => value.get_raw_value(),
+            Self::TableAccess(value) => value.get_raw_value(),
         }
     }
 }
 impl_print_enum!(
     Var,
-    {},
+    { ERROR, },
     { Name, TableAccess, },
     {}
 );

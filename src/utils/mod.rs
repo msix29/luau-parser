@@ -5,6 +5,7 @@ mod find_type;
 #[cfg(feature = "lsp-ready")]
 mod find_variable;
 mod get_trivia;
+mod map_option;
 
 #[cfg(feature = "lsp-ready")]
 pub use find_type::*;
@@ -16,6 +17,7 @@ use tree_sitter::Node;
 
 use crate::types::Range;
 pub(crate) use get_trivia::*;
+pub(crate) use map_option::*;
 
 /// Gets the text from a specific byte range in a `&[u8]`, which represents bytes of valid
 /// text. This function does check for the passed bytes to ensure they're in the correct

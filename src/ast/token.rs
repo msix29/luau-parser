@@ -4,25 +4,25 @@ use smol_str::SmolStr;
 use tree_sitter::Node;
 
 use crate::{
-    prelude::{Comment, HasRange, Range, Token, Trivia},
+    prelude::{Comment, FromNode, HasRange, Range, Token, Trivia},
     utils::{get_range, get_text_from_bytes, get_trivia, remove_surrounding_pair},
 };
 
-impl From<(Node<'_>, &[u8])> for Token {
-    fn from((node, code_bytes): (Node<'_>, &[u8])) -> Self {
+impl FromNode for Token {
+    fn from_node(node: Node, code_bytes: &[u8]) -> Option<Self> {
         if node.is_error() | node.is_missing() {
-            return Self::new("*error*");
+            return Some(Self::new("*error*")); // Return None?
         }
 
         let word = get_text_from_bytes(code_bytes, node.start_byte(), node.end_byte());
         let (spaces_before, spaces_after) = get_trivia(node, code_bytes);
 
-        Self {
+        Some(Self {
             leading_trivia: spaces_before,
             word: word.into(),
             trailing_trivia: spaces_after,
             range: get_range(node),
-        }
+        })
     }
 }
 impl From<&str> for Token {

@@ -27,9 +27,13 @@ use crate::prelude::{Expression, List, StringLiteral, Token, TypeValue};
 ///     [string]: number,
 /// }
 /// ```
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum TableKey {
+    /// This [`TableKey`] had a syntax error.
+    #[default]
+    ERROR,
+
     /// Cases in which a key wasn't provided, it's guessed as a number in that case.
     UndefinedNumber(i32),
 
@@ -68,7 +72,7 @@ pub enum TableKey {
 /// A struct representing one table field. It'll always have a [`key`](TableKey) and a
 /// value that's either a [`type`](TypeDefinition) or an [`expression`](Expression). See
 /// [`table field values`](TableFieldValue).
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct TableField {
     /// The [`key`](TableKey) used to index field.
@@ -83,9 +87,13 @@ pub struct TableField {
 }
 
 /// A possible value for a [`table field`](TableField).
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum TableFieldValue {
+    /// This [`TableFieldValue`] had a syntax error.
+    #[default]
+    ERROR,
+
     /// An [`expression`](Expression), can be found in declarations of tables as variables
     /// only.
     Expression(Expression),

@@ -10,7 +10,10 @@ use tree_sitter::InputEdit;
 use tree_sitter::Tree;
 use tree_sitter::{Node, Parser};
 
-use crate::prelude::{Ast, AstStatus, LastStatement, Token, Statement};
+use crate::{
+    prelude::{Ast, AstStatus, FromNode, LastStatement, Statement, Token},
+    utils::map_option,
+};
 
 /// Parses a code block and fills `tokens` with the parsed ones. The tokens can then
 /// be used to make the syntax tre.
@@ -24,17 +27,17 @@ pub(crate) fn parse_block(body: &Node, code_bytes: &[u8], uri: Option<String>) -
 
         statements.push((
             Statement::from((node.child(0).unwrap(), code_bytes)),
-            node.child(1)
-                .map(|node| Token::from((node, code_bytes))),
+            map_option(node.child(1), |node| Token::from_node(node?, code_bytes)),
         ))
     }
 
     Ast {
         uri: uri.map(|uri| uri.into()),
         statements: Arc::new(statements),
-        last_statement: body
-            .child_by_field_name("lastStatement")
-            .map(|last_statement| Arc::new(LastStatement::from((last_statement, code_bytes)))),
+        last_statement: map_option(
+            body.child_by_field_name("lastStatement"),
+            |last_statement| LastStatement::from_node(last_statement?, code_bytes).map(Arc::new),
+        ),
         status: if body.has_error() {
             AstStatus::HasErrors
         } else {
@@ -107,7 +110,7 @@ impl LuauParser {
         {
             self.cache.insert(uri.to_string(), (ast, tree));
 
-            return self.cache.get(&uri.to_string()).unwrap().0.to_owned();
+            return self.cache.get(uri).unwrap().0.to_owned();
         }
 
         #[cfg(not(feature = "cache"))]
