@@ -82,9 +82,7 @@ impl FromNode for FunctionCallInvoked {
 }
 impl FromNode for FunctionArguments {
     fn from_node(node: Node, code_bytes: &[u8]) -> Option<Self> {
-        println!("\nInteresting..\n");
         let actual_argument = node.child(0)?;
-        println!("\n{}\n", node.to_sexp());
 
         match actual_argument.kind() {
             "table" => Some(Self::Table(Table::from_node(actual_argument, code_bytes, ())?)),
