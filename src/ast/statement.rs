@@ -11,6 +11,8 @@ use crate::{
     utils::map_option,
 };
 
+/// Creates code that calls `try_from_node` for each of the passed element and return
+/// the first one that works, or `None`.
 macro_rules! __handle_statement {
     ({ $statement: ident, $code_bytes: ident }, $first_name: ident $(, $name: ident)* $(,)?) => {{
         let mut cursor = $statement.walk();
