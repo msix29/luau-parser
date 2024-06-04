@@ -23,7 +23,6 @@ impl LuauStatement for LocalFunction {
         if node.kind() != "localFunction" {
             return None;
         }
-
         Some(LocalFunction {
             local_keyword: Token::from_node(node.child(0)?, code_bytes)?,
             function_keyword: Token::from_node(node.child(1)?, code_bytes)?,
@@ -39,9 +38,9 @@ impl LuauStatement for LocalFunction {
                 node.child_by_field_name("closing_parenthesis")?,
                 code_bytes,
             )?,
-            colon: node
-                .child_by_field_name("colon")
-                .map(|colon| Token::from_node(colon, code_bytes))?,
+            colon: map_option(node.child_by_field_name("colon"), |colon| {
+                Token::from_node(colon?, code_bytes)
+            }),
             returns: build_function_returns(node, code_bytes),
             body: node
                 .child_by_field_name("body")
@@ -106,9 +105,9 @@ impl LuauStatement for GlobalFunction {
                 node.child_by_field_name("closing_parenthesis")?,
                 code_bytes,
             )?,
-            colon: node
-                .child_by_field_name("colon")
-                .map(|colon| Token::from_node(colon, code_bytes))?,
+            colon: map_option(node.child_by_field_name("colon"), |colon| {
+                Token::from_node(colon?, code_bytes)
+            }),
             returns: build_function_returns(node, code_bytes),
             body: node
                 .child_by_field_name("body")

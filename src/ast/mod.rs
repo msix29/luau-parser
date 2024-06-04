@@ -19,9 +19,7 @@ pub mod statement;
 pub mod token;
 pub mod type_definition;
 
-use crate::prelude::{
-    Ast, AstStatus, HasRange, Print, PrintingError, Range, Token, Statement,
-};
+use crate::types::{Ast, AstStatus, HasRange, Print, PrintingError, Range, Statement, Token};
 
 impl Print for Ast {
     /// Returns the code that was behind this AST as-is, without any modifications and
@@ -68,6 +66,7 @@ macro_rules! impl_statement {
         impl $trait for Statement {
             fn $fn_name(&self) -> $return {
                 match self {
+                    Self::ERROR => panic!("Attempt to call {} an error variant.", stringify!($fn_name)),
                     Self::LocalAssignment(value) => value.$fn_name(),
                     Self::TypeDefinition(value) => value.$fn_name(),
                     Self::IfStatement(value) => value.$fn_name(),

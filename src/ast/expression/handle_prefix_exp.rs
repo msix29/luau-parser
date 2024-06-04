@@ -5,9 +5,14 @@ use std::{ops::Deref, sync::Arc};
 use tree_sitter::Node;
 
 use crate::{
-    bad_range, prelude::{
-        Expression, ExpressionWrap, FromNode, FromNodeWithArgs, FunctionArguments, FunctionCall, FunctionCallInvoked, HasRange, LuauStatement, PrefixExp, Range, StringLiteral, Table, TableAccess, TableAccessKey, TableAccessPrefix, TableKey, Token, Var, VariableName
-    }, utils::get_range_from_boundaries
+    bad_range,
+    prelude::{
+        Expression, ExpressionWrap, FromNode, FromNodeWithArgs, FunctionArguments, FunctionCall,
+        FunctionCallInvoked, HasRange, LuauStatement, PrefixExp, Range, StringLiteral, Table,
+        TableAccess, TableAccessKey, TableAccessPrefix, TableKey, Token, Var, VariableName,
+    },
+    unhandled_kind,
+    utils::get_range_from_boundaries,
 };
 
 //TODO: Split
@@ -85,7 +90,11 @@ impl FromNode for FunctionArguments {
         let actual_argument = node.child(0)?;
 
         match actual_argument.kind() {
-            "table" => Some(Self::Table(Table::from_node(actual_argument, code_bytes, ())?)),
+            "table" => Some(Self::Table(Table::from_node(
+                actual_argument,
+                code_bytes,
+                (),
+            )?)),
             "string" => Some(Self::String(StringLiteral::from_node(
                 actual_argument,
                 code_bytes,
@@ -131,13 +140,7 @@ impl FromNode for PrefixExp {
                 expression: Arc::new(Expression::from_node(node.child(1)?, code_bytes)?),
                 closing_parenthesis: Token::from_node(node.child(2)?, code_bytes)?,
             })),
-            _ => {
-                eprintln!(
-                    "Reached unhandled kind '{}' when parsing `PrefixExp`.",
-                    kind
-                );
-                None
-            }
+            _ => unhandled_kind!(kind, "PrefixExp"),
         }
     }
 }

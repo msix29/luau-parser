@@ -26,7 +26,7 @@ pub(crate) fn parse_block(body: &Node, code_bytes: &[u8], uri: Option<String>) -
         // }
 
         statements.push((
-            Statement::from((node.child(0).unwrap(), code_bytes)),
+            Statement::from_node(node.child(0).unwrap(), code_bytes).unwrap_or_default(),
             map_option(node.child(1), |node| Token::from_node(node?, code_bytes)),
         ))
     }

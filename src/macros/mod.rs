@@ -10,10 +10,10 @@ mod impl_print_struct;
 /// Macro used to error when an unhandled variant is met.
 macro_rules! unhandled_kind {
     ($variable: ident, $currently_parsing: literal) => {{
-        eprintln!(
-            "Reached unhandled kind '{}' when parsing `{}`.",
-            $variable, $currently_parsing
-        );
+        // eprintln!(
+        //     "Reached unhandled kind '{}' when parsing `{}`.",
+        //     $variable, $currently_parsing
+        // );
         None
     }};
 }

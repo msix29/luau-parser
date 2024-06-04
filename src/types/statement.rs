@@ -12,9 +12,13 @@ use super::{
 };
 
 /// All possible tokens in an [`ast`](Ast).
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum Statement {
+    /// This statement had an error and couldn't parse anything.
+    #[default]
+    ERROR,
+
     /// A variable declaration.
     ///
     /// ```lua
