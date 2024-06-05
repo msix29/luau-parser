@@ -1,3 +1,5 @@
+//! `Impl`s for [`Reference`] and [`References`].
+
 use std::{
     ops::Deref,
     sync::{LockResult, MutexGuard},
