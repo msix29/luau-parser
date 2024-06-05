@@ -2,12 +2,18 @@
 
 use std::num::{ParseFloatError, ParseIntError};
 
-use crate::prelude::Token;
+use crate::{generate_derives, prelude::Token};
 
-/// A struct representing a string literal.
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
-pub struct StringLiteral(pub Token);
+
+generate_derives! {
+    /// A struct representing a string literal.
+    pub struct StringLiteral(pub Token);
+}
+
+generate_derives! {
+    /// A struct representing a number literal.
+    pub struct Number(pub Token);
+}
 
 /// An enum representing the return type of [`Number::parse`]..
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
@@ -34,8 +40,3 @@ pub enum ParseNumberError {
     /// Other numbers in Roblox are stored as floats.
     Other(ParseFloatError),
 }
-
-/// A struct representing a number literal.
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
-pub struct Number(pub Token);

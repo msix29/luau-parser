@@ -3,22 +3,19 @@
 use std::sync::Arc;
 
 use crate::prelude::{
-    Ast, Expression, HasRange, HasRawValue, List, Position, Statement, Token, TypeValue, Var,
+    Ast, Expression, HasRange, HasRawValue, List, Position, Reference, Statement, Token, TypeValue, Var
 };
 
 type Variable = (Token, Option<Arc<TypeValue>>, Arc<Expression>);
 
-/// Finds a variable with a specific name in a specific [`ast`](Ast). The
-/// [`position`](Position) is needed so that it finds the variable that's before it.
-///
-/// # Note
-///
-/// This function has a lot of `clone()`ing, but it should be cheap as it's mostly for
-/// `Arc<T>`s.
-pub fn find_variable<'a>(
-    ast: &'a Ast,
+/// Crate-level version of [`find_variable`], this has the ability to return `None` even
+/// if it found the variable, just to avoid all the `.clone()`ing when the only need for
+/// it so to add to the `references` table.
+pub(crate) fn find_variable_inner<'a>(
+    ast: &'a mut Ast,
     variable_name: &'a str,
     position: &Position,
+    only_increment: bool,
 ) -> Option<Variable> {
     for (statement, _) in ast.statements.iter().rev() {
         match statement {
@@ -29,6 +26,13 @@ pub fn find_variable<'a>(
 
                 for (i, normalized_name) in local_assignment.name_list.iter().enumerate() {
                     if normalized_name.name.word == variable_name {
+                        if only_increment {
+                            normalized_name.references.lock().unwrap().push(Reference {
+                                uri: todo!(),
+                                range: todo!(),
+                            })
+                        }
+
                         if let Some(expression) = local_assignment.expressions.get(i) {
                             return Some((
                                 normalized_name.name.clone(),
@@ -143,4 +147,19 @@ pub fn find_variable<'a>(
     }
 
     None
+}
+
+/// Finds a variable with a specific name in a specific [`ast`](Ast). The
+/// [`position`](Position) is needed so that it finds the variable that's before it.
+///
+/// # Note
+///
+/// This function has a lot of `clone()`ing, but it should be cheap as it's mostly for
+/// `Arc<T>`s.
+pub fn find_variable<'a>(
+    mut ast: &'a Ast,
+    variable_name: &'a str,
+    position: &Position,
+) -> Option<Variable> {
+    find_variable_inner(&mut ast, variable_name, position, false)
 }

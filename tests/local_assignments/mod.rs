@@ -1,16 +1,19 @@
 mod table;
 
+#[cfg(not(feature = "references"))]
 use std::sync::Arc;
 
 #[cfg(feature = "raw-values")]
 use luau_parser::prelude::HasRawValue;
+#[cfg(not(feature = "references"))]
+use luau_parser::types::{
+    Expression, FunctionArguments, FunctionCall, FunctionCallInvoked, List, PrefixExp, Range,
+    Token, Var, VariableName,
+};
 use luau_parser::{
     get_item_from_tuple_enum,
     prelude::LuauParser,
-    types::{
-        Expression, FunctionArguments, FunctionCall, FunctionCallInvoked, List, PrefixExp, Print,
-        Range, Statement, Token, Var, VariableName,
-    },
+    types::{Print, Statement},
 };
 
 #[test]
@@ -52,6 +55,7 @@ fn local_assignment_2() {
     assert_eq!(assignment.expressions.len(), 2);
     #[cfg(feature = "raw-values")]
     assert_eq!(assignment.expressions[0].get_raw_value(), "1");
+    #[cfg(not(feature = "references"))]
     assert_eq!(
         **assignment.expressions[1],
         Expression::FunctionCall(FunctionCall {

@@ -5,7 +5,6 @@
 //!
 
 pub mod block;
-// pub mod comment;
 pub mod expression;
 pub mod function;
 pub mod list;
@@ -14,6 +13,8 @@ pub mod local_assignment;
 pub mod name;
 pub mod position;
 pub mod range;
+#[cfg(feature = "references")]
+pub mod reference;
 pub mod set_expressions;
 pub mod statement;
 pub mod token;
@@ -66,7 +67,9 @@ macro_rules! impl_statement {
         impl $trait for Statement {
             fn $fn_name(&self) -> $return {
                 match self {
-                    Self::ERROR => panic!("Attempt to call {} an error variant.", stringify!($fn_name)),
+                    Self::ERROR => {
+                        panic!("Attempt to call {} an error variant.", stringify!($fn_name))
+                    }
                     Self::LocalAssignment(value) => value.$fn_name(),
                     Self::TypeDefinition(value) => value.$fn_name(),
                     Self::IfStatement(value) => value.$fn_name(),

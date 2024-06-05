@@ -4,114 +4,120 @@ use std::sync::Arc;
 
 use smol_str::SmolStr;
 
-use crate::prelude::{Expression, List, StringLiteral, Token, TypeValue};
+use crate::{
+    generate_derives,
+    prelude::{Expression, List, StringLiteral, Token, TypeValue},
+};
 
-/// A possible key entry in a table. The key is usually a string, but it can be a value
-/// (from an expression) in tables or a type in type definitions.
-///
-/// ```lua
-/// local t = {
-///     -- The normal string key.
-///     foo = "foo",
-///
-///     -- A Value key, it's still a string, but what's inside [] is
-///     -- always counted as an expression, even if simple.
-///     ["bar"] = "bar",
-/// }
-///
-/// type T = {
-///     -- The normal string key.
-///     foo: "foo",
-///
-///     -- A Type key, it indicates that the key can be any string, not the word "string".
-///     [string]: number,
-/// }
-/// ```
-#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub enum TableKey {
-    /// This [`TableKey`] had a syntax error.
-    #[default]
-    ERROR,
+generate_derives! {
+    Default,
+    /// A possible key entry in a table. The key is usually a string, but it can be a value
+    /// (from an expression) in tables or a type in type definitions.
+    ///
+    /// ```lua
+    /// local t = {
+    ///     -- The normal string key.
+    ///     foo = "foo",
+    ///
+    ///     -- A Value key, it's still a string, but what's inside [] is
+    ///     -- always counted as an expression, even if simple.
+    ///     ["bar"] = "bar",
+    /// }
+    ///
+    /// type T = {
+    ///     -- The normal string key.
+    ///     foo: "foo",
+    ///
+    ///     -- A Type key, it indicates that the key can be any string, not the word "string".
+    ///     [string]: number,
+    /// }
+    /// ```
+    pub enum TableKey {
+        /// This [`TableKey`] had a syntax error.
+        #[default]
+        ERROR,
 
-    /// Cases in which a key wasn't provided, it's guessed as a number in that case.
-    UndefinedNumber(i32),
+        /// Cases in which a key wasn't provided, it's guessed as a number in that case.
+        UndefinedNumber(i32),
 
-    /// Cases in which a key wasn't provided, it's guessed as `[number]`. It has no other
-    /// possible values than `[number]`.
-    UndefinedString(SmolStr),
+        /// Cases in which a key wasn't provided, it's guessed as `[number]`. It has no other
+        /// possible values than `[number]`.
+        UndefinedString(SmolStr),
 
-    /// Simple key
-    String(StringLiteral),
+        /// Simple key
+        String(StringLiteral),
 
-    /// An expression, can only be used in definitions and not in types.
-    Expression {
-        /// The `[` character.
-        open_square_brackets: Token,
+        /// An expression, can only be used in definitions and not in types.
+        Expression {
+            /// The `[` character.
+            open_square_brackets: Token,
 
-        /// The actual expression between the `[...]`.
-        expression: Arc<Expression>,
+            /// The actual expression between the `[...]`.
+            expression: Arc<Expression>,
 
-        /// The `]` character.
-        close_square_brackets: Token,
-    },
+            /// The `]` character.
+            close_square_brackets: Token,
+        },
 
-    /// A type definition, can only be used in other types and not definitions.
-    Type {
-        /// The `[` character.
-        open_square_brackets: Token,
+        /// A type definition, can only be used in other types and not definitions.
+        Type {
+            /// The `[` character.
+            open_square_brackets: Token,
 
-        /// The actual type between the `[...]`.
-        r#type: Arc<TypeValue>,
+            /// The actual type between the `[...]`.
+            r#type: Arc<TypeValue>,
 
-        /// The `]` character.
-        close_square_brackets: Token,
-    },
+            /// The `]` character.
+            close_square_brackets: Token,
+        },
+    }
 }
 
-/// A struct representing one table field. It'll always have a [`key`](TableKey) and a
-/// value that's either a [`type`](TypeDefinition) or an [`expression`](Expression). See
-/// [`table field values`](TableFieldValue).
-#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub struct TableField {
-    /// The [`key`](TableKey) used to index field.
-    pub key: Arc<TableKey>,
+generate_derives! {
+    Default,
+    /// A struct representing one table field. It'll always have a [`key`](TableKey) and a
+    /// value that's either a [`type`](TypeDefinition) or an [`expression`](Expression). See
+    /// [`table field values`](TableFieldValue).
+    pub struct TableField {
+        /// The [`key`](TableKey) used to index field.
+        pub key: Arc<TableKey>,
 
-    /// The `=` or `:` tokens, it's `=` in variables and `:` in types.
-    pub equal_or_colon: Option<Token>,
+        /// The `=` or `:` tokens, it's `=` in variables and `:` in types.
+        pub equal_or_colon: Option<Token>,
 
-    /// The value of theis field. An expression in variables and a type in type
-    /// definitions.
-    pub value: Arc<TableFieldValue>,
+        /// The value of theis field. An expression in variables and a type in type
+        /// definitions.
+        pub value: Arc<TableFieldValue>,
+    }
 }
 
-/// A possible value for a [`table field`](TableField).
-#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub enum TableFieldValue {
-    /// This [`TableFieldValue`] had a syntax error.
-    #[default]
-    ERROR,
+generate_derives! {
+    Default,
+    /// A possible value for a [`table field`](TableField).
+    pub enum TableFieldValue {
+        /// This [`TableFieldValue`] had a syntax error.
+        #[default]
+        ERROR,
 
-    /// An [`expression`](Expression), can be found in declarations of tables as variables
-    /// only.
-    Expression(Expression),
+        /// An [`expression`](Expression), can be found in declarations of tables as variables
+        /// only.
+        Expression(Expression),
 
-    /// A [`type`](TypeValue), can be found in type definitions only.
-    Type(TypeValue),
+        /// A [`type`](TypeValue), can be found in type definitions only.
+        Type(TypeValue),
+    }
 }
 
-/// Struct representing a luau table.
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub struct Table {
-    /// The `{` character.
-    pub opening_brackets: Token,
+generate_derives! {
+    /// Struct representing a luau table.
+    pub struct Table {
+        /// The `{` character.
+        pub opening_brackets: Token,
 
-    /// The actual [`fields`](TableField) of the table.
-    pub fields: List<TableField>,
+        /// The actual [`fields`](TableField) of the table.
+        pub fields: List<TableField>,
 
-    /// The `}` character.
-    pub closing_brackets: Token,
+        /// The `}` character.
+        pub closing_brackets: Token,
+    }
 }

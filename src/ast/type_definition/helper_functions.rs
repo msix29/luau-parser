@@ -1,16 +1,16 @@
 //! Helper functions.
 
-use std::sync::Arc;
-
 use smol_str::SmolStr;
+use std::sync::Arc;
 use tree_sitter::Node;
 
+#[cfg(feature = "references")]
+use crate::types::References;
 use crate::{
-    prelude::{FromNode, FromNodeWithArgs},
     types::{
-        GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo, List, ListItem,
-        NormalizedName, StringLiteral, Table, TableField, TableFieldValue, TableKey, Token,
-        TypeValue,
+        FromNode, FromNodeWithArgs, GenericDeclaration, GenericDeclarationParameter,
+        GenericParameterInfo, List, ListItem, NormalizedName, StringLiteral, Table, TableField,
+        TableFieldValue, TableKey, Token, TypeValue,
     },
     utils::map_option,
 };
@@ -125,6 +125,8 @@ pub(crate) fn build_function_parameters(
                     name: Token::from("_"),
                     colon: None,
                     r#type: TypeValue::from_node(parameter.child(0)?, code_bytes).map(Arc::new),
+                    #[cfg(feature = "references")]
+                    references: References::new(),
                 })
             } else {
                 Some(normalized_name)
@@ -138,6 +140,8 @@ pub(crate) fn build_function_parameters(
                 name: Token::from(""),
                 colon: None,
                 r#type: TypeValue::from_node(variadic.child(0)?, code_bytes).map(Arc::new),
+                #[cfg(feature = "references")]
+                references: References::new(),
             }
         } else {
             NormalizedName {
@@ -153,6 +157,8 @@ pub(crate) fn build_function_parameters(
                         TypeValue::from_node(r#type, code_bytes).map(Arc::new)
                     }
                 }),
+                #[cfg(feature = "references")]
+                references: References::new(),
             }
         };
 
@@ -169,7 +175,7 @@ pub(crate) fn build_function_returns(node: Node, code_bytes: &[u8]) -> Option<Ar
     let node = node
         .child_by_field_name("return")
         .or(node.child_by_field_name("returns"));
-    
+
     map_option(node, |return_node| {
         TypeValue::from_node(return_node?, code_bytes).map(Arc::new)
     })

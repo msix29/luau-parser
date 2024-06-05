@@ -2,12 +2,14 @@
 
 use std::sync::Arc;
 
-use crate::prelude::{Ast, Expression, Token};
+use crate::{
+    generate_derives,
+    prelude::{Ast, Expression, Token},
+};
 
-/// A struct representing an if statement
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub struct IfStatement {
+generate_derives! {
+    /// A struct representing an `if` statement
+    pub struct IfStatement {
     /// The `if` keyword.
     pub if_keyword: Token,
 
@@ -28,12 +30,12 @@ pub struct IfStatement {
 
     /// The `end` keyword
     pub end_keyword: Token,
+    }
 }
 
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
-/// A struct representing an if statement
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub struct ElseIfStatement {
+generate_derives! {
+    /// A struct representing an `elseif` statement
+    pub struct ElseIfStatement {
     /// The `elseif` keyword.
     pub elseif_keyword: Token,
 
@@ -45,15 +47,16 @@ pub struct ElseIfStatement {
 
     /// The body that'll be excuted if condition is truthy.
     pub body: Ast,
+    }
 }
 
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
-/// A struct representing an if statement
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub struct ElseStatement {
+generate_derives! {
+    /// A struct representing an `else` statement
+    pub struct ElseStatement {
     /// The `else` keyword.
     pub else_keyword: Token,
 
     /// The body of the else statement.
     pub body: Ast,
+    }
 }
