@@ -19,6 +19,8 @@ mod local_assignment;
 mod name;
 mod position;
 mod range;
+#[cfg(feature = "references")]
+mod references;
 mod set_expressions;
 mod statement;
 mod token;
@@ -35,6 +37,8 @@ pub use local_assignment::*;
 pub use name::*;
 pub use position::*;
 pub use range::*;
+#[cfg(feature = "references")]
+pub use references::*;
 pub use set_expressions::*;
 pub use statement::*;
 pub use token::*;
