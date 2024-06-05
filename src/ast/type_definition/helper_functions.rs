@@ -24,9 +24,8 @@ impl FromNodeWithArgs<((), ())> for Table {
         let closing_brackets =
             Token::from_node(node.child_by_field_name("closing_brackets")?, code_bytes)?;
 
-        let Some(fields_list) = node
-            .child_by_field_name("fields")
-            .map(|node| node.child(0).unwrap())
+        let Some(fields_list) =
+            map_option(node.child_by_field_name("fields"), |node| node?.child(0))
         else {
             return Some(Table {
                 opening_brackets,
@@ -167,11 +166,13 @@ pub(crate) fn build_function_parameters(
 
 /// Build function returns from a node representing a function.
 pub(crate) fn build_function_returns(node: Node, code_bytes: &[u8]) -> Option<Arc<TypeValue>> {
-    map_option(
-        node.child_by_field_name("return")
-            .or(node.child_by_field_name("returns")),
-        |return_node| TypeValue::from_node(return_node?, code_bytes).map(Arc::new),
-    )
+    let node = node
+        .child_by_field_name("return")
+        .or(node.child_by_field_name("returns"));
+    
+    map_option(node, |return_node| {
+        TypeValue::from_node(return_node?, code_bytes).map(Arc::new)
+    })
 }
 
 /// Build the generics of a function.

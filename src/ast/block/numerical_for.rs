@@ -9,7 +9,7 @@ use crate::{
         DoBlock, Expression, FromNode, HasRange, LuauStatement, NormalizedName, NumericalFor,
         Range, Token,
     },
-    utils::get_range_from_boundaries,
+    utils::{get_range_from_boundaries, map_option},
 };
 
 impl LuauStatement for NumericalFor {
@@ -29,12 +29,10 @@ impl LuauStatement for NumericalFor {
             start: Expression::from_node(node.child(3)?, code_bytes).map(Arc::new)?,
             start_comma: Token::from_node(node.child(4)?, code_bytes)?,
             end: Expression::from_node(node.child(5)?, code_bytes).map(Arc::new)?,
-            end_comma: node
-                .child(6)
-                .map(|node| Token::from_node(node, code_bytes).unwrap()), //todo
-            step: node
-                .child(7)
-                .map(|node| Expression::from_node(node, code_bytes).map(Arc::new))?,
+            end_comma: map_option(node.child(6), |node| Token::from_node(node?, code_bytes)), //todo
+            step: map_option(node.child(7), |node| {
+                Expression::from_node(node?, code_bytes).map(Arc::new)
+            }),
             do_block: DoBlock::try_from_node(
                 node.child_by_field_name("doBlock").unwrap(),
                 cursor,

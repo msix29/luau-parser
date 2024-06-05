@@ -163,7 +163,10 @@ impl HasRange for TypeDefinition {
             self.export_keyword
                 .as_ref()
                 .or(self.type_keyword.as_ref())
-                .map_or_else(|| self.type_value.get_range(), |a| a.get_range()),
+                .map_or_else(
+                    || self.type_value.get_range(),
+                    |keyword| keyword.get_range(),
+                ),
             self.type_value.get_range(),
         )
     }

@@ -51,9 +51,9 @@ impl FromNodeWithArgs<()> for Table {
 
                     Some(TableField {
                         key: Arc::new(key),
-                        equal_or_colon: node
-                            .child_by_field_name("equal")
-                            .map(|node| Token::from_node(node, code_bytes))?,
+                        equal_or_colon: map_option(node.child_by_field_name("equal"), |node| {
+                            Token::from_node(node?, code_bytes)
+                        }),
                         value: Arc::new(TableFieldValue::Expression(Expression::from_node(
                             node.child_by_field_name("value")?,
                             code_bytes,
