@@ -3,8 +3,10 @@
 use crate::prelude::{Range, Position};
 
 impl Position {
+    pub const MAX: Position = Position::new(u32::MAX, u32::MAX);
+
     /// Create a new [`position`](Position).
-    pub fn new(line: u32, character: u32) -> Self {
+    pub const fn new(line: u32, character: u32) -> Self {
         Self { character, line }
     }
 

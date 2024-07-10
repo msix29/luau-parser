@@ -1,39 +1,90 @@
 //! The main item of this crate, the actual [`parser`](LuauParser).
 
+#[cfg(feature = "references")]
+use lazy_static::lazy_static;
+#[cfg(feature = "references")]
+use smol_str::SmolStr;
 #[cfg(feature = "cache")]
 use std::collections::HashMap;
 use std::sync::Arc;
-
+#[cfg(feature = "references")]
+use std::sync::RwLock;
 #[cfg(feature = "incremental-parsing")]
 use tree_sitter::InputEdit;
 #[cfg(feature = "cache")]
 use tree_sitter::Tree;
 use tree_sitter::{Node, Parser};
 
+#[cfg(feature = "references")]
+lazy_static! {
+    pub(crate) static ref CURRENT_URI: RwLock<Arc<SmolStr>> =
+        RwLock::new(Arc::new(SmolStr::new("")));
+    pub(crate) static ref CURRENT_AST: RwLock<Arc<Ast>> = RwLock::new(Arc::new(Ast::default()));
+}
+
 use crate::{
-    prelude::{Ast, AstStatus, FromNode, LastStatement, Statement, Token},
+    prelude::{Ast, AstStatus, FromNode, LastStatement, Statement, Statements, Token},
     utils::map_option,
 };
 
 /// Parses a code block and fills `tokens` with the parsed ones. The tokens can then
 /// be used to make the syntax tre.
 pub(crate) fn parse_block(body: &Node, code_bytes: &[u8], uri: Option<String>) -> Ast {
-    let mut statements = Vec::new();
+    let statements = Statements::new();
+    #[cfg(feature = "references")]
+    {
+        *CURRENT_AST.write().unwrap() = Arc::new(Ast {
+            statements,
+            last_statement: map_option(
+                body.child_by_field_name("lastStatement"),
+                |last_statement| {
+                    LastStatement::from_node(last_statement?, code_bytes).map(Arc::new)
+                },
+            ),
+            status: if body.has_error() {
+                AstStatus::HasErrors
+            } else {
+                AstStatus::Complete
+            },
+            #[cfg(feature = "references")]
+            parent: if uri.is_some() {
+                None
+            } else {
+                Some(CURRENT_AST.read().unwrap().clone())
+            },
+            uri: uri.map(|uri| uri.into()),
+        });
+    }
 
     for node in body.children_by_field_name("statement", &mut body.walk()) {
         // if node.has_error() {
         //     continue;
         // }
 
-        statements.push((
+        let statement = (
             Statement::from_node(node.child(0).unwrap(), code_bytes).unwrap_or_default(),
             map_option(node.child(1), |node| Token::from_node(node?, code_bytes)),
-        ))
+        );
+
+        #[cfg(not(feature = "references"))]
+        statements.push(statement);
+        #[cfg(feature = "references")]
+        CURRENT_AST.write().unwrap().statements.push(statement);
     }
 
+    #[cfg(feature = "references")]
+    return {
+        let current_ast = CURRENT_AST.read().unwrap();
+        if let Some(parent) = &current_ast.parent {
+            *CURRENT_AST.write().unwrap() = parent.clone();
+        }
+
+        (**current_ast).clone()
+    };
+
+    #[cfg(not(feature = "references"))]
     Ast {
-        uri: uri.map(|uri| uri.into()),
-        statements: Arc::new(statements),
+        statements,
         last_statement: map_option(
             body.child_by_field_name("lastStatement"),
             |last_statement| LastStatement::from_node(last_statement?, code_bytes).map(Arc::new),
@@ -43,6 +94,13 @@ pub(crate) fn parse_block(body: &Node, code_bytes: &[u8], uri: Option<String>) -
         } else {
             AstStatus::Complete
         },
+        #[cfg(feature = "references")]
+        parent: if uri.is_some() {
+            None
+        } else {
+            Some(CURRENT_AST.read().unwrap().clone())
+        },
+        uri: uri.map(|uri| uri.into()),
     }
 }
 
@@ -61,7 +119,7 @@ pub struct LuauParser {
 impl LuauParser {
     /// Create a new [`parser`](LuauParser).
     pub fn new() -> Self {
-        let mut parser = tree_sitter::Parser::new();
+        let mut parser = Parser::new();
         parser
             .set_language(&tree_sitter_luau::language())
             .expect("Error loading Luau grammar");
@@ -90,6 +148,13 @@ impl LuauParser {
         // this `cfg`.
         #[cfg(windows)]
         let code = &code.replace('\r', "");
+
+        #[cfg(feature = "references")]
+        #[allow(clippy::unnecessary_operation)] // False warning.
+        {
+            *CURRENT_URI.write().unwrap() = Arc::new(uri.into());
+            // *CURRENT_AST.write().unwrap() = Arc::new(Ast::default());
+        };
 
         #[cfg(not(feature = "incremental-parsing"))]
         let tree = self.parser.parse(code, None).unwrap();
@@ -120,15 +185,20 @@ impl LuauParser {
         }
     }
 
-    /// Get a specific [`ast`](Ast) from the cache, this function assumes the ast does
-    /// exist. If it may or may not exist, use [`maybe_get_ast`](LuauParser::maybe_get_ast).
+    /// Get a specific [`ast`] from the cache, this function assumes the ast does
+    /// exist. If it may or may not exist, use [`maybe_get_ast`].
+    ///
+    /// [`maybe_get_ast`]: Self::maybe_get_ast
+    /// [`ast`]: Ast
     #[cfg(feature = "cache")]
     pub fn get_ast(&self, uri: &str) -> &Ast {
         &self.cache.get(uri).unwrap().0
     }
 
-    /// Get a specific [`ast`](Ast) from the cache, or parse `code` and return the
-    /// [`ast`](Ast).
+    /// Get a specific [`ast`] from the cache, or parse `code` and return the
+    /// [`ast`].
+    ///
+    /// [`ast`]: Ast
     pub fn get_or_create(&mut self, uri: &str, code: &str) -> Ast {
         #[cfg(feature = "cache")]
         if let Some(ast) = self.maybe_get_ast(uri) {
@@ -138,8 +208,11 @@ impl LuauParser {
         self.parse(code, uri)
     }
 
-    /// Get a specific ast from the cache, this function is the safer version of
-    /// [`get_ast`](LuauParser::get_ast).
+    /// Get a specific [`ast`] from the cache, this function, unlike [`get_ast`], doesn't
+    /// error when the [`ast`] isn't there.
+    ///
+    /// [`get_ast`]: LuauParser::get_ast.
+    /// [`ast`]: Ast
     #[cfg(feature = "cache")]
     pub fn maybe_get_ast(&self, uri: &str) -> Option<&Ast> {
         self.cache.get(uri).map(|item| &item.0)

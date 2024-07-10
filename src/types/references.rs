@@ -10,7 +10,7 @@ use super::Range;
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Reference {
     /// The file that this reference is in.
-    pub uri: SmolStr,
+    pub uri: Arc<SmolStr>,
 
     /// The position of the reference.
     pub range: Range,

@@ -12,12 +12,12 @@ tree-sitter = "^0.22.1"
 tree-sitter-luau = { path = "../grammar" }
 
 [features]
-default = ["cache", "references"] # TODO: Remove.
+default = ["cache"]
 cache = []
 incremental-parsing = ["cache"]
 lsp-ready = ["regex", "cache", "references"]
 raw-values = []
-references = []
+references = ["dep:lazy_static"]
 regex = ["dep:regex", "raw-values", "dep:lazy_static"]
 serde = ["dep:serde"]
 

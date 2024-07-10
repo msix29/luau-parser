@@ -19,13 +19,13 @@ generate_derives! {
         /// The actual name.
         pub name: Token,
 
-        /// The type that was with this name, defined with the `: type` syntax.
+        /// `:` character.
         pub colon: Option<Token>,
 
         /// The type that was with this name, defined with the `: type` syntax.
         pub r#type: Option<Arc<TypeValue>>,
 
-        /// The type that was with this name, defined with the `: type` syntax.
+        /// All references to this name.
         #[cfg(feature = "references")]
         pub references: References,
     }

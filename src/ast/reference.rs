@@ -2,10 +2,13 @@
 
 use std::{
     ops::Deref,
-    sync::{LockResult, MutexGuard},
+    sync::{LockResult, MutexGuard, PoisonError},
 };
 
 use crate::prelude::{Reference, References, ReferencesInner};
+
+/// The type describing the [`MutexGuard`] for [`References`].
+pub type Guard<'a> = MutexGuard<'a, Vec<Reference>>;
 
 impl References {
     #[inline]
@@ -15,8 +18,14 @@ impl References {
     }
 
     /// Obtains the lock from [`Mutex::lock`].
-    pub fn lock(&self) -> LockResult<MutexGuard<'_, Vec<Reference>>> {
+    pub fn lock(&self) -> LockResult<Guard> {
         self.0.lock()
+    }
+
+    /// Appends a [`reference`](Reference) to the back of the references..
+    pub fn push(&self, reference: Reference) -> Result<(), PoisonError<Guard>> {
+        self.lock()?.push(reference);
+        Ok(())
     }
 }
 

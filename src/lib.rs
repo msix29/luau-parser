@@ -31,10 +31,11 @@
 //!     can still be used, for example, lua 5.1, but features limited to a version of lua
 //!     won't work, for example attributes in lua 5.3.
 
-#![forbid(unsafe_code)]
-#![warn(clippy::missing_docs_in_private_items)]
-#![warn(clippy::arc_with_non_send_sync)]
-#![warn(missing_docs)]
+#![deny(unsafe_code)]
+// #![warn(clippy::missing_docs_in_private_items)]
+// #![warn(clippy::arc_with_non_send_sync)]
+// #![warn(missing_docs)]
+#![allow(unused)]
 #![warn(clippy::absolute_paths)]
 
 pub mod ast;

@@ -18,3 +18,19 @@ macro_rules! generate_derives {
         $item
     };
 }
+
+#[macro_export]
+/// Generates minimum derives for `item`. Same syntax as [`generate_derives`]
+macro_rules! generate_derives_minimum {
+    ($($extras: ident)+, $item: item) => {
+        #[derive(Debug $(, $extras)*)]
+        #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+        $item
+    };
+
+    ($item: item) => {
+        #[derive(Debug)]
+        #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+        $item
+    };
+}

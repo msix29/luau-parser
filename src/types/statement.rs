@@ -3,14 +3,22 @@
 //! Module holding types that'll be used everywhere around the parser and most likely
 //! outside it too, like in a formatter or a lsp.
 use smol_str::SmolStr;
-use std::sync::Arc;
+use std::{
+    marker::PhantomData,
+    sync::{Arc, Mutex, MutexGuard, RwLock, RwLockReadGuard, RwLockWriteGuard},
+};
 
 use super::{
     CompoundSetExpression, DoBlock, Expression, FunctionCall, GenericFor, GlobalFunction,
     IfStatement, List, LocalAssignment, LocalFunction, NumericalFor, RepeatBlock, SetExpression,
     Token, TypeDefinition, WhileLoop,
 };
-use crate::generate_derives;
+use crate::{generate_derives, generate_derives_minimum};
+
+pub type StatementInner = (Statement, Option<Token>);
+pub type StatementsInner = Arc<RwLock<Vec<StatementInner>>>;
+pub type ReadGuard<'a> = RwLockReadGuard<'a, Vec<StatementInner>>;
+pub type WriteGuard<'a> = RwLockWriteGuard<'a, Vec<StatementInner>>;
 
 generate_derives! {
     Default,
@@ -211,6 +219,17 @@ generate_derives! {
         IncompleteAst,
     }
 }
+generate_derives_minimum! {
+    Default,
+    /// A struct representing all statements in an [`ast`](Ast).
+    pub struct Statements(pub(crate) StatementsInner);
+}
+
+pub struct StatementsIter<'a> {
+    pub(crate) index: usize,
+    pub(crate) end: usize,
+    pub(crate) vec: ReadGuard<'a>,
+}
 
 generate_derives! {
     Default,
@@ -225,7 +244,7 @@ generate_derives! {
         /// The tokens in the of this [`ast`](Ast) **only**. Parent [`asts`](Ast)' tokens won't
         /// be included. The optional [`SingleToken`] is the optional semicolon after the
         /// statement.
-        pub statements: Arc<Vec<(Statement, Option<Token>)>>,
+        pub statements: Statements,
 
         /// The [`last statement`](LastStatement) in this scope.
         pub last_statement: Option<Arc<LastStatement>>,
@@ -234,5 +253,10 @@ generate_derives! {
         /// better to not use it for operations which affect the source code, like formatting;
         /// the output will have missing parts of the code.
         pub status: AstStatus,
+
+        #[cfg(feature = "references")]
+        /// The parent of the current [`ast`](Ast), aka it's parent scope. If
+        /// [`uri`](Ast::uri) is present, this field won't be present.
+        pub parent: Option<Arc<Ast>>,
     }
 }

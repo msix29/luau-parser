@@ -1,11 +1,11 @@
 $features = @(
-    # "default",
-    # "cache",
-    # "incremental-parsing",
-    # "lsp-ready",
-    # "raw-values",
-    # "references",
-    # "regex",
+    "default",
+    "cache",
+    "incremental-parsing",
+    "lsp-ready",
+    "raw-values",
+    "references",
+    "regex",
     "serde"
 )
 function Get-Combinations {
@@ -25,7 +25,7 @@ function Get-Combinations {
 $result = Get-Combinations -arr $features
 
 Write-Host "Combinations: $($result.Length)"
-$result
+# $result
 
 for ($i = 0; $i -lt $features.Count + 1; $i++) {
     for ($combo = 0; $combo -lt [Math]::Pow(2, $features.Count); $combo++) {
