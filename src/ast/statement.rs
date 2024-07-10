@@ -200,10 +200,9 @@ impl Eq for Statements {}
 
 #[cfg(not(feature = "references"))]
 impl PartialOrd for Statements {
+    #[inline]
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        let self_vec = self.0.read().unwrap();
-        let other_vec = other.0.read().unwrap();
-        self_vec.partial_cmp(&other_vec)
+        Some(self.cmp(other))
     }
 }
 
