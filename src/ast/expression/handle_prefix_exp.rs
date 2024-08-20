@@ -15,38 +15,50 @@ use crate::{
     utils::get_range_from_boundaries,
 };
 
-//TODO: Split
-impl FromNode for TableAccess {
+impl FromNode for TableAccessPrefix {
     fn from_node(node: Node, code_bytes: &[u8]) -> Option<Self> {
-        let table_node = node.child_by_field_name("table").unwrap_or(node);
-        let prefix = match table_node.kind() {
-            "functionCall" => TableAccessPrefix::FunctionCall(Arc::new(FunctionCall::from_node(
-                table_node, code_bytes,
-            )?)),
-            "exp_wrap" => match PrefixExp::from_node(table_node, code_bytes)? {
+        match node.kind() {
+            "functionCall" => Some(TableAccessPrefix::FunctionCall(Arc::new(
+                FunctionCall::from_node(node, code_bytes)?,
+            ))),
+            "exp_wrap" => match PrefixExp::from_node(node, code_bytes)? {
                 PrefixExp::ExpressionWrap(value) => {
-                    TableAccessPrefix::ExpressionWrap(Arc::new(value))
+                    Some(TableAccessPrefix::ExpressionWrap(Arc::new(value)))
                 }
                 _ => unreachable!("This'll always evaluate to a wrap."),
             },
-            _ => TableAccessPrefix::Name(Token::from_node(table_node, code_bytes)?),
-        };
+            _ => Some(TableAccessPrefix::Name(Token::from_node(node, code_bytes)?)),
+        }
+    }
+}
+
+impl FromNode for TableAccessKey {
+    fn from_node(node: Node, code_bytes: &[u8]) -> Option<Self> {
+        match node.kind() {
+            "field_named" => Some(TableAccessKey::Name {
+                dot: Token::from_node(node.child(0)?, code_bytes)?,
+                name: Token::from_node(node.child(1)?, code_bytes)?,
+            }),
+            "field_indexed" => Some(TableAccessKey::Expression(TableKey::Expression {
+                open_square_brackets: Token::from_node(node.child(0)?, code_bytes)?,
+                expression: Arc::new(Expression::from_node(node.child(1)?, code_bytes)?),
+                close_square_brackets: Token::from_node(node.child(2)?, code_bytes)?,
+            })),
+            _ => unreachable!("Key can't be anything else. Got {}", node.to_sexp()),
+        }
+    }
+}
+
+impl FromNode for TableAccess {
+    fn from_node(node: Node, code_bytes: &[u8]) -> Option<Self> {
+        let prefix = TableAccessPrefix::from_node(
+            node.child_by_field_name("table").unwrap_or(node),
+            code_bytes,
+        )?;
 
         let mut accessed_keys = Vec::new();
         for key in node.children_by_field_name("key", &mut node.walk()) {
-            let table_access_key = match key.kind() {
-                "field_named" => TableAccessKey::Name {
-                    dot: Token::from_node(key.child(0)?, code_bytes)?,
-                    name: Token::from_node(key.child(1)?, code_bytes)?,
-                },
-                "field_indexed" => TableAccessKey::Expression(TableKey::Expression {
-                    open_square_brackets: Token::from_node(key.child(0)?, code_bytes)?,
-                    expression: Arc::new(Expression::from_node(key.child(1)?, code_bytes)?),
-                    close_square_brackets: Token::from_node(key.child(2)?, code_bytes)?,
-                }),
-                _ => unreachable!("Key can't be anything else. Got {}", key.to_sexp()),
-            };
-            accessed_keys.push(table_access_key);
+            accessed_keys.push(TableAccessKey::from_node(key, code_bytes)?);
         }
 
         Some(TableAccess {
