@@ -3,7 +3,7 @@
 use std::ops::Deref;
 use tree_sitter::Node;
 
-#[cfg(feature = "raw-value")]
+#[cfg(feature = "raw-values")]
 use crate::types::HasRawValue;
 use crate::{
     types::{FromNode, Number, ParseNumberError, ParsedNumber, StringLiteral, Token},
