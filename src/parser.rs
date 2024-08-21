@@ -46,7 +46,6 @@ pub(crate) fn parse_block(body: &Node, code_bytes: &[u8], uri: Option<String>) -
             } else {
                 AstStatus::Complete
             },
-            #[cfg(feature = "references")]
             parent: if uri.is_some() {
                 None
             } else {
@@ -74,12 +73,12 @@ pub(crate) fn parse_block(body: &Node, code_bytes: &[u8], uri: Option<String>) -
 
     #[cfg(feature = "references")]
     return {
-        let current_ast = CURRENT_AST.read().unwrap();
+        let current_ast = (**CURRENT_AST.read().unwrap()).clone();
         if let Some(parent) = &current_ast.parent {
             *CURRENT_AST.write().unwrap() = parent.clone();
         }
 
-        (**current_ast).clone()
+        current_ast
     };
 
     #[cfg(not(feature = "references"))]
@@ -93,12 +92,6 @@ pub(crate) fn parse_block(body: &Node, code_bytes: &[u8], uri: Option<String>) -
             AstStatus::HasErrors
         } else {
             AstStatus::Complete
-        },
-        #[cfg(feature = "references")]
-        parent: if uri.is_some() {
-            None
-        } else {
-            Some(CURRENT_AST.read().unwrap().clone())
         },
         uri: uri.map(|uri| uri.into()),
     }
