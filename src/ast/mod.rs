@@ -99,7 +99,15 @@ impl Statement {
     ///
     /// # Note
     ///
-    /// This returns `None` for variables and set expressions.
+    /// This returns `None` for variables and set expressions as they may have multiple
+    /// bodies, ex:
+    ///
+    /// ```lua
+    /// local a, b = function() end, function() end
+    /// ```
+    ///
+    /// This is extremely unlikely to actually happen (as it looks ugly) but is still
+    /// possible. The behaviour is for you to decide.
     pub fn try_get_body(&self) -> Option<&Ast> {
         match self {
             Self::IfStatement(value) => Some(&value.body),
