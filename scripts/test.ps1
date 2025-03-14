@@ -1,10 +1,8 @@
 $features = @(
     "default",
     "cache",
-    "incremental-parsing",
     "lsp-ready",
     "raw-values",
-    "references",
     "regex",
     "serde"
 )
