@@ -12,9 +12,8 @@ smol_str = { version = "0.3.2", features = ["serde"] }
 [features]
 default = ["cache"]
 cache = []
-lsp-ready = ["regex", "cache", "references"]
+lsp-ready = ["regex", "cache"]
 raw-values = []
-references = ["dep:lazy_static"]
 regex = ["dep:regex", "raw-values", "dep:lazy_static"]
 serde = ["dep:serde"]
 
