@@ -29,7 +29,6 @@ reexport!(
     range,
     set_expressions,
     statement,
-    token,
     traits,
     type_definition,
     value,

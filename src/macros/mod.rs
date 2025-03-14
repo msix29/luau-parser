@@ -5,7 +5,6 @@ mod enum_matches;
 mod get_item_from_enum;
 mod impl_print_enum;
 mod impl_print_struct;
-mod generate_derives;
 
 #[macro_export]
 /// Macro used to error when an unhandled variant is met.

@@ -5,7 +5,7 @@ use luau_lexer::lexer::Lexer;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use crate::prelude::{Ast, AstStatus, LastStatement, Statement, Token};
+use crate::prelude::{Ast, AstStatus, LastStatement, Statement};
 
 /// A Luau parser.
 pub struct LuauParser<'a> {

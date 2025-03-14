@@ -2,22 +2,9 @@
 
 use std::num::{ParseFloatError, ParseIntError};
 
-use crate::{generate_derives, prelude::Token};
-
-
-generate_derives! {
-    /// A struct representing a string literal.
-    pub struct StringLiteral(pub Token);
-}
-
-generate_derives! {
-    /// A struct representing a number literal.
-    pub struct Number(pub Token);
-}
-
 /// An enum representing the return type of [`Number::parse`]..
+#[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub enum ParsedNumber {
     /// A hex or byte, the Roblox' maximum number is [`i64`]. But users may input
     /// larger numbers, and for comparison, in linters for example, that maximum would be

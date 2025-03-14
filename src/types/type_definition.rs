@@ -2,428 +2,426 @@
 //!
 //! Module containg definition for type definitions.
 
+use luau_lexer::prelude::{LuauString, Token};
 use std::sync::Arc;
 
-use super::{FunctionCall, List, NormalizedName, StringLiteral, Table, Token, Var};
-use crate::{generate_derives, prelude::Expression};
+use super::{FunctionCall, List, NormalizedName, Table, Var};
+use crate::prelude::Expression;
 
-generate_derives! {
-    Default,
-    /// Possible values for a type.
-    pub enum TypeValue {
-        /// This [`TypeValue`] had a syntax error.
-        #[default]
-        ERROR,
+/// Possible values for a type.
+#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+pub enum TypeValue {
+    /// This [`TypeValue`] had a syntax error.
+    #[default]
+    ERROR,
 
-        /// Just a reference to another type.
+    /// Just a reference to another type.
+    ///
+    /// ```lua
+    /// type Foo = Bar
+    /// ```
+    Basic(Token),
+
+    /// A singletone string.
+    ///
+    /// ```lua
+    /// type Foo = "Bar"
+    /// ```
+    String(LuauString),
+
+    /// A boolean value
+    ///
+    /// ```lua
+    /// type Foo = true
+    /// type Bar = false
+    /// ```
+    Boolean(Token),
+
+    /// A wrape of another type, the difference between this and a
+    /// [`tuple`](TypeValue::Tuple) is that this item always have one type and only one
+    /// type in it, while a [`tuple`](TypeValue::Tuple) can have any, even 0.
+    ///
+    /// ```lua
+    /// type Foo = (bar)
+    /// ```
+    Wrap {
+        /// The `(` character.
+        opening_parenthesis: Token,
+
+        /// The type wrapped in between the parenthesis.
+        r#type: Arc<TypeValue>,
+
+        /// The `)` character.
+        closing_parenthesis: Token,
+    },
+
+    /// A function type.
+    ///
+    /// ```lua
+    /// type Foo = (arg1: number) -> (boolean, string)`
+    /// ```
+    Function {
+        /// Optional generics provided for the function.
         ///
         /// ```lua
-        /// type Foo = Bar
+        /// type Foo = <P, R>(paramter: P) -> R
         /// ```
-        Basic(Token),
+        generics: Option<Box<GenericDeclaration>>,
 
-        /// A singletone string.
-        ///
-        /// ```lua
-        /// type Foo = "Bar"
-        /// ```
-        String(StringLiteral),
+        /// The `(` character at the start of the function.
+        opening_parenthesis: Token,
 
-        /// A boolean value
-        ///
-        /// ```lua
-        /// type Foo = true
-        /// type Bar = false
-        /// ```
-        Boolean(Token),
+        /// The parameters this function accepts.
+        parameters: List<NormalizedName>,
 
-        /// A wrape of another type, the difference between this and a
-        /// [`tuple`](TypeValue::Tuple) is that this item always have one type and only one
-        /// type in it, while a [`tuple`](TypeValue::Tuple) can have any, even 0.
-        ///
-        /// ```lua
-        /// type Foo = (bar)
-        /// ```
-        Wrap {
-            /// The `(` character.
-            opening_parenthesis: Token,
+        /// The `)` character at the end of parameters and before returns
+        closing_parenthesis: Token,
 
-            /// The type wrapped in between the parenthesis.
-            r#type: Arc<TypeValue>,
+        /// The `->` character.
+        arrow: Token,
 
-            /// The `)` character.
-            closing_parenthesis: Token,
-        },
+        /// The return type of this function
+        return_type: Arc<TypeValue>,
+    },
 
-        /// A function type.
-        ///
-        /// ```lua
-        /// type Foo = (arg1: number) -> (boolean, string)`
-        /// ```
-        Function {
-            /// Optional generics provided for the function.
-            ///
-            /// ```lua
-            /// type Foo = <P, R>(paramter: P) -> R
-            /// ```
-            generics: Option<GenericDeclaration>,
+    /// A reference to a generic type.
+    ///
+    /// ```lua
+    /// type EmptySignal = Signal<string, ()>
+    /// ```
+    ///
+    /// The [`generic`](TypeValue::Generic) here is `Signal`.
+    Generic {
+        /// The name of the type that has the generics.
+        base: Token,
 
-            /// The `(` character at the start of the function.
-            opening_parenthesis: Token,
+        /// The `<` character.
+        right_arrows: Token,
 
-            /// The parameters this function accepts.
-            parameters: List<NormalizedName>,
+        /// The actual generics.
+        generics: List<Arc<TypeValue>>,
 
-            /// The `)` character at the end of parameters and before returns
-            closing_parenthesis: Token,
+        /// The `>` character.
+        left_arrows: Token,
+    },
 
-            /// The `->` character.
-            arrow: Token,
+    /// A generic pack.
+    ///
+    /// ```lua
+    /// <T...>
+    /// ```
+    GenericPack {
+        /// The name.
+        name: Token,
 
-            /// The return type of this function
-            return_type: Arc<TypeValue>,
-        },
+        /// The `...` characters.
+        ellipsis: Token,
+    },
 
-        /// A reference to a generic type.
-        ///
-        /// ```lua
-        /// type EmptySignal = Signal<string, ()>
-        /// ```
-        ///
-        /// The [`generic`](TypeValue::Generic) here is `Signal`.
-        Generic {
-            /// The name of the type that has the generics.
-            base: Token,
+    /// An intersection between two types.
+    ///
+    /// ```lua
+    /// type Foo = Bar & Qux
+    /// ```
+    Intersection {
+        /// The type at the start.
+        left: Arc<TypeValue>,
 
-            /// The `<` character.
-            right_arrows: Token,
+        /// The `&` character.
+        ampersand: Token,
 
-            /// The actual generics.
-            generics: List<Arc<TypeValue>>,
+        /// The type at the end.
+        right: Arc<TypeValue>,
+    },
 
-            /// The `>` character.
-            left_arrows: Token,
-        },
+    /// An union between two types.
+    ///
+    /// ```lua
+    /// type Foo = Bar & Qux
+    /// ```
+    Union {
+        /// The type at the start.
+        left: Arc<TypeValue>,
 
-        /// A generic pack.
-        ///
-        /// ```lua
-        /// <T...>
-        /// ```
-        GenericPack {
-            /// The name.
-            name: Token,
+        /// The `|` character.
+        pipe: Token,
 
-            /// The `...` characters.
-            ellipsis: Token,
-        },
+        /// The type at the end.
+        right: Arc<TypeValue>,
+    },
 
-        /// An intersection between two types.
-        ///
-        /// ```lua
-        /// type Foo = Bar & Qux
-        /// ```
-        Intersection {
-            /// The type at the start.
-            left: Arc<TypeValue>,
+    /// An access to an exported type from a module.
+    Module {
+        /// the name of the module.
+        module: Token,
 
-            /// The `&` character.
-            ampersand: Token,
+        /// The `.` between the module name and the type.
+        dot: Token,
 
-            /// The type at the end.
-            right: Arc<TypeValue>,
-        },
+        /// The actual name of the type being accessed.
+        type_value: Arc<TypeValue>,
+        // /// The generics for this type.
+        // generics: Option<GenericParameters>,
+    },
 
-        /// An union between two types.
-        ///
-        /// ```lua
-        /// type Foo = Bar & Qux
-        /// ```
-        Union {
-            /// The type at the start.
-            left: Arc<TypeValue>,
+    /// An optional type.
+    ///
+    /// ```lua
+    /// type Foo = Bar?
+    /// ```
+    ///
+    /// This is just equivalent to:
+    ///
+    /// ```lua
+    /// type Foo = Bar | nil
+    /// ```
+    Optional {
+        /// The actual type.
+        base: Arc<TypeValue>,
 
-            /// The `|` character.
-            pipe: Token,
+        /// The `?` character.
+        question_mark: Token,
+    },
 
-            /// The type at the end.
-            right: Arc<TypeValue>,
-        },
+    /// A table type.
+    ///
+    /// ```lua
+    /// type Foo = { string }
+    /// type Bar = { Qux: Foo }
+    /// ```
+    Table(Table),
 
-        /// An access to an exported type from a module.
-        Module {
-            /// the name of the module.
-            module: Token,
+    /// A `typeof` expression.
+    Typeof {
+        /// The `typeof` word.
+        typeof_token: Token,
 
-            /// The `.` between the module name and the type.
-            dot: Token,
+        /// The `(` character.
+        opening_parenthesis: Token,
 
-            /// The actual name of the type being accessed.
-            type_value: Arc<TypeValue>,
-            // /// The generics for this type.
-            // generics: Option<GenericParameters>,
-        },
+        /// The expression passed to `typeof`.
+        inner: Arc<Expression>,
 
-        /// An optional type.
-        ///
-        /// ```lua
-        /// type Foo = Bar?
-        /// ```
-        ///
-        /// This is just equivalent to:
-        ///
-        /// ```lua
-        /// type Foo = Bar | nil
-        /// ```
-        Optional {
-            /// The actual type.
-            base: Arc<TypeValue>,
+        /// The `)` character.
+        closing_parenthesis: Token,
+    },
 
-            /// The `?` character.
-            question_mark: Token,
-        },
+    /// A tuple of types
+    ///
+    /// ```lua
+    /// type Foo = () -> (string, number)
+    /// ```
+    ///
+    /// The tuple here is the return type `(string, number)`. In luau, tuples can't be
+    /// their own type, meaning, this is a syntax error:
+    ///
+    /// ```lua
+    /// type Foo = (string, number)
+    /// ```
+    Tuple {
+        /// The `(` character.
+        opening_parenthesis: Token,
 
-        /// A table type.
-        ///
-        /// ```lua
-        /// type Foo = { string }
-        /// type Bar = { Qux: Foo }
-        /// ```
-        Table(Table),
+        /// The list of types between the parenthesis.
+        types: List<Arc<TypeValue>>,
 
-        /// A `typeof` expression.
-        Typeof {
-            /// The `typeof` word.
-            typeof_token: Token,
+        /// The `)` character.
+        closing_parenthesis: Token,
+    },
 
-            /// The `(` character.
-            opening_parenthesis: Token,
+    /// A variadic type.
+    ///
+    /// ```lua
+    /// ...Foo
+    /// ```
+    ///
+    /// The difference between this and a [`variadic pack`](TypeValue::VariadicPack) is that
+    /// this one can be with a type and not just a name:
+    ///
+    /// ```lua
+    /// ...{ Foo: "Bar" }
+    /// ```
+    ///
+    /// And is that variadic types are used in function paramterers and returns, while
+    /// variadic packs are used for generics.
+    Variadic {
+        /// The `...` characters.
+        ellipsis: Token,
 
-            /// The expression passed to `typeof`.
-            inner: Arc<Expression>,
+        /// The actual type.
+        type_info: Arc<TypeValue>,
+    },
 
-            /// The `)` character.
-            closing_parenthesis: Token,
-        },
+    /// A variadic pack.
+    ///
+    /// ```lua
+    /// ...Foo
+    /// ```
+    ///
+    /// ## Note
+    ///
+    /// See [`variadic type`](TypeValue::Variadic) to learn the difference between them.
+    VariadicPack {
+        /// The `...` characters.
+        ellipsis: Token,
 
-        /// A tuple of types
-        ///
-        /// ```lua
-        /// type Foo = () -> (string, number)
-        /// ```
-        ///
-        /// The tuple here is the return type `(string, number)`. In luau, tuples can't be
-        /// their own type, meaning, this is a syntax error:
-        ///
-        /// ```lua
-        /// type Foo = (string, number)
-        /// ```
-        Tuple {
-            /// The `(` character.
-            opening_parenthesis: Token,
-
-            /// The list of types between the parenthesis.
-            types: List<Arc<TypeValue>>,
-
-            /// The `)` character.
-            closing_parenthesis: Token,
-        },
-
-        /// A variadic type.
-        ///
-        /// ```lua
-        /// ...Foo
-        /// ```
-        ///
-        /// The difference between this and a [`variadic pack`](TypeValue::VariadicPack) is that
-        /// this one can be with a type and not just a name:
-        ///
-        /// ```lua
-        /// ...{ Foo: "Bar" }
-        /// ```
-        ///
-        /// And is that variadic types are used in function paramterers and returns, while
-        /// variadic packs are used for generics.
-        Variadic {
-            /// The `...` characters.
-            ellipsis: Token,
-
-            /// The actual type.
-            type_info: Arc<TypeValue>,
-        },
-
-        /// A variadic pack.
-        ///
-        /// ```lua
-        /// ...Foo
-        /// ```
-        ///
-        /// ## Note
-        ///
-        /// See [`variadic type`](TypeValue::Variadic) to learn the difference between them.
-        VariadicPack {
-            /// The `...` characters.
-            ellipsis: Token,
-
-            /// The name
-            name: Token,
-        },
-    }
+        /// The name
+        name: Token,
+    },
 }
 
-generate_derives! {
-    /// A struct for a type definition. Holds needed data to be able to write it back as valid
-    /// luau.
-    pub struct TypeDefinition {
-        /// The `export` keyword.
-        pub export_keyword: Option<Token>,
+/// A struct for a type definition. Holds needed data to be able to write it back as valid
+/// luau.
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+pub struct TypeDefinition {
+    /// The `export` keyword.
+    pub export_keyword: Option<Token>,
 
-        /// The `type` keyword.
-        pub type_keyword: Option<Token>,
+    /// The `type` keyword.
+    pub type_keyword: Option<Token>,
 
-        /// The generics for this type.
-        pub generics: Option<GenericDeclaration>,
+    /// The generics for this type.
+    pub generics: Option<Box<GenericDeclaration>>,
+
+    /// The name of the type.
+    pub type_name: Token,
+
+    /// The `=` sign between the name and the actual value of the type.
+    /// This will be `None` if this isn't it's own statement but rather
+    /// in another place like parameter's type or a variable's type.
+    pub equal_sign: Option<Token>,
+
+    /// The [`actual definition`](TypeValue) of the type.
+    pub type_value: Arc<TypeValue>,
+}
+
+/// Generics parameters used when referencing another type.
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+pub struct GenericParameters {
+    /// The `<` character.
+    pub opening_arrow: Token,
+
+    /// The actual generics.
+    pub generics: List<GenericParameterInfo>,
+
+    /// The `>` character.
+    pub closing_arrow: Token,
+}
+
+/// A generic declaration parameter used in [`generics declarations`](GenericDeclaration).
+/// Can either be a name or a variadic pack.
+#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+pub enum GenericParameterInfo {
+    /// This [`GenericParameterInfo`] had a syntax error.
+    #[default]
+    ERROR,
+
+    /// A simple name, such as `T`.
+    Name(Token),
+
+    /// A variadic type pack: `T...`.
+    Pack {
+        /// The name of the type.
+        name: Token,
+        /// The `...` characters.
+        ellipsis: Token,
+    },
+}
+
+/// A generic declaration parameter used in [`generic declarations`](GenericDeclaration).
+/// Consists of a [`parameter info`](GenericParameterInfo) and an optional default type.
+#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+pub struct GenericDeclarationParameter {
+    /// The parameter passed as a generic type, can be a simple name or a generic pack.
+    pub parameter: GenericParameterInfo,
+
+    /// The default type.
+    pub default: Option<GenericParameterInfoDefault>,
+}
+
+/// Struct holding **default** values for generic arguments.
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+pub enum GenericParameterInfoDefault {
+    /// A simple name.
+    ///
+    /// ```lua
+    /// type Foo<T = string> = "Foo"
+    /// ```
+    Name {
+        /// The `=` character.
+        equal_sign: Token,
 
         /// The name of the type.
-        pub type_name: Token,
+        name: Token,
+    },
 
-        /// The `=` sign between the name and the actual value of the type.
-        /// This will be `None` if this isn't it's own statement but rather
-        /// in another place like parameter's type or a variable's type.
-        pub equal_sign: Option<Token>,
+    /// A generic pack.
+    ///
+    /// ```lua
+    /// type Foo<T... = string...> = "Foo"
+    /// type Bar<T... = ...string> = "Bar"
+    /// type Qux<T... = (string, number)> = "Qux"
+    /// ```
+    Pack {
+        /// The `=` character.
+        equal_sign: Token,
 
-        /// The [`actual definition`](TypeValue) of the type.
-        pub type_value: Arc<TypeValue>,
-    }
+        /// The type itself..
+        r#type: TypeValue,
+    },
 }
 
-generate_derives! {
-    /// Generics parameters used when referencing another type.
-    pub struct GenericParameters {
-        /// The `<` character.
-        pub opening_arrow: Token,
+/// The generics used in a [`type definition`](TypeDefinition).
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+pub struct GenericDeclaration {
+    /// The `<` character.
+    pub opening_arrow: Token,
 
-        /// The actual generics.
-        pub generics: List<GenericParameterInfo>,
+    /// The actual generics.
+    pub generics: List<GenericDeclarationParameter>,
 
-        /// The `>` character.
-        pub closing_arrow: Token,
-    }
+    /// The `>` character.
+    pub closing_arrow: Token,
 }
 
-generate_derives! {
-    Default,
-    /// A generic declaration parameter used in [`generics declarations`](GenericDeclaration).
-    /// Can either be a name or a variadic pack.
-    pub enum GenericParameterInfo {
-        /// This [`GenericParameterInfo`] had a syntax error.
-        #[default]
-        ERROR,
+/// Possible errors converting from an expression to a type definition.
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+pub enum ConversionError {
+    /// Function calls can't be converted to types since the parser won't look for the
+    /// variable and thus can't get it's return type.
+    FunctionCall(FunctionCall),
 
-        /// A simple name, such as `T`.
-        Name(Token),
+    /// Variables calls can't be converted to types since the parser won't look for them.
+    Var(Var),
 
-        /// A variadic type pack: `T...`.
-        Pack {
-            /// The name of the type.
-            name: Token,
-            /// The `...` characters.
-            ellipsis: Token,
-        },
-    }
-}
+    /// Unary expressions require metatables. If you wish to just use the value of the
+    /// expression, pass the inner one and not the unary.
+    UnaryExpression {
+        /// The operator.
+        operator: Token,
 
-generate_derives! {
-    Default,
-    /// A generic declaration parameter used in [`generic declarations`](GenericDeclaration).
-    /// Consists of a [`parameter info`](GenericParameterInfo) and an optional default type.
-    pub struct GenericDeclarationParameter {
-        /// The parameter passed as a generic type, can be a simple name or a generic pack.
-        pub parameter: GenericParameterInfo,
+        /// The actual expression this operator is affecting.
+        expression: Arc<Expression>,
+    },
 
-        /// The default type.
-        pub default: Option<GenericParameterInfoDefault>,
-    }
-}
+    /// Binary expressions require metatables. If you wish to just use the value of the
+    /// expression, pass the inner one and not the binary.
+    BinaryExpression {
+        /// The left expression.
+        left: Arc<Expression>,
 
-generate_derives! {
-    /// Struct holding **default** values for generic arguments.
-    pub enum GenericParameterInfoDefault {
-        /// A simple name.
-        ///
-        /// ```lua
-        /// type Foo<T = string> = "Foo"
-        /// ```
-        Name {
-            /// The `=` character.
-            equal_sign: Token,
+        /// The operator between the expressions.
+        operator: Token,
 
-            /// The name of the type.
-            name: Token,
-        },
-
-        /// A generic pack.
-        ///
-        /// ```lua
-        /// type Foo<T... = string...> = "Foo"
-        /// type Bar<T... = ...string> = "Bar"
-        /// type Qux<T... = (string, number)> = "Qux"
-        /// ```
-        Pack {
-            /// The `=` character.
-            equal_sign: Token,
-
-            /// The type itself..
-            r#type: TypeValue,
-        },
-    }
-}
-
-generate_derives! {
-    /// The generics used in a [`type definition`](TypeDefinition).
-    pub struct GenericDeclaration {
-        /// The `<` character.
-        pub opening_arrow: Token,
-
-        /// The actual generics.
-        pub generics: List<GenericDeclarationParameter>,
-
-        /// The `>` character.
-        pub closing_arrow: Token,
-    }
-}
-
-generate_derives! {
-    /// Possible errors converting from an expression to a type definition.
-    pub enum ConversionError {
-        /// Function calls can't be converted to types since the parser won't look for the
-        /// variable and thus can't get it's return type.
-        FunctionCall(FunctionCall),
-
-        /// Variables calls can't be converted to types since the parser won't look for them.
-        Var(Var),
-
-        /// Unary expressions require metatables. If you wish to just use the value of the
-        /// expression, pass the inner one and not the unary.
-        UnaryExpression {
-            /// The operator.
-            operator: Token,
-
-            /// The actual expression this operator is affecting.
-            expression: Arc<Expression>,
-        },
-
-        /// Binary expressions require metatables. If you wish to just use the value of the
-        /// expression, pass the inner one and not the binary.
-        BinaryExpression {
-            /// The left expression.
-            left: Arc<Expression>,
-
-            /// The operator between the expressions.
-            operator: Token,
-
-            /// The right expression.
-            right: Arc<Expression>,
-        },
-    }
+        /// The right expression.
+        right: Arc<Expression>,
+    },
 }
