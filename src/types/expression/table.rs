@@ -2,7 +2,7 @@ use luau_lexer::prelude::{Literal, LuauNumber, LuauString, Token};
 use std::sync::Arc;
 
 use super::{
-    Ast, ExpressionWrap, FunctionCall, GenericDeclaration, List, NormalizedName, Table, TableKey,
+    Cst, ExpressionWrap, FunctionCall, GenericDeclaration, List, NormalizedName, Table, TableKey,
     TypeValue,
 };
 

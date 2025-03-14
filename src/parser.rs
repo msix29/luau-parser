@@ -5,15 +5,15 @@ use luau_lexer::lexer::Lexer;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use crate::prelude::{Ast, AstStatus, LastStatement, Statement};
+use crate::prelude::{Cst, AstStatus, LastStatement, Statement};
 
 /// A Luau parser.
 pub struct LuauParser<'a> {
     /// Cache, only works with the `cache` feature, this is useful when you need
-    /// to use the [`ast`](Ast) more than once in 2 different places without
+    /// to use the [`CST`](Cst) more than once in 2 different places without
     /// reparsing or with the `uri` only.
     #[cfg(feature = "cache")]
-    cache: HashMap<String, Ast>,
+    cache: HashMap<String, Cst>,
 
     /// The `tree-sitter` parser.
     lexer: Lexer<'a>,
@@ -30,18 +30,18 @@ impl<'a> LuauParser<'a> {
         }
     }
 
-    /// Parse Luau code into an [`ast`](Ast).
-    pub fn parse(&mut self, code: &str, uri: &str) -> Ast {
+    /// Parse Luau code into an [`CST`](Cst).
+    pub fn parse(&mut self, code: &str, uri: &str) -> Cst {
         // NOTE: Can a text editor use `\r` by itself independant of the OS? If so, remove
         // this `cfg`.
         #[cfg(windows)]
         let code = &code.replace('\r', "");
 
-        let ast = Ast::default();
+        let cst = Cst::default();
 
         #[cfg(feature = "cache")]
         {
-            self.cache.insert(uri.to_string(), ast);
+            self.cache.insert(uri.to_string(), cst);
 
             self.cache.get(uri).unwrap().to_owned()
         }
@@ -49,50 +49,49 @@ impl<'a> LuauParser<'a> {
         #[cfg(not(feature = "cache"))]
         {
             // Only start a new scope because clippy warnings.
-            ast
+            cst
         }
     }
 
-    /// Get a specific [`ast`] from the cache, this function assumes the ast does
+    /// Get a specific [`CST`]Cfrom the cache, this function assumes the cst does
     /// exist. If it may or may not exist, use [`maybe_get_ast`].
     ///
     /// [`maybe_get_ast`]: Self::maybe_get_ast
-    /// [`ast`]: Ast
+    /// [`CST`]:CAst
     #[cfg(feature = "cache")]
     #[inline]
-    pub fn get_ast(&self, uri: &str) -> &Ast {
+    pub fn get_ast(&self, uri: &str) -> &Cst {
         self.cache.get(uri).unwrap()
     }
 
-    /// Get a specific [`ast`] from the cache, or parse `code` and return the
-    /// [`ast`].
-    ///
-    /// [`ast`]: Ast
+    /// Get a specific [`CST`]Cfrom the cache, or parse `code` and return the
+    /// [`CST`].C    ///
+    /// [`CST`]:CAst
     #[inline]
-    pub fn get_or_create(&mut self, uri: &str, code: &str) -> Ast {
+    pub fn get_or_create(&mut self, uri: &str, code: &str) -> Cst {
         #[cfg(feature = "cache")]
-        if let Some(ast) = self.maybe_get_ast(uri) {
-            return ast.to_owned();
+        if let Some(cst) = self.maybe_get_ast(uri) {
+            return cst.to_owned();
         }
 
         self.parse(code, uri)
     }
 
-    /// Get a specific [`ast`] from the cache, this function, unlike [`get_ast`], doesn't
-    /// error when the [`ast`] isn't there.
+    /// Get a specific [`CST`]Cfrom the cache, this function, unlike [`get_ast`], doesn't
+    /// error when the [`CST`]Cisn't there.
     ///
     /// [`get_ast`]: LuauParser::get_ast.
-    /// [`ast`]: Ast
+    /// [`CST`]:CAst
     #[cfg(feature = "cache")]
     #[inline]
-    pub fn maybe_get_ast(&self, uri: &str) -> Option<&Ast> {
+    pub fn maybe_get_ast(&self, uri: &str) -> Option<&Cst> {
         self.cache.get(uri)
     }
 
-    /// Get all cached [`asts`](Ast).
+    /// Get all cached [`CST`](Cst)s.
     #[cfg(feature = "cache")]
     #[inline]
-    pub fn get_all_asts(&self) -> &HashMap<String, Ast> {
+    pub fn get_all_asts(&self) -> &HashMap<String, Cst> {
         &self.cache
     }
 

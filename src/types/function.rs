@@ -3,7 +3,7 @@
 use luau_lexer::prelude::Token;
 use std::sync::Arc;
 
-use super::{Ast, GenericDeclaration, List, NormalizedName, TypeValue};
+use super::{Cst, GenericDeclaration, List, NormalizedName, TypeValue};
 
 /// A struct representing a local function.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -37,7 +37,7 @@ pub struct LocalFunction {
     pub returns: Option<Arc<TypeValue>>,
 
     /// The body of the function.
-    pub body: Ast,
+    pub body: Cst,
 
     /// The `end` keyword.
     pub end_keyword: Token,
@@ -141,7 +141,7 @@ pub struct GlobalFunction {
     pub returns: Option<Arc<TypeValue>>,
 
     /// The body of the function.
-    pub body: Ast,
+    pub body: Cst,
 
     /// The `end` keyword.
     pub end_keyword: Token,

@@ -2,7 +2,7 @@ use luau_lexer::prelude::{Literal, LuauNumber, LuauString, Token};
 use std::sync::Arc;
 
 use super::{
-    Ast, GenericDeclaration, List, NormalizedName, Table, TableAccess, TableKey, TypeValue,
+    Cst, GenericDeclaration, List, NormalizedName, Table, TableAccess, TableKey, TypeValue,
 };
 
 /// Name of a [`variable`](Var).

@@ -3,7 +3,7 @@
 use luau_lexer::prelude::{Literal, LuauNumber, LuauString, Token};
 use std::sync::Arc;
 
-use super::{Ast, GenericDeclaration, List, NormalizedName, Table, TableKey, TypeValue};
+use super::{Cst, GenericDeclaration, List, NormalizedName, Table, TableKey, TypeValue};
 
 reexport!(table, var, function);
 
@@ -102,7 +102,7 @@ pub enum Expression {
         returns: Option<Arc<TypeValue>>,
 
         /// The body of the function.
-        body: Ast,
+        body: Cst,
 
         /// The `end` keyword.
         end_keyword: Box<Token>,

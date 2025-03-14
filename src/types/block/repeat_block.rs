@@ -3,7 +3,7 @@
 use luau_lexer::prelude::Token;
 use std::sync::Arc;
 
-use crate::prelude::{Ast, Expression};
+use crate::prelude::{Cst, Expression};
 
 /// A struct representing a repeat block.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -13,7 +13,7 @@ pub struct RepeatBlock {
     pub repeat_keyword: Token,
 
     /// The body of this repeat block.
-    pub body: Ast,
+    pub body: Cst,
 
     /// The "until" keyword.
     pub until_keyword: Token,

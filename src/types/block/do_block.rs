@@ -2,7 +2,7 @@
 
 use luau_lexer::prelude::Token;
 
-use crate::prelude::Ast;
+use crate::prelude::Cst;
 
 /// A struct representing a do statement
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -12,7 +12,7 @@ pub struct DoBlock {
     pub do_keyword: Token,
 
     /// The body of the do block.
-    pub body: Ast,
+    pub body: Cst,
 
     /// The `end` keyword
     pub end_keyword: Token,

@@ -2,7 +2,7 @@
 //!
 //! A lossless parser for the luau programming language, lossless means that none of the
 //! details of the code is lost, it's all stored in the returned syntax tree, and thus, the
-//! source code can be printed back from using the [`ast::print`](types::Ast::print)
+//! source code can be printed back from using the [`Cst::print`](types::Cst::print)
 //! function.
 //!
 //! # Usage:
@@ -14,10 +14,10 @@
 //! let uri = "";
 //!
 //! let mut parser = LuauParser::new();
-//! let ast = parser.parse(code, uri);
+//! let cst = parser.parse(code, uri);
 //!
-//! println!("{:#?}", ast);
-//! assert_eq!(ast.statements.len(), 1);
+//! println!("{:#?}", cst);
+//! assert_eq!(cst.statements.len(), 1);
 //! ```
 //!
 //! # Note

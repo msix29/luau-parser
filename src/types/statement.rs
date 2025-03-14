@@ -21,7 +21,7 @@ pub type StatementsInner = Arc<RwLock<Vec<StatementInner>>>;
 pub type ReadGuard<'a> = RwLockReadGuard<'a, Vec<StatementInner>>;
 pub type WriteGuard<'a> = RwLockWriteGuard<'a, Vec<StatementInner>>;
 
-/// All possible tokens in an [`ast`](Ast).
+/// All possible tokens in an [`CST`](super::Cst).
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum Statement {
@@ -198,48 +198,4 @@ pub enum LastStatement {
         /// The `;` character.
         semicolon: Option<Token>,
     },
-}
-
-/// An enum representing different states of an Ast.
-#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub enum AstStatus {
-    /// Indicates that the parsed Ast is a perfect clone of the code passed to it and that no errors has occurred.
-    #[default]
-    Complete,
-
-    /// Indicates that the parsed Ast is incomplete because the code had syntax errors.
-    HasErrors,
-}
-
-/// An enum representing printing errors that stopped [`Ast::try_print`] from working.
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub enum PrintingError {
-    /// The [`ast`](Ast) has syntax errors.
-    IncompleteAst,
-}
-
-/// A struct representing a scope in a file. This ast is lossless, meaning it can be
-/// printed back to the code it was created from without losing any details.
-#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub struct Ast {
-    /// The path pointing to the file that this [`ast`](Ast) represents, if any.
-    /// For scopes like functions, if statements, etc. it'll be `None` but for actual
-    /// files it'll always be `Some`.
-    pub uri: Option<SmolStr>,
-
-    /// The tokens in the of this [`ast`](Ast) **only**. Parent [`asts`](Ast)' tokens won't
-    /// be included. The optional [`SingleToken`] is the optional semicolon after the
-    /// statement.
-    pub statements: Vec<(Arc<Statement>, Option<Token>)>,
-
-    /// The [`last statement`](LastStatement) in this scope.
-    pub last_statement: Option<Arc<LastStatement>>,
-
-    /// The status of the [`ast`](Ast). If it isn't [`complete`](AstStatus::Complete), it's
-    /// better to not use it for operations which affect the source code, like formatting;
-    /// the output will have missing parts of the code.
-    pub status: AstStatus,
 }
