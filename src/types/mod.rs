@@ -10,38 +10,27 @@
 //! their implementations in `ast/value/function.rs`, same thing for display
 //! implementations but they'll be in `src/display` instead.
 
-mod block;
-mod expression;
-mod function;
-mod list;
-mod literals;
-mod local_assignment;
-mod name;
-mod position;
-mod range;
-#[cfg(feature = "references")]
-mod references;
-mod set_expressions;
-mod statement;
-mod token;
-mod traits;
-mod type_definition;
-mod value;
+macro_rules! reexport {
+    ($($name: ident),* $(,)?) => {
+        $( mod $name; )*
+        $( pub use $name::*; )*
+    };
+}
 
-pub use block::*;
-pub use expression::*;
-pub use function::*;
-pub use list::*;
-pub use literals::*;
-pub use local_assignment::*;
-pub use name::*;
-pub use position::*;
-pub use range::*;
-#[cfg(feature = "references")]
-pub use references::*;
-pub use set_expressions::*;
-pub use statement::*;
-pub use token::*;
-pub use traits::*;
-pub use type_definition::*;
-pub use value::*;
+reexport!(
+    block,
+    expression,
+    function,
+    list,
+    literals,
+    local_assignment,
+    name,
+    position,
+    range,
+    set_expressions,
+    statement,
+    token,
+    traits,
+    type_definition,
+    value,
+);

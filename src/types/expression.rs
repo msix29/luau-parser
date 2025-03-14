@@ -257,7 +257,7 @@ generate_derives! {
             function_keyword: Token,
 
             /// The generics of this function.
-            generics: Option<GenericDeclaration>,
+            generics: Option<Box<GenericDeclaration>>,
 
             /// The `(` character.
             opening_parenthesis: Token,
@@ -278,7 +278,7 @@ generate_derives! {
             body: Ast,
 
             /// The `end` keyword.
-            end_keyword: Token,
+            end_keyword: Box<Token>,
         },
 
         /// A function call.

@@ -8,7 +8,7 @@ use std::{
     sync::{Arc, Mutex, MutexGuard, RwLock, RwLockReadGuard, RwLockWriteGuard},
 };
 
-use super::{
+use crate::prelude::{
     CompoundSetExpression, DoBlock, Expression, FunctionCall, GenericFor, GlobalFunction,
     IfStatement, List, LocalAssignment, LocalFunction, NumericalFor, RepeatBlock, SetExpression,
     Token, TypeDefinition, WhileLoop,
@@ -36,7 +36,7 @@ generate_derives! {
         /// end
         /// local qux = {}
         /// ```
-        LocalAssignment(LocalAssignment),
+        LocalAssignment(Box<LocalAssignment>),
 
         /// A type definition.
         ///
@@ -45,7 +45,7 @@ generate_derives! {
         /// export type Bar<P, R> = (param: P) -> R
         /// type qux = {}
         /// ```
-        TypeDefinition(TypeDefinition),
+        TypeDefinition(Box<TypeDefinition>),
 
         /// An if statement.
         ///
@@ -58,7 +58,7 @@ generate_derives! {
         ///     print("It's neither a or b :(")
         /// end
         /// ```
-        IfStatement(IfStatement),
+        IfStatement(Box<IfStatement>),
 
         /// A do block.
         ///
@@ -72,7 +72,7 @@ generate_derives! {
         ///
         /// This struct isn't used for while or for loops, they have their own tokens, and have
         /// do blocks as part of their token.
-        DoBlock(DoBlock),
+        DoBlock(Box<DoBlock>),
 
         /// A generic for loop.
         ///
@@ -81,7 +81,7 @@ generate_derives! {
         ///     print(`{i}: {v}`)
         /// end
         /// ```
-        GenericFor(GenericFor),
+        GenericFor(Box<GenericFor>),
 
         /// A numerical for loop.
         ///
@@ -90,7 +90,7 @@ generate_derives! {
         ///     print(i)
         /// end
         /// ```
-        NumericalFor(NumericalFor),
+        NumericalFor(Box<NumericalFor>),
 
         /// A repeat block.
         ///
@@ -101,7 +101,7 @@ generate_derives! {
         ///     i += 1
         /// until i == 10
         /// ```
-        RepeatBlock(RepeatBlock),
+        RepeatBlock(Box<RepeatBlock>),
 
         /// A while loop.
         ///
@@ -112,7 +112,7 @@ generate_derives! {
         ///     i += 1
         /// end
         /// ```
-        WhileLoop(WhileLoop),
+        WhileLoop(Box<WhileLoop>),
 
         /// A set expression.
         ///
@@ -121,7 +121,7 @@ generate_derives! {
         /// b, c = true, false, 1
         /// d, e, f = foo()
         /// ```
-        SetExpression(SetExpression),
+        SetExpression(Box<SetExpression>),
 
         /// A compound set expression.
         ///
@@ -129,14 +129,14 @@ generate_derives! {
         /// foo += 1
         /// bar //= 2
         /// ```
-        CompoundSetExpression(CompoundSetExpression),
+        CompoundSetExpression(Box<CompoundSetExpression>),
 
         /// A function call.
         ///
         /// ```lua
         /// local _ = foo(1, 2, 3)
         /// ```
-        FunctionCall(FunctionCall),
+        FunctionCall(Box<FunctionCall>),
 
         /// A local function.
         ///
@@ -144,7 +144,7 @@ generate_derives! {
         /// local function foo(bar: string): Qux
         /// end
         /// ```
-        LocalFunction(LocalFunction),
+        LocalFunction(Box<LocalFunction>),
 
         /// A global function.
         ///
@@ -154,7 +154,7 @@ generate_derives! {
         /// function foo:Qux(bar: string): Qux
         /// end
         /// ```
-        GlobalFunction(GlobalFunction),
+        GlobalFunction(Box<GlobalFunction>),
     }
 }
 
@@ -219,11 +219,6 @@ generate_derives! {
         IncompleteAst,
     }
 }
-generate_derives_minimum! {
-    Default,
-    /// A struct representing all statements in an [`ast`](Ast).
-    pub struct Statements(pub(crate) StatementsInner);
-}
 
 pub struct StatementsIter<'a> {
     pub(crate) index: usize,
@@ -244,7 +239,7 @@ generate_derives! {
         /// The tokens in the of this [`ast`](Ast) **only**. Parent [`asts`](Ast)' tokens won't
         /// be included. The optional [`SingleToken`] is the optional semicolon after the
         /// statement.
-        pub statements: Statements,
+        pub statements: Vec<(Arc<Statement>, Option<Token>)>,
 
         /// The [`last statement`](LastStatement) in this scope.
         pub last_statement: Option<Arc<LastStatement>>,
@@ -253,10 +248,5 @@ generate_derives! {
         /// better to not use it for operations which affect the source code, like formatting;
         /// the output will have missing parts of the code.
         pub status: AstStatus,
-
-        #[cfg(feature = "references")]
-        /// The parent of the current [`ast`](Ast), aka it's parent scope. If
-        /// [`uri`](Ast::uri) is present, this field won't be present.
-        pub parent: Option<Arc<Ast>>,
     }
 }

@@ -6,8 +6,6 @@
 
 use std::sync::Arc;
 
-#[cfg(feature = "references")]
-use super::references::References;
 use super::{Token, TypeValue};
 use crate::generate_derives;
 
@@ -24,9 +22,5 @@ generate_derives! {
 
         /// The type that was with this name, defined with the `: type` syntax.
         pub r#type: Option<Arc<TypeValue>>,
-
-        /// All references to this name.
-        #[cfg(feature = "references")]
-        pub references: References,
     }
 }
