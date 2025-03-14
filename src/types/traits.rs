@@ -1,5 +1,8 @@
 //! Module holding all trait definitions in this parser.
 
+use luau_lexer::prelude::{Lexer, ParseError, Token};
+use std::fmt::Debug;
+
 use super::Range;
 
 /// A trait for a token that can be represented in a more abstract form for the user to see,
@@ -27,17 +30,20 @@ pub trait Print {
 //     ) -> Option<Self>;
 // }
 
-// /// A trait that means this node can be built from a [`tree-sitter Node`](Node).
-// pub trait FromNode: Sized {
-//     /// Get the current item from the passed node.
-//     fn from_node(node: Node, code_bytes: &[u8]) -> Option<Self>;
-// }
+/// A trait that indicates that this struct can be parsed from a [`lexer`](Lexer)
+pub trait Parse: Sized + Debug {
+    fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self>;
+}
 
-// /// A trait that means this node can be built from a [`tree-sitter Node`](Node).
-// pub trait FromNodeWithArgs<Args>: Sized {
-//     /// Get the current item from the passed node.
-//     fn from_node(node: Node, code_bytes: &[u8], args: Args) -> Option<Self>;
-// }
+/// A trait that means this node can be built from a [`tree-sitter Node`](Node).
+pub trait ParseWithArgs<T>: Sized {
+    fn parse_with(
+        token: Token,
+        lexer: &mut Lexer,
+        errors: &mut Vec<ParseError>,
+        args: T,
+    ) -> Option<Self>;
+}
 
 /// A trait for getting the range for this specific item.
 pub trait HasRange {

@@ -2,7 +2,7 @@ use std::sync::Arc;
 use luau_lexer::token::Token;
 use smol_str::SmolStr;
 
-use super::{LastStatement, Statement};
+use super::{TerminationStatement, Statement};
 
 /// An enum representing different states of an CST.
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -32,7 +32,7 @@ pub struct Cst {
     pub statements: Vec<(Arc<Statement>, Option<Token>)>,
 
     /// The [`last statement`](LastStatement) in this scope.
-    pub last_statement: Option<Arc<LastStatement>>,
+    pub last_statement: Option<Arc<TerminationStatement>>,
 
     /// The status of the [`CST`](Cst). If it isn't [`complete`](AstStatus::Complete), it's
     /// better to not use it for operations which affect the source code, like formatting;

@@ -162,7 +162,7 @@ pub enum Statement {
 /// These statements may or may not be present.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub enum LastStatement {
+pub enum TerminationStatement {
     /// The `break` keyword. The first is the `break` word and the second is the optional
     /// `;` after it.
     ///
