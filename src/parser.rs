@@ -3,9 +3,8 @@
 use luau_lexer::lexer::Lexer;
 #[cfg(feature = "cache")]
 use std::collections::HashMap;
-use std::sync::Arc;
 
-use crate::prelude::{Cst, AstStatus, TerminationStatement, Statement};
+use crate::prelude::Cst;
 
 /// A Luau parser.
 pub struct LuauParser<'a> {

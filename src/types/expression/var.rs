@@ -1,9 +1,6 @@
-use luau_lexer::prelude::{Literal, LuauNumber, LuauString, Token};
-use std::sync::Arc;
+use luau_lexer::prelude::Token;
 
-use super::{
-    Cst, GenericDeclaration, List, NormalizedName, Table, TableAccess, TableKey, TypeValue,
-};
+use super::TableAccess;
 
 /// Name of a [`variable`](Var).
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]

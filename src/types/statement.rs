@@ -3,12 +3,8 @@
 //! Module holding types that'll be used everywhere around the parser and most likely
 //! outside it too, like in a formatter or a lsp.
 
-use smol_str::SmolStr;
 use luau_lexer::prelude::Token;
-use std::{
-    marker::PhantomData,
-    sync::{Arc, Mutex, MutexGuard, RwLock, RwLockReadGuard, RwLockWriteGuard},
-};
+use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
 use crate::prelude::{
     CompoundSetExpression, DoBlock, Expression, FunctionCall, GenericFor, GlobalFunction,

@@ -1,10 +1,7 @@
-use luau_lexer::prelude::{Literal, LuauNumber, LuauString, Token};
+use luau_lexer::prelude::Token;
 use std::sync::Arc;
 
-use super::{
-    Cst, ExpressionWrap, FunctionCall, GenericDeclaration, List, NormalizedName, Table, TableKey,
-    TypeValue,
-};
+use super::{ExpressionWrap, FunctionCall, TableKey};
 
 /// An enum representing different ways in which a table value can be returned from.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]

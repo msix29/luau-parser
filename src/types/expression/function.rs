@@ -1,10 +1,7 @@
-use luau_lexer::prelude::{Literal, LuauNumber, LuauString, Token};
+use luau_lexer::prelude::{LuauString, Token};
 use std::sync::Arc;
 
-use super::{
-    Cst, Expression, GenericDeclaration, List, NormalizedName, PrefixExp, Table, TableKey,
-    TypeValue,
-};
+use super::{Expression, List, PrefixExp, Table};
 
 /// Different ways a function can be called.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]

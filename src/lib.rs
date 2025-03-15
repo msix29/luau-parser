@@ -35,8 +35,9 @@
 // #![warn(clippy::missing_docs_in_private_items)]
 // #![warn(clippy::arc_with_non_send_sync)]
 // #![warn(missing_docs)]
-#![allow(unused)]
+// #![allow(unused)]
 #![warn(clippy::absolute_paths)]
+
 pub mod r#impl;
 // mod display;
 mod macros;
@@ -45,7 +46,7 @@ pub mod types;
 
 /// Loads all needed items for outside crates to use.
 pub mod prelude {
-    pub use crate::r#impl::*;
+    // pub use crate::r#impl::*;
     pub use crate::parser::*;
     pub use crate::types::*;
 }

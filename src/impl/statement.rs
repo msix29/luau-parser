@@ -23,6 +23,7 @@ impl Parse for TerminationStatement {
 
             return Some(Self::Break((keyword, semi_colon)));
         }
+
         if matches!(
             keyword.token_type,
             TokenType::PartialKeyword(PartialKeyword::Continue)
@@ -31,6 +32,7 @@ impl Parse for TerminationStatement {
 
             return Some(Self::Continue((keyword, semi_colon)));
         }
+
         if matches!(keyword.token_type, TokenType::Keyword(Keyword::Return)) {
             let expressions = List::new(); //TODO
 
