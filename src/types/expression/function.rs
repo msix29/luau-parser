@@ -1,9 +1,8 @@
 use luau_lexer::prelude::Token;
 use std::sync::Arc;
 
+use super::{Expression, PrefixExp, Table};
 use crate::types::BracketedList;
-
-use super::{Expression, List, PrefixExp, Table};
 
 /// Different ways a function can be called.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]

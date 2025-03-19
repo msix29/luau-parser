@@ -1,8 +1,6 @@
-use std::sync::Arc;
-use luau_lexer::token::Token;
 use smol_str::SmolStr;
 
-use super::{Block, Statement, TerminationStatement};
+use super::Block;
 
 /// An enum representing different states of an CST.
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
