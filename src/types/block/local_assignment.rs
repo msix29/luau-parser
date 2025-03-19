@@ -3,7 +3,7 @@
 use luau_lexer::prelude::Token;
 use std::sync::Arc;
 
-use super::{Expression, List, Name};
+use crate::types::{Expression, List, Name};
 
 /// A struct holding data for local assignments.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]

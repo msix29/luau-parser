@@ -1,15 +1,30 @@
 //! Module holding all possible blocks in Luau (excluding functions).
 
-mod do_block;
-mod generic_for;
-mod if_statement;
-mod numerical_for;
-mod repeat_block;
-mod while_loop;
+use luau_lexer::prelude::Token;
+use std::sync::Arc;
 
-pub use do_block::*;
-pub use generic_for::*;
-pub use if_statement::*;
-pub use numerical_for::*;
-pub use repeat_block::*;
-pub use while_loop::*;
+reexport!(
+    do_block,
+    generic_for,
+    if_statement,
+    local_assignment,
+    numerical_for,
+    repeat_block,
+    set_expressions,
+    statement,
+    type_definition,
+    while_loop,
+);
+
+#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+pub struct Block {
+    /// The tokens in the of this [`block`](Block) **only**. Parent
+    /// [`blocks`](Block)' tokens won't be included. The optional [`Token`]
+    /// is the optional semicolon after the statement.
+    pub statements: Vec<(Arc<Statement>, Option<Token>)>,
+
+    /// The [`last statement`](TerminationStatement) (aka termination statement)
+    /// of this scope.
+    pub last_statement: Option<Arc<TerminationStatement>>,
+}

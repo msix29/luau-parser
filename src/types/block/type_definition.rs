@@ -5,8 +5,7 @@
 use luau_lexer::prelude::{LuauString, Token};
 use std::sync::Arc;
 
-use super::{FunctionCall, List, Name, Table, Var};
-use crate::prelude::Expression;
+use crate::types::{Expression, FunctionCall, List, Name, Table, Var};
 
 /// Possible values for a type.
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]

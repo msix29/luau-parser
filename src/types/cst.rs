@@ -2,7 +2,7 @@ use std::sync::Arc;
 use luau_lexer::token::Token;
 use smol_str::SmolStr;
 
-use super::{TerminationStatement, Statement};
+use super::{Block, Statement, TerminationStatement};
 
 /// An enum representing different states of an CST.
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -21,18 +21,11 @@ pub enum AstStatus {
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Cst {
-    /// The path pointing to the file that this [`CST`](Cst) represents, if any.
-    /// For scopes like functions, if statements, etc. it'll be `None` but for actual
-    /// files it'll always be `Some`.
-    pub uri: Option<SmolStr>,
+    /// The path pointing to the file that this [`CST`](Cst) represents.
+    pub uri: SmolStr,
 
-    /// The tokens in the of this [`CST`](Cst) **only**. Parent [`asts`](Cst)' tokens won't
-    /// be included. The optional [`SingleToken`] is the optional semicolon after the
-    /// statement.
-    pub statements: Vec<(Arc<Statement>, Option<Token>)>,
-
-    /// The [`last statement`](LastStatement) in this scope.
-    pub last_statement: Option<Arc<TerminationStatement>>,
+    /// The [`block`](Block) of code for this scope.
+    pub last_statement: Block,
 
     /// The status of the [`CST`](Cst). If it isn't [`complete`](AstStatus::Complete), it's
     /// better to not use it for operations which affect the source code, like formatting;

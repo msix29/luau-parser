@@ -1,6 +1,11 @@
 mod do_block;
 mod generic_for;
 mod if_statement;
+mod r#impl;
+mod local_assignment;
 mod numerical_for;
 mod repeat_block;
+mod set_expressions;
+mod statement;
+mod type_definition;
 mod while_loop;

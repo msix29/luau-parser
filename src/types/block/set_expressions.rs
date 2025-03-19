@@ -3,7 +3,7 @@
 use luau_lexer::prelude::Token;
 use std::sync::Arc;
 
-use super::{Expression, List, Var};
+use crate::types::{Expression, List, Var};
 
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
