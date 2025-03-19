@@ -30,13 +30,8 @@ impl<'a> LuauParser<'a> {
     }
 
     /// Parse Luau code into an [`CST`](Cst).
-    pub fn parse(&mut self, code: &str, uri: &str) -> Cst {
-        // NOTE: Can a text editor use `\r` by itself independant of the OS? If so, remove
-        // this `cfg`.
-        #[cfg(windows)]
-        let code = &code.replace('\r', "");
-
-        let cst = Cst::default();
+    pub fn parse(&mut self, uri: &str) -> Cst {
+        let cst = Cst::parse(self.lexer.next_token(), &mut self.lexer, uri);
 
         #[cfg(feature = "cache")]
         {
@@ -46,41 +41,33 @@ impl<'a> LuauParser<'a> {
         }
 
         #[cfg(not(feature = "cache"))]
-        {
-            // Only start a new scope because clippy warnings.
-            cst
-        }
+        cst
     }
 
-    /// Get a specific [`CST`]Cfrom the cache, this function assumes the cst does
-    /// exist. If it may or may not exist, use [`maybe_get_ast`].
-    ///
-    /// [`maybe_get_ast`]: Self::maybe_get_ast
-    /// [`CST`]:CAst
+    /// Get a specific [`CST`](Cst) from the cache, this function assumes the
+    /// cst does exist. If it may or may not exist, use
+    /// [`maybe_get_ast`](Self::maybe_get_ast).
     #[cfg(feature = "cache")]
     #[inline]
     pub fn get_ast(&self, uri: &str) -> &Cst {
         self.cache.get(uri).unwrap()
     }
 
-    /// Get a specific [`CST`]Cfrom the cache, or parse `code` and return the
-    /// [`CST`].C    ///
-    /// [`CST`]:CAst
+    /// Get a specific [`CST`](Cst) from the cache, or parse `code` and return the
     #[inline]
-    pub fn get_or_create(&mut self, uri: &str, code: &str) -> Cst {
+    pub fn get_or_create(&mut self, uri: &str, code: &'a str) -> Cst {
         #[cfg(feature = "cache")]
         if let Some(cst) = self.maybe_get_ast(uri) {
             return cst.to_owned();
         }
 
-        self.parse(code, uri)
+        self.lexer.set_input(code);
+        self.parse(uri)
     }
 
-    /// Get a specific [`CST`]Cfrom the cache, this function, unlike [`get_ast`], doesn't
-    /// error when the [`CST`]Cisn't there.
-    ///
-    /// [`get_ast`]: LuauParser::get_ast.
-    /// [`CST`]:CAst
+    /// Get a specific [`CST`](Cst) from the cache, this function, unlike
+    /// [`get_ast`](Self::get_ast), doesn't error when the [`CST`](Cst) isn't
+    /// there.
     #[cfg(feature = "cache")]
     #[inline]
     pub fn maybe_get_ast(&self, uri: &str) -> Option<&Cst> {
