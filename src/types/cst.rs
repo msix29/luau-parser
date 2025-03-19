@@ -24,7 +24,7 @@ pub struct Cst {
     pub uri: SmolStr,
 
     /// The [`block`](Block) of code for this scope.
-    pub last_statement: Block,
+    pub block: Block,
 
     /// All [`syntactical errors`](ParseError) in this CST.
     pub errors: Vec<ParseError>,
