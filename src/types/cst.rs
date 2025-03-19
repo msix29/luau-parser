@@ -1,3 +1,4 @@
+use luau_lexer::error::ParseError;
 use smol_str::SmolStr;
 
 use super::Block;
@@ -24,6 +25,9 @@ pub struct Cst {
 
     /// The [`block`](Block) of code for this scope.
     pub last_statement: Block,
+
+    /// All [`syntactical errors`](ParseError) in this CST.
+    pub errors: Vec<ParseError>,
 
     /// The status of the [`CST`](Cst). If it isn't [`complete`](AstStatus::Complete), it's
     /// better to not use it for operations which affect the source code, like formatting;
