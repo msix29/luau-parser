@@ -4,7 +4,7 @@ use luau_lexer::prelude::Token;
 use std::sync::Arc;
 
 use super::DoBlock;
-use crate::prelude::{Expression, NormalizedName};
+use crate::prelude::{Expression, Name};
 
 /// A struct representing a numerical for loop.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -14,7 +14,7 @@ pub struct NumericalFor {
     pub for_keyword: Token,
 
     /// The name afer the `for` keyword.
-    pub variable: NormalizedName,
+    pub variable: Name,
 
     /// The `=` character.
     pub equal_keyword: Token,

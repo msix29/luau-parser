@@ -4,7 +4,7 @@ macro_rules! next_token {
         next_token_with_condition!(
             $lexer,
             $name,
-            matches!($name.token_type, $pattern),
+            matches!(&$name.token_type, $pattern),
             $errors,
             $error_message
         )
@@ -18,7 +18,7 @@ macro_rules! next_token_with_condition {
         let $name = $lexer.next_token();
         if !$condition {
             $errors.push(
-                ryx_lexer::prelude::LexerError::new(
+                luau_lexer::prelude::ParseError::new(
                     state.lexer_position(),
                     format!(
                         "{} found {}",
@@ -49,7 +49,7 @@ macro_rules! next_token_recoverable {
         next_token_recoverable_with_condition!(
             $lexer,
             $name,
-            matches!($name.token_type, $pattern),
+            matches!(&$name.token_type, $pattern),
             $replacement,
             $errors,
             $error_message
@@ -71,7 +71,7 @@ macro_rules! next_token_recoverable_with_condition {
         let mut $name = $lexer.next_token();
         if !$condition {
             $errors.push(
-                ryx_lexer::prelude::LexerError::new(
+                luau_lexer::prelude::ParseError::new(
                     state.lexer_position(),
                     format!(
                         "{} found {}",
@@ -84,12 +84,12 @@ macro_rules! next_token_recoverable_with_condition {
                 .into(),
             );
 
-            $name = ryx_lexer::prelude::Token {
-                start: Some(state.lexer_position()),
+            $name = luau_lexer::prelude::Token {
+                start: state.lexer_position(),
                 spaces_before: String::new(),
                 token_type: $replacement,
                 spaces_after: String::new(),
-                end: Some(state.lexer_position()),
+                end: state.lexer_position(),
             };
             $lexer.set_state(state);
         }

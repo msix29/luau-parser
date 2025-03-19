@@ -43,6 +43,7 @@ pub mod r#impl;
 mod macros;
 pub mod parser;
 pub mod types;
+mod utils;
 
 /// Loads all needed items for outside crates to use.
 pub mod prelude {

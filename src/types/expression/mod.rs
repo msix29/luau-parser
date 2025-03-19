@@ -1,9 +1,9 @@
 //! Types representing all valid Luau expressions.
 
-use luau_lexer::prelude::{Literal, LuauNumber, LuauString, Token};
+use luau_lexer::prelude::Token;
 use std::sync::Arc;
 
-use super::{Cst, GenericDeclaration, List, NormalizedName, Table, TableKey, TypeValue};
+use super::{Cst, GenericDeclaration, List, Name, Table, TableKey, TypeValue};
 
 reexport!(table, var, function);
 
@@ -64,14 +64,14 @@ pub enum Expression {
     Nil(Token),
 
     /// A `true` or `false` value.
-    Boolean(Literal),
+    Boolean(Token),
 
     /// Any number, be it a float, an unsigned integer, an integer or a hex digit.
-    Number(LuauNumber),
+    Number(Token),
 
     /// A string, be it double quotes, single quotes, interpolated string, or multi-line.
     //TODO: Support interpolated string as a type by itself for better diagnostics?
-    String(LuauString),
+    String(Token),
 
     /// An **anonymous** function.
     ///
@@ -90,7 +90,7 @@ pub enum Expression {
         opening_parenthesis: Token,
 
         /// All [`parameters`](NormalizedName) of the function.
-        parameters: List<NormalizedName>,
+        parameters: List<Name>,
 
         /// The `)` character.
         closing_parenthesis: Token,

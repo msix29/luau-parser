@@ -39,3 +39,18 @@ pub struct List<T> {
     /// The actual items being stored.
     pub items: Vec<ListItem<T>>,
 }
+
+/// A [`list`](List) holding [`list items`](ListItem) of type `T` that must be
+/// surrounded by [`brackets`](Token).
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[derive(Clone, Debug, Hash, PartialEq, PartialOrd, Eq, Ord)]
+pub struct BracketedList<T> {
+    /// The opening bracket.
+    opening_bracket: Token,
+
+    /// List of arguments passed to the function.
+    list: List<T>,
+
+    /// The `)` character.
+    closing_bracket: Token,
+}

@@ -19,22 +19,20 @@ macro_rules! reexport {
 
 reexport!(
     block,
+    cst,
     expression,
     function,
     list,
     literals,
     local_assignment,
     name,
-    position,
     range,
     set_expressions,
     statement,
     traits,
     type_definition,
     value,
-    cst,
 );
-
 
 /// An enum representing printing errors that stopped [`Cst::try_print`] from working.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]

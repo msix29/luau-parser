@@ -9,11 +9,10 @@ use std::sync::Arc;
 
 use super::TypeValue;
 
-/// A struct that provides a high level abstraction of `name` and `typedName` from the
-/// grammar for easier usability..
+/// A variable name.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub struct NormalizedName {
+pub struct Name {
     /// The actual name.
     pub name: Token,
 

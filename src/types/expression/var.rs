@@ -2,14 +2,6 @@ use luau_lexer::prelude::Token;
 
 use super::TableAccess;
 
-/// Name of a [`variable`](Var).
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub struct VariableName {
-    /// The actual token holding the name.
-    pub token: Token,
-}
-
 /// Possible ways in which a variable can be referenced.
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
@@ -23,7 +15,7 @@ pub enum Var {
     /// ```lua
     /// local _ = foo
     /// ```
-    Name(VariableName),
+    Name(Token),
 
     /// A field accessed from a table.
     ///

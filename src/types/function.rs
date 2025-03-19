@@ -3,7 +3,7 @@
 use luau_lexer::prelude::Token;
 use std::sync::Arc;
 
-use super::{Cst, GenericDeclaration, List, NormalizedName, TypeValue};
+use super::{Cst, GenericDeclaration, List, Name, TypeValue};
 
 /// A struct representing a local function.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -25,7 +25,7 @@ pub struct LocalFunction {
     pub opening_parenthesis: Token,
 
     /// The parameters that this function accepts.
-    pub parameters: List<NormalizedName>,
+    pub parameters: List<Name>,
 
     /// The `)` character.
     pub closing_parenthesis: Token,
@@ -82,8 +82,8 @@ pub enum GlobalFunctionName {
         ///
         /// # Note
         ///
-        /// All [`ListItem`]s here will be will be [`NonTrailing`]. Amd `key.0` will always
-        /// be the dot character instead.
+        /// All [`ListItem`]s here will be will be [`NonTrailing`]. And `key.0` will always
+        /// be the dot character.
         ///
         /// [`ListItem`]: crate::types::ListItem
         /// [`NonTrailing`]: crate::types::ListItem::NonTrailing
@@ -129,7 +129,7 @@ pub struct GlobalFunction {
     pub opening_parenthesis: Token,
 
     /// The parameters that this function accepts.
-    pub parameters: List<NormalizedName>,
+    pub parameters: List<Name>,
 
     /// The `)` character.
     pub closing_parenthesis: Token,

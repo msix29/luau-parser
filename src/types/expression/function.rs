@@ -1,5 +1,7 @@
-use luau_lexer::prelude::{LuauString, Token};
+use luau_lexer::prelude::Token;
 use std::sync::Arc;
+
+use crate::types::BracketedList;
 
 use super::{Expression, List, PrefixExp, Table};
 
@@ -56,7 +58,7 @@ pub enum FunctionArguments {
     /// ```lua
     /// local _ = foo"Hello, World!"
     /// ```
-    String(LuauString),
+    String(Token),
 
     /// A standalone table.
     ///
@@ -70,14 +72,5 @@ pub enum FunctionArguments {
     /// ```lua
     /// local _ = foo(1, 2, 3)
     /// ```
-    List {
-        /// The `(` character.
-        open_parenthesis: Token,
-
-        /// List of arguments passed to the function.
-        arguments: List<Arc<Expression>>,
-
-        /// The `)` character.
-        close_parenthesis: Token,
-    },
+    List(BracketedList<Arc<Expression>>),
 }

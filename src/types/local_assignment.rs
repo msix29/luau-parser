@@ -3,7 +3,7 @@
 use luau_lexer::prelude::Token;
 use std::sync::Arc;
 
-use super::{Expression, List, NormalizedName};
+use super::{Expression, List, Name};
 
 /// A struct holding data for local assignments.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -13,7 +13,7 @@ pub struct LocalAssignment {
     pub local_token: Token,
 
     /// The List of [`names`](NormalizedName) before the `=` sign.
-    pub name_list: List<NormalizedName>,
+    pub name_list: List<Name>,
 
     /// The `=` sign.
     pub equal_token: Option<Token>,

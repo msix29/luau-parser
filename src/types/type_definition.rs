@@ -5,7 +5,7 @@
 use luau_lexer::prelude::{LuauString, Token};
 use std::sync::Arc;
 
-use super::{FunctionCall, List, NormalizedName, Table, Var};
+use super::{FunctionCall, List, Name, Table, Var};
 use crate::prelude::Expression;
 
 /// Possible values for a type.
@@ -73,7 +73,7 @@ pub enum TypeValue {
         opening_parenthesis: Token,
 
         /// The parameters this function accepts.
-        parameters: List<NormalizedName>,
+        parameters: List<Name>,
 
         /// The `)` character at the end of parameters and before returns
         closing_parenthesis: Token,

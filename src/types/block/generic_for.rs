@@ -4,7 +4,7 @@ use luau_lexer::prelude::Token;
 use std::sync::Arc;
 
 use super::DoBlock;
-use crate::prelude::{Expression, List, NormalizedName};
+use crate::prelude::{Expression, List, Name};
 
 /// A struct representing a for-in loop.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -14,7 +14,7 @@ pub struct GenericFor {
     pub for_keyword: Token,
 
     /// List of names after the `for` keyword.
-    pub names: List<NormalizedName>,
+    pub names: List<Name>,
 
     /// The `in` keyword.
     pub in_keyword: Token,

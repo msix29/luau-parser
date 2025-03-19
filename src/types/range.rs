@@ -1,6 +1,6 @@
 //! Range-related items.
 
-use crate::prelude::Position;
+use luau_lexer::prelude::Position;
 
 #[derive(Clone, Copy, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
