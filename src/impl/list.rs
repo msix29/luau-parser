@@ -12,13 +12,13 @@ impl<T> List<T> {
     }
 }
 
-impl<T: Debug> Parse for List<T> {
+impl<T: Debug + Parse> Parse for List<T> {
     fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
         todo!()
     }
 }
 
-impl<T> ParseWithArgs<Symbol> for BracketedList<T> {
+impl<T: Parse> ParseWithArgs<Symbol> for BracketedList<T> {
     fn parse_with(
         token: Token,
         lexer: &mut Lexer,
