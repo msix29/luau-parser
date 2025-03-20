@@ -1,10 +1,14 @@
+use luau_lexer::prelude::{Keyword, Lexer, Operator, ParseError, Token, TokenType};
 use std::sync::Arc;
-use luau_lexer::prelude::{Lexer, Operator, ParseError, Token, TokenType};
 
 use crate::types::{Expression, List, LocalAssignment, Name, Parse};
 
 impl Parse for LocalAssignment {
     fn parse(local_token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
+        if local_token != TokenType::Keyword(Keyword::Local) {
+            return None;
+        }
+
         let name_list = List::<Name>::parse(lexer.next_token(), lexer, errors)?;
 
         maybe_next_token!(lexer, equal_token, TokenType::Operator(Operator::Equal));
