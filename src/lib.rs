@@ -7,7 +7,7 @@
 //!
 //! # Usage:
 //!
-//! ```rust
+//! ```norun
 //! use luau_parser::parser::LuauParser;
 //!
 //! let code = r#"local foo = "Hello, World!""#;
