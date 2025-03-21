@@ -12,3 +12,9 @@ impl ParseWithArgs<Option<TokenType>> for Block {
         todo!()
     }
 }
+
+impl Block {
+    pub fn is_empty(&self) -> bool {
+        self.statements.is_empty() && self.last_statement.is_none()
+    }
+}

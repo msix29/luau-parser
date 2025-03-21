@@ -7,17 +7,18 @@
 //!
 //! # Usage:
 //!
-//! ```norun
+//! ```no_run
 //! use luau_parser::parser::LuauParser;
 //!
 //! let code = r#"local foo = "Hello, World!""#;
-//! let uri = "";
+//! let uri = ""; // This should be the path of the file being parsed
+//!               // (Used with `cache` feature).
 //!
-//! let mut parser = LuauParser::new();
-//! let cst = parser.parse(code, uri);
+//! let mut parser = LuauParser::new(code);
+//! let cst = parser.parse(uri);
 //!
 //! println!("{:#?}", cst);
-//! assert_eq!(cst.statements.len(), 1);
+//! assert!(!cst.block.is_empty());
 //! ```
 //!
 //! # Note
