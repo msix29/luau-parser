@@ -23,7 +23,7 @@ macro_rules! next_token_with_condition {
                     format!(
                         "{} found {}",
                         $error_message,
-                        /* TODO: */ $crate::utils::get_token_type_display(&$name.token_type)
+                        $crate::utils::get_token_type_display(&$name.token_type)
                     ),
                     Some(state.lexer_position()),
                 )
@@ -76,7 +76,6 @@ macro_rules! next_token_recoverable_with_condition {
                     format!(
                         "{} found {}",
                         $error_message,
-                        /* TODO: */
                         $crate::utils::get_token_type_display_extended(&$name.token_type)
                     ),
                     Some(state.lexer_position()),

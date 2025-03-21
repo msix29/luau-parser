@@ -5,7 +5,7 @@
 use luau_lexer::prelude::{LuauString, Token};
 use std::sync::Arc;
 
-use crate::types::{Expression, FunctionCall, List, Name, Table, Var};
+use crate::types::{BracketedList, Expression, FunctionCall, List, Name, Table, Var};
 
 /// Possible values for a type.
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -15,19 +15,12 @@ pub enum TypeValue {
     #[default]
     ERROR,
 
-    /// Just a reference to another type.
-    ///
-    /// ```lua
-    /// type Foo = Bar
-    /// ```
-    Basic(Token),
-
     /// A singletone string.
     ///
     /// ```lua
     /// type Foo = "Bar"
     /// ```
-    String(LuauString),
+    String(Token),
 
     /// A boolean value
     ///
@@ -84,25 +77,18 @@ pub enum TypeValue {
         return_type: Arc<TypeValue>,
     },
 
-    /// A reference to a generic type.
+    /// A reference to a different type.
     ///
     /// ```lua
-    /// type EmptySignal = Signal<string, ()>
+    /// type Foo = Bar
+    /// type FooBar = Qux<string>
     /// ```
-    ///
-    /// The [`generic`](TypeValue::Generic) here is `Signal`.
-    Generic {
+    Basic {
         /// The name of the type that has the generics.
         base: Token,
 
-        /// The `<` character.
-        right_arrows: Token,
-
-        /// The actual generics.
-        generics: List<Arc<TypeValue>>,
-
-        /// The `>` character.
-        left_arrows: Token,
+        /// Optional generics.
+        generics: Option<BracketedList<Arc<TypeValue>>>,
     },
 
     /// A generic pack.
@@ -159,9 +145,10 @@ pub enum TypeValue {
         dot: Token,
 
         /// The actual name of the type being accessed.
-        type_value: Arc<TypeValue>,
-        // /// The generics for this type.
-        // generics: Option<GenericParameters>,
+        name: Token,
+
+        /// Optional generics.
+        generics: Option<BracketedList<Arc<TypeValue>>>,
     },
 
     /// An optional type.
