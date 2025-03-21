@@ -19,6 +19,7 @@ macro_rules! reexport {
 
 reexport!(
     block,
+    bracketed,
     cst,
     expression,
     function,
