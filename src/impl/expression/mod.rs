@@ -4,8 +4,9 @@ mod var;
 
 use luau_lexer::prelude::{Lexer, Literal, ParseError, Symbol, Token, TokenType};
 
-use crate::types::{
-    Expression, ExpressionWrap, FunctionCall, Parse, ParseWithArgs, PrefixExp, Var,
+use crate::{
+    handle_error_token,
+    types::{Expression, ExpressionWrap, FunctionCall, Parse, ParseWithArgs, PrefixExp, Var},
 };
 
 impl Parse for PrefixExp {
@@ -41,11 +42,7 @@ impl Expression {
 impl Parse for Expression {
     fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
         match token.token_type {
-            TokenType::Error(parse_error) => {
-                errors.push(parse_error);
-
-                None
-            }
+            TokenType::Error(error) => handle_error_token!(errors, error),
             TokenType::Literal(_) => Self::parse_from_literal(token),
             TokenType::Identifier(_) => Var::parse(token, lexer, errors).map(Self::Var),
             TokenType::Keyword(_) => todo!(),

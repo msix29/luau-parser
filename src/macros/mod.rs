@@ -6,8 +6,8 @@ mod get_item_from_enum;
 mod impl_print_enum;
 mod impl_print_struct;
 
-#[macro_export]
 /// Macro used to error when an unhandled variant is met.
+#[macro_export]
 macro_rules! unhandled_kind {
     ($variable: ident, $currently_parsing: literal) => {{
         // eprintln!(
@@ -18,8 +18,8 @@ macro_rules! unhandled_kind {
     }};
 }
 
-#[macro_export]
 /// Macro used to error when [`get_range`](crate::types::HasRange::get_range) is called.
+#[macro_export]
 macro_rules! bad_range {
     ($currently_parsing: literal) => {
         panic!(
@@ -27,4 +27,13 @@ macro_rules! bad_range {
             $currently_parsing
         )
     };
+}
+
+#[macro_export]
+macro_rules! handle_error_token {
+    ($errors: ident, $error: expr) => {{
+        $errors.push($error);
+
+        None
+    }};
 }

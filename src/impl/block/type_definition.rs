@@ -1,11 +1,11 @@
 use luau_lexer::prelude::{Lexer, Literal, Operator, ParseError, Symbol, Token, TokenType};
 use std::sync::Arc;
 
-use crate::types::{
+use crate::{handle_error_token, types::{
     Bracketed, BracketedList, GenericDeclaration, GenericDeclarationParameter,
     GenericParameterInfo, GenericParameterInfoDefault, GenericParameters, Parse, ParseWithArgs,
     TypeDefinition, TypeValue,
-};
+}};
 
 impl TypeValue {
     fn parse_from_name(
@@ -54,6 +54,7 @@ impl TypeValue {
 
     fn parse_inner(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
         match token.token_type {
+            TokenType::Error(error) => handle_error_token!(errors, error),
             TokenType::Literal(ref literal) => match literal {
                 Literal::Number(_) => None,
                 Literal::String(_) => Some(Self::String(token)),
