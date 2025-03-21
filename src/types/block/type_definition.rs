@@ -2,7 +2,7 @@
 //!
 //! Module containg definition for type definitions.
 
-use luau_lexer::prelude::{LuauString, Token};
+use luau_lexer::prelude::Token;
 use std::sync::Arc;
 
 use crate::types::{BracketedList, Expression, FunctionCall, List, Name, Table, Var};
@@ -88,7 +88,7 @@ pub enum TypeValue {
         base: Token,
 
         /// Optional generics.
-        generics: Option<BracketedList<Arc<TypeValue>>>,
+        generics: Option<Box<BracketedList<Arc<TypeValue>>>>,
     },
 
     /// A generic pack.
@@ -148,7 +148,7 @@ pub enum TypeValue {
         name: Token,
 
         /// Optional generics.
-        generics: Option<BracketedList<Arc<TypeValue>>>,
+        generics: Option<Box<BracketedList<Arc<TypeValue>>>>,
     },
 
     /// An optional type.

@@ -38,7 +38,8 @@ impl TypeValue {
             lexer,
             errors,
             ("Expected <type>", Symbol::ClosingAngleBrackets),
-        );
+        )
+        .map(Box::new);
 
         if let Some((dot, name)) = actual_type {
             Some(Self::Module {
