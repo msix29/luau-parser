@@ -1,4 +1,4 @@
-use luau_lexer::prelude::{Lexer, Literal, ParseError, Symbol, Token, TokenType};
+use luau_lexer::prelude::{Lexer, Literal, Operator, ParseError, Symbol, Token, TokenType};
 use std::sync::Arc;
 
 use crate::types::{
@@ -51,10 +51,8 @@ impl TypeValue {
             Some(Self::Basic { base, generics })
         }
     }
-}
 
-impl Parse for TypeValue {
-    fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
+    fn parse_inner(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
         match token.token_type {
             TokenType::Literal(ref literal) => match literal {
                 Literal::Number(_) => None,
@@ -87,6 +85,35 @@ impl Parse for TypeValue {
             TokenType::Operator(_) => None,
             TokenType::CompoundOperator(_) => None,
             _ => None,
+        }
+    }
+}
+
+impl Parse for TypeValue {
+    fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
+        let left = Self::parse_inner(token, lexer, errors)?;
+        let state = lexer.save_state();
+        let maybe_operation = lexer.next_token();
+
+        match maybe_operation.token_type {
+            TokenType::Operator(Operator::Intersection) => Some(Self::Intersection {
+                left: Arc::new(left),
+                ampersand: maybe_operation,
+                right: Self::parse(lexer.next_token(), lexer, errors)
+                    .map(Arc::new)
+                    .unwrap_or_default(),
+            }),
+            TokenType::Operator(Operator::Union) => Some(Self::Union {
+                left: Arc::new(left),
+                pipe: maybe_operation,
+                right: Self::parse(lexer.next_token(), lexer, errors)
+                    .map(Arc::new)
+                    .unwrap_or_default(),
+            }),
+            _ => {
+                lexer.set_state(state);
+                Some(left)
+            }
         }
     }
 }
