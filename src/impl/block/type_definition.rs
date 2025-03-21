@@ -37,7 +37,7 @@ impl TypeValue {
             lexer.next_token(),
             lexer,
             errors,
-            Symbol::ClosingAngleBrackets,
+            ("Expected <type>", Symbol::ClosingAngleBrackets),
         );
 
         if let Some((dot, name)) = actual_type {

@@ -3,23 +3,12 @@
 use luau_lexer::prelude::Token;
 use std::sync::Arc;
 
-use super::{Cst, GenericDeclaration, List, Name, Table, TableKey, TypeValue};
+use super::{Bracketed, Cst, GenericDeclaration, List, Name, Table, TableKey, TypeValue};
 
 reexport!(table, var, function);
 
 /// A struct representing an expression wrapped in parenthesis.
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub struct ExpressionWrap {
-    /// The `(` character.
-    pub opening_parenthesis: Token,
-
-    /// The actual [`expression`](Expression) being wrapped.
-    pub expression: Arc<Expression>,
-
-    /// The `)` character.
-    pub closing_parenthesis: Token,
-}
+pub type ExpressionWrap = Bracketed<Arc<Expression>>;
 
 /// Part of expressions that are usually at the start of actual expressions.
 ///

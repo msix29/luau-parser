@@ -42,8 +42,13 @@ impl Parse for FunctionArguments {
             return Some(Self::String(token));
         }
         if token.token_type == TokenType::Symbol(Symbol::OpeningParenthesis) {
-            return BracketedList::parse_with(token, lexer, errors, Symbol::ClosingParenthesis)
-                .map(Self::List);
+            return BracketedList::parse_with(
+                token,
+                lexer,
+                errors,
+                ("Expected <expr>", Symbol::ClosingParenthesis),
+            )
+            .map(Self::List);
         }
 
         Table::parse(token.clone(), lexer, errors).map(Self::Table)

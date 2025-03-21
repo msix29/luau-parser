@@ -5,11 +5,11 @@ use luau_lexer::token::Token;
 #[derive(Clone, Debug, Hash, PartialEq, PartialOrd, Eq, Ord)]
 pub struct Bracketed<T> {
     /// The opening bracket.
-    opening_bracket: Token,
+    pub opening_bracket: Token,
 
     /// The actual item
-    item: T,
+    pub item: T,
 
     /// The closing bracket.
-    closing_bracket: Token,
+    pub closing_bracket: Token,
 }
