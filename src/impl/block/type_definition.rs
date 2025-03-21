@@ -1,11 +1,10 @@
+use luau_lexer::prelude::{Lexer, Literal, ParseError, Symbol, Token, TokenType};
 use std::sync::Arc;
 
-use luau_lexer::prelude::{Lexer, Literal, ParseError, Symbol, Token, TokenType};
-
 use crate::types::{
-    BracketedList, GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo,
-    GenericParameterInfoDefault, GenericParameters, Parse, ParseWithArgs, TypeDefinition,
-    TypeValue,
+    Bracketed, BracketedList, GenericDeclaration, GenericDeclarationParameter,
+    GenericParameterInfo, GenericParameterInfoDefault, GenericParameters, Parse, ParseWithArgs,
+    TypeDefinition, TypeValue,
 };
 
 impl TypeValue {
@@ -65,7 +64,26 @@ impl Parse for TypeValue {
             TokenType::Identifier(_) => Self::parse_from_name(token, lexer, errors),
             TokenType::Keyword(_) => None,
             TokenType::PartialKeyword(_) => Self::parse_from_name(token, lexer, errors),
-            TokenType::Symbol(_) => None, //TODO: Wraps and tuples
+            TokenType::Symbol(Symbol::OpeningParenthesis) => {
+                if let Some(bracketed) = BracketedList::<Arc<TypeValue>>::parse_with(
+                    token,
+                    lexer,
+                    errors,
+                    ("Expected <type>", Symbol::ClosingParenthesis),
+                ) {
+                    if bracketed.items.len() == 1 {
+                        Some(Self::Wrap(Bracketed {
+                            item: (*bracketed.items[0]).clone(), // different order to fix deref issues.
+                            opening_bracket: bracketed.opening_bracket,
+                            closing_bracket: bracketed.closing_bracket,
+                        }))
+                    } else {
+                        Some(Self::Tuple(bracketed))
+                    }
+                } else {
+                    None
+                }
+            }
             TokenType::Operator(_) => None,
             TokenType::CompoundOperator(_) => None,
             _ => None,

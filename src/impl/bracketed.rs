@@ -1,3 +1,5 @@
+use std::ops::{Deref, DerefMut};
+
 use luau_lexer::prelude::{Lexer, ParseError, Symbol, Token, TokenType};
 
 use crate::types::{Bracketed, Parse, ParseWithArgs};
@@ -34,5 +36,19 @@ impl<T: Parse> ParseWithArgs<(&str, Symbol)> for Bracketed<T> {
             item,
             closing_bracket,
         })
+    }
+}
+
+impl<T> Deref for Bracketed<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &self.item
+    }
+}
+
+impl<T> DerefMut for Bracketed<T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.item
     }
 }

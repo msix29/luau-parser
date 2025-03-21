@@ -1,6 +1,10 @@
 use luau_lexer::prelude::{Lexer, ParseError, Token};
-use std::fmt::Debug;
+use std::{
+    fmt::Debug,
+    ops::{Deref, DerefMut},
+};
 
+use crate::types::ListItem;
 pub use crate::types::{List, Parse};
 
 impl<T> List<T> {
@@ -13,5 +17,25 @@ impl<T> List<T> {
 impl<T: Debug + Parse> Parse for List<T> {
     fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
         todo!()
+    }
+}
+
+impl<T> Deref for ListItem<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        match self {
+            ListItem::Trailing { item, .. } => item,
+            ListItem::NonTrailing(item) => item,
+        }
+    }
+}
+
+impl<T> DerefMut for ListItem<T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        match self {
+            ListItem::Trailing { item, .. } => item,
+            ListItem::NonTrailing(item) => item,
+        }
     }
 }

@@ -5,7 +5,7 @@
 use luau_lexer::prelude::Token;
 use std::sync::Arc;
 
-use crate::types::{BracketedList, Expression, FunctionCall, List, Name, Table, Var};
+use crate::types::{Bracketed, BracketedList, Expression, FunctionCall, List, Name, Table, Var};
 
 /// Possible values for a type.
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -37,16 +37,7 @@ pub enum TypeValue {
     /// ```lua
     /// type Foo = (bar)
     /// ```
-    Wrap {
-        /// The `(` character.
-        opening_parenthesis: Token,
-
-        /// The type wrapped in between the parenthesis.
-        r#type: Arc<TypeValue>,
-
-        /// The `)` character.
-        closing_parenthesis: Token,
-    },
+    Wrap(Bracketed<Arc<TypeValue>>),
 
     /// A function type.
     ///
@@ -205,16 +196,7 @@ pub enum TypeValue {
     /// ```lua
     /// type Foo = (string, number)
     /// ```
-    Tuple {
-        /// The `(` character.
-        opening_parenthesis: Token,
-
-        /// The list of types between the parenthesis.
-        types: List<Arc<TypeValue>>,
-
-        /// The `)` character.
-        closing_parenthesis: Token,
-    },
+    Tuple(BracketedList<Arc<TypeValue>>),
 
     /// A variadic type.
     ///
