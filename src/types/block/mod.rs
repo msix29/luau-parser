@@ -25,6 +25,7 @@ pub struct Block {
     pub statements: Vec<(Arc<Statement>, Option<Token>)>,
 
     /// The [`last statement`](TerminationStatement) (aka termination statement)
-    /// of this scope.
-    pub last_statement: Option<Arc<TerminationStatement>>,
+    /// of this scope. The optional [`Token`] is the optional semicolon after the
+    /// statement.
+    pub last_statement: Option<(Arc<TerminationStatement>, Option<Token>)>,
 }

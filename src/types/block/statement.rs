@@ -4,7 +4,7 @@
 //! outside it too, like in a formatter or a lsp.
 
 use luau_lexer::prelude::Token;
-use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
+use std::sync::Arc;
 
 use crate::prelude::{
     CompoundSetExpression, DoBlock, Expression, FunctionCall, GenericFor, GlobalFunction,
@@ -12,19 +12,41 @@ use crate::prelude::{
     TypeDefinition, WhileLoop,
 };
 
-pub type StatementInner = (Statement, Option<Token>);
-pub type StatementsInner = Arc<RwLock<Vec<StatementInner>>>;
-pub type ReadGuard<'a> = RwLockReadGuard<'a, Vec<StatementInner>>;
-pub type WriteGuard<'a> = RwLockWriteGuard<'a, Vec<StatementInner>>;
+macro_rules! generate_statement {
+    ($(
+        $( #[$meta:meta] )*
+        $name:ident($ty:ty)
+    ),* $(,)?) => {
+        /// All possible tokens in an [`CST`](crate::types::Cst).
+        #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
+        #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+        pub enum Statement {
+            /// This statement had an error and couldn't parse anything.
+            #[default]
+            ERROR,
 
-/// All possible tokens in an [`CST`](super::Cst).
-#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub enum Statement {
-    /// This statement had an error and couldn't parse anything.
-    #[default]
-    ERROR,
+            $( $( #[$meta] )* $name(Box<$ty>) ,)*
+        }
 
+        impl Statement {
+            pub(crate) fn __parse(
+                token: luau_lexer::prelude::Token,
+                lexer: &mut luau_lexer::prelude::Lexer,
+                errors: &mut Vec<luau_lexer::prelude::ParseError>
+            ) -> Option<Self> {
+                use $crate::prelude::Parse as _;
+
+                $( if let Some(value) = <$ty>::parse(token.clone(), lexer, errors) {
+                    Some(Self::$name(Box::new(value)))
+                } else )* {
+                    Some(Self::ERROR)
+                }
+            }
+        }
+    };
+}
+
+generate_statement! {
     /// A variable declaration.
     ///
     /// ```lua
@@ -33,7 +55,7 @@ pub enum Statement {
     /// end
     /// local qux = {}
     /// ```
-    LocalAssignment(Box<LocalAssignment>),
+    LocalAssignment(LocalAssignment),
 
     /// A type definition.
     ///
@@ -42,7 +64,7 @@ pub enum Statement {
     /// export type Bar<P, R> = (param: P) -> R
     /// type qux = {}
     /// ```
-    TypeDefinition(Box<TypeDefinition>),
+    TypeDefinition(TypeDefinition),
 
     /// An if statement.
     ///
@@ -55,7 +77,7 @@ pub enum Statement {
     ///     print("It's neither a or b :(")
     /// end
     /// ```
-    IfStatement(Box<IfStatement>),
+    IfStatement(IfStatement),
 
     /// A do block.
     ///
@@ -69,7 +91,7 @@ pub enum Statement {
     ///
     /// This struct isn't used for while or for loops, they have their own tokens, and have
     /// do blocks as part of their token.
-    DoBlock(Box<DoBlock>),
+    DoBlock(DoBlock),
 
     /// A generic for loop.
     ///
@@ -78,7 +100,7 @@ pub enum Statement {
     ///     print(`{i}: {v}`)
     /// end
     /// ```
-    GenericFor(Box<GenericFor>),
+    GenericFor(GenericFor),
 
     /// A numerical for loop.
     ///
@@ -87,7 +109,7 @@ pub enum Statement {
     ///     print(i)
     /// end
     /// ```
-    NumericalFor(Box<NumericalFor>),
+    NumericalFor(NumericalFor),
 
     /// A repeat block.
     ///
@@ -98,7 +120,7 @@ pub enum Statement {
     ///     i += 1
     /// until i == 10
     /// ```
-    RepeatBlock(Box<RepeatBlock>),
+    RepeatBlock(RepeatBlock),
 
     /// A while loop.
     ///
@@ -109,7 +131,7 @@ pub enum Statement {
     ///     i += 1
     /// end
     /// ```
-    WhileLoop(Box<WhileLoop>),
+    WhileLoop(WhileLoop),
 
     /// A set expression.
     ///
@@ -118,7 +140,7 @@ pub enum Statement {
     /// b, c = true, false, 1
     /// d, e, f = foo()
     /// ```
-    SetExpression(Box<SetExpression>),
+    SetExpression(SetExpression),
 
     /// A compound set expression.
     ///
@@ -126,14 +148,14 @@ pub enum Statement {
     /// foo += 1
     /// bar //= 2
     /// ```
-    CompoundSetExpression(Box<CompoundSetExpression>),
+    CompoundSetExpression(CompoundSetExpression),
 
     /// A function call.
     ///
     /// ```lua
     /// local _ = foo(1, 2, 3)
     /// ```
-    FunctionCall(Box<FunctionCall>),
+    FunctionCall(FunctionCall),
 
     /// A local function.
     ///
@@ -141,7 +163,7 @@ pub enum Statement {
     /// local function foo(bar: string): Qux
     /// end
     /// ```
-    LocalFunction(Box<LocalFunction>),
+    LocalFunction(LocalFunction),
 
     /// A global function.
     ///
@@ -151,7 +173,7 @@ pub enum Statement {
     /// function foo:Qux(bar: string): Qux
     /// end
     /// ```
-    GlobalFunction(Box<GlobalFunction>),
+    GlobalFunction(GlobalFunction),
 }
 
 /// An enum representing different types of statements that can end a block of code.
@@ -159,21 +181,19 @@ pub enum Statement {
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum TerminationStatement {
-    /// The `break` keyword. The first is the `break` word and the second is the optional
-    /// `;` after it.
+    /// The `break` keyword.
     ///
     /// ```lua
     /// break
     /// ```
-    Break((Token, Option<Token>)),
+    Break(Token),
 
-    /// The `continue` keyword. The first is the `continue` word and the second is the
-    /// optional `;` after it.
+    /// The `continue` keyword.
     ///
     /// ```lua
     /// continue
     /// ```
-    Continue((Token, Option<Token>)),
+    Continue(Token),
 
     /// A `return` statement. Can be in multiple forms:
     ///
@@ -189,9 +209,6 @@ pub enum TerminationStatement {
         return_keyword: Token,
 
         /// The list of expressions after it.
-        expressions: List<Arc<Expression>>,
-
-        /// The `;` character.
-        semicolon: Option<Token>,
+        expressions: Option<List<Arc<Expression>>>,
     },
 }

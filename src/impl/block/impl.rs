@@ -1,15 +1,68 @@
-use luau_lexer::prelude::{Lexer, ParseError, Token, TokenType};
+use std::sync::Arc;
 
-use crate::types::{Block, ParseWithArgs};
+use luau_lexer::{
+    prelude::{Lexer, ParseError, Token, TokenType},
+    token::Symbol,
+};
+
+use crate::types::{Block, Parse, ParseWithArgs, Statement, TerminationStatement};
 
 impl ParseWithArgs<Option<TokenType>> for Block {
     fn parse_with(
-        token: Token,
+        mut token: Token,
         lexer: &mut Lexer,
         errors: &mut Vec<ParseError>,
         stop_at: Option<TokenType>,
     ) -> Option<Self> {
-        todo!()
+        let stop_at = stop_at.as_ref();
+        let mut statements = Vec::new();
+        let mut last_statement = None;
+
+        loop {
+            if token.token_type == TokenType::EndOfFile {
+                break;
+            }
+
+            if let Some(statement) = Statement::parse(token.clone(), lexer, errors) {
+                if last_statement.is_some() {
+                    // We will still continue parsing so LSPs, formatters, etc.
+                    // can still produce "correct" outputs.
+
+                    //TODO:
+                    // if let Some(location) = statement.get_location() {
+                    //     errors.push(
+                    //         ParseError::new(
+                    //             location.start,
+                    //             "Statements after a termination statement are not allowed."
+                    //                 .to_string(),
+                    //             Some(location.end),
+                    //         )
+                    //         .into(),
+                    //     );
+                    // }
+                }
+
+                maybe_next_token!(lexer, maybe_semicolon, TokenType::Symbol(Symbol::Semicolon));
+                statements.push((Arc::new(statement), maybe_semicolon))
+            } else if let Some(statement) = TerminationStatement::parse(token, lexer, errors) {
+                maybe_next_token!(lexer, maybe_semicolon, TokenType::Symbol(Symbol::Semicolon));
+                last_statement = Some((Arc::new(statement), maybe_semicolon));
+            }
+
+            let state = lexer.save_state();
+            token = lexer.next_token();
+
+            if Some(&token.token_type) == stop_at {
+                lexer.set_state(state);
+
+                break;
+            }
+        }
+
+        Some(Self {
+            statements,
+            last_statement,
+        })
     }
 }
 

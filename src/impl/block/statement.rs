@@ -1,10 +1,18 @@
-use luau_lexer::prelude::{Keyword, Lexer, ParseError, PartialKeyword, Symbol, Token, TokenType};
+use luau_lexer::prelude::{Keyword, Lexer, ParseError, PartialKeyword, Token, TokenType};
+use std::sync::Arc;
 
-use crate::types::{List, Parse, Statement, TerminationStatement};
+use crate::{
+    handle_error_token,
+    types::{Expression, List, Parse, Statement, TerminationStatement},
+};
 
 impl Parse for Statement {
     fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
-        todo!()
+        match token.token_type {
+            TokenType::Error(error) => handle_error_token!(errors, error),
+            TokenType::EndOfFile => None,
+            _ => Self::__parse(token, lexer, errors),
+        }
     }
 }
 
@@ -19,29 +27,20 @@ impl Parse for TerminationStatement {
             return None;
         }
         if matches!(keyword.token_type, TokenType::Keyword(Keyword::Break)) {
-            maybe_next_token!(lexer, semi_colon, TokenType::Symbol(Symbol::Semicolon));
-
-            return Some(Self::Break((keyword, semi_colon)));
+            return Some(Self::Break(keyword));
         }
 
         if matches!(
             keyword.token_type,
             TokenType::PartialKeyword(PartialKeyword::Continue)
         ) {
-            maybe_next_token!(lexer, semi_colon, TokenType::Symbol(Symbol::Semicolon));
-
-            return Some(Self::Continue((keyword, semi_colon)));
+            return Some(Self::Continue(keyword));
         }
 
         if matches!(keyword.token_type, TokenType::Keyword(Keyword::Return)) {
-            let expressions = List::new(); //TODO
-
-            maybe_next_token!(lexer, semi_colon, TokenType::Symbol(Symbol::Semicolon));
-
             return Some(Self::Return {
                 return_keyword: keyword,
-                expressions,
-                semicolon: semi_colon,
+                expressions: List::<Arc<Expression>>::parse(lexer.next_token(), lexer, errors),
             });
         }
 
