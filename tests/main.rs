@@ -1,4 +1,6 @@
 #![cfg(test)]
 
-mod expression;
+#[macro_use]
+mod macros;
 
+mod expression;
