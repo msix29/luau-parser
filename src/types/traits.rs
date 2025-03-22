@@ -31,18 +31,18 @@ pub trait Print {
 // }
 
 /// A trait that indicates that this struct can be parsed from a [`lexer`](Lexer)
-pub trait Parse: Sized + Debug {
-    fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self>;
+pub trait Parse<O = Self>: Sized + Debug {
+    fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<O>;
 }
 
 /// A trait that means this node can be built from a [`tree-sitter Node`](Node).
-pub trait ParseWithArgs<T>: Sized {
+pub trait ParseWithArgs<T, O = Self>: Sized {
     fn parse_with(
         token: Token,
         lexer: &mut Lexer,
         errors: &mut Vec<ParseError>,
         args: T,
-    ) -> Option<Self>;
+    ) -> Option<O>;
 }
 
 /// A trait for getting the range for this specific item.
