@@ -11,3 +11,10 @@ macro_rules! get_from_enum {
         };
     };
 }
+
+#[macro_export]
+macro_rules! assert_matches {
+    ($expression:expr, $pattern:pat $(if $guard:expr)? $(,)?) => {
+        assert!(matches!($expression, $pattern $(if $guard)?))
+    };
+}

@@ -14,16 +14,13 @@ fn literals() {
             assert!($var.is_some());
 
             let $var = $var.as_ref().unwrap();
-            assert!(matches!($var, Expression::$arm1(_)));
+            assert_matches!($var, Expression::$arm1(_));
 
             let Expression::$arm1(temp) = $var else {
                 unreachable!()
             };
 
-            assert!(matches!(
-                temp.token_type,
-                TokenType::Literal(Literal::$arm2(_))
-            ))
+            assert_matches!(temp.token_type, TokenType::Literal(Literal::$arm2(_)))
         }};
     }
 
@@ -48,9 +45,9 @@ fn var() {
     let table_access = table_access.unwrap();
     let name2 = name2.unwrap();
 
-    assert!(matches!(name1, Var::Name(_)));
-    assert!(matches!(table_access, Var::TableAccess(_)));
-    assert!(matches!(name2, Var::Name(_)));
+    assert_matches!(name1, Var::Name(_));
+    assert_matches!(table_access, Var::TableAccess(_));
+    assert_matches!(name2, Var::Name(_));
 
     get_from_enum!(Var::Name(name1) = name1);
     get_from_enum!(Var::TableAccess(table_access) = table_access);
@@ -62,15 +59,12 @@ fn var() {
     );
     assert_eq!(name2.token_type, TokenType::Identifier("qux".to_string()));
 
-    assert!(matches!(table_access.prefix, TableAccessPrefix::Name(_)));
+    assert_matches!(table_access.prefix, TableAccessPrefix::Name(_));
 
     get_from_enum!(TableAccessPrefix::Name(prefix) = table_access.prefix);
 
     assert!(!table_access.accessed_keys.is_empty());
-    assert!(matches!(
-        table_access.accessed_keys[0],
-        TableAccessKey::Name { .. }
-    ));
+    assert_matches!(table_access.accessed_keys[0], TableAccessKey::Name { .. });
 
     get_from_enum!(TableAccessKey::Name { ref name, .. } = table_access.accessed_keys[0]);
 
