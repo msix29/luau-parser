@@ -10,10 +10,23 @@ use crate::{
 };
 
 impl Parse for PrefixExp {
+    #[inline]
     fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
-        Var::parse(token.clone(), lexer, errors)
-            .map(Self::Var)
-            .or_else(|| FunctionCall::parse(token.clone(), lexer, errors).map(Self::FunctionCall))
+        Self::parse_with(token, lexer, errors, false)
+    }
+}
+
+impl ParseWithArgs<bool> for PrefixExp {
+    fn parse_with(
+        token: Token,
+        lexer: &mut Lexer,
+        errors: &mut Vec<ParseError>,
+        is_recursion: bool,
+    ) -> Option<Self> {
+        (!is_recursion)
+            .then(|| FunctionCall::parse(token.clone(), lexer, errors))
+            .unwrap_or(None)
+            .or_else(|| Var::parse_with(token.clone(), lexer, errors, is_recursion))
             .or_else(|| {
                 ExpressionWrap::parse_with(
                     token,
@@ -44,9 +57,8 @@ impl Parse for Expression {
         match token.token_type {
             TokenType::Error(error) => handle_error_token!(errors, error),
             TokenType::Literal(_) => Self::parse_from_literal(token),
-            TokenType::Identifier(_) => Var::parse(token, lexer, errors).map(Self::Var),
+            TokenType::Identifier(_) | TokenType::PartialKeyword(_) => Var::parse(token, lexer, errors),
             TokenType::Keyword(_) => todo!(),
-            TokenType::PartialKeyword(_) => Var::parse(token, lexer, errors).map(Self::Var),
             TokenType::Symbol(Symbol::OpeningParenthesis) => ExpressionWrap::parse_with(
                 token,
                 lexer,

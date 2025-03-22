@@ -1,4 +1,8 @@
-use luau_lexer::prelude::{CompoundOperator, Operator, Symbol, TokenType};
+use luau_lexer::prelude::{
+    CompoundOperator, Lexer, Operator, ParseError, State, Symbol, Token, TokenType,
+};
+
+use crate::types::Parse;
 
 pub(crate) fn get_token_type_display(token_type: &TokenType) -> String {
     match token_type {
@@ -73,4 +77,21 @@ pub(crate) fn get_token_type_display_extended(token_type: &TokenType) -> String 
         TokenType::Error(_) => "<error>",
     }
     .to_string()
+}
+
+#[inline]
+pub(crate) fn try_parse<T: Parse>(
+    original_state: State,
+    token: Token,
+    lexer: &mut Lexer,
+    errors: &mut Vec<ParseError>,
+) -> Option<T> {
+    match T::parse(token, lexer, errors) {
+        value @ Some(_) => value,
+        None => {
+            lexer.set_state(original_state);
+
+            None
+        }
+    }
 }

@@ -4,9 +4,10 @@ use std::sync::Arc;
 use crate::{
     handle_error_token,
     types::{
-        ExpressionWrap, Parse, ParseWithArgs, TableAccess, TableAccessKey, TableAccessPrefix,
-        TableKey,
+        ExpressionWrap, FunctionCall, Parse, ParseWithArgs, TableAccess, TableAccessKey,
+        TableAccessPrefix, TableKey,
     },
+    utils::try_parse,
 };
 
 impl Parse for TableAccessPrefix {
@@ -14,10 +15,7 @@ impl Parse for TableAccessPrefix {
         match token.token_type {
             TokenType::Error(error) => handle_error_token!(errors, error),
             TokenType::Identifier(_) | TokenType::PartialKeyword(_) => {
-                Some(Self::Name(token)) // FunctionCall::parse(token.clone(), lexer, errors)
-                                        //     .map(Arc::new)
-                                        //     .map(Self::FunctionCall)
-                                        //     .or(Some(Self::Name(token)))
+                FunctionCall::parse(token.clone(), lexer, errors).or(Some(Self::Name(token)))
             }
             TokenType::Symbol(Symbol::OpeningParenthesis) => ExpressionWrap::parse_with(
                 token,
@@ -78,8 +76,8 @@ impl Parse for Vec<TableAccessKey> {
 impl Parse for TableAccess {
     fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
         Some(Self {
-            prefix: Parse::parse(token, lexer, errors)?,
-            accessed_keys: Parse::parse(lexer.next_token(), lexer, errors)?,
+            prefix: try_parse(lexer.save_state(), token, lexer, errors)?,
+            accessed_keys: try_parse(lexer.save_state(), lexer.next_token(), lexer, errors)?,
         })
     }
 }

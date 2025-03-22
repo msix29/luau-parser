@@ -4,8 +4,7 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
-use crate::types::ListItem;
-pub use crate::types::{List, Parse};
+use crate::types::{List, ListItem, Parse};
 
 impl<T> List<T> {
     #[inline]
