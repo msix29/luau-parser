@@ -19,6 +19,19 @@ impl<T: Debug + Parse> Parse for List<T> {
     }
 }
 
+impl <T> Deref for List<T> {
+    type Target = Vec<ListItem<T>>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.items
+    }
+}
+impl <T> DerefMut for List<T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.items
+    }
+}
+
 impl<T> Deref for ListItem<T> {
     type Target = T;
 
@@ -29,7 +42,6 @@ impl<T> Deref for ListItem<T> {
         }
     }
 }
-
 impl<T> DerefMut for ListItem<T> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         match self {
