@@ -12,10 +12,12 @@ impl Parse for Var {
         }
 
         let state = lexer.save_state();
-        if let Some(table_access) = TableAccess::parse(lexer.next_token(), lexer, errors) {
+        if let Some(table_access) = TableAccess::parse(token.clone(), lexer, errors) {
             return Some(Self::TableAccess(table_access));
         }
 
+        // `TableAccess::parse` might match the prefix but not the accessed keys
+        // so we need to return the state back to it's original.
         lexer.set_state(state);
 
         Some(Self::Name(token))

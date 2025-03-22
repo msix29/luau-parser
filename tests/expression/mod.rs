@@ -69,5 +69,5 @@ fn var() {
     get_from_enum!(TableAccessKey::Name { ref name, .. } = table_access.accessed_keys[0]);
 
     assert_eq!(prefix.token_type, TokenType::Identifier("foo".to_string()));
-    assert_eq!(name.token_type, TokenType::Identifier("foo".to_string()));
+    assert_eq!(name.token_type, TokenType::Identifier("bar".to_string()));
 }
