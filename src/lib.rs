@@ -39,16 +39,17 @@
 // #![allow(unused)]
 #![warn(clippy::absolute_paths)]
 
-pub mod r#impl;
+mod r#impl;
 // mod display;
 mod macros;
 pub mod parser;
 pub mod types;
 mod utils;
+pub use luau_lexer;
 
 /// Loads all needed items for outside crates to use.
 pub mod prelude {
-    // pub use crate::r#impl::*;
     pub use crate::parser::*;
     pub use crate::types::*;
+    pub use luau_lexer::prelude::*;
 }
