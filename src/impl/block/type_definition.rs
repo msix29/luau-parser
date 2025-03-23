@@ -1,11 +1,14 @@
 use luau_lexer::prelude::{Lexer, Literal, Operator, ParseError, Symbol, Token, TokenType};
 use std::sync::Arc;
 
-use crate::{handle_error_token, types::{
-    Bracketed, BracketedList, GenericDeclaration, GenericDeclarationParameter,
-    GenericParameterInfo, GenericParameterInfoDefault, GenericParameters, Parse, ParseWithArgs,
-    TypeDefinition, TypeValue,
-}};
+use crate::{
+    handle_error_token,
+    types::{
+        Bracketed, BracketedList, GenericDeclaration, GenericDeclarationParameter,
+        GenericParameterInfo, GenericParameterInfoDefault, GenericParameters, Parse, ParseWithArgs,
+        TypeDefinition, TypeValue,
+    },
+};
 
 impl TypeValue {
     fn parse_from_name(
@@ -32,12 +35,21 @@ impl TypeValue {
             None
         };
 
-        let generics = BracketedList::<Arc<TypeValue>>::parse_with(
-            lexer.next_token(),
+        maybe_next_token!(
             lexer,
-            errors,
-            ("Expected <type>", Symbol::ClosingAngleBrackets),
-        )
+            opening_angle_brackets,
+            TokenType::Symbol(Symbol::OpeningAngleBrackets)
+        );
+        let generics = if opening_angle_brackets.is_some() {
+            BracketedList::<Arc<TypeValue>>::parse_with(
+                lexer.next_token(),
+                lexer,
+                errors,
+                ("Expected <type>", Symbol::ClosingAngleBrackets),
+            )
+        } else {
+            None
+        }
         .map(Box::new);
 
         if let Some((dot, name)) = actual_type {
