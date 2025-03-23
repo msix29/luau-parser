@@ -1,4 +1,5 @@
 mod do_block;
+mod function;
 mod generic_for;
 mod if_statement;
 mod r#impl;

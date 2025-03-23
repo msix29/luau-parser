@@ -1,7 +1,4 @@
-use luau_lexer::{
-    prelude::{Lexer, Operator, ParseError, Symbol, Token, TokenType},
-    token::Literal,
-};
+use luau_lexer::prelude::{Lexer, Operator, ParseError, Symbol, Token, TokenType};
 use std::{cell::Cell, sync::Arc};
 
 use crate::types::{

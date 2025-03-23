@@ -24,7 +24,6 @@ reexport!(
     bracketed,
     cst,
     expression,
-    function,
     list,
     literals,
     name,

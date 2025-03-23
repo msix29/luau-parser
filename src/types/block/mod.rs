@@ -9,6 +9,7 @@ reexport!(
     if_statement,
     local_assignment,
     numerical_for,
+    function,
     repeat_block,
     set_expressions,
     statement,

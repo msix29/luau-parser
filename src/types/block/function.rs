@@ -3,7 +3,7 @@
 use luau_lexer::prelude::Token;
 use std::sync::Arc;
 
-use super::{Cst, GenericDeclaration, List, Name, TypeValue};
+use crate::types::{Cst, GenericDeclaration, List, Name, TypeValue};
 
 /// A struct representing a local function.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
