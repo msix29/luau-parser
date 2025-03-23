@@ -3,7 +3,7 @@
 use luau_lexer::prelude::Token;
 use std::sync::Arc;
 
-use super::{Bracketed, Cst, GenericDeclaration, List, Name, Table, TableKey, TypeValue};
+use super::{Block, Bracketed, GenericDeclaration, List, Name, Table, TableKey, TypeValue};
 
 reexport!(table, var, function);
 
@@ -91,7 +91,7 @@ pub enum Expression {
         returns: Option<Arc<TypeValue>>,
 
         /// The body of the function.
-        body: Cst,
+        body: Block,
 
         /// The `end` keyword.
         end_keyword: Box<Token>,
