@@ -2,7 +2,7 @@ use luau_lexer::prelude::Token;
 use std::sync::Arc;
 
 use super::{Expression, PrefixExp, Table};
-use crate::types::BracketedList;
+use crate::types::{Block, BracketedList, GenericDeclaration, List, Name, TypeValue};
 
 /// Different ways a function can be called.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -72,4 +72,36 @@ pub enum FunctionArguments {
     /// local _ = foo(1, 2, 3)
     /// ```
     List(BracketedList<Arc<Expression>>),
+}
+
+/// All possible arguments that can be passed to a function.
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+pub struct Closure {
+    /// The `function` keyword at the start
+    pub function_keyword: Token,
+
+    /// The generics of this function.
+    pub generics: Option<Box<GenericDeclaration>>,
+
+    /// The `(` character.
+    pub opening_parenthesis: Token,
+
+    /// All [`parameters`](Name) of the function.
+    pub parameters: List<Name>,
+
+    /// The `)` character.
+    pub closing_parenthesis: Token,
+
+    /// The `:` character between closing parenthesis and returns.
+    pub colon: Box<Option<Token>>,
+
+    /// The return type of the function
+    pub returns: Option<Arc<TypeValue>>,
+
+    /// The body of the function.
+    pub body: Block,
+
+    /// The `end` keyword.
+    pub end_keyword: Box<Token>,
 }

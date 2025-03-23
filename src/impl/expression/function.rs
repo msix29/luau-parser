@@ -3,8 +3,7 @@ use std::sync::Arc;
 
 use crate::{
     types::{
-        BracketedList, FunctionArguments, FunctionCall, FunctionCallInvoked, Parse, ParseWithArgs,
-        PrefixExp, Table, TableAccessPrefix,
+        BracketedList, FunctionArguments, FunctionCall, FunctionCallInvoked, Parse, ParseWithArgs, PrefixExp, Table, TableAccessPrefix
     },
     utils::try_parse,
 };

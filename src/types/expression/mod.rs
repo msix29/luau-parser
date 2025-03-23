@@ -3,7 +3,7 @@
 use luau_lexer::prelude::Token;
 use std::sync::Arc;
 
-use super::{Block, Bracketed, GenericDeclaration, List, Name, Table, TableKey, TypeValue};
+use super::{Bracketed, Table, TableKey, TypeValue};
 
 reexport!(table, var, function);
 
@@ -68,34 +68,7 @@ pub enum Expression {
     /// local foo = function(arg1: number): boolean
     /// end
     /// ```
-    Function {
-        /// The `function` keyword at the start
-        function_keyword: Token,
-
-        /// The generics of this function.
-        generics: Option<Box<GenericDeclaration>>,
-
-        /// The `(` character.
-        opening_parenthesis: Token,
-
-        /// All [`parameters`](NormalizedName) of the function.
-        parameters: List<Name>,
-
-        /// The `)` character.
-        closing_parenthesis: Token,
-
-        /// The `:` character between closing parenthesis and returns.
-        colon: Box<Option<Token>>,
-
-        /// The return type of the function
-        returns: Option<Arc<TypeValue>>,
-
-        /// The body of the function.
-        body: Block,
-
-        /// The `end` keyword.
-        end_keyword: Box<Token>,
-    },
+    Closure(Closure),
 
     /// A function call.
     ///
