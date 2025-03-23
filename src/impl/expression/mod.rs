@@ -57,8 +57,9 @@ impl Parse for Expression {
         match token.token_type {
             TokenType::Error(error) => handle_error_token!(errors, error),
             TokenType::Literal(_) => Self::parse_from_literal(token),
-            TokenType::Identifier(_) | TokenType::PartialKeyword(_) => Var::parse(token, lexer, errors),
-            TokenType::Keyword(_) => todo!(),
+            TokenType::Identifier(_) | TokenType::PartialKeyword(_) => {
+                Var::parse(token, lexer, errors)
+            }
             TokenType::Symbol(Symbol::OpeningParenthesis) => ExpressionWrap::parse_with(
                 token,
                 lexer,
@@ -66,10 +67,7 @@ impl Parse for Expression {
                 ("Expected <expr>", Symbol::ClosingParenthesis),
             )
             .map(Self::ExpressionWrap),
-            TokenType::Symbol(_) => todo!(),
-            TokenType::Operator(_) => todo!(),
-            TokenType::CompoundOperator(_) => todo!(),
-            TokenType::EndOfFile => None,
+            _ => None,
         }
     }
 }
