@@ -21,6 +21,7 @@ impl<T> List<T> {
         mut parse: C,
     ) -> Option<Self> {
         let mut items = Vec::new();
+        let mut state = lexer.save_state();
 
         while let Some(item) = parse(token, lexer) {
             maybe_next_token!(lexer, maybe_comma, TokenType::Symbol(Symbol::Comma));
@@ -34,8 +35,11 @@ impl<T> List<T> {
                 items.push(ListItem::NonTrailing(item));
             }
 
+            state = lexer.save_state();
             token = lexer.next_token();
         }
+
+        lexer.set_state(state);
 
         Some(Self { items })
     }

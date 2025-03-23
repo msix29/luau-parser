@@ -13,9 +13,9 @@ impl Parse for LocalAssignment {
 
         maybe_next_token!(lexer, equal_token, TokenType::Operator(Operator::Equal));
         let expressions = if equal_token.is_some() {
-            List::<Arc<Expression>>::new()
-        } else {
             List::<Arc<Expression>>::parse(lexer.next_token(), lexer, errors)?
+        } else {
+            List::<Arc<Expression>>::new()
         };
 
         Some(Self {

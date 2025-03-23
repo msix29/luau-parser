@@ -3,9 +3,8 @@ use std::sync::Arc;
 
 use crate::{
     types::{
-        Block, BracketedList, Closure, FunctionArguments, FunctionCall,
-        FunctionCallInvoked, GenericDeclaration, Parse, ParseWithArgs, PrefixExp, Table,
-        TableAccessPrefix, TypeValue,
+        Block, BracketedList, Closure, FunctionArguments, FunctionCall, FunctionCallInvoked,
+        GenericDeclaration, Parse, ParseWithArgs, PrefixExp, Table, TableAccessPrefix, TypeValue,
     },
     utils::try_parse,
 };
@@ -87,11 +86,25 @@ impl Parse for Closure {
             return None;
         }
 
-        let state = lexer.save_state();
-        let generics = None; // GenericDeclaration::parse(lexer.next_token(), lexer, errors).map(Box::new);
-        if generics.is_none() {
-            lexer.set_state(state);
+        maybe_next_token!(
+            lexer,
+            maybe_opening_angle_brackets,
+            TokenType::Symbol(Symbol::OpeningAngleBrackets)
+        );
+        let generics = if maybe_opening_angle_brackets.is_some() {
+            GenericDeclaration::parse_with(
+                lexer.next_token(),
+                lexer,
+                errors,
+                (
+                    "Expected <generic declaration>",
+                    Symbol::ClosingAngleBrackets,
+                ),
+            )
+        } else {
+            None
         }
+        .map(Box::new);
 
         next_token_recoverable!(
             lexer,
@@ -110,8 +123,8 @@ impl Parse for Closure {
             unreachable!("`BracketedList::parse_with` should always return `Some`.")
         };
 
-        maybe_next_token!(lexer, colon, TokenType::Symbol(Symbol::Colon));
-        let return_type = if colon.is_some() {
+        maybe_next_token!(lexer, maybe_colon, TokenType::Symbol(Symbol::Colon));
+        let return_type = if maybe_colon.is_some() {
             TypeValue::parse(lexer.next_token(), lexer, errors).map(Arc::new)
         } else {
             None
@@ -138,7 +151,7 @@ impl Parse for Closure {
             function_keyword,
             generics,
             parameters,
-            colon: Box::new(colon),
+            colon: Box::new(maybe_colon),
             return_type,
             body,
             end_keyword: Box::new(end_keyword),

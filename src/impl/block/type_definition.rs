@@ -160,9 +160,3 @@ impl Parse for GenericParameterInfoDefault {
         todo!()
     }
 }
-
-impl Parse for GenericDeclaration {
-    fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
-        todo!()
-    }
-}

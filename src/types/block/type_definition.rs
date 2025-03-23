@@ -346,18 +346,7 @@ pub enum GenericParameterInfoDefault {
 }
 
 /// The generics used in a [`type definition`](TypeDefinition).
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub struct GenericDeclaration {
-    /// The `<` character.
-    pub opening_arrow: Token,
-
-    /// The actual generics.
-    pub generics: List<GenericDeclarationParameter>,
-
-    /// The `>` character.
-    pub closing_arrow: Token,
-}
+pub type GenericDeclaration = BracketedList<GenericDeclarationParameter>;
 
 /// Possible errors converting from an expression to a type definition.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
