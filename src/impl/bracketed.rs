@@ -1,17 +1,17 @@
-use std::ops::{Deref, DerefMut};
-
 use luau_lexer::prelude::{Lexer, ParseError, Symbol, Token, TokenType};
+use std::ops::{Deref, DerefMut};
 
 use crate::types::{Bracketed, Parse, ParseWithArgs};
 
-impl<T: Parse> ParseWithArgs<(&str, Symbol)> for Bracketed<T> {
-    fn parse_with(
+impl<T> Bracketed<T> {
+    fn parse(
+        maybe_parsed_item: Option<T>,
         opening_bracket: Token,
         lexer: &mut Lexer,
         errors: &mut Vec<ParseError>,
         (error_message, stop_at): (&str, Symbol),
     ) -> Option<Self> {
-        let Some(item) = T::parse(lexer.next_token(), lexer, errors) else {
+        let Some(item) = maybe_parsed_item else {
             let state = lexer.save_state();
             errors.push(ParseError::new(
                 state.lexer_position(),
@@ -36,6 +36,41 @@ impl<T: Parse> ParseWithArgs<(&str, Symbol)> for Bracketed<T> {
             item,
             closing_bracket,
         })
+    }
+}
+
+impl<T: Parse> ParseWithArgs<(&str, Symbol)> for Bracketed<T> {
+    #[inline]
+    fn parse_with(
+        opening_bracket: Token,
+        lexer: &mut Lexer,
+        errors: &mut Vec<ParseError>,
+        (error_message, stop_at): (&str, Symbol),
+    ) -> Option<Self> {
+        Self::parse(
+            T::parse(lexer.next_token(), lexer, errors),
+            opening_bracket,
+            lexer,
+            errors,
+            (error_message, stop_at),
+        )
+    }
+}
+impl<A, T: ParseWithArgs<A>> ParseWithArgs<(&str, Symbol, A)> for Bracketed<T> {
+    #[inline]
+    fn parse_with(
+        opening_bracket: Token,
+        lexer: &mut Lexer,
+        errors: &mut Vec<ParseError>,
+        (error_message, stop_at, args): (&str, Symbol, A),
+    ) -> Option<Self> {
+        Self::parse(
+            T::parse_with(lexer.next_token(), lexer, errors, args),
+            opening_bracket,
+            lexer,
+            errors,
+            (error_message, stop_at),
+        )
     }
 }
 

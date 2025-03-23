@@ -4,7 +4,7 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
-use crate::types::{List, ListItem, Parse};
+use crate::types::{List, ListItem, Parse, ParseWithArgs};
 
 impl<T> List<T> {
     #[inline]
@@ -19,14 +19,26 @@ impl<T: Debug + Parse> Parse for List<T> {
     }
 }
 
-impl <T> Deref for List<T> {
+impl<A, T: ParseWithArgs<A>> ParseWithArgs<A> for List<T> {
+    #[inline]
+    fn parse_with(
+        opening_bracket: Token,
+        lexer: &mut Lexer,
+        errors: &mut Vec<ParseError>,
+        args: A,
+    ) -> Option<Self> {
+        todo!()
+    }
+}
+
+impl<T> Deref for List<T> {
     type Target = Vec<ListItem<T>>;
 
     fn deref(&self) -> &Self::Target {
         &self.items
     }
 }
-impl <T> DerefMut for List<T> {
+impl<T> DerefMut for List<T> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.items
     }

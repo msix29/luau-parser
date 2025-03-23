@@ -49,7 +49,7 @@ impl Parse for TableAccessKey {
                     name: Box::new(name),
                 })
             }
-            _ => TableKey::parse(maybe_dot, lexer, errors)
+            _ => TableKey::parse_with(maybe_dot, lexer, errors, false)
                 .map(Box::new)
                 .map(Self::Expression),
         }

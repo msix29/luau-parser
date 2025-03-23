@@ -1,10 +1,10 @@
 //! Holding all needed information for tables.
 
-use luau_lexer::{prelude::Token, token::LuauString};
+use luau_lexer::prelude::Token;
 use smol_str::SmolStr;
 use std::sync::Arc;
 
-use crate::prelude::{Expression, List, TypeValue};
+use crate::types::{Bracketed, BracketedList, Expression, TypeValue};
 
 /// A possible key entry in a table. The key is usually a string, but it can be a value
 /// (from an expression) in tables or a type in type definitions.
@@ -34,39 +34,23 @@ pub enum TableKey {
     #[default]
     ERROR,
 
-    /// Cases in which a key wasn't provided, it's guessed as a number in that case.
-    UndefinedNumber(i32),
+    /// Cases in which a key in a table expression wasn't provided,
+    /// it's guessed as a number in that case.
+    UndefinedNumber(u32),
 
-    /// Cases in which a key wasn't provided, it's guessed as `[number]`. It has no other
-    /// possible values than `[number]`.
+    /// Cases in which a key in a type expression wasn't provided,
+    /// it's guessed as `number`. It has no other possible values
+    /// than `number`.
     UndefinedString(SmolStr),
 
     /// Simple key
-    String(LuauString),
+    String(Token),
 
     /// An expression, can only be used in definitions and not in types.
-    Expression {
-        /// The `[` character.
-        open_square_brackets: Token,
-
-        /// The actual expression between the `[...]`.
-        expression: Arc<Expression>,
-
-        /// The `]` character.
-        close_square_brackets: Token,
-    },
+    Expression(Bracketed<Arc<Expression>>),
 
     /// A type definition, can only be used in other types and not definitions.
-    Type {
-        /// The `[` character.
-        open_square_brackets: Token,
-
-        /// The actual type between the `[...]`.
-        r#type: Arc<TypeValue>,
-
-        /// The `]` character.
-        close_square_brackets: Token,
-    },
+    Type(Bracketed<Arc<TypeValue>>),
 }
 
 /// A struct representing one table field. It'll always have a [`key`](TableKey) and a
@@ -105,13 +89,4 @@ pub enum TableFieldValue {
 /// Struct representing a luau table.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub struct Table {
-    /// The `{` character.
-    pub opening_brackets: Token,
-
-    /// The actual [`fields`](TableField) of the table.
-    pub fields: List<TableField>,
-
-    /// The `}` character.
-    pub closing_brackets: Token,
-}
+pub struct Table(pub BracketedList<TableField>);
