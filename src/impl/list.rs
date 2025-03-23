@@ -1,4 +1,7 @@
-use luau_lexer::prelude::{Lexer, ParseError, Token};
+use luau_lexer::{
+    prelude::{Lexer, ParseError, Token},
+    token::{Symbol, TokenType},
+};
 use std::{
     fmt::Debug,
     ops::{Deref, DerefMut},
@@ -11,23 +14,51 @@ impl<T> List<T> {
     pub const fn new() -> Self {
         Self { items: Vec::new() }
     }
-}
 
-impl<T: Debug + Parse> Parse for List<T> {
-    fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
-        todo!()
+    fn parse<C: FnMut(Token, &mut Lexer) -> Option<T>>(
+        mut token: Token,
+        lexer: &mut Lexer,
+        mut parse: C,
+    ) -> Option<Self> {
+        let mut items = Vec::new();
+
+        while let Some(item) = parse(token, lexer) {
+            maybe_next_token!(lexer, maybe_comma, TokenType::Symbol(Symbol::Comma));
+
+            if let Some(comma) = maybe_comma {
+                items.push(ListItem::Trailing {
+                    item,
+                    separator: comma,
+                });
+            } else {
+                items.push(ListItem::NonTrailing(item));
+            }
+
+            token = lexer.next_token();
+        }
+
+        Some(Self { items })
     }
 }
 
-impl<A, T: ParseWithArgs<A>> ParseWithArgs<A> for List<T> {
+impl<T: Debug + Parse> Parse for List<T> {
+    #[inline]
+    fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
+        Self::parse(token, lexer, |token, lexer| T::parse(token, lexer, errors))
+    }
+}
+
+impl<A: Clone, T: ParseWithArgs<A>> ParseWithArgs<A> for List<T> {
     #[inline]
     fn parse_with(
-        opening_bracket: Token,
+        token: Token,
         lexer: &mut Lexer,
         errors: &mut Vec<ParseError>,
         args: A,
     ) -> Option<Self> {
-        todo!()
+        Self::parse(token, lexer, |token, lexer| {
+            T::parse_with(token, lexer, errors, args.clone())
+        })
     }
 }
 

@@ -1,7 +1,10 @@
 use luau_lexer::prelude::{Lexer, ParseError, Symbol, Token, TokenType};
 use std::ops::{Deref, DerefMut};
 
-use crate::types::{Bracketed, Parse, ParseWithArgs};
+use crate::{
+    types::{Bracketed, Parse, ParseWithArgs},
+    utils::get_token_type_display_extended,
+};
 
 impl<T> Bracketed<T> {
     fn parse(
@@ -28,7 +31,10 @@ impl<T> Bracketed<T> {
             closing_bracket.token_type == TokenType::Symbol(stop_at),
             TokenType::Symbol(stop_at),
             errors,
-            "Expected <opening-parenthesis>"
+            format!(
+                "Expected {}",
+                get_token_type_display_extended(&TokenType::Symbol(stop_at))
+            )
         );
 
         Some(Self {

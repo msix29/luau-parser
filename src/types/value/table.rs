@@ -44,7 +44,7 @@ pub enum TableKey {
     UndefinedString(SmolStr),
 
     /// Simple key
-    String(Token),
+    Simple(Token),
 
     /// An expression, can only be used in definitions and not in types.
     Expression(Bracketed<Arc<Expression>>),
