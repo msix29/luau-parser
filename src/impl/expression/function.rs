@@ -1,9 +1,11 @@
-use luau_lexer::prelude::{Lexer, Literal, ParseError, Symbol, Token, TokenType};
+use luau_lexer::prelude::{Keyword, Lexer, Literal, ParseError, Symbol, Token, TokenType};
 use std::sync::Arc;
 
 use crate::{
     types::{
-        BracketedList, FunctionArguments, FunctionCall, FunctionCallInvoked, Parse, ParseWithArgs, PrefixExp, Table, TableAccessPrefix
+        Block, BracketedList, Closure, FunctionArguments, FunctionCall,
+        FunctionCallInvoked, GenericDeclaration, Parse, ParseWithArgs, PrefixExp, Table,
+        TableAccessPrefix, TypeValue,
     },
     utils::try_parse,
 };
@@ -71,5 +73,75 @@ impl Parse for FunctionArguments {
         }
 
         Table::parse(token.clone(), lexer, errors)
+    }
+}
+
+impl Parse for Closure {
+    fn parse(
+        function_keyword: Token,
+        lexer: &mut Lexer,
+        errors: &mut Vec<ParseError>,
+    ) -> Option<Self> {
+        // It's only called when it matches, but the check must still be here.
+        if function_keyword != TokenType::Keyword(Keyword::Function) {
+            return None;
+        }
+
+        let state = lexer.save_state();
+        let generics = None; // GenericDeclaration::parse(lexer.next_token(), lexer, errors).map(Box::new);
+        if generics.is_none() {
+            lexer.set_state(state);
+        }
+
+        next_token_recoverable!(
+            lexer,
+            opening_parenthesis,
+            TokenType::Symbol(Symbol::OpeningParenthesis),
+            TokenType::Symbol(Symbol::OpeningParenthesis),
+            errors,
+            "Expected <opening parenthesis>"
+        );
+        let Some(parameters) = BracketedList::<_>::parse_with(
+            opening_parenthesis,
+            lexer,
+            errors,
+            ("Expected <name>", Symbol::ClosingParenthesis),
+        ) else {
+            unreachable!("`BracketedList::parse_with` should always return `Some`.")
+        };
+
+        maybe_next_token!(lexer, colon, TokenType::Symbol(Symbol::Colon));
+        let return_type = if colon.is_some() {
+            TypeValue::parse(lexer.next_token(), lexer, errors).map(Arc::new)
+        } else {
+            None
+        };
+
+        let body = Block::parse_with(
+            lexer.next_token(),
+            lexer,
+            errors,
+            Some(TokenType::Keyword(Keyword::End)),
+        )
+        .unwrap_or_default(); // `Block::parse` never fails.
+
+        next_token_recoverable!(
+            lexer,
+            end_keyword,
+            TokenType::Keyword(Keyword::End),
+            TokenType::Keyword(Keyword::End),
+            errors,
+            "Expected <end>"
+        );
+
+        Some(Self {
+            function_keyword,
+            generics,
+            parameters,
+            colon: Box::new(colon),
+            return_type,
+            body,
+            end_keyword: Box::new(end_keyword),
+        })
     }
 }

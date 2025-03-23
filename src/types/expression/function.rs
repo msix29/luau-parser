@@ -2,7 +2,7 @@ use luau_lexer::prelude::Token;
 use std::sync::Arc;
 
 use super::{Expression, PrefixExp, Table};
-use crate::types::{Block, BracketedList, GenericDeclaration, List, Name, TypeValue};
+use crate::types::{Block, BracketedList, GenericDeclaration, Name, TypeValue};
 
 /// Different ways a function can be called.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -84,20 +84,14 @@ pub struct Closure {
     /// The generics of this function.
     pub generics: Option<Box<GenericDeclaration>>,
 
-    /// The `(` character.
-    pub opening_parenthesis: Token,
-
     /// All [`parameters`](Name) of the function.
-    pub parameters: List<Name>,
-
-    /// The `)` character.
-    pub closing_parenthesis: Token,
+    pub parameters: BracketedList<Name>,
 
     /// The `:` character between closing parenthesis and returns.
     pub colon: Box<Option<Token>>,
 
     /// The return type of the function
-    pub returns: Option<Arc<TypeValue>>,
+    pub return_type: Option<Arc<TypeValue>>,
 
     /// The body of the function.
     pub body: Block,

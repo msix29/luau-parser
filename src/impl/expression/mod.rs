@@ -2,11 +2,17 @@ mod function;
 mod table;
 mod var;
 
-use luau_lexer::prelude::{Lexer, Literal, ParseError, Symbol, Token, TokenType};
+use luau_lexer::{
+    prelude::{Lexer, Literal, ParseError, Symbol, Token, TokenType},
+    token::Keyword,
+};
 
 use crate::{
     handle_error_token,
-    types::{Expression, ExpressionWrap, FunctionCall, Parse, ParseWithArgs, PrefixExp, Var},
+    types::{
+        Closure, Expression, ExpressionWrap, FunctionCall, Parse, ParseWithArgs, PrefixExp, Table,
+        Var,
+    },
 };
 
 impl Parse for PrefixExp {
@@ -67,6 +73,12 @@ impl Parse for Expression {
                 ("Expected <expr>", Symbol::ClosingParenthesis),
             )
             .map(Self::ExpressionWrap),
+            TokenType::Symbol(Symbol::OpeningCurlyBrackets) => {
+                Table::parse_with(token, lexer, errors, false).map(Self::Table)
+            }
+            TokenType::Keyword(Keyword::Function) => {
+                Closure::parse(token, lexer, errors).map(Self::Closure)
+            }
             _ => None,
         }
     }
