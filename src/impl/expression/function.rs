@@ -2,9 +2,10 @@ use luau_lexer::prelude::{Keyword, Lexer, Literal, ParseError, Symbol, Token, To
 use std::sync::Arc;
 
 use crate::{
+    force_parse_bracketed, parse_bracketed,
     types::{
-        Block, BracketedList, Closure, FunctionArguments, FunctionCall, FunctionCallInvoked,
-        GenericDeclaration, Parse, ParseWithArgs, PrefixExp, Table, TableAccessPrefix, TypeValue,
+        Block, BracketedList, Closure, FunctionArguments, FunctionCall, FunctionCallInvoked, Parse,
+        ParseWithArgs, PrefixExp, Table, TableAccessPrefix, TypeValue,
     },
     utils::try_parse,
 };
@@ -86,42 +87,25 @@ impl Parse for Closure {
             return None;
         }
 
-        maybe_next_token!(
+        let generics = parse_bracketed!(
             lexer,
-            maybe_opening_angle_brackets,
-            TokenType::Symbol(Symbol::OpeningAngleBrackets)
-        );
-        let generics = if maybe_opening_angle_brackets.is_some() {
-            GenericDeclaration::parse_with(
-                lexer.next_token(),
-                lexer,
-                errors,
-                (
-                    "Expected <generic declaration>",
-                    Symbol::ClosingAngleBrackets,
-                ),
-            )
-        } else {
-            None
-        }
+            errors,
+            "Expected <generic declaration>",
+            TokenType::Symbol(Symbol::OpeningAngleBrackets),
+            Symbol::ClosingAngleBrackets,
+        )
         .map(Box::new);
 
-        next_token_recoverable!(
+        let parameters = force_parse_bracketed!(
             lexer,
-            opening_parenthesis,
-            TokenType::Symbol(Symbol::OpeningParenthesis),
-            TokenType::Symbol(Symbol::OpeningParenthesis),
             errors,
-            "Expected <opening parenthesis>"
+            "Expected <opening parenthesis>",
+            (
+                TokenType::Symbol(Symbol::OpeningParenthesis),
+                TokenType::Symbol(Symbol::OpeningParenthesis)
+            ),
+            Symbol::ClosingParenthesis,
         );
-        let Some(parameters) = BracketedList::<_>::parse_with(
-            opening_parenthesis,
-            lexer,
-            errors,
-            ("Expected <name>", Symbol::ClosingParenthesis),
-        ) else {
-            unreachable!("`BracketedList::parse_with` should always return `Some`.")
-        };
 
         maybe_next_token!(lexer, maybe_colon, TokenType::Symbol(Symbol::Colon));
         let return_type = if maybe_colon.is_some() {
