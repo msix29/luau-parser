@@ -15,6 +15,7 @@ reexport!(
     statement,
     type_definition,
     while_loop,
+    comment,
 );
 
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]

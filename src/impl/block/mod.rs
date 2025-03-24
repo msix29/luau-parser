@@ -1,3 +1,4 @@
+mod comment;
 mod do_block;
 mod function;
 mod generic_for;
