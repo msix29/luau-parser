@@ -4,7 +4,7 @@ mod call_any;
 mod get_item_from_enum;
 mod impl_print_enum;
 mod impl_print_struct;
-mod parse_bracketed;
+mod parse;
 
 /// Macro used to error when [`get_range`](crate::types::HasRange::get_range) is called.
 #[macro_export]
