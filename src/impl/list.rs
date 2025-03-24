@@ -45,6 +45,13 @@ impl<T> List<T> {
     }
 }
 
+impl<T> Default for List<T> {
+    #[inline]
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<T: Debug + Parse> Parse for List<T> {
     #[inline]
     fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {

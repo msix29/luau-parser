@@ -36,7 +36,7 @@ pub enum ListItem<T> {
 
 /// A list holding [`list items`](ListItem) of type `T`.
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-#[derive(Clone, Default, Debug, Hash, PartialEq, PartialOrd, Eq, Ord)]
+#[derive(Clone, Debug, Hash, PartialEq, PartialOrd, Eq, Ord)]
 pub struct List<T> {
     /// The actual items being stored.
     pub items: Vec<ListItem<T>>,
