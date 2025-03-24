@@ -59,6 +59,7 @@ pub(crate) fn get_token_type_display_extended(token_type: &TokenType) -> String 
             Operator::NotEqual => "`~=`",
             Operator::Intersection => "`&`",
             Operator::Union => "`|`",
+            Operator::Optional => "`?`",
         },
         TokenType::CompoundOperator(compound_operator) => match compound_operator {
             CompoundOperator::PlusEqual => "`+=`",
