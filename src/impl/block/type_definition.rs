@@ -4,11 +4,12 @@ use luau_lexer::prelude::{
 use std::sync::Arc;
 
 use crate::{
-    force_parse_bracketed, handle_error_token, parse_bracketed, types::{
+    force_parse_bracketed, handle_error_token, parse_bracketed,
+    types::{
         Bracketed, BracketedList, GenericDeclarationParameter, GenericParameterInfo,
         GenericParameterInfoDefault, GenericParameters, Parse, ParseWithArgs, Table,
         TypeDefinition, TypeValue,
-    }
+    },
 };
 
 impl TypeValue {
@@ -151,8 +152,66 @@ impl Parse for TypeValue {
 }
 
 impl Parse for TypeDefinition {
-    fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
-        todo!()
+    fn parse(mut token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
+        let export_keyword = if token == TokenType::PartialKeyword(PartialKeyword::Export) {
+            let temp = token;
+            token = lexer.next_token();
+
+            Some(temp)
+        } else {
+            None
+        };
+        if token != TokenType::PartialKeyword(PartialKeyword::Type) {
+            return None;
+        }
+
+        let generics = parse_bracketed!(
+            lexer,
+            errors,
+            "",
+            TokenType::Symbol(Symbol::OpeningAngleBrackets),
+            Symbol::ClosingAngleBrackets,
+        )
+        .map(Box::new);
+
+        next_token_recoverable!(
+            lexer,
+            type_name,
+            TokenType::Identifier(_) | TokenType::PartialKeyword(_),
+            TokenType::Identifier("*error*".to_string()),
+            errors,
+            "Expected <ident>"
+        );
+        next_token_recoverable!(
+            lexer,
+            equal_sign,
+            TokenType::Symbol(Symbol::Equal),
+            TokenType::Symbol(Symbol::Equal),
+            errors,
+            "Expected `=`"
+        );
+
+        let type_value = TypeValue::parse(lexer.next_token(), lexer, errors)
+            .map(Arc::new)
+            .unwrap_or_else(|| {
+                let state = lexer.save_state();
+                errors.push(ParseError::new(
+                    state.lexer_position(),
+                    "Expected <type>".to_string(),
+                    Some(state.lexer_position()),
+                ));
+
+                Default::default()
+            });
+
+        Some(Self {
+            export_keyword,
+            type_keyword: token,
+            generics,
+            type_name,
+            equal_sign,
+            type_value,
+        })
     }
 }
 

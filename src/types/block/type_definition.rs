@@ -236,7 +236,7 @@ pub struct TypeDefinition {
     pub export_keyword: Option<Token>,
 
     /// The `type` keyword.
-    pub type_keyword: Option<Token>,
+    pub type_keyword: Token,
 
     /// The generics for this type.
     pub generics: Option<Box<GenericDeclaration>>,
@@ -247,9 +247,9 @@ pub struct TypeDefinition {
     /// The `=` sign between the name and the actual value of the type.
     /// This will be `None` if this isn't it's own statement but rather
     /// in another place like parameter's type or a variable's type.
-    pub equal_sign: Option<Token>,
+    pub equal_sign: Token,
 
-    /// The [`actual definition`](TypeValue) of the type.
+    /// The actual [`value`](TypeValue) of the type.
     pub type_value: Arc<TypeValue>,
 }
 
