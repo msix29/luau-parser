@@ -140,7 +140,7 @@ pub enum Expression {
     /// local bar = foo :: number
     /// local qux = {} :: { number }
     /// ```
-    Cast {
+    TypeCast {
         /// The actual expression.
         expression: Arc<Expression>,
 

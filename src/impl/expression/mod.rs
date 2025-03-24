@@ -2,16 +2,18 @@ mod function;
 mod table;
 mod var;
 
+use std::sync::Arc;
+
 use luau_lexer::{
     prelude::{Lexer, Literal, ParseError, Symbol, Token, TokenType},
-    token::Keyword,
+    token::{Keyword, Operator},
 };
 
 use crate::{
     handle_error_token,
     types::{
         Closure, Expression, ExpressionWrap, FunctionCall, Parse, ParseWithArgs, PrefixExp, Table,
-        Var,
+        TypeValue, Var,
     },
 };
 
@@ -56,10 +58,8 @@ impl Expression {
             _ => None,
         }
     }
-}
 
-impl Parse for Expression {
-    fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
+    fn parse_inner(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
         match token.token_type {
             TokenType::Error(error) => handle_error_token!(errors, error),
             TokenType::Literal(_) => Self::parse_from_literal(token),
@@ -80,6 +80,57 @@ impl Parse for Expression {
                 Closure::parse(token, lexer, errors).map(Self::Closure)
             }
             _ => None,
+        }
+    }
+}
+
+impl Parse for Expression {
+    fn parse(mut token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
+        let maybe_unary_operator = match token.token_type {
+            TokenType::Operator(operator) => match operator {
+                Operator::Minus | Operator::Not => {
+                    let temp = token;
+                    token = lexer.next_token();
+
+                    Some(temp)
+                }
+                _ => None,
+            },
+            _ => None,
+        };
+
+        let left = Self::parse_inner(token, lexer, errors)?;
+        let left = if let Some(operator) = maybe_unary_operator {
+            Self::UnaryExpression {
+                operator,
+                expression: Arc::new(left),
+            }
+        } else {
+            left
+        };
+
+        let state = lexer.save_state();
+        let next_token = lexer.next_token();
+
+        match next_token.token_type {
+            TokenType::Operator(_) => Some(Self::BinaryExpression {
+                left: Arc::new(left),
+                operator: next_token,
+                right: Self::parse(lexer.next_token(), lexer, errors)
+                    .map(Arc::new)
+                    .unwrap_or_default(),
+            }),
+            TokenType::Symbol(Symbol::Typecast) => Some(Self::TypeCast {
+                expression: Arc::new(left),
+                operator: next_token,
+                cast_to: TypeValue::parse(lexer.next_token(), lexer, errors)
+                    .map(Arc::new)
+                    .unwrap_or_default(),
+            }),
+            _ => {
+                lexer.set_state(state);
+                Some(left)
+            }
         }
     }
 }
