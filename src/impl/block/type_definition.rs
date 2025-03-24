@@ -118,6 +118,10 @@ impl Parse for TypeValue {
         let maybe_operator = lexer.next_token();
 
         match maybe_operator.token_type {
+            TokenType::Operator(Operator::Optional) => Some(Self::Optional {
+                base: Arc::new(left),
+                question_mark: maybe_operator,
+            }),
             TokenType::Operator(Operator::Intersection) => Some(Self::Intersection {
                 left: Arc::new(left),
                 ampersand: maybe_operator,
