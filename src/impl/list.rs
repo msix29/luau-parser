@@ -33,6 +33,8 @@ impl<T> List<T> {
                 });
             } else {
                 items.push(ListItem::NonTrailing(item));
+
+                break;
             }
 
             state = lexer.save_state();
