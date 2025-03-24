@@ -5,7 +5,10 @@ use luau_lexer::{
     token::Symbol,
 };
 
-use crate::types::{Block, Parse, ParseWithArgs, Statement, TerminationStatement};
+use crate::{
+    types::{Block, Parse, ParseWithArgs, Statement, TerminationStatement},
+    utils::get_token_type_display_extended,
+};
 
 impl ParseWithArgs<Option<TokenType>> for Block {
     fn parse_with(
@@ -44,9 +47,22 @@ impl ParseWithArgs<Option<TokenType>> for Block {
 
                 maybe_next_token!(lexer, maybe_semicolon, TokenType::Symbol(Symbol::Semicolon));
                 statements.push((Arc::new(statement), maybe_semicolon))
-            } else if let Some(statement) = TerminationStatement::parse(token, lexer, errors) {
+            } else if let Some(statement) =
+                TerminationStatement::parse(token.clone(), lexer, errors)
+            {
                 maybe_next_token!(lexer, maybe_semicolon, TokenType::Symbol(Symbol::Semicolon));
                 last_statement = Some((Arc::new(statement), maybe_semicolon));
+            } else {
+                let state = lexer.save_state();
+
+                errors.push(ParseError::new(
+                    state.lexer_position(),
+                    format!(
+                        "Unexpected {}",
+                        get_token_type_display_extended(&token.token_type)
+                    ),
+                    Some(state.lexer_position()),
+                ));
             }
 
             let state = lexer.save_state();
