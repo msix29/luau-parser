@@ -132,16 +132,22 @@ impl Parse for TypeValue {
             TokenType::Operator(Operator::Intersection) => Some(Self::Intersection {
                 left: Arc::new(left),
                 ampersand: maybe_operator,
-                right: Self::parse(lexer.next_token(), lexer, errors)
-                    .map(Arc::new)
-                    .unwrap_or_default(),
+                right: safe_unwrap!(
+                    lexer,
+                    errors,
+                    "Expected <type>",
+                    Self::parse(lexer.next_token(), lexer, errors).map(Arc::new)
+                ),
             }),
             TokenType::Operator(Operator::Union) => Some(Self::Union {
                 left: Arc::new(left),
                 pipe: maybe_operator,
-                right: Self::parse(lexer.next_token(), lexer, errors)
-                    .map(Arc::new)
-                    .unwrap_or_default(),
+                right: safe_unwrap!(
+                    lexer,
+                    errors,
+                    "Expected <type>",
+                    Self::parse(lexer.next_token(), lexer, errors).map(Arc::new)
+                ),
             }),
             _ => {
                 lexer.set_state(state);
