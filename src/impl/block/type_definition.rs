@@ -60,7 +60,16 @@ impl TypeValue {
                 generics,
             })
         } else {
-            Some(Self::Basic { base, generics })
+            maybe_next_token!(lexer, ellipsis, TokenType::Symbol(Symbol::Ellipses));
+
+            if let Some(ellipsis) = ellipsis {
+                Some(Self::GenericPack {
+                    name: base,
+                    ellipsis,
+                })
+            } else {
+                Some(Self::Basic { base, generics })
+            }
         }
     }
 
@@ -106,19 +115,19 @@ impl Parse for TypeValue {
     fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
         let left = Self::parse_inner(token, lexer, errors)?;
         let state = lexer.save_state();
-        let maybe_operation = lexer.next_token();
+        let maybe_operator = lexer.next_token();
 
-        match maybe_operation.token_type {
+        match maybe_operator.token_type {
             TokenType::Operator(Operator::Intersection) => Some(Self::Intersection {
                 left: Arc::new(left),
-                ampersand: maybe_operation,
+                ampersand: maybe_operator,
                 right: Self::parse(lexer.next_token(), lexer, errors)
                     .map(Arc::new)
                     .unwrap_or_default(),
             }),
             TokenType::Operator(Operator::Union) => Some(Self::Union {
                 left: Arc::new(left),
-                pipe: maybe_operation,
+                pipe: maybe_operator,
                 right: Self::parse(lexer.next_token(), lexer, errors)
                     .map(Arc::new)
                     .unwrap_or_default(),

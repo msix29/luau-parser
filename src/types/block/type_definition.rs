@@ -52,14 +52,8 @@ pub enum TypeValue {
         /// ```
         generics: Option<Box<GenericDeclaration>>,
 
-        /// The `(` character at the start of the function.
-        opening_parenthesis: Token,
-
         /// The parameters this function accepts.
-        parameters: List<Name>,
-
-        /// The `)` character at the end of parameters and before returns
-        closing_parenthesis: Token,
+        parameters: BracketedList<Name>,
 
         /// The `->` character.
         arrow: Token,
@@ -266,18 +260,7 @@ pub struct TypeDefinition {
 }
 
 /// Generics parameters used when referencing another type.
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub struct GenericParameters {
-    /// The `<` character.
-    pub opening_arrow: Token,
-
-    /// The actual generics.
-    pub generics: List<GenericParameterInfo>,
-
-    /// The `>` character.
-    pub closing_arrow: Token,
-}
+pub type GenericParameters = BracketedList<GenericParameterInfo>;
 
 /// A generic declaration parameter used in [`generics declarations`](GenericDeclaration).
 /// Can either be a name or a variadic pack.
