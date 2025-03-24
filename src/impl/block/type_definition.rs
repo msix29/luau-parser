@@ -4,7 +4,7 @@ use luau_lexer::prelude::{
 use std::sync::Arc;
 
 use crate::{
-    force_parse_bracketed, handle_error_token, parse_bracketed,
+    force_parse_bracketed, handle_error_token, parse_bracketed, safe_unwrap,
     types::{
         Bracketed, BracketedList, GenericDeclarationParameter, GenericParameterInfo,
         GenericParameterInfoDefault, GenericParameters, Parse, ParseWithArgs, Table,
@@ -191,18 +191,12 @@ impl Parse for TypeDefinition {
             "Expected `=`"
         );
 
-        let type_value = TypeValue::parse(lexer.next_token(), lexer, errors)
-            .map(Arc::new)
-            .unwrap_or_else(|| {
-                let state = lexer.save_state();
-                errors.push(ParseError::new(
-                    state.lexer_position(),
-                    "Expected <type>".to_string(),
-                    Some(state.lexer_position()),
-                ));
-
-                Default::default()
-            });
+        let type_value = safe_unwrap!(
+            lexer,
+            errors,
+            "Expected <type>",
+            TypeValue::parse(lexer.next_token(), lexer, errors).map(Arc::new)
+        );
 
         Some(Self {
             export_keyword,
