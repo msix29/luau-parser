@@ -99,7 +99,7 @@ impl Parse for Closure {
         let parameters = force_parse_bracketed!(
             lexer,
             errors,
-            "Expected <opening parenthesis>",
+            "Expected <parameter>",
             (
                 TokenType::Symbol(Symbol::OpeningParenthesis),
                 TokenType::Symbol(Symbol::OpeningParenthesis)
