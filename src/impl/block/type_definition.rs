@@ -1,12 +1,14 @@
-use luau_lexer::prelude::{Lexer, Literal, Operator, ParseError, Symbol, Token, TokenType};
+use luau_lexer::prelude::{
+    Lexer, Literal, Operator, ParseError, PartialKeyword, Symbol, Token, TokenType,
+};
 use std::sync::Arc;
 
 use crate::{
-    handle_error_token,
+    force_parse_bracketed, handle_error_token,
     types::{
-        Bracketed, BracketedList, GenericDeclaration, GenericDeclarationParameter,
-        GenericParameterInfo, GenericParameterInfoDefault, GenericParameters, Parse, ParseWithArgs,
-        Table, TypeDefinition, TypeValue,
+        Bracketed, BracketedList, GenericDeclarationParameter, GenericParameterInfo,
+        GenericParameterInfoDefault, GenericParameters, Parse, ParseWithArgs, Table,
+        TypeDefinition, TypeValue,
     },
 };
 
@@ -82,7 +84,19 @@ impl TypeValue {
                 Literal::Boolean(_) => Some(Self::Boolean(token)),
             },
             TokenType::Identifier(_) => Self::parse_from_name(token, lexer, errors),
-            TokenType::Keyword(_) => None,
+            TokenType::PartialKeyword(PartialKeyword::TypeOf) => Some(Self::Typeof {
+                typeof_token: token,
+                inner: force_parse_bracketed!(
+                    lexer,
+                    errors,
+                    "Expected <expr>",
+                    (
+                        TokenType::Symbol(Symbol::OpeningParenthesis),
+                        TokenType::Symbol(Symbol::OpeningParenthesis)
+                    ),
+                    Symbol::ClosingParenthesis,
+                ),
+            }),
             TokenType::PartialKeyword(_) => Self::parse_from_name(token, lexer, errors),
             TokenType::Symbol(Symbol::OpeningCurlyBrackets) => {
                 Table::parse_with(token, lexer, errors, true).map(Self::Table)
@@ -107,8 +121,6 @@ impl TypeValue {
                     None
                 }
             }
-            TokenType::Operator(_) => None,
-            TokenType::CompoundOperator(_) => None,
             _ => None,
         }
     }

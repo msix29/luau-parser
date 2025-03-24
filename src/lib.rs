@@ -41,6 +41,7 @@
 
 mod r#impl;
 // mod display;
+#[macro_use]
 mod macros;
 pub mod parser;
 pub mod types;

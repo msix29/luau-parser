@@ -168,14 +168,8 @@ pub enum TypeValue {
         /// The `typeof` word.
         typeof_token: Token,
 
-        /// The `(` character.
-        opening_parenthesis: Token,
-
         /// The expression passed to `typeof`.
-        inner: Arc<Expression>,
-
-        /// The `)` character.
-        closing_parenthesis: Token,
+        inner: Bracketed<Arc<Expression>>,
     },
 
     /// A tuple of types
