@@ -6,7 +6,7 @@ use crate::{
     types::{
         Bracketed, BracketedList, GenericDeclaration, GenericDeclarationParameter,
         GenericParameterInfo, GenericParameterInfoDefault, GenericParameters, Parse, ParseWithArgs,
-        TypeDefinition, TypeValue,
+        Table, TypeDefinition, TypeValue,
     },
 };
 
@@ -84,6 +84,9 @@ impl TypeValue {
             TokenType::Identifier(_) => Self::parse_from_name(token, lexer, errors),
             TokenType::Keyword(_) => None,
             TokenType::PartialKeyword(_) => Self::parse_from_name(token, lexer, errors),
+            TokenType::Symbol(Symbol::OpeningCurlyBrackets) => {
+                Table::parse_with(token, lexer, errors, true).map(Self::Table)
+            }
             TokenType::Symbol(Symbol::OpeningParenthesis) => {
                 if let Some(bracketed) = BracketedList::<Arc<TypeValue>>::parse_with(
                     token,
