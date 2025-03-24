@@ -78,6 +78,7 @@ impl Expression {
             TokenType::Keyword(Keyword::Function) => {
                 Closure::parse(token, lexer, errors).map(Self::Closure)
             }
+            TokenType::Keyword(Keyword::Nil) => Some(Self::Nil(token)),
             TokenType::Keyword(Keyword::If) => {
                 IfExpression::parse(token, lexer, errors).map(Self::IfExpression)
             }
