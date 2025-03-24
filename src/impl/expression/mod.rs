@@ -12,9 +12,10 @@ use luau_lexer::{
 use crate::{
     handle_error_token,
     types::{
-        Closure, Expression, ExpressionWrap, FunctionCall, Parse, ParseWithArgs, PrefixExp, Table,
-        TypeValue, Var,
+        Closure, ElseIfExpression, Expression, ExpressionWrap, FunctionCall, IfExpression, Parse,
+        ParseWithArgs, PrefixExp, Table, TypeValue, Var,
     },
+    utils::try_parse,
 };
 
 impl Parse for PrefixExp {
@@ -79,6 +80,9 @@ impl Expression {
             TokenType::Keyword(Keyword::Function) => {
                 Closure::parse(token, lexer, errors).map(Self::Closure)
             }
+            TokenType::Keyword(Keyword::If) => {
+                IfExpression::parse(token, lexer, errors).map(Self::IfExpression)
+            }
             _ => None,
         }
     }
@@ -129,5 +133,97 @@ impl Parse for Expression {
                 Some(left)
             }
         }
+    }
+}
+
+impl Parse for IfExpression {
+    fn parse(if_token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
+        if if_token != TokenType::Keyword(Keyword::If) {
+            return None;
+        }
+
+        let condition =
+            try_parse::<Expression>(lexer.save_state(), lexer.next_token(), lexer, errors)
+                .map(Arc::new)
+                .unwrap_or_default();
+
+        next_token_recoverable!(
+            lexer,
+            then_token,
+            TokenType::Keyword(Keyword::Then),
+            TokenType::Keyword(Keyword::Then),
+            errors,
+            "Expected `then`"
+        );
+
+        let if_expression =
+            try_parse::<Expression>(lexer.save_state(), lexer.next_token(), lexer, errors)
+                .map(Arc::new)
+                .unwrap_or_default();
+
+        let else_if_expressions =
+            try_parse::<Vec<_>>(lexer.save_state(), lexer.next_token(), lexer, errors)
+                .map(Arc::new)
+                .unwrap_or_default();
+
+        next_token_recoverable!(
+            lexer,
+            else_token,
+            TokenType::Keyword(Keyword::Else),
+            TokenType::Keyword(Keyword::Else),
+            errors,
+            "Expected `else`"
+        );
+        let else_expression = Expression::parse(lexer.next_token(), lexer, errors)
+            .map(Arc::new)
+            .unwrap_or_default();
+
+        Some(Self {
+            if_token,
+            condition,
+            then_token,
+            if_expression,
+            else_if_expressions,
+            else_token,
+            else_expression,
+        })
+    }
+}
+
+impl Parse for ElseIfExpression {
+    fn parse(
+        else_if_token: Token,
+        lexer: &mut Lexer,
+        errors: &mut Vec<ParseError>,
+    ) -> Option<Self> {
+        if else_if_token != TokenType::Keyword(Keyword::Elseif) {
+            return None;
+        }
+
+        let condition =
+            try_parse::<Expression>(lexer.save_state(), lexer.next_token(), lexer, errors)
+                .map(Arc::new)
+                .unwrap_or_default();
+
+        next_token_recoverable!(
+            lexer,
+            then_token,
+            TokenType::Keyword(Keyword::Then),
+            TokenType::Keyword(Keyword::Then),
+            errors,
+            "Expected `then`"
+        );
+
+        let expression =
+            try_parse::<Expression>(lexer.save_state(), lexer.next_token(), lexer, errors)
+                .map(Arc::new)
+                .unwrap_or_default();
+
+        Some(Self {
+            else_if_token,
+            condition,
+            then_token,
+            expression,
+        })
     }
 }

@@ -22,3 +22,21 @@ impl<T: Parse> Parse for Arc<T> {
         T::parse(token, lexer, errors).map(Self::new)
     }
 }
+
+impl<T: Parse> Parse for Vec<T> {
+    #[inline]
+    fn parse(mut token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
+        let mut values = Vec::new();
+        let mut state = lexer.save_state();
+
+        while let Some(value) = T::parse(token, lexer, errors) {
+            values.push(value);
+            state = lexer.save_state();
+            token = lexer.next_token();
+        }
+
+        lexer.set_state(state);
+
+        (!values.is_empty()).then_some(values)
+    }
+}

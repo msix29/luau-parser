@@ -56,23 +56,6 @@ impl Parse for TableAccessKey {
     }
 }
 
-impl Parse for Vec<TableAccessKey> {
-    fn parse(mut token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
-        let mut keys = Vec::new();
-        let mut state = lexer.save_state();
-
-        while let Some(key) = TableAccessKey::parse(token, lexer, errors) {
-            keys.push(key);
-            state = lexer.save_state();
-            token = lexer.next_token();
-        }
-
-        lexer.set_state(state);
-
-        (!keys.is_empty()).then_some(keys)
-    }
-}
-
 impl Parse for TableAccess {
     fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
         Some(Self {

@@ -152,32 +152,37 @@ pub enum Expression {
     },
 
     /// An if expression.
-    IfExpression {
-        /// The `if` keyword.
-        if_token: Token,
-
-        /// The condition after the `if` keyword.
-        condition: Arc<Expression>,
-
-        /// The `then` keyword after the condition.
-        then_token: Token,
-
-        /// The [`expression`](Expression) that this statement would resolve to if the
-        /// [`condition`](Expression::IfExpression::condition) evaluated to `true`.
-        if_expression: Arc<Expression>,
-
-        /// All `elseif` expressions.
-        else_if_expressions: Arc<Vec<ElseIfExpression>>,
-
-        /// The final part of the expression, the `else` keyword.
-        else_token: Token,
-
-        /// The final value if all other conditions were not met.
-        else_expression: Arc<Expression>,
-    },
+    IfExpression(IfExpression),
 }
 
 /// A struct representing an elseif **expression**, only exists in variable declarations.
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+pub struct IfExpression {
+    /// The `if` keyword.
+    pub if_token: Token,
+
+    /// The condition after the `if` keyword.
+    pub condition: Arc<Expression>,
+
+    /// The `then` keyword after the condition.
+    pub then_token: Token,
+
+    /// The [`expression`](Expression) that this statement would resolve to if the
+    /// [`condition`](Expression::IfExpression::condition) evaluated to `true`.
+    pub if_expression: Arc<Expression>,
+
+    /// All `elseif` expressions.
+    pub else_if_expressions: Arc<Vec<ElseIfExpression>>,
+
+    /// The final part of the expression, the `else` keyword.
+    pub else_token: Token,
+
+    /// The final value if all other conditions were not met.
+    pub else_expression: Arc<Expression>,
+}
+
+/// A struct representing an elseif **expression**, only exists in expressions.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct ElseIfExpression {
