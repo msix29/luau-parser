@@ -87,15 +87,12 @@ impl Expression {
 impl Parse for Expression {
     fn parse(mut token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
         let maybe_unary_operator = match token.token_type {
-            TokenType::Operator(operator) => match operator {
-                Operator::Minus | Operator::Not => {
-                    let temp = token;
-                    token = lexer.next_token();
+            TokenType::Operator(Operator::Minus | Operator::Not) => {
+                let temp = token;
+                token = lexer.next_token();
 
-                    Some(temp)
-                }
-                _ => None,
-            },
+                Some(temp)
+            }
             _ => None,
         };
 

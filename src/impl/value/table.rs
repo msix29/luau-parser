@@ -1,4 +1,4 @@
-use luau_lexer::prelude::{Lexer, Operator, ParseError, Symbol, Token, TokenType};
+use luau_lexer::prelude::{Lexer, ParseError, Symbol, Token, TokenType};
 use std::{cell::Cell, sync::Arc};
 
 use crate::types::{
@@ -97,8 +97,8 @@ impl ParseWithArgs<&ParseArgs> for TableField {
                 next_token_recoverable!(
                     lexer,
                     temp,
-                    TokenType::Operator(Operator::Equal),
-                    TokenType::Operator(Operator::Equal),
+                    TokenType::Symbol(Symbol::Equal),
+                    TokenType::Symbol(Symbol::Equal),
                     errors,
                     "Expected <equal>"
                 );

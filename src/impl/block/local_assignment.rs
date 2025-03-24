@@ -1,4 +1,4 @@
-use luau_lexer::prelude::{Keyword, Lexer, Operator, ParseError, Token, TokenType};
+use luau_lexer::prelude::{Keyword, Lexer, ParseError, Symbol, Token, TokenType};
 use std::sync::Arc;
 
 use crate::types::{Expression, List, LocalAssignment, Name, Parse};
@@ -11,7 +11,7 @@ impl Parse for LocalAssignment {
 
         let name_list = List::<Name>::parse(lexer.next_token(), lexer, errors)?;
 
-        maybe_next_token!(lexer, equal_token, TokenType::Operator(Operator::Equal));
+        maybe_next_token!(lexer, equal_token, TokenType::Symbol(Symbol::Equal));
         let expressions = if equal_token.is_some() {
             List::<Arc<Expression>>::parse(lexer.next_token(), lexer, errors)?
         } else {

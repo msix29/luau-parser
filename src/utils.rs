@@ -41,6 +41,7 @@ pub(crate) fn get_token_type_display_extended(token_type: &TokenType) -> String 
             Symbol::ClosingAngleBrackets => "<closing angle brackets>",
             Symbol::Arrow => "<arrow>",
             Symbol::Typecast => "<typecast>",
+            Symbol::Equal => "`=`",
         },
         TokenType::Operator(operator) => match operator {
             Operator::Plus => "`+`",
@@ -50,7 +51,6 @@ pub(crate) fn get_token_type_display_extended(token_type: &TokenType) -> String 
             Operator::Multiplication => "`*`",
             Operator::Modulo => "`%`",
             Operator::Exponentiation => "`^`",
-            Operator::Equal => "`=`",
             Operator::Length => "`#`",
             Operator::And => "`and`",
             Operator::Or => "`or`",
