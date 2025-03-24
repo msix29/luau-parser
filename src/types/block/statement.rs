@@ -39,7 +39,7 @@ macro_rules! generate_statement {
                 $( if let Some(value) = <$ty>::parse(token.clone(), lexer, errors) {
                     Some(Self::$name(Box::new(value)))
                 } else )* {
-                    Some(Self::ERROR)
+                    None
                 }
             }
         }
