@@ -2,12 +2,10 @@ mod function;
 mod table;
 mod var;
 
-use std::sync::Arc;
-
-use luau_lexer::{
-    prelude::{Lexer, Literal, ParseError, Symbol, Token, TokenType},
-    token::{Keyword, Operator},
+use luau_lexer::prelude::{
+    CompoundOperator, Keyword, Lexer, Literal, Operator, ParseError, Symbol, Token, TokenType,
 };
+use std::sync::Arc;
 
 use crate::{
     handle_error_token,
@@ -114,13 +112,15 @@ impl Parse for Expression {
         let next_token = lexer.next_token();
 
         match next_token.token_type {
-            TokenType::Operator(_) => Some(Self::BinaryExpression {
-                left: Arc::new(left),
-                operator: next_token,
-                right: Self::parse(lexer.next_token(), lexer, errors)
-                    .map(Arc::new)
-                    .unwrap_or_default(),
-            }),
+            TokenType::Operator(_) | TokenType::CompoundOperator(CompoundOperator::EqualEqual) => {
+                Some(Self::BinaryExpression {
+                    left: Arc::new(left),
+                    operator: next_token,
+                    right: Self::parse(lexer.next_token(), lexer, errors)
+                        .map(Arc::new)
+                        .unwrap_or_default(),
+                })
+            }
             TokenType::Symbol(Symbol::Typecast) => Some(Self::TypeCast {
                 expression: Arc::new(left),
                 operator: next_token,
