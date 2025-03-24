@@ -15,6 +15,7 @@ pub(crate) fn get_token_type_display(token_type: &TokenType) -> String {
         TokenType::CompoundOperator(_) => "<compound operator>",
         TokenType::EndOfFile => "<eof>",
         TokenType::Error(_) => "<error>",
+        TokenType::Comment(_) => "<comment>",
     }
     .to_string()
 }
@@ -76,6 +77,7 @@ pub(crate) fn get_token_type_display_extended(token_type: &TokenType) -> String 
         },
         TokenType::EndOfFile => "<eof>",
         TokenType::Error(_) => "<error>",
+        TokenType::Comment(_) => "<comment>",
     }
     .to_string()
 }
