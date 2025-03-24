@@ -4,12 +4,11 @@ use luau_lexer::prelude::{
 use std::sync::Arc;
 
 use crate::{
-    force_parse_bracketed, handle_error_token,
-    types::{
+    force_parse_bracketed, handle_error_token, parse_bracketed, types::{
         Bracketed, BracketedList, GenericDeclarationParameter, GenericParameterInfo,
         GenericParameterInfoDefault, GenericParameters, Parse, ParseWithArgs, Table,
         TypeDefinition, TypeValue,
-    },
+    }
 };
 
 impl TypeValue {
@@ -37,21 +36,13 @@ impl TypeValue {
             None
         };
 
-        maybe_next_token!(
+        let generics = parse_bracketed!(
             lexer,
-            opening_angle_brackets,
-            TokenType::Symbol(Symbol::OpeningAngleBrackets)
-        );
-        let generics = if opening_angle_brackets.is_some() {
-            BracketedList::<Arc<TypeValue>>::parse_with(
-                lexer.next_token(),
-                lexer,
-                errors,
-                ("Expected <type>", Symbol::ClosingAngleBrackets),
-            )
-        } else {
-            None
-        }
+            errors,
+            "Expected <generic declaration>",
+            TokenType::Symbol(Symbol::OpeningAngleBrackets),
+            Symbol::ClosingAngleBrackets,
+        )
         .map(Box::new);
 
         if let Some((dot, name)) = actual_type {
