@@ -1,6 +1,6 @@
 use luau_lexer::prelude::Token;
 
-use super::TableAccess;
+use crate::types::TableAccess;
 
 /// Possible ways in which a variable can be referenced.
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]

@@ -3,7 +3,7 @@
 use luau_lexer::prelude::{Lexer, ParseError, Token};
 use std::fmt::Debug;
 
-use super::Range;
+use crate::types::Range;
 
 /// A trait for a token that can be represented in a more abstract form for the user to see,
 /// without maintaing original styling. This is mainly for LSPs so it's LSP-ready and can
@@ -19,16 +19,6 @@ pub trait Print {
     /// Prints the whole token including all surrounding spaces.
     fn print(&self) -> String;
 }
-
-// /// A trait to tell Rust that this item is a `LuauStatement`.
-// pub trait LuauStatement: Sized {
-//     /// Try creating this [`statement`](LuauStatement) from a [`treesitter node`](Node).
-//     fn try_from_node<'a>(
-//         node: Node<'a>,
-//         cursor: &mut TreeCursor<'a>,
-//         code_bytes: &[u8],
-//     ) -> Option<Self>;
-// }
 
 /// A trait that indicates that this struct can be parsed from a [`lexer`](Lexer)
 pub trait Parse<O = Self>: Sized + Debug {

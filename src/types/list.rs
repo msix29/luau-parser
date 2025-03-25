@@ -3,7 +3,7 @@
 
 use luau_lexer::prelude::Token;
 
-use super::Bracketed;
+use crate::types::Bracketed;
 
 /// A possible list item of type `T`.
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]

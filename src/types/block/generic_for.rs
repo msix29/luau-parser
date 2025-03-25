@@ -2,8 +2,7 @@
 
 use luau_lexer::prelude::Token;
 
-use super::DoBlock;
-use crate::types::{Expression, List, Name, Pointer};
+use crate::types::{DoBlock, Expression, List, Name, Pointer};
 
 /// A struct representing a for-in loop.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]

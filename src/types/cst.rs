@@ -1,7 +1,7 @@
 use luau_lexer::error::ParseError;
 use smol_str::SmolStr;
 
-use super::Block;
+use crate::types::Block;
 
 /// An enum representing different states of an CST.
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]

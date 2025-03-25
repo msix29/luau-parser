@@ -2,7 +2,7 @@
 
 use luau_lexer::prelude::Token;
 
-use super::Block;
+use crate::types::Block;
 
 /// A struct representing a do statement
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
