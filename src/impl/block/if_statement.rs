@@ -38,7 +38,7 @@ impl Parse for IfStatement {
             lexer.next_token(),
             lexer,
             errors,
-            Some(TokenType::Keyword(Keyword::End)),
+            TokenType::Keyword(Keyword::End),
         )
         .unwrap_or_default();
 
@@ -101,7 +101,7 @@ impl Parse for ElseIfStatement {
             lexer.next_token(),
             lexer,
             errors,
-            Some(TokenType::Keyword(Keyword::End)),
+            TokenType::Keyword(Keyword::End),
         )
         .unwrap_or_default();
 
@@ -122,7 +122,7 @@ impl Parse for ElseStatement {
                 lexer.next_token(),
                 lexer,
                 errors,
-                Some(TokenType::Keyword(Keyword::End)),
+                TokenType::Keyword(Keyword::End),
             )
             .unwrap_or_default(),
         })

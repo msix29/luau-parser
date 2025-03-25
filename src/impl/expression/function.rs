@@ -118,7 +118,7 @@ impl Parse for Closure {
             lexer.next_token(),
             lexer,
             errors,
-            Some(TokenType::Keyword(Keyword::End)),
+            TokenType::Keyword(Keyword::End),
         )
         .unwrap_or_default(); // `Block::parse` never fails.
 

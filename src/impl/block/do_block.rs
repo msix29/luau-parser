@@ -15,7 +15,7 @@ impl Parse for DoBlock {
             lexer.next_token(),
             lexer,
             errors,
-            Some(TokenType::Keyword(Keyword::End)),
+            TokenType::Keyword(Keyword::End),
         )
         .unwrap_or_default();
 
