@@ -1,15 +1,20 @@
-use std::sync::Arc;
-
 use luau_lexer::{
     prelude::{Lexer, ParseError, Token},
     token::{Keyword, TokenType},
 };
+use std::sync::Arc;
 
 use crate::{
     safe_unwrap,
     types::{Block, ElseIfStatement, ElseStatement, Expression, IfStatement, Parse, ParseWithArgs},
     utils::try_parse,
 };
+
+const END_TOKENS: [TokenType; 3] = [
+    TokenType::Keyword(Keyword::End),
+    TokenType::Keyword(Keyword::Elseif),
+    TokenType::Keyword(Keyword::Else),
+];
 
 impl Parse for IfStatement {
     fn parse(if_keyword: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
@@ -34,13 +39,8 @@ impl Parse for IfStatement {
             "Expected `then`"
         );
 
-        let body = Block::parse_with(
-            lexer.next_token(),
-            lexer,
-            errors,
-            TokenType::Keyword(Keyword::End),
-        )
-        .unwrap_or_default();
+        let body =
+            Block::parse_with(lexer.next_token(), lexer, errors, END_TOKENS).unwrap_or_default();
 
         let else_if_statements =
             try_parse::<Vec<_>>(lexer.save_state(), lexer.next_token(), lexer, errors)
@@ -97,13 +97,8 @@ impl Parse for ElseIfStatement {
             "Expected `then`"
         );
 
-        let body = Block::parse_with(
-            lexer.next_token(),
-            lexer,
-            errors,
-            TokenType::Keyword(Keyword::End),
-        )
-        .unwrap_or_default();
+        let body =
+            Block::parse_with(lexer.next_token(), lexer, errors, END_TOKENS).unwrap_or_default();
 
         Some(Self {
             elseif_keyword,
