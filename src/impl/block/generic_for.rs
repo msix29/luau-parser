@@ -1,9 +1,37 @@
-use luau_lexer::prelude::{Lexer, ParseError, Token};
+use luau_lexer::prelude::{Keyword, Lexer, ParseError, Token, TokenType};
 
-use crate::types::{GenericFor, Parse};
+use crate::{
+    types::{DoBlock, GenericFor, List, Parse},
+    utils::get_token_type_display_extended,
+};
 
 impl Parse for GenericFor {
-    fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
-        todo!()
+    fn parse(for_keyword: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
+        if for_keyword != TokenType::Keyword(Keyword::For) {
+            return None;
+        }
+
+        let names = List::parse(lexer.next_token(), lexer, errors)?;
+
+        next_token_recoverable!(
+            lexer,
+            in_keyword,
+            TokenType::Keyword(Keyword::In),
+            TokenType::Keyword(Keyword::In),
+            errors,
+            "Expected ".to_string()
+                + get_token_type_display_extended(&TokenType::Keyword(Keyword::In))
+        );
+
+        let expressions = List::parse(lexer.next_token(), lexer, errors)?;
+        let do_block = DoBlock::parse(lexer.next_token(), lexer, errors)?;
+
+        Some(Self {
+            for_keyword,
+            names,
+            in_keyword,
+            expressions,
+            do_block,
+        })
     }
 }
