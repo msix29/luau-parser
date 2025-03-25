@@ -1,5 +1,6 @@
 use luau_lexer::prelude::{
-    CompoundOperator, Lexer, Operator, ParseError, State, Symbol, Token, TokenType,
+    CompoundOperator,  Keyword, Lexer, Literal, Operator, ParseError, PartialKeyword,
+    State, Symbol, Token, TokenType,
 };
 
 use crate::types::Parse;
@@ -22,10 +23,36 @@ pub(crate) fn get_token_type_display(token_type: &TokenType) -> String {
 
 pub(crate) fn get_token_type_display_extended(token_type: &TokenType) -> String {
     match token_type {
-        TokenType::Keyword(_) => "<keyword>",
-        TokenType::PartialKeyword(_) => "<partial keyword>",
+        TokenType::Keyword(keyword) => match keyword {
+            Keyword::Local => "<local>",
+            Keyword::Function => "<function>",
+            Keyword::If => "<if>",
+            Keyword::Elseif => "<elseif>",
+            Keyword::Then => "<then>",
+            Keyword::Else => "<else>",
+            Keyword::While => "<while>",
+            Keyword::For => "<for>",
+            Keyword::In => "<in>",
+            Keyword::Do => "<do>",
+            Keyword::Break => "<break>",
+            Keyword::Return => "<return>",
+            Keyword::End => "<end>",
+            Keyword::Repeat => "<repeat>",
+            Keyword::Until => "<until>",
+            Keyword::Nil => "<nil>",
+        },
+        TokenType::PartialKeyword(partial_keyword) => match partial_keyword {
+            PartialKeyword::Type => "<type>",
+            PartialKeyword::Continue => "<continue>",
+            PartialKeyword::Export => "<export>",
+            PartialKeyword::TypeOf => "<typeof>",
+        },
         TokenType::Identifier(_) => "<identifier>",
-        TokenType::Literal(_) => "<expression>",
+        TokenType::Literal(literal) => match literal {
+            Literal::Number(_) => "<number>",
+            Literal::String(_) => "<string>",
+            Literal::Boolean(_) => "<boolean>",
+        },
         TokenType::Symbol(symbol) => match symbol {
             Symbol::OpeningCurlyBrackets => "<opening curly brackets>",
             Symbol::ClosingCurlyBrackets => "<closing curly brackets>",
