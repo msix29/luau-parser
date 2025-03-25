@@ -25,6 +25,7 @@ impl<T> List<T> {
 
         while let Some(item) = parse(token, lexer) {
             maybe_next_token!(lexer, maybe_comma, TokenType::Symbol(Symbol::Comma));
+            state = lexer.save_state();
 
             if let Some(comma) = maybe_comma {
                 items.push(ListItem::Trailing {
@@ -37,7 +38,6 @@ impl<T> List<T> {
                 break;
             }
 
-            state = lexer.save_state();
             token = lexer.next_token();
         }
 

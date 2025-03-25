@@ -25,6 +25,7 @@ impl ParseWithArgs<Option<TokenType>> for Block {
             if token.token_type == TokenType::EndOfFile {
                 break;
             }
+            let mut failed_parsing = false;
 
             if let Some(statement) = Statement::parse(token.clone(), lexer, errors) {
                 if last_statement.is_some() {
@@ -53,8 +54,17 @@ impl ParseWithArgs<Option<TokenType>> for Block {
                 maybe_next_token!(lexer, maybe_semicolon, TokenType::Symbol(Symbol::Semicolon));
                 last_statement = Some((Arc::new(statement), maybe_semicolon));
             } else {
-                let state = lexer.save_state();
+                failed_parsing = true;
+            }
 
+            let state = lexer.save_state();
+            let next_token = lexer.next_token();
+
+            if Some(&next_token.token_type) == stop_at {
+                lexer.set_state(state);
+
+                break;
+            } else if token.token_type != TokenType::EndOfFile && failed_parsing {
                 errors.push(ParseError::new(
                     state.lexer_position(),
                     format!(
@@ -65,14 +75,7 @@ impl ParseWithArgs<Option<TokenType>> for Block {
                 ));
             }
 
-            let state = lexer.save_state();
-            token = lexer.next_token();
-
-            if Some(&token.token_type) == stop_at {
-                lexer.set_state(state);
-
-                break;
-            }
+            token = next_token;
         }
 
         Some(Self {
