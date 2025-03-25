@@ -19,7 +19,7 @@ impl Cst {
             };
         }
 
-        let block = Block::parse_with(token, lexer, &mut errors, None);
+        let block = Block::parse_with(token, lexer, &mut errors, None::<Token>);
         let status = if errors.is_empty() {
             AstStatus::Complete
         } else {

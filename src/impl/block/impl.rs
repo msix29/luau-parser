@@ -1,23 +1,61 @@
-use std::sync::Arc;
-
 use luau_lexer::{
     prelude::{Lexer, ParseError, Token, TokenType},
     token::Symbol,
 };
+use std::sync::Arc;
 
 use crate::{
     types::{Block, Parse, ParseWithArgs, Statement, TerminationStatement},
     utils::get_token_type_display_extended,
 };
 
-impl ParseWithArgs<Option<TokenType>> for Block {
+trait MatchesToken {
+    fn matches(&self, token: &Token) -> bool;
+}
+
+impl<T: MatchesToken> MatchesToken for Option<T> {
+    #[inline]
+    fn matches(&self, token: &Token) -> bool {
+        match self {
+            Some(value) => value.matches(token),
+            None => false,
+        }
+    }
+}
+
+impl MatchesToken for TokenType {
+    #[inline]
+    fn matches(&self, token: &Token) -> bool {
+        token == self
+    }
+}
+impl MatchesToken for Token {
+    #[inline]
+    fn matches(&self, token: &Token) -> bool {
+        token == self
+    }
+}
+
+impl MatchesToken for Vec<TokenType> {
+    #[inline]
+    fn matches(&self, token: &Token) -> bool {
+        self.contains(&token.token_type)
+    }
+}
+impl MatchesToken for Vec<Token> {
+    #[inline]
+    fn matches(&self, token: &Token) -> bool {
+        self.contains(token)
+    }
+}
+
+impl<T: MatchesToken> ParseWithArgs<T> for Block {
     fn parse_with(
         mut token: Token,
         lexer: &mut Lexer,
         errors: &mut Vec<ParseError>,
-        stop_at: Option<TokenType>,
+        stop_at: T,
     ) -> Option<Self> {
-        let stop_at = stop_at.as_ref();
         let mut statements = Vec::new();
         let mut last_statement = None;
 
@@ -60,7 +98,7 @@ impl ParseWithArgs<Option<TokenType>> for Block {
             let state = lexer.save_state();
             let next_token = lexer.next_token();
 
-            if Some(&next_token.token_type) == stop_at {
+            if stop_at.matches(&next_token) {
                 lexer.set_state(state);
 
                 break;
