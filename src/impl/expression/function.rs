@@ -6,7 +6,7 @@ use crate::{
         Block, BracketedList, Closure, FunctionArguments, FunctionCall, FunctionCallInvoked, Parse,
         ParseWithArgs, Pointer, PrefixExp, Table, TableAccessPrefix, TypeValue,
     },
-    utils::try_parse,
+    utils::{get_token_type_display_extended, try_parse},
 };
 
 impl Parse for FunctionCallInvoked {
@@ -127,7 +127,8 @@ impl Parse for Closure {
             TokenType::Keyword(Keyword::End),
             TokenType::Keyword(Keyword::End),
             errors,
-            "Expected <end>"
+            "Expected ".to_string()
+                + get_token_type_display_extended(&TokenType::Keyword(Keyword::End))
         );
 
         Some(Self {

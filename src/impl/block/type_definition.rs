@@ -9,6 +9,7 @@ use crate::{
         GenericParameterInfoDefault, GenericParameters, Parse, ParseWithArgs, Pointer, Table,
         TypeDefinition, TypeValue,
     },
+    utils::get_token_type_display,
 };
 
 impl TypeValue {
@@ -27,7 +28,7 @@ impl TypeValue {
                 TokenType::Identifier(_) | TokenType::PartialKeyword(_),
                 TokenType::Identifier("*error*".into()),
                 errors,
-                "Expected <ident>"
+                "Expected ".to_string() + get_token_type_display(&TokenType::Identifier("".into()))
             );
 
             Some((maybe_dot.clone(), name.clone()))
@@ -185,7 +186,7 @@ impl Parse for TypeDefinition {
             TokenType::Identifier(_) | TokenType::PartialKeyword(_),
             TokenType::Identifier("*error*".into()),
             errors,
-            "Expected <ident>"
+            "Expected ".to_string() + get_token_type_display(&TokenType::Identifier("".into()))
         );
         next_token_recoverable!(
             lexer,

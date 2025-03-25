@@ -58,12 +58,12 @@ macro_rules! force_parse_bracketed {
 
 #[macro_export]
 macro_rules! safe_unwrap {
-    ($lexer: ident, $errors: ident, $error_message: literal, $expr: expr) => {{
+    ($lexer: ident, $errors: ident, $error_message: expr, $expr: expr) => {{
         $expr.unwrap_or_else(|| {
             let state = $lexer.save_state();
             $errors.push(ParseError::new(
                 state.lexer_position(),
-                $error_message.to_string(),
+                $error_message,
                 Some(state.lexer_position()),
             ));
 

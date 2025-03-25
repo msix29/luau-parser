@@ -1,6 +1,9 @@
 use luau_lexer::prelude::{Keyword, Lexer, ParseError, Token, TokenType};
 
-use crate::types::{Block, DoBlock, Parse, ParseWithArgs};
+use crate::{
+    types::{Block, DoBlock, Parse, ParseWithArgs},
+    utils::get_token_type_display_extended,
+};
 
 impl Parse for DoBlock {
     fn parse(do_keyword: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
@@ -22,7 +25,8 @@ impl Parse for DoBlock {
             TokenType::Keyword(Keyword::End),
             TokenType::Keyword(Keyword::End),
             errors,
-            "Expected <end>"
+            "Expected ".to_string()
+                + get_token_type_display_extended(&TokenType::Keyword(Keyword::End))
         );
 
         Some(Self {

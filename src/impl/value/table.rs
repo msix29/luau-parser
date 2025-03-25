@@ -1,9 +1,12 @@
 use luau_lexer::prelude::{Lexer, ParseError, Symbol, Token, TokenType};
 use std::cell::Cell;
 
-use crate::types::{
-    Bracketed, BracketedList, Expression, FunctionArguments, Parse, ParseWithArgs, Pointer, Table,
-    TableAccessKey, TableField, TableFieldValue, TableKey, TypeValue,
+use crate::{
+    types::{
+        Bracketed, BracketedList, Expression, FunctionArguments, Parse, ParseWithArgs, Pointer,
+        Table, TableAccessKey, TableField, TableFieldValue, TableKey, TypeValue,
+    },
+    utils::get_token_type_display_extended,
 };
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
@@ -89,7 +92,8 @@ impl ParseWithArgs<&ParseArgs> for TableField {
                     TokenType::Symbol(Symbol::Colon),
                     TokenType::Symbol(Symbol::Colon),
                     errors,
-                    "Expected <colon>"
+                    "Expected ".to_string()
+                        + get_token_type_display_extended(&TokenType::Symbol(Symbol::Colon))
                 );
 
                 equal_or_colon = temp;
@@ -100,7 +104,8 @@ impl ParseWithArgs<&ParseArgs> for TableField {
                     TokenType::Symbol(Symbol::Equal),
                     TokenType::Symbol(Symbol::Equal),
                     errors,
-                    "Expected <equal>"
+                    "Expected ".to_string()
+                        + get_token_type_display_extended(&TokenType::Symbol(Symbol::Equal))
                 );
 
                 equal_or_colon = temp;
