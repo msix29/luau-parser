@@ -21,7 +21,7 @@ fn simple_1() {
     assert!(name.is_some());
     assert_eq!(
         name.unwrap().name.token_type,
-        TokenType::Identifier("name".to_string())
+        TokenType::Identifier("name".into())
     );
 }
 
@@ -33,7 +33,7 @@ fn simple_2() {
     assert!(name.is_some());
     assert_eq!(
         name.unwrap().name.token_type,
-        TokenType::Identifier("_name".to_string())
+        TokenType::Identifier("_name".into())
     );
 }
 

@@ -18,7 +18,7 @@ fn only_name() {
     assert!(local_assignment.name_list.len() == 1);
 
     let name = &local_assignment.name_list[0];
-    assert_eq!(name.name.token_type, TokenType::Identifier("foo".to_string()));
+    assert_eq!(name.name.token_type, TokenType::Identifier("foo".into()));
     assert!(name.colon.is_none());
     assert!(name.r#type.is_none());
 

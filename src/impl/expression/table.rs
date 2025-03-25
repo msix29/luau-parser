@@ -38,7 +38,7 @@ impl Parse for TableAccessKey {
                     lexer,
                     name,
                     TokenType::Identifier(_) | TokenType::PartialKeyword(_),
-                    TokenType::Identifier("*error*".to_string()),
+                    TokenType::Identifier("*error*".into()),
                     errors,
                     "Expected <ident>"
                 );

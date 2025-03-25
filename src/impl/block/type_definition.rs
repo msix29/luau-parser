@@ -25,7 +25,7 @@ impl TypeValue {
                 lexer,
                 name,
                 TokenType::Identifier(_) | TokenType::PartialKeyword(_),
-                TokenType::Identifier("*error*".to_string()),
+                TokenType::Identifier("*error*".into()),
                 errors,
                 "Expected <ident>"
             );
@@ -183,7 +183,7 @@ impl Parse for TypeDefinition {
             lexer,
             type_name,
             TokenType::Identifier(_) | TokenType::PartialKeyword(_),
-            TokenType::Identifier("*error*".to_string()),
+            TokenType::Identifier("*error*".into()),
             errors,
             "Expected <ident>"
         );

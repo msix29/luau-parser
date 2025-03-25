@@ -57,7 +57,7 @@ fn var() {
         name1.token_type,
         TokenType::PartialKeyword(PartialKeyword::Type)
     );
-    assert_eq!(name2.token_type, TokenType::Identifier("qux".to_string()));
+    assert_eq!(name2.token_type, TokenType::Identifier("qux".into()));
 
     assert_matches!(table_access.prefix, TableAccessPrefix::Name(_));
 
@@ -68,6 +68,6 @@ fn var() {
 
     get_from_enum!(TableAccessKey::Name { ref name, .. } = table_access.accessed_keys[0]);
 
-    assert_eq!(prefix.token_type, TokenType::Identifier("foo".to_string()));
-    assert_eq!(name.token_type, TokenType::Identifier("bar".to_string()));
+    assert_eq!(prefix.token_type, TokenType::Identifier("foo".into()));
+    assert_eq!(name.token_type, TokenType::Identifier("bar".into()));
 }
