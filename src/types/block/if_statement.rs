@@ -3,7 +3,9 @@
 use luau_lexer::prelude::Token;
 use std::sync::Arc;
 
-use crate::prelude::{Cst, Expression};
+use crate::prelude::Expression;
+
+use super::Block;
 
 /// A struct representing an `if` statement
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -19,7 +21,7 @@ pub struct IfStatement {
     pub then_keyword: Token,
 
     /// The body that'll be excuted if condition is truthy.
-    pub body: Cst,
+    pub body: Block,
 
     /// Elseif branches.
     pub else_if_statements: Vec<ElseIfStatement>,
@@ -45,7 +47,7 @@ pub struct ElseIfStatement {
     pub then_keyword: Token,
 
     /// The body that'll be excuted if condition is truthy.
-    pub body: Cst,
+    pub body: Block,
 }
 
 /// A struct representing an `else` statement
@@ -56,5 +58,5 @@ pub struct ElseStatement {
     pub else_keyword: Token,
 
     /// The body of the else statement.
-    pub body: Cst,
+    pub body: Block,
 }
