@@ -4,7 +4,7 @@ use luau_lexer::lexer::Lexer;
 #[cfg(feature = "cache")]
 use std::collections::HashMap;
 
-use crate::prelude::Cst;
+use crate::types::Cst;
 
 /// A Luau parser.
 pub struct LuauParser<'a> {

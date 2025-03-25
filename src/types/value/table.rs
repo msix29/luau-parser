@@ -2,9 +2,8 @@
 
 use luau_lexer::prelude::Token;
 use smol_str::SmolStr;
-use std::sync::Arc;
 
-use crate::types::{Bracketed, BracketedList, Expression, TypeValue};
+use crate::types::{Bracketed, BracketedList, Expression, Pointer, TypeValue};
 
 /// A possible key entry in a table. The key is usually a string, but it can be a value
 /// (from an expression) in tables or a type in type definitions.
@@ -47,10 +46,10 @@ pub enum TableKey {
     Simple(Token),
 
     /// An expression, can only be used in definitions and not in types.
-    Expression(Bracketed<Arc<Expression>>),
+    Expression(Bracketed<Pointer<Expression>>),
 
     /// A type definition, can only be used in other types and not definitions.
-    Type(Bracketed<Arc<TypeValue>>),
+    Type(Bracketed<Pointer<TypeValue>>),
 }
 
 /// A struct representing one table field. It'll always have a [`key`](TableKey) and a
@@ -60,14 +59,14 @@ pub enum TableKey {
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct TableField {
     /// The [`key`](TableKey) used to index field.
-    pub key: Arc<TableKey>,
+    pub key: Pointer<TableKey>,
 
     /// The `=` or `:` tokens, it's `=` in variables and `:` in types.
     pub equal_or_colon: Option<Token>,
 
     /// The value of theis field. An expression in variables and a type in type
     /// definitions.
-    pub value: Arc<TableFieldValue>,
+    pub value: Pointer<TableFieldValue>,
 }
 
 /// A possible value for a [`table field`](TableField).

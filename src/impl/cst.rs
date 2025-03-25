@@ -1,7 +1,4 @@
-use luau_lexer::{
-    prelude::{Lexer, Token},
-    token::TokenType,
-};
+use luau_lexer::prelude::{Lexer, Token, TokenType};
 use smol_str::SmolStr;
 
 use crate::types::{AstStatus, Block, Cst, ParseWithArgs};

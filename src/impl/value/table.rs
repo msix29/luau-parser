@@ -1,8 +1,8 @@
 use luau_lexer::prelude::{Lexer, ParseError, Symbol, Token, TokenType};
-use std::{cell::Cell, sync::Arc};
+use std::cell::Cell;
 
 use crate::types::{
-    Bracketed, BracketedList, Expression, FunctionArguments, Parse, ParseWithArgs, Table,
+    Bracketed, BracketedList, Expression, FunctionArguments, Parse, ParseWithArgs, Pointer, Table,
     TableAccessKey, TableField, TableFieldValue, TableKey, TypeValue,
 };
 
@@ -106,26 +106,26 @@ impl ParseWithArgs<&ParseArgs> for TableField {
                 equal_or_colon = temp;
             }
 
-            (Arc::new(key), Some(equal_or_colon))
+            (Pointer::new(key), Some(equal_or_colon))
         } else {
             if let Some(value) =
                 TableFieldValue::parse_with(token.clone(), lexer, errors, parse_args.is_type)
             {
                 return Some(Self {
                     key: if parse_args.is_type {
-                        Arc::new(TableKey::undefined_string())
+                        Pointer::new(TableKey::undefined_string())
                     } else {
-                        Arc::new(TableKey::undefined_number(parse_args))
+                        Pointer::new(TableKey::undefined_number(parse_args))
                     },
                     equal_or_colon: None,
-                    value: Arc::new(value),
+                    value: Pointer::new(value),
                 });
             }
 
-            (Arc::new(TableKey::undefined_number(parse_args)), None)
+            (Pointer::new(TableKey::undefined_number(parse_args)), None)
         };
 
-        let value = Arc::new(TableFieldValue::parse_with(
+        let value = Pointer::new(TableFieldValue::parse_with(
             lexer.next_token(),
             lexer,
             errors,

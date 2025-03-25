@@ -12,7 +12,7 @@
 //!
 //! let code = r#"local foo = "Hello, World!""#;
 //! let uri = ""; // This should be the path of the file being parsed
-//!               // (Used with `cache` feature).
+//!               // (Used for the `cache` feature).
 //!
 //! let mut parser = LuauParser::new(code);
 //! let cst = parser.parse(uri);
@@ -34,7 +34,6 @@
 
 #![deny(unsafe_code)]
 // #![warn(clippy::missing_docs_in_private_items)]
-// #![warn(clippy::arc_with_non_send_sync)]
 // #![warn(missing_docs)]
 // #![allow(unused)]
 #![warn(clippy::absolute_paths)]

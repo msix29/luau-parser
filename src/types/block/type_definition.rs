@@ -3,9 +3,8 @@
 //! Module containg definition for type definitions.
 
 use luau_lexer::prelude::Token;
-use std::sync::Arc;
 
-use crate::types::{Bracketed, BracketedList, Expression, FunctionCall, Name, Table, Var};
+use crate::types::{Bracketed, BracketedList, Expression, FunctionCall, Name, Pointer, Table, Var};
 
 /// Possible values for a type.
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -37,7 +36,7 @@ pub enum TypeValue {
     /// ```lua
     /// type Foo = (bar)
     /// ```
-    Wrap(Bracketed<Arc<TypeValue>>),
+    Wrap(Bracketed<Pointer<TypeValue>>),
 
     /// A function type.
     ///
@@ -59,7 +58,7 @@ pub enum TypeValue {
         arrow: Token,
 
         /// The return type of this function
-        return_type: Arc<TypeValue>,
+        return_type: Pointer<TypeValue>,
     },
 
     /// A reference to a different type.
@@ -73,7 +72,7 @@ pub enum TypeValue {
         base: Token,
 
         /// Optional generics.
-        generics: Option<Box<BracketedList<Arc<TypeValue>>>>,
+        generics: Option<Box<BracketedList<Pointer<TypeValue>>>>,
     },
 
     /// A generic pack.
@@ -96,13 +95,13 @@ pub enum TypeValue {
     /// ```
     Intersection {
         /// The type at the start.
-        left: Arc<TypeValue>,
+        left: Pointer<TypeValue>,
 
         /// The `&` character.
         ampersand: Token,
 
         /// The type at the end.
-        right: Arc<TypeValue>,
+        right: Pointer<TypeValue>,
     },
 
     /// An union between two types.
@@ -112,13 +111,13 @@ pub enum TypeValue {
     /// ```
     Union {
         /// The type at the start.
-        left: Arc<TypeValue>,
+        left: Pointer<TypeValue>,
 
         /// The `|` character.
         pipe: Token,
 
         /// The type at the end.
-        right: Arc<TypeValue>,
+        right: Pointer<TypeValue>,
     },
 
     /// An access to an exported type from a module.
@@ -133,7 +132,7 @@ pub enum TypeValue {
         name: Token,
 
         /// Optional generics.
-        generics: Option<Box<BracketedList<Arc<TypeValue>>>>,
+        generics: Option<Box<BracketedList<Pointer<TypeValue>>>>,
     },
 
     /// An optional type.
@@ -149,7 +148,7 @@ pub enum TypeValue {
     /// ```
     Optional {
         /// The actual type.
-        base: Arc<TypeValue>,
+        base: Pointer<TypeValue>,
 
         /// The `?` character.
         question_mark: Token,
@@ -169,7 +168,7 @@ pub enum TypeValue {
         typeof_token: Token,
 
         /// The expression passed to `typeof`.
-        inner: Bracketed<Arc<Expression>>,
+        inner: Bracketed<Pointer<Expression>>,
     },
 
     /// A tuple of types
@@ -184,7 +183,7 @@ pub enum TypeValue {
     /// ```lua
     /// type Foo = (string, number)
     /// ```
-    Tuple(BracketedList<Arc<TypeValue>>),
+    Tuple(BracketedList<Pointer<TypeValue>>),
 
     /// A variadic type.
     ///
@@ -206,7 +205,7 @@ pub enum TypeValue {
         ellipsis: Token,
 
         /// The actual type.
-        type_info: Arc<TypeValue>,
+        type_info: Pointer<TypeValue>,
     },
 
     /// A variadic pack.
@@ -250,7 +249,7 @@ pub struct TypeDefinition {
     pub equal_sign: Token,
 
     /// The actual [`value`](TypeValue) of the type.
-    pub type_value: Arc<TypeValue>,
+    pub type_value: Pointer<TypeValue>,
 }
 
 /// Generics parameters used when referencing another type.
@@ -343,19 +342,19 @@ pub enum ConversionError {
         operator: Token,
 
         /// The actual expression this operator is affecting.
-        expression: Arc<Expression>,
+        expression: Pointer<Expression>,
     },
 
     /// Binary expressions require metatables. If you wish to just use the value of the
     /// expression, pass the inner one and not the binary.
     BinaryExpression {
         /// The left expression.
-        left: Arc<Expression>,
+        left: Pointer<Expression>,
 
         /// The operator between the expressions.
         operator: Token,
 
         /// The right expression.
-        right: Arc<Expression>,
+        right: Pointer<Expression>,
     },
 }

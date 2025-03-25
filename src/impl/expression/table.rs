@@ -1,10 +1,9 @@
 use luau_lexer::prelude::{Lexer, ParseError, Symbol, Token, TokenType};
-use std::sync::Arc;
 
 use crate::{
     handle_error_token,
     types::{
-        ExpressionWrap, FunctionCall, Parse, ParseWithArgs, TableAccess, TableAccessKey,
+        ExpressionWrap, FunctionCall, Parse, ParseWithArgs, Pointer, TableAccess, TableAccessKey,
         TableAccessPrefix, TableKey,
     },
     utils::try_parse,
@@ -23,7 +22,7 @@ impl Parse for TableAccessPrefix {
                 errors,
                 ("Expected <expr>", Symbol::ClosingParenthesis),
             )
-            .map(Arc::new)
+            .map(Pointer::new)
             .map(Self::ExpressionWrap),
             _ => None,
         }

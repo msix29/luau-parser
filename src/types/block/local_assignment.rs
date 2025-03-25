@@ -1,9 +1,8 @@
 //! Holding all needed information for local assignments.
 
 use luau_lexer::prelude::Token;
-use std::sync::Arc;
 
-use crate::types::{Expression, List, Name};
+use crate::types::{Expression, List, Name, Pointer};
 
 /// A struct holding data for local assignments.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -19,5 +18,5 @@ pub struct LocalAssignment {
     pub equal_token: Option<Token>,
 
     /// The list of [`expressions`](Expression) after the `=` sign.
-    pub expressions: List<Arc<Expression>>,
+    pub expressions: List<Pointer<Expression>>,
 }

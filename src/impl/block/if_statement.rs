@@ -1,12 +1,8 @@
-use luau_lexer::{
-    prelude::{Lexer, ParseError, Token},
-    token::{Keyword, TokenType},
-};
-use std::sync::Arc;
+use luau_lexer::prelude::{Keyword, Lexer, ParseError, Token, TokenType};
 
 use crate::{
     safe_unwrap,
-    types::{Block, ElseIfStatement, ElseStatement, Expression, IfStatement, Parse, ParseWithArgs},
+    types::{Block, ElseIfStatement, ElseStatement, IfStatement, Parse, ParseWithArgs},
     utils::try_parse,
 };
 
@@ -26,8 +22,7 @@ impl Parse for IfStatement {
             lexer,
             errors,
             "Expected <expr>",
-            try_parse::<Expression>(lexer.save_state(), lexer.next_token(), lexer, errors)
-                .map(Arc::new)
+            try_parse(lexer.save_state(), lexer.next_token(), lexer, errors)
         );
 
         next_token_recoverable!(
@@ -84,8 +79,7 @@ impl Parse for ElseIfStatement {
             lexer,
             errors,
             "Expected <expr>",
-            try_parse::<Expression>(lexer.save_state(), lexer.next_token(), lexer, errors)
-                .map(Arc::new)
+            try_parse(lexer.save_state(), lexer.next_token(), lexer, errors)
         );
 
         next_token_recoverable!(

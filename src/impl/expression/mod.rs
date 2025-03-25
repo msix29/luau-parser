@@ -5,13 +5,12 @@ mod var;
 use luau_lexer::prelude::{
     CompoundOperator, Keyword, Lexer, Literal, Operator, ParseError, Symbol, Token, TokenType,
 };
-use std::sync::Arc;
 
 use crate::{
     handle_error_token, safe_unwrap,
     types::{
         Closure, ElseIfExpression, Expression, ExpressionWrap, FunctionCall, IfExpression, Parse,
-        ParseWithArgs, PrefixExp, Table, TypeValue, Var,
+        ParseWithArgs, Pointer, PrefixExp, Table, TypeValue, Var,
     },
     utils::try_parse,
 };
@@ -103,7 +102,7 @@ impl Parse for Expression {
         let left = if let Some(operator) = maybe_unary_operator {
             Self::UnaryExpression {
                 operator,
-                expression: Arc::new(left),
+                expression: Pointer::new(left),
             }
         } else {
             left
@@ -115,24 +114,24 @@ impl Parse for Expression {
         match next_token.token_type {
             TokenType::Operator(_) | TokenType::CompoundOperator(CompoundOperator::EqualEqual) => {
                 Some(Self::BinaryExpression {
-                    left: Arc::new(left),
+                    left: Pointer::new(left),
                     operator: next_token,
                     right: safe_unwrap!(
                         lexer,
                         errors,
                         "Expected <expr>",
-                        Self::parse(lexer.next_token(), lexer, errors).map(Arc::new)
+                        Self::parse(lexer.next_token(), lexer, errors).map(Pointer::new)
                     ),
                 })
             }
             TokenType::Symbol(Symbol::Typecast) => Some(Self::TypeCast {
-                expression: Arc::new(left),
+                expression: Pointer::new(left),
                 operator: next_token,
                 cast_to: safe_unwrap!(
                     lexer,
                     errors,
                     "Expected <type>",
-                    TypeValue::parse(lexer.next_token(), lexer, errors).map(Arc::new)
+                    TypeValue::parse(lexer.next_token(), lexer, errors).map(Pointer::new)
                 ),
             }),
             _ => {
@@ -154,7 +153,7 @@ impl Parse for IfExpression {
             errors,
             "Expected <expr>",
             try_parse::<Expression>(lexer.save_state(), lexer.next_token(), lexer, errors)
-                .map(Arc::new)
+                .map(Pointer::new)
         );
 
         next_token_recoverable!(
@@ -171,12 +170,12 @@ impl Parse for IfExpression {
             errors,
             "Expected <expr>",
             try_parse::<Expression>(lexer.save_state(), lexer.next_token(), lexer, errors)
-                .map(Arc::new)
+                .map(Pointer::new)
         );
 
         let else_if_expressions =
             try_parse::<Vec<_>>(lexer.save_state(), lexer.next_token(), lexer, errors)
-                .map(Arc::new)
+                .map(Pointer::new)
                 .unwrap_or_default();
 
         next_token_recoverable!(
@@ -191,7 +190,7 @@ impl Parse for IfExpression {
             lexer,
             errors,
             "Expected <expr>",
-            Expression::parse(lexer.next_token(), lexer, errors).map(Arc::new)
+            Expression::parse(lexer.next_token(), lexer, errors).map(Pointer::new)
         );
 
         Some(Self {
@@ -221,7 +220,7 @@ impl Parse for ElseIfExpression {
             errors,
             "Expected <expr>",
             try_parse::<Expression>(lexer.save_state(), lexer.next_token(), lexer, errors)
-                .map(Arc::new)
+                .map(Pointer::new)
         );
 
         next_token_recoverable!(
@@ -238,7 +237,7 @@ impl Parse for ElseIfExpression {
             errors,
             "Expected <expr>",
             try_parse::<Expression>(lexer.save_state(), lexer.next_token(), lexer, errors)
-                .map(Arc::new)
+                .map(Pointer::new)
         );
 
         Some(Self {

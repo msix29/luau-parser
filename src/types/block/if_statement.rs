@@ -1,11 +1,8 @@
 //! Module holding if statements and all related items.
 
 use luau_lexer::prelude::Token;
-use std::sync::Arc;
 
-use crate::prelude::Expression;
-
-use super::Block;
+use crate::types::{Block, Expression, Pointer};
 
 /// A struct representing an `if` statement
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -15,7 +12,7 @@ pub struct IfStatement {
     pub if_keyword: Token,
 
     /// The condition for this statement.
-    pub condition: Arc<Expression>,
+    pub condition: Pointer<Expression>,
 
     /// The `then` keyword.
     pub then_keyword: Token,
@@ -41,7 +38,7 @@ pub struct ElseIfStatement {
     pub elseif_keyword: Token,
 
     /// The condition for this statement.
-    pub condition: Arc<Expression>,
+    pub condition: Pointer<Expression>,
 
     /// The `then` keyword.
     pub then_keyword: Token,

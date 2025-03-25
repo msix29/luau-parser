@@ -12,11 +12,16 @@ mod range;
 mod value;
 
 use luau_lexer::prelude::{Lexer, ParseError, Token};
-use std::sync::Arc;
 
-use crate::types::Parse;
+use crate::types::{Parse, Pointer};
 
-impl<T: Parse> Parse for Arc<T> {
+impl<T: Parse> Parse for Pointer<T> {
+    #[inline]
+    fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
+        T::parse(token, lexer, errors).map(Self::new)
+    }
+}
+impl<T: Parse> Parse for Box<T> {
     #[inline]
     fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
         T::parse(token, lexer, errors).map(Self::new)

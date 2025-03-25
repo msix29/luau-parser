@@ -5,9 +5,8 @@
 //!
 
 use luau_lexer::prelude::Token;
-use std::sync::Arc;
 
-use super::TypeValue;
+use crate::types::{TypeValue, Pointer};
 
 /// A variable name.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -20,5 +19,5 @@ pub struct Name {
     pub colon: Option<Token>,
 
     /// The type that was with this name, defined with the `: type` syntax.
-    pub r#type: Option<Arc<TypeValue>>,
+    pub r#type: Option<Pointer<TypeValue>>,
 }

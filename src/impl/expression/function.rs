@@ -1,18 +1,17 @@
 use luau_lexer::prelude::{Keyword, Lexer, Literal, ParseError, Symbol, Token, TokenType};
-use std::sync::Arc;
 
 use crate::{
     force_parse_bracketed, parse_bracketed,
     types::{
         Block, BracketedList, Closure, FunctionArguments, FunctionCall, FunctionCallInvoked, Parse,
-        ParseWithArgs, PrefixExp, Table, TableAccessPrefix, TypeValue,
+        ParseWithArgs, Pointer, PrefixExp, Table, TableAccessPrefix, TypeValue,
     },
     utils::try_parse,
 };
 
 impl Parse for FunctionCallInvoked {
     fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
-        let prefix_exp = Arc::new(PrefixExp::parse_with(token, lexer, errors, true)?);
+        let prefix_exp = Pointer::new(PrefixExp::parse_with(token, lexer, errors, true)?);
         let state = lexer.save_state();
 
         let maybe_colon = lexer.next_token();
@@ -52,7 +51,7 @@ impl Parse<TableAccessPrefix> for FunctionCall {
         errors: &mut Vec<ParseError>,
     ) -> Option<TableAccessPrefix> {
         Self::parse(token, lexer, errors)
-            .map(Arc::new)
+            .map(Pointer::new)
             .map(TableAccessPrefix::FunctionCall)
     }
 }
@@ -109,7 +108,7 @@ impl Parse for Closure {
 
         maybe_next_token!(lexer, maybe_colon, TokenType::Symbol(Symbol::Colon));
         let return_type = if maybe_colon.is_some() {
-            TypeValue::parse(lexer.next_token(), lexer, errors).map(Arc::new)
+            TypeValue::parse(lexer.next_token(), lexer, errors).map(Pointer::new)
         } else {
             None
         };

@@ -4,13 +4,12 @@
 //! outside it too, like in a formatter or a lsp.
 
 use luau_lexer::prelude::Token;
-use std::sync::Arc;
 
-use crate::{prelude::{
-    CompoundSetExpression, DoBlock, Expression, FunctionCall, GenericFor, GlobalFunction,
-    IfStatement, List, LocalAssignment, LocalFunction, NumericalFor, RepeatBlock, SetExpression,
-    TypeDefinition, WhileLoop,
-}, types::Comment};
+use crate::types::{
+    Comment, CompoundSetExpression, DoBlock, Expression, FunctionCall, GenericFor, GlobalFunction,
+    IfStatement, List, LocalAssignment, LocalFunction, NumericalFor, Pointer, RepeatBlock,
+    SetExpression, TypeDefinition, WhileLoop,
+};
 
 macro_rules! generate_statement {
     ($(
@@ -34,7 +33,7 @@ macro_rules! generate_statement {
                 lexer: &mut luau_lexer::prelude::Lexer,
                 errors: &mut Vec<luau_lexer::prelude::ParseError>
             ) -> Option<Self> {
-                use $crate::prelude::Parse as _;
+                use $crate::types::Parse as _;
 
                 $( if let Some(value) = <$ty>::parse(token.clone(), lexer, errors) {
                     Some(Self::$name(Box::new(value)))
@@ -212,6 +211,6 @@ pub enum TerminationStatement {
         return_keyword: Token,
 
         /// The list of expressions after it.
-        expressions: Option<List<Arc<Expression>>>,
+        expressions: Option<List<Pointer<Expression>>>,
     },
 }

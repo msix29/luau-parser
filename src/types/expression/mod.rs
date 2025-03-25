@@ -1,14 +1,13 @@
 //! Types representing all valid Luau expressions.
 
 use luau_lexer::prelude::Token;
-use std::sync::Arc;
 
-use super::{Bracketed, Table, TableKey, TypeValue};
+use crate::types::{Bracketed, Pointer, Table, TypeValue};
 
 reexport!(table, var, function);
 
 /// A struct representing an expression wrapped in parenthesis.
-pub type ExpressionWrap = Bracketed<Arc<Expression>>;
+pub type ExpressionWrap = Bracketed<Pointer<Expression>>;
 
 /// Part of expressions that are usually at the start of actual expressions.
 ///
@@ -111,7 +110,7 @@ pub enum Expression {
         operator: Token,
 
         /// The actual expression this operator is affecting.
-        expression: Arc<Expression>,
+        expression: Pointer<Expression>,
     },
 
     /// A binary expression, this represents any 2 expressions with an operator between
@@ -124,13 +123,13 @@ pub enum Expression {
     /// ```
     BinaryExpression {
         /// The left expression.
-        left: Arc<Expression>,
+        left: Pointer<Expression>,
 
         /// The operator between the expressions.
         operator: Token,
 
         /// The right expression.
-        right: Arc<Expression>,
+        right: Pointer<Expression>,
     },
 
     /// A typecast.
@@ -142,13 +141,13 @@ pub enum Expression {
     /// ```
     TypeCast {
         /// The actual expression.
-        expression: Arc<Expression>,
+        expression: Pointer<Expression>,
 
         /// The `::` operator.
         operator: Token,
 
         /// The type that's being casted to.
-        cast_to: Arc<TypeValue>,
+        cast_to: Pointer<TypeValue>,
     },
 
     /// An if expression.
@@ -163,23 +162,23 @@ pub struct IfExpression {
     pub if_keyword: Token,
 
     /// The condition after the `if` keyword.
-    pub condition: Arc<Expression>,
+    pub condition: Pointer<Expression>,
 
     /// The `then` keyword after the condition.
     pub then_keyword: Token,
 
     /// The [`expression`](Expression) that this statement would resolve to if the
     /// [`condition`](Expression::IfExpression::condition) evaluated to `true`.
-    pub if_expression: Arc<Expression>,
+    pub if_expression: Pointer<Expression>,
 
     /// All `elseif` expressions.
-    pub else_if_expressions: Arc<Vec<ElseIfExpression>>,
+    pub else_if_expressions: Pointer<Vec<ElseIfExpression>>,
 
     /// The final part of the expression, the `else` keyword.
     pub else_keyword: Token,
 
     /// The final value if all other conditions were not met.
-    pub else_expression: Arc<Expression>,
+    pub else_expression: Pointer<Expression>,
 }
 
 /// A struct representing an elseif **expression**, only exists in expressions.
@@ -190,12 +189,12 @@ pub struct ElseIfExpression {
     pub else_if_keyword: Token,
 
     /// The condition after the `elseif`.
-    pub condition: Arc<Expression>,
+    pub condition: Pointer<Expression>,
 
     /// The `then` keyword after the condition.
     pub then_keyword: Token,
 
     /// The [`expression`](Expression) that this statement would resolve to if the
     /// [`condition`](ElseIfExpression::condition) evaluated to `true`.
-    pub expression: Arc<Expression>,
+    pub expression: Pointer<Expression>,
 }

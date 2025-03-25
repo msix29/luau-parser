@@ -1,13 +1,12 @@
 use luau_lexer::prelude::{
     Lexer, Literal, Operator, ParseError, PartialKeyword, Symbol, Token, TokenType,
 };
-use std::sync::Arc;
 
 use crate::{
     force_parse_bracketed, handle_error_token, parse_bracketed, safe_unwrap,
     types::{
         Bracketed, BracketedList, GenericDeclarationParameter, GenericParameterInfo,
-        GenericParameterInfoDefault, GenericParameters, Parse, ParseWithArgs, Table,
+        GenericParameterInfoDefault, GenericParameters, Parse, ParseWithArgs, Pointer, Table,
         TypeDefinition, TypeValue,
     },
 };
@@ -94,7 +93,7 @@ impl TypeValue {
                 Table::parse_with(token, lexer, errors, true).map(Self::Table)
             }
             TokenType::Symbol(Symbol::OpeningParenthesis) => {
-                if let Some(bracketed) = BracketedList::<Arc<TypeValue>>::parse_with(
+                if let Some(bracketed) = BracketedList::<Pointer<TypeValue>>::parse_with(
                     token,
                     lexer,
                     errors,
@@ -126,27 +125,27 @@ impl Parse for TypeValue {
 
         match maybe_operator.token_type {
             TokenType::Operator(Operator::Optional) => Some(Self::Optional {
-                base: Arc::new(left),
+                base: Pointer::new(left),
                 question_mark: maybe_operator,
             }),
             TokenType::Operator(Operator::Intersection) => Some(Self::Intersection {
-                left: Arc::new(left),
+                left: Pointer::new(left),
                 ampersand: maybe_operator,
                 right: safe_unwrap!(
                     lexer,
                     errors,
                     "Expected <type>",
-                    Self::parse(lexer.next_token(), lexer, errors).map(Arc::new)
+                    Self::parse(lexer.next_token(), lexer, errors).map(Pointer::new)
                 ),
             }),
             TokenType::Operator(Operator::Union) => Some(Self::Union {
-                left: Arc::new(left),
+                left: Pointer::new(left),
                 pipe: maybe_operator,
                 right: safe_unwrap!(
                     lexer,
                     errors,
                     "Expected <type>",
-                    Self::parse(lexer.next_token(), lexer, errors).map(Arc::new)
+                    Self::parse(lexer.next_token(), lexer, errors).map(Pointer::new)
                 ),
             }),
             _ => {
@@ -201,7 +200,7 @@ impl Parse for TypeDefinition {
             lexer,
             errors,
             "Expected <type>",
-            TypeValue::parse(lexer.next_token(), lexer, errors).map(Arc::new)
+            TypeValue::parse(lexer.next_token(), lexer, errors).map(Pointer::new)
         );
 
         Some(Self {

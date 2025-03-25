@@ -12,6 +12,8 @@
 //! here is for `Statement`, and it isn't exposed directly to consumers of this
 //! crate but rather through other functions.
 
+use std::rc::Rc;
+
 macro_rules! reexport {
     ($($name: ident),* $(,)?) => {
         $( mod $name; )*
@@ -19,18 +21,12 @@ macro_rules! reexport {
     };
 }
 
-reexport!(
-    block,
-    bracketed,
-    cst,
-    expression,
-    list,
-    literals,
-    name,
-    range,
-    traits,
-    value,
-);
+reexport!(block, bracketed, cst, expression, list, literals, name, range, traits, value);
+
+/// The main pointer used in the [`Cst`]. It's just [`Rc`]. The only reason
+/// this type exists is to allow easily switching to others, like [`Box`] or
+/// [`Arc`](std::sync::Arc) by only editing one line instead of mass refactoring.
+pub type Pointer<T> = Rc<T>;
 
 /// An enum representing printing errors that stopped [`Cst::try_print`] from working.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]

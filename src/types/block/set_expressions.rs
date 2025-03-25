@@ -1,9 +1,8 @@
 //! Set expressions.
 
 use luau_lexer::prelude::Token;
-use std::sync::Arc;
 
-use crate::types::{Expression, List, Var};
+use crate::types::{Expression, List, Pointer, Var};
 
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
@@ -17,7 +16,7 @@ pub struct SetExpression {
 
     /// The values that are being set, in the same order as variables, the length of
     /// these values may be more or less than the variables list.
-    pub values: List<Arc<Expression>>,
+    pub values: List<Pointer<Expression>>,
 }
 
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -32,5 +31,5 @@ pub struct CompoundSetExpression {
 
     /// The values that are being set, in the same order as variables, the length of
     /// these values may be more or less than the variables list.
-    pub value: Arc<Expression>,
+    pub value: Pointer<Expression>,
 }

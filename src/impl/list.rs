@@ -1,7 +1,4 @@
-use luau_lexer::{
-    prelude::{Lexer, ParseError, Token},
-    token::{Symbol, TokenType},
-};
+use luau_lexer::prelude::{Lexer, ParseError, Symbol, Token, TokenType};
 use std::{
     fmt::Debug,
     ops::{Deref, DerefMut},

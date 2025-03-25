@@ -1,9 +1,8 @@
 //! While loops.
 
 use luau_lexer::prelude::Token;
-use std::sync::Arc;
 
-use crate::prelude::{DoBlock, Expression};
+use crate::types::{Pointer, DoBlock, Expression};
 
 /// A struct representing a while loop.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -13,7 +12,7 @@ pub struct WhileLoop {
     pub while_keyword: Token,
 
     /// The condition of the while loop.
-    pub condition: Arc<Expression>,
+    pub condition: Pointer<Expression>,
 
     /// The do block.
     pub do_block: DoBlock,

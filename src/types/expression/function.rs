@@ -1,8 +1,9 @@
 use luau_lexer::prelude::Token;
-use std::sync::Arc;
 
-use super::{Expression, PrefixExp, Table};
-use crate::types::{Block, BracketedList, GenericDeclaration, Name, TypeValue};
+use crate::types::{
+    Block, BracketedList, Expression, GenericDeclaration, Name, Pointer, PrefixExp, Table,
+    TypeValue,
+};
 
 /// Different ways a function can be called.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -13,7 +14,7 @@ pub enum FunctionCallInvoked {
     /// local _ = foo()
     /// local _ = t.bar()
     /// ```
-    Function(Arc<PrefixExp>),
+    Function(Pointer<PrefixExp>),
 
     /// A **method** in a function, a method is a function that's called with `:` instead
     /// of `.`.
@@ -23,7 +24,7 @@ pub enum FunctionCallInvoked {
     /// ```
     TableMethod {
         /// The table this function is from.
-        table: Arc<PrefixExp>,
+        table: Pointer<PrefixExp>,
 
         /// The colon between the table and the method name.
         colon: Box<Token>,
@@ -71,7 +72,7 @@ pub enum FunctionArguments {
     /// ```lua
     /// local _ = foo(1, 2, 3)
     /// ```
-    List(BracketedList<Arc<Expression>>),
+    List(BracketedList<Pointer<Expression>>),
 }
 
 /// All possible arguments that can be passed to a function.
@@ -91,7 +92,7 @@ pub struct Closure {
     pub colon: Box<Option<Token>>,
 
     /// The return type of the function
-    pub return_type: Option<Arc<TypeValue>>,
+    pub return_type: Option<Pointer<TypeValue>>,
 
     /// The body of the function.
     pub body: Block,

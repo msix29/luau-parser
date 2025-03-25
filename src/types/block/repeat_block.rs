@@ -1,10 +1,8 @@
 //! Repeat blocks.
 
 use luau_lexer::prelude::Token;
-use std::sync::Arc;
 
-use super::Block;
-use crate::prelude::Expression;
+use crate::types::{Block, Expression, Pointer};
 
 /// A struct representing a repeat block.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -20,5 +18,5 @@ pub struct RepeatBlock {
     pub until_keyword: Token,
 
     /// The condition that will stop this block from running.
-    pub condition: Arc<Expression>,
+    pub condition: Pointer<Expression>,
 }

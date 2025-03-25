@@ -1,10 +1,8 @@
 //! Numerical for loop struct
 
 use luau_lexer::prelude::Token;
-use std::sync::Arc;
 
-use super::DoBlock;
-use crate::prelude::{Expression, Name};
+use crate::types::{DoBlock, Expression, Name, Pointer};
 
 /// A struct representing a numerical for loop.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -20,19 +18,19 @@ pub struct NumericalFor {
     pub equal_keyword: Token,
 
     /// The start of the loop.
-    pub start: Arc<Expression>,
+    pub start: Pointer<Expression>,
 
     /// The comma after the start.
     pub start_comma: Token,
 
     /// The end of the loop.
-    pub end: Arc<Expression>,
+    pub end: Pointer<Expression>,
 
     /// The comma after the end of the loop.
     pub end_comma: Option<Token>,
 
     /// The optional step of the loop.
-    pub step: Option<Arc<Expression>>,
+    pub step: Option<Pointer<Expression>>,
 
     /// The do block at the end
     pub do_block: DoBlock,

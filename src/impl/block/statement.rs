@@ -1,9 +1,8 @@
 use luau_lexer::prelude::{Keyword, Lexer, ParseError, PartialKeyword, Token, TokenType};
-use std::sync::Arc;
 
 use crate::{
     handle_error_token,
-    types::{Expression, List, Parse, Statement, TerminationStatement},
+    types::{Expression, List, Parse, Pointer, Statement, TerminationStatement},
 };
 
 impl Parse for Statement {
@@ -40,7 +39,7 @@ impl Parse for TerminationStatement {
         if matches!(keyword.token_type, TokenType::Keyword(Keyword::Return)) {
             return Some(Self::Return {
                 return_keyword: keyword,
-                expressions: List::<Arc<Expression>>::parse(lexer.next_token(), lexer, errors),
+                expressions: List::<Pointer<Expression>>::parse(lexer.next_token(), lexer, errors),
             });
         }
 

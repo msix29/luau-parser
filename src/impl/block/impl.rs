@@ -1,11 +1,9 @@
 use luau_lexer::{
-    prelude::{Lexer, ParseError, Token, TokenType},
-    token::Symbol,
+    prelude::{Lexer, ParseError, Symbol, Token, TokenType},
 };
-use std::sync::Arc;
 
 use crate::{
-    types::{Block, Parse, ParseWithArgs, Statement, TerminationStatement},
+    types::{Block, Parse, ParseWithArgs, Pointer, Statement, TerminationStatement},
     utils::get_token_type_display_extended,
 };
 
@@ -98,12 +96,12 @@ impl<T: MatchesToken> ParseWithArgs<T> for Block {
                 }
 
                 maybe_next_token!(lexer, maybe_semicolon, TokenType::Symbol(Symbol::Semicolon));
-                statements.push((Arc::new(statement), maybe_semicolon))
+                statements.push((Pointer::new(statement), maybe_semicolon))
             } else if let Some(statement) =
                 TerminationStatement::parse(token.clone(), lexer, errors)
             {
                 maybe_next_token!(lexer, maybe_semicolon, TokenType::Symbol(Symbol::Semicolon));
-                last_statement = Some((Arc::new(statement), maybe_semicolon));
+                last_statement = Some((Pointer::new(statement), maybe_semicolon));
             } else {
                 failed_parsing = true;
             }

@@ -20,7 +20,7 @@ impl<T> IsEmpty for List<T> {
 macro_rules! __sealed_impl {
     ($($ty:ident $(<$generic:ident>)?),* $(,)?) => {
         $( impl $(<$generic>)? IsEmpty for $crate::types::$ty $(<$generic>)? {})*
-        $( impl $(<$generic>)? IsEmpty for std::sync::Arc<$crate::types::$ty $(<$generic>)?> {})*
+        $( impl $(<$generic>)? IsEmpty for $crate::types::Pointer<$crate::types::$ty $(<$generic>)?> {})*
     };
 }
 __sealed_impl!(Bracketed<T>, TypeValue, Expression);

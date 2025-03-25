@@ -1,7 +1,8 @@
 use luau_lexer::prelude::Token;
-use std::sync::Arc;
 
-use super::{ExpressionWrap, FunctionCall, TableKey};
+use crate::types::Pointer;
+
+use crate::types::{ExpressionWrap, FunctionCall, TableKey};
 
 /// An enum representing different ways in which a table value can be returned from.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -19,7 +20,7 @@ pub enum TableAccessPrefix {
     /// ```lua
     /// local t = fn()
     /// ```
-    FunctionCall(Arc<FunctionCall>),
+    FunctionCall(Pointer<FunctionCall>),
 
     /// Accessing a table from `(...)`.
     ///
@@ -27,7 +28,7 @@ pub enum TableAccessPrefix {
     /// local _ = ({ a = "Hello, World!" })
     /// local _ = (t)
     /// ```
-    ExpressionWrap(Arc<ExpressionWrap>),
+    ExpressionWrap(Pointer<ExpressionWrap>),
 }
 
 /// Represents an access to a table index.

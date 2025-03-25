@@ -1,7 +1,6 @@
 use luau_lexer::prelude::{Keyword, Lexer, ParseError, Symbol, Token, TokenType};
-use std::sync::Arc;
 
-use crate::types::{Expression, List, LocalAssignment, Name, Parse};
+use crate::types::{Expression, List, LocalAssignment, Name, Parse, Pointer};
 
 impl Parse for LocalAssignment {
     fn parse(local_token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
@@ -13,9 +12,9 @@ impl Parse for LocalAssignment {
 
         maybe_next_token!(lexer, equal_token, TokenType::Symbol(Symbol::Equal));
         let expressions = if equal_token.is_some() {
-            List::<Arc<Expression>>::parse(lexer.next_token(), lexer, errors)?
+            List::<Pointer<Expression>>::parse(lexer.next_token(), lexer, errors)?
         } else {
-            List::<Arc<Expression>>::new()
+            List::<Pointer<Expression>>::new()
         };
 
         Some(Self {

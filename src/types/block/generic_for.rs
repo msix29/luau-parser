@@ -1,10 +1,9 @@
 //! For in struct.
 
 use luau_lexer::prelude::Token;
-use std::sync::Arc;
 
 use super::DoBlock;
-use crate::prelude::{Expression, List, Name};
+use crate::types::{Expression, List, Name, Pointer};
 
 /// A struct representing a for-in loop.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -20,7 +19,7 @@ pub struct GenericFor {
     pub in_keyword: Token,
 
     /// The expressions after.
-    pub expressions: List<Arc<Expression>>,
+    pub expressions: List<Pointer<Expression>>,
 
     /// The do block.
     pub do_block: DoBlock,

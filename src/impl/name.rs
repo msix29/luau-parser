@@ -1,8 +1,6 @@
-use std::sync::Arc;
-
 use luau_lexer::prelude::{Lexer, ParseError, Symbol, Token, TokenType};
 
-use crate::types::{Name, Parse, TypeValue};
+use crate::types::{Name, Parse, Pointer, TypeValue};
 
 impl Parse for Name {
     fn parse(name: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
@@ -16,7 +14,7 @@ impl Parse for Name {
         maybe_next_token!(lexer, colon, TokenType::Symbol(Symbol::Colon));
 
         let r#type = if colon.is_some() {
-            TypeValue::parse(lexer.next_token(), lexer, errors).map(Arc::new)
+            TypeValue::parse(lexer.next_token(), lexer, errors).map(Pointer::new)
         } else {
             None
         };
