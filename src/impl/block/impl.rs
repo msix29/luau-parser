@@ -49,6 +49,19 @@ impl MatchesToken for Vec<Token> {
     }
 }
 
+impl<const T: usize> MatchesToken for [Token; T] {
+    #[inline]
+    fn matches(&self, token: &Token) -> bool {
+        self.contains(token)
+    }
+}
+impl<const T: usize> MatchesToken for [TokenType; T] {
+    #[inline]
+    fn matches(&self, token: &Token) -> bool {
+        self.contains(&token.token_type)
+    }
+}
+
 impl<T: MatchesToken> ParseWithArgs<T> for Block {
     fn parse_with(
         mut token: Token,
