@@ -144,8 +144,8 @@ impl Parse for Expression {
 }
 
 impl Parse for IfExpression {
-    fn parse(if_token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
-        if if_token != TokenType::Keyword(Keyword::If) {
+    fn parse(if_keyword: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
+        if if_keyword != TokenType::Keyword(Keyword::If) {
             return None;
         }
 
@@ -159,7 +159,7 @@ impl Parse for IfExpression {
 
         next_token_recoverable!(
             lexer,
-            then_token,
+            then_keyword,
             TokenType::Keyword(Keyword::Then),
             TokenType::Keyword(Keyword::Then),
             errors,
@@ -181,7 +181,7 @@ impl Parse for IfExpression {
 
         next_token_recoverable!(
             lexer,
-            else_token,
+            else_keyword,
             TokenType::Keyword(Keyword::Else),
             TokenType::Keyword(Keyword::Else),
             errors,
@@ -195,12 +195,12 @@ impl Parse for IfExpression {
         );
 
         Some(Self {
-            if_token,
+            if_keyword,
             condition,
-            then_token,
+            then_keyword,
             if_expression,
             else_if_expressions,
-            else_token,
+            else_keyword,
             else_expression,
         })
     }
@@ -208,11 +208,11 @@ impl Parse for IfExpression {
 
 impl Parse for ElseIfExpression {
     fn parse(
-        else_if_token: Token,
+        else_if_keyword: Token,
         lexer: &mut Lexer,
         errors: &mut Vec<ParseError>,
     ) -> Option<Self> {
-        if else_if_token != TokenType::Keyword(Keyword::Elseif) {
+        if else_if_keyword != TokenType::Keyword(Keyword::Elseif) {
             return None;
         }
 
@@ -226,7 +226,7 @@ impl Parse for ElseIfExpression {
 
         next_token_recoverable!(
             lexer,
-            then_token,
+            then_keyword,
             TokenType::Keyword(Keyword::Then),
             TokenType::Keyword(Keyword::Then),
             errors,
@@ -242,9 +242,9 @@ impl Parse for ElseIfExpression {
         );
 
         Some(Self {
-            else_if_token,
+            else_if_keyword,
             condition,
-            then_token,
+            then_keyword,
             expression,
         })
     }

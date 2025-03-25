@@ -160,13 +160,13 @@ pub enum Expression {
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct IfExpression {
     /// The `if` keyword.
-    pub if_token: Token,
+    pub if_keyword: Token,
 
     /// The condition after the `if` keyword.
     pub condition: Arc<Expression>,
 
     /// The `then` keyword after the condition.
-    pub then_token: Token,
+    pub then_keyword: Token,
 
     /// The [`expression`](Expression) that this statement would resolve to if the
     /// [`condition`](Expression::IfExpression::condition) evaluated to `true`.
@@ -176,7 +176,7 @@ pub struct IfExpression {
     pub else_if_expressions: Arc<Vec<ElseIfExpression>>,
 
     /// The final part of the expression, the `else` keyword.
-    pub else_token: Token,
+    pub else_keyword: Token,
 
     /// The final value if all other conditions were not met.
     pub else_expression: Arc<Expression>,
@@ -187,13 +187,13 @@ pub struct IfExpression {
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct ElseIfExpression {
     /// The `elseif` keyword.
-    pub else_if_token: Token,
+    pub else_if_keyword: Token,
 
     /// The condition after the `elseif`.
     pub condition: Arc<Expression>,
 
     /// The `then` keyword after the condition.
-    pub then_token: Token,
+    pub then_keyword: Token,
 
     /// The [`expression`](Expression) that this statement would resolve to if the
     /// [`condition`](ElseIfExpression::condition) evaluated to `true`.
