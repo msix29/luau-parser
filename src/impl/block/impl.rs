@@ -1,6 +1,4 @@
-use luau_lexer::{
-    prelude::{Lexer, ParseError, Symbol, Token, TokenType},
-};
+use luau_lexer::prelude::{Lexer, ParseError, Symbol, Token, TokenType};
 
 use crate::{
     types::{Block, Parse, ParseWithArgs, Pointer, Statement, TerminationStatement},
