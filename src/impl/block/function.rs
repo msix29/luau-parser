@@ -3,8 +3,8 @@ use luau_lexer::prelude::{Keyword, Lexer, ParseError, Symbol, Token, TokenType};
 use crate::{
     force_parse_bracketed, parse_bracketed,
     types::{
-        Block, GlobalFunction, GlobalFunctionName, LocalFunction, Parse, Pointer, TryParse,
-        TryParseWithArgs, TypeValue, ParseWithArgs,
+        Block, GlobalFunction, GlobalFunctionName, LocalFunction, Parse, ParseWithArgs, Pointer,
+        TableAccessKey, TryParse, TryParseWithArgs, TypeValue,
     },
     utils::{get_token_type_display, get_token_type_display_extended},
 };
@@ -112,8 +112,49 @@ impl Parse for LocalFunction {
 impl TryParse for LocalFunction {}
 
 impl Parse for GlobalFunctionName {
-    fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
-        todo!()
+    fn parse(name: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
+        if !matches!(name.token_type, TokenType::Identifier(_)) {
+            return None;
+        }
+
+        maybe_next_token!(
+            lexer,
+            dot_or_colon,
+            TokenType::Symbol(Symbol::Dot) | TokenType::Symbol(Symbol::Colon)
+        );
+        if let Some(dot_or_colon) = dot_or_colon {
+            let is_dot = dot_or_colon == TokenType::Symbol(Symbol::Dot);
+
+            let keys = if is_dot {
+                Vec::<TableAccessKey>::try_parse_with(lexer, errors, false).unwrap_or_default()
+            } else {
+                Vec::new()
+            };
+
+            let method = if !is_dot {
+                next_token_recoverable!(
+                    lexer,
+                    parsed_method,
+                    TokenType::Identifier(_),
+                    TokenType::Identifier("*error*".into()),
+                    errors,
+                    "Expected ".to_string()
+                        + get_token_type_display(&TokenType::Identifier("".into()),)
+                );
+
+                Some(Pointer::new((dot_or_colon, parsed_method)))
+            } else {
+                None
+            };
+
+            return Some(Self::Table {
+                table: name,
+                keys,
+                method,
+            });
+        }
+
+        Some(Self::SimpleName(name))
     }
 }
 impl TryParse for GlobalFunctionName {}

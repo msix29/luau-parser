@@ -2,7 +2,7 @@
 
 use luau_lexer::prelude::Token;
 
-use crate::types::{BracketedList, GenericDeclaration, List, Name, Pointer, TypeValue};
+use crate::types::{BracketedList, GenericDeclaration, Name, Pointer, TableAccessKey, TypeValue};
 
 use super::Block;
 
@@ -82,7 +82,7 @@ pub enum GlobalFunctionName {
         ///
         /// [`ListItem`]: crate::types::ListItem
         /// [`NonTrailing`]: crate::types::ListItem::NonTrailing
-        keys: List<(Token, Token)>,
+        keys: Vec<TableAccessKey>,
 
         /// The final name of the function, if it exists.
         ///
@@ -93,7 +93,7 @@ pub enum GlobalFunctionName {
         /// end
         /// ```
         ///
-        /// Here, the method is `Some(Test)`. While here:
+        /// Here, the method is `Some((Colon, Test))`. While here:
         ///
         /// ```lua
         /// local foo = {}
@@ -103,7 +103,7 @@ pub enum GlobalFunctionName {
         /// ```
         ///
         /// The method is `None` as there's no `:`.
-        method: Pointer<Option<(Token, Token)>>,
+        method: Option<Pointer<(Token, Token)>>,
     },
 }
 
