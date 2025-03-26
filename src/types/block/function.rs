@@ -2,7 +2,9 @@
 
 use luau_lexer::prelude::Token;
 
-use crate::types::{Pointer, Cst, GenericDeclaration, List, Name, TypeValue};
+use crate::types::{BracketedList, GenericDeclaration, List, Name, Pointer, TypeValue};
+
+use super::Block;
 
 /// A struct representing a local function.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -20,23 +22,17 @@ pub struct LocalFunction {
     /// The generics of the function.
     pub generics: Option<Pointer<GenericDeclaration>>,
 
-    /// The `(` character.
-    pub opening_parenthesis: Token,
-
     /// The parameters that this function accepts.
-    pub parameters: List<Name>,
-
-    /// The `)` character.
-    pub closing_parenthesis: Token,
+    pub parameters: BracketedList<Name>,
 
     /// The `:` character between closing parenthesis and returns.
-    pub colon: Option<Token>,
+    pub colon: Option<Pointer<Token>>,
 
     /// The return type of the function
-    pub returns: Option<Pointer<TypeValue>>,
+    pub return_type: Option<Pointer<TypeValue>>,
 
     /// The body of the function.
-    pub body: Cst,
+    pub body: Block,
 
     /// The `end` keyword.
     pub end_keyword: Token,
@@ -124,23 +120,17 @@ pub struct GlobalFunction {
     /// The generics of the function.
     pub generics: Option<Pointer<GenericDeclaration>>,
 
-    /// The `(` character.
-    pub opening_parenthesis: Token,
-
     /// The parameters that this function accepts.
-    pub parameters: List<Name>,
-
-    /// The `)` character.
-    pub closing_parenthesis: Token,
+    pub parameters: BracketedList<Name>,
 
     /// The `:` character between closing parenthesis and returns.
-    pub colon: Option<Token>,
+    pub colon: Option<Pointer<Token>>,
 
     /// The return type of the function
-    pub returns: Option<Pointer<TypeValue>>,
+    pub return_type: Option<Pointer<TypeValue>>,
 
     /// The body of the function.
-    pub body: Cst,
+    pub body: Block,
 
     /// The `end` keyword.
     pub end_keyword: Token,

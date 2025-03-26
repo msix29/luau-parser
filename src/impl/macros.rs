@@ -98,11 +98,7 @@ macro_rules! next_token_recoverable_with_condition {
 #[macro_export]
 macro_rules! maybe_next_token {
     ($lexer: ident, $name: ident, $pattern: pat) => {
-        maybe_next_token_with_condition!(
-            $lexer,
-            $name,
-            matches!($name.token_type, $pattern)
-        )
+        maybe_next_token_with_condition!($lexer, $name, matches!($name.token_type, $pattern))
     };
 }
 

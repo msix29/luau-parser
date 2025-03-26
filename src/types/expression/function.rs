@@ -89,7 +89,7 @@ pub struct Closure {
     pub parameters: BracketedList<Name>,
 
     /// The `:` character between closing parenthesis and returns.
-    pub colon: Pointer<Option<Token>>,
+    pub colon: Option<Pointer<Token>>,
 
     /// The return type of the function
     pub return_type: Option<Pointer<TypeValue>>,

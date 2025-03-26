@@ -139,7 +139,7 @@ impl Parse for Closure {
             function_keyword,
             generics,
             parameters,
-            colon: Pointer::new(maybe_colon),
+            colon: maybe_colon.map(Pointer::new),
             return_type,
             body,
             end_keyword: Pointer::new(end_keyword),
