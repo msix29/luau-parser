@@ -7,7 +7,7 @@ use luau_lexer::prelude::{
 };
 
 use crate::{
-    handle_error_token, safe_unwrap,
+    handle_error_token, parse_bracketed, safe_unwrap,
     types::{
         Closure, ElseIfExpression, Expression, ExpressionWrap, FunctionCall, IfExpression, Parse,
         ParseWithArgs, Pointer, PrefixExp, Table, TryParse, TypeValue, Var,
@@ -34,11 +34,12 @@ impl ParseWithArgs<bool> for PrefixExp {
             .unwrap_or(None)
             .or_else(|| Var::parse_with(token.clone(), lexer, errors, is_recursion))
             .or_else(|| {
-                ExpressionWrap::parse_with(
-                    token,
+                parse_bracketed!(
                     lexer,
                     errors,
-                    ("Expected <expr>", Symbol::ClosingParenthesis),
+                    "Expected <expr>",
+                    TokenType::Symbol(Symbol::OpeningParenthesis),
+                    Symbol::ClosingParenthesis,
                 )
                 .map(Self::ExpressionWrap)
             })
