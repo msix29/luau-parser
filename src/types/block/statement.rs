@@ -99,7 +99,7 @@ generate_statement! {
     ///     print(`{i}: {v}`)
     /// end
     /// ```
-    // GenericFor(GenericFor),
+    GenericFor(GenericFor),
 
     /// A numerical for loop.
     ///
@@ -108,7 +108,7 @@ generate_statement! {
     ///     print(i)
     /// end
     /// ```
-    // NumericalFor(NumericalFor),
+    NumericalFor(NumericalFor),
 
     /// A repeat block.
     ///
@@ -119,7 +119,7 @@ generate_statement! {
     ///     i += 1
     /// until i == 10
     /// ```
-    // RepeatBlock(RepeatBlock),
+    RepeatBlock(RepeatBlock),
 
     /// A while loop.
     ///
@@ -130,7 +130,7 @@ generate_statement! {
     ///     i += 1
     /// end
     /// ```
-    // WhileLoop(WhileLoop),
+    WhileLoop(WhileLoop),
 
     /// A set expression.
     ///
@@ -139,7 +139,7 @@ generate_statement! {
     /// b, c = true, false, 1
     /// d, e, f = foo()
     /// ```
-    // SetExpression(SetExpression),
+    SetExpression(SetExpression),
 
     /// A compound set expression.
     ///
@@ -147,7 +147,7 @@ generate_statement! {
     /// foo += 1
     /// bar //= 2
     /// ```
-    // CompoundSetExpression(CompoundSetExpression),
+    CompoundSetExpression(CompoundSetExpression),
 
     /// A function call.
     ///
