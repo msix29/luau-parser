@@ -13,7 +13,7 @@ mod value;
 
 use luau_lexer::prelude::{Lexer, ParseError, Token};
 
-use crate::types::{Parse, Pointer};
+use crate::types::{Parse, ParseWithArgs, Pointer, TryParse, TryParseWithArgs};
 
 impl<T: Parse> Parse for Pointer<T> {
     #[inline]
@@ -45,3 +45,29 @@ impl<T: Parse> Parse for Vec<T> {
         (!values.is_empty()).then_some(values)
     }
 }
+
+impl<T: ParseWithArgs<A>, A: Clone> ParseWithArgs<A> for Vec<T> {
+    #[inline]
+    fn parse_with(
+        mut token: Token,
+        lexer: &mut Lexer,
+        errors: &mut Vec<ParseError>,
+        args: A,
+    ) -> Option<Self> {
+        let mut values = Vec::new();
+        let mut state = lexer.save_state();
+
+        while let Some(value) = T::parse_with(token, lexer, errors, args.clone()) {
+            values.push(value);
+            state = lexer.save_state();
+            token = lexer.next_token();
+        }
+
+        lexer.set_state(state);
+
+        (!values.is_empty()).then_some(values)
+    }
+}
+
+impl<T: Parse, U> TryParse<T> for U {}
+impl<T: ParseWithArgs<A>, A: Clone> TryParseWithArgs<A> for T {}
