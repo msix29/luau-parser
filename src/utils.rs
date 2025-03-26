@@ -1,9 +1,7 @@
 use luau_lexer::prelude::{
-    CompoundOperator,  Keyword, Lexer, Literal, Operator, ParseError, PartialKeyword,
-    State, Symbol, Token, TokenType,
+    CompoundOperator,  Keyword, Literal, Operator, PartialKeyword,
+    Symbol, TokenType,
 };
-
-use crate::types::Parse;
 
 // Optimization trick
 // The functions here should all be `O(1)`, making them return `String`
