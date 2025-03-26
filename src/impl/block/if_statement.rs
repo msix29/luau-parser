@@ -3,8 +3,8 @@ use luau_lexer::prelude::{Keyword, Lexer, ParseError, Token, TokenType};
 use crate::{
     safe_unwrap,
     types::{
-        Block, ElseIfStatement, ElseStatement, Expression, IfStatement, Parse, ParseWithArgs,
-        Pointer, TryParse,
+        Block, ElseIfStatement, ElseStatement, Expression, IfStatement, Parse, Pointer, TryParse,
+        TryParseWithArgs,
     },
 };
 
@@ -36,8 +36,7 @@ impl Parse for IfStatement {
             "Expected `then`"
         );
 
-        let body =
-            Block::parse_with(lexer.next_token(), lexer, errors, END_TOKENS).unwrap_or_default();
+        let body = Block::try_parse_with(lexer, errors, END_TOKENS).unwrap_or_default();
 
         let else_if_statements =
             Vec::<ElseIfStatement>::try_parse(lexer, errors).unwrap_or_default();
@@ -91,8 +90,7 @@ impl Parse for ElseIfStatement {
             "Expected `then`"
         );
 
-        let body =
-            Block::parse_with(lexer.next_token(), lexer, errors, END_TOKENS).unwrap_or_default();
+        let body = Block::try_parse_with(lexer, errors, END_TOKENS).unwrap_or_default();
 
         Some(Self {
             elseif_keyword,
@@ -106,15 +104,14 @@ impl TryParse for ElseIfStatement {}
 
 impl Parse for ElseStatement {
     fn parse(else_keyword: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
+        if else_keyword != TokenType::Keyword(Keyword::Else) {
+            return None;
+        }
+
         Some(Self {
             else_keyword,
-            body: Block::parse_with(
-                lexer.next_token(),
-                lexer,
-                errors,
-                TokenType::Keyword(Keyword::End),
-            )
-            .unwrap_or_default(),
+            body: Block::try_parse_with(lexer, errors, TokenType::Keyword(Keyword::End))
+                .unwrap_or_default(),
         })
     }
 }

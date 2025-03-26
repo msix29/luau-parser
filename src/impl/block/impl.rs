@@ -68,6 +68,13 @@ impl<T: MatchesToken> ParseWithArgs<T> for Block {
         let mut statements = Vec::new();
         let mut last_statement = None;
 
+        if stop_at.matches(&token) {
+            return (!statements.is_empty() || last_statement.is_some()).then_some(Self {
+                statements,
+                last_statement,
+            });
+        }
+
         loop {
             if token.token_type == TokenType::EndOfFile {
                 break;
@@ -125,7 +132,7 @@ impl<T: MatchesToken> ParseWithArgs<T> for Block {
             token = next_token;
         }
 
-        Some(Self {
+        (!statements.is_empty() || last_statement.is_some()).then_some(Self {
             statements,
             last_statement,
         })
