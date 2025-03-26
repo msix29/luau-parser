@@ -5,7 +5,9 @@ use luau_lexer::prelude::{
 use crate::{
     force_parse_bracketed, handle_error_token, parse_bracketed, safe_unwrap,
     types::{
-        Bracketed, BracketedList, GenericDeclarationParameter, GenericParameterInfo, GenericParameterInfoDefault, GenericParameters, Parse, ParseWithArgs, Pointer, Table, TryParse, TypeDefinition, TypeValue
+        Bracketed, BracketedList, GenericDeclarationParameter, GenericParameterInfo,
+        GenericParameterInfoDefault, GenericParameters, Parse, ParseWithArgs, Pointer, Table,
+        TryParse, TypeDefinition, TypeValue,
     },
     utils::get_token_type_display,
 };
@@ -41,8 +43,7 @@ impl TypeValue {
             "Expected <generic declaration>",
             TokenType::Symbol(Symbol::OpeningAngleBrackets),
             Symbol::ClosingAngleBrackets,
-        )
-        .map(Box::new);
+        ).map(Pointer::new);
 
         if let Some((dot, name)) = actual_type {
             Some(Self::Module {
@@ -177,7 +178,7 @@ impl Parse for TypeDefinition {
             TokenType::Symbol(Symbol::OpeningAngleBrackets),
             Symbol::ClosingAngleBrackets,
         )
-        .map(Box::new);
+        .map(Pointer::new);
 
         next_token_recoverable!(
             lexer,
@@ -242,4 +243,3 @@ impl Parse for GenericParameterInfoDefault {
     }
 }
 impl TryParse for GenericParameterInfoDefault {}
-

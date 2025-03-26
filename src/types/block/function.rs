@@ -18,7 +18,7 @@ pub struct LocalFunction {
     pub function_name: Token,
 
     /// The generics of the function.
-    pub generics: Option<Box<GenericDeclaration>>,
+    pub generics: Option<Pointer<GenericDeclaration>>,
 
     /// The `(` character.
     pub opening_parenthesis: Token,
@@ -107,7 +107,7 @@ pub enum GlobalFunctionName {
         /// ```
         ///
         /// The method is `None` as there's no `:`.
-        method: Box<Option<(Token, Token)>>,
+        method: Pointer<Option<(Token, Token)>>,
     },
 }
 
@@ -122,7 +122,7 @@ pub struct GlobalFunction {
     pub function_name: GlobalFunctionName,
 
     /// The generics of the function.
-    pub generics: Option<Box<GenericDeclaration>>,
+    pub generics: Option<Pointer<GenericDeclaration>>,
 
     /// The `(` character.
     pub opening_parenthesis: Token,

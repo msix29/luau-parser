@@ -44,12 +44,12 @@ impl Parse for TableAccessKey {
                 );
 
                 Some(Self::Name {
-                    dot: Box::new(maybe_dot),
-                    name: Box::new(name),
+                    dot: Pointer::new(maybe_dot),
+                    name: Pointer::new(name),
                 })
             }
             _ => TableKey::parse_with(maybe_dot, lexer, errors, false)
-                .map(Box::new)
+                .map(Pointer::new)
                 .map(Self::Expression),
         }
     }

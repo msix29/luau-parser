@@ -53,14 +53,14 @@ pub struct TableAccess {
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum TableAccessKey {
     /// An expression, this'll only have the enum [`TableKey::Expression`].
-    Expression(Box<TableKey>),
+    Expression(Pointer<TableKey>),
 
     /// A simple name.
     Name {
         /// The `.` **before** the key.
-        dot: Box<Token>,
+        dot: Pointer<Token>,
 
         /// The actual key being accessed.
-        name: Box<Token>,
+        name: Pointer<Token>,
     },
 }

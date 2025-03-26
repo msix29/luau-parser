@@ -27,10 +27,10 @@ pub enum FunctionCallInvoked {
         table: Pointer<PrefixExp>,
 
         /// The colon between the table and the method name.
-        colon: Box<Token>,
+        colon: Pointer<Token>,
 
         /// The actual name of the method being called.
-        method: Box<Token>,
+        method: Pointer<Token>,
     },
 }
 
@@ -83,13 +83,13 @@ pub struct Closure {
     pub function_keyword: Token,
 
     /// The generics of this function.
-    pub generics: Option<Box<GenericDeclaration>>,
+    pub generics: Option<Pointer<GenericDeclaration>>,
 
     /// All [`parameters`](Name) of the function.
     pub parameters: BracketedList<Name>,
 
     /// The `:` character between closing parenthesis and returns.
-    pub colon: Box<Option<Token>>,
+    pub colon: Pointer<Option<Token>>,
 
     /// The return type of the function
     pub return_type: Option<Pointer<TypeValue>>,
@@ -98,5 +98,5 @@ pub struct Closure {
     pub body: Block,
 
     /// The `end` keyword.
-    pub end_keyword: Box<Token>,
+    pub end_keyword: Pointer<Token>,
 }

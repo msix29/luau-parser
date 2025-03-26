@@ -49,7 +49,7 @@ pub enum TypeValue {
         /// ```lua
         /// type Foo = <P, R>(paramter: P) -> R
         /// ```
-        generics: Option<Box<GenericDeclaration>>,
+        generics: Option<Pointer<GenericDeclaration>>,
 
         /// The parameters this function accepts.
         parameters: BracketedList<Name>,
@@ -72,7 +72,7 @@ pub enum TypeValue {
         base: Token,
 
         /// Optional generics.
-        generics: Option<Box<BracketedList<Pointer<TypeValue>>>>,
+        generics: Option<Pointer<BracketedList<Pointer<TypeValue>>>>,
     },
 
     /// A generic pack.
@@ -132,7 +132,7 @@ pub enum TypeValue {
         name: Token,
 
         /// Optional generics.
-        generics: Option<Box<BracketedList<Pointer<TypeValue>>>>,
+        generics: Option<Pointer<BracketedList<Pointer<TypeValue>>>>,
     },
 
     /// An optional type.
@@ -238,7 +238,7 @@ pub struct TypeDefinition {
     pub type_keyword: Token,
 
     /// The generics for this type.
-    pub generics: Option<Box<GenericDeclaration>>,
+    pub generics: Option<Pointer<GenericDeclaration>>,
 
     /// The name of the type.
     pub type_name: Token,

@@ -209,7 +209,7 @@ impl Parse<TableAccessKey> for TableKey {
         errors: &mut Vec<ParseError>,
     ) -> Option<TableAccessKey> {
         Self::parse_with(token, lexer, errors, false)
-            .map(Box::new)
+            .map(Pointer::new)
             .map(TableAccessKey::Expression)
     }
 }

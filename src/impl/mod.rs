@@ -28,19 +28,6 @@ impl<T: TryParse + Parse> TryParse for Pointer<T> {
     }
 }
 
-impl<T: Parse> Parse for Box<T> {
-    #[inline]
-    fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
-        T::parse(token, lexer, errors).map(Self::new)
-    }
-}
-impl<T: TryParse + Parse> TryParse for Box<T> {
-    #[inline]
-    fn try_parse(lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
-        T::try_parse(lexer, errors).map(Self::new)
-    }
-}
-
 impl<T: Parse> Parse for Vec<T> {
     #[inline]
     fn parse(mut token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {

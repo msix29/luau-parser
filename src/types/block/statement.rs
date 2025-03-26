@@ -24,7 +24,7 @@ macro_rules! generate_statement {
             #[default]
             ERROR,
 
-            $( $( #[$meta] )* $name(Box<$ty>) ,)*
+            $( $( #[$meta] )* $name(Pointer<$ty>) ,)*
         }
 
         impl Statement {
@@ -36,7 +36,7 @@ macro_rules! generate_statement {
                 use $crate::types::Parse as _;
 
                 $( if let Some(value) = <$ty>::parse(token.clone(), lexer, errors) {
-                    Some(Self::$name(Box::new(value)))
+                    Some(Self::$name(Pointer::new(value)))
                 } else )* {
                     None
                 }

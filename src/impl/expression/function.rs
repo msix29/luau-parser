@@ -25,8 +25,8 @@ impl Parse for FunctionCallInvoked {
 
         Some(Self::TableMethod {
             table: prefix_exp,
-            colon: Box::new(maybe_colon),
-            method: Box::new(lexer.next_token()),
+            colon: Pointer::new(maybe_colon),
+            method: Pointer::new(lexer.next_token()),
         })
     }
 }
@@ -102,7 +102,7 @@ impl Parse for Closure {
             TokenType::Symbol(Symbol::OpeningAngleBrackets),
             Symbol::ClosingAngleBrackets,
         )
-        .map(Box::new);
+        .map(Pointer::new);
 
         let parameters = force_parse_bracketed!(
             lexer,
@@ -139,10 +139,10 @@ impl Parse for Closure {
             function_keyword,
             generics,
             parameters,
-            colon: Box::new(maybe_colon),
+            colon: Pointer::new(maybe_colon),
             return_type,
             body,
-            end_keyword: Box::new(end_keyword),
+            end_keyword: Pointer::new(end_keyword),
         })
     }
 }
