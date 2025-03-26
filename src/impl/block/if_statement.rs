@@ -2,8 +2,10 @@ use luau_lexer::prelude::{Keyword, Lexer, ParseError, Token, TokenType};
 
 use crate::{
     safe_unwrap,
-    types::{Block, ElseIfStatement, ElseStatement, IfStatement, Parse, ParseWithArgs},
-    utils::try_parse,
+    types::{
+        Block, ElseIfStatement, ElseStatement, Expression, IfStatement, Parse, ParseWithArgs,
+        Pointer, TryParse,
+    },
 };
 
 const END_TOKENS: [TokenType; 3] = [
@@ -22,7 +24,7 @@ impl Parse for IfStatement {
             lexer,
             errors,
             "Expected <expr>",
-            try_parse(lexer.save_state(), lexer.next_token(), lexer, errors)
+            Pointer::<Expression>::try_parse(lexer, errors)
         );
 
         next_token_recoverable!(
@@ -38,12 +40,9 @@ impl Parse for IfStatement {
             Block::parse_with(lexer.next_token(), lexer, errors, END_TOKENS).unwrap_or_default();
 
         let else_if_statements =
-            try_parse::<Vec<_>>(lexer.save_state(), lexer.next_token(), lexer, errors)
-                .unwrap_or_default();
+            Vec::<ElseIfStatement>::try_parse(lexer, errors).unwrap_or_default();
 
-        let else_statement =
-            try_parse::<ElseStatement>(lexer.save_state(), lexer.next_token(), lexer, errors);
-
+        let else_statement = ElseStatement::try_parse(lexer, errors);
         next_token_recoverable!(
             lexer,
             end_keyword,
@@ -64,6 +63,7 @@ impl Parse for IfStatement {
         })
     }
 }
+impl TryParse for IfStatement {}
 
 impl Parse for ElseIfStatement {
     fn parse(
@@ -79,7 +79,7 @@ impl Parse for ElseIfStatement {
             lexer,
             errors,
             "Expected <expr>",
-            try_parse(lexer.save_state(), lexer.next_token(), lexer, errors)
+            Pointer::<Expression>::try_parse(lexer, errors)
         );
 
         next_token_recoverable!(
@@ -102,6 +102,7 @@ impl Parse for ElseIfStatement {
         })
     }
 }
+impl TryParse for ElseIfStatement {}
 
 impl Parse for ElseStatement {
     fn parse(else_keyword: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
@@ -117,3 +118,4 @@ impl Parse for ElseStatement {
         })
     }
 }
+impl TryParse for ElseStatement {}

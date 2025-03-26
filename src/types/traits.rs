@@ -50,15 +50,15 @@ pub trait ParseWithArgs<T, O = Self> {
         args: T,
     ) -> Option<O>;
 }
-pub(crate) trait TryParseWithArgs<T, O = Self>
+pub(crate) trait TryParseWithArgs<T, O = Self, O2 = O>
 where
-    O: ParseWithArgs<T, O>,
+    O2: ParseWithArgs<T, O>,
 {
     #[inline]
     fn try_parse_with(lexer: &mut Lexer, errors: &mut Vec<ParseError>, args: T) -> Option<O> {
         let state = lexer.save_state();
 
-        match O::parse_with(lexer.next_token(), lexer, errors, args) {
+        match O2::parse_with(lexer.next_token(), lexer, errors, args) {
             value @ Some(_) => value,
             None => {
                 lexer.set_state(state);

@@ -4,7 +4,8 @@ use std::cell::Cell;
 use crate::{
     types::{
         Bracketed, BracketedList, Expression, FunctionArguments, Parse, ParseWithArgs, Pointer,
-        Table, TableAccessKey, TableField, TableFieldValue, TableKey, TypeValue,
+        Table, TableAccessKey, TableField, TableFieldValue, TableKey, TryParse, TryParseWithArgs,
+        TypeValue,
     },
     utils::get_token_type_display_extended,
 };
@@ -130,8 +131,7 @@ impl ParseWithArgs<&ParseArgs> for TableField {
             (Pointer::new(TableKey::undefined_number(parse_args)), None)
         };
 
-        let value = Pointer::new(TableFieldValue::parse_with(
-            lexer.next_token(),
+        let value = Pointer::new(TableFieldValue::try_parse_with(
             lexer,
             errors,
             parse_args.is_type,
@@ -199,6 +199,7 @@ impl Parse<FunctionArguments> for Table {
         Self::parse_with(token, lexer, errors, false).map(FunctionArguments::Table)
     }
 }
+impl TryParse<FunctionArguments> for Table {}
 
 impl Parse<TableAccessKey> for TableKey {
     #[inline]
@@ -212,3 +213,4 @@ impl Parse<TableAccessKey> for TableKey {
             .map(TableAccessKey::Expression)
     }
 }
+impl TryParse<TableAccessKey> for TableKey {}

@@ -4,9 +4,10 @@ use crate::{
     force_parse_bracketed, parse_bracketed,
     types::{
         Block, BracketedList, Closure, FunctionArguments, FunctionCall, FunctionCallInvoked, Parse,
-        ParseWithArgs, Pointer, PrefixExp, Table, TableAccessPrefix, TypeValue,
+        ParseWithArgs, Pointer, PrefixExp, Table, TableAccessPrefix, TryParse, TryParseWithArgs,
+        TypeValue,
     },
-    utils::{get_token_type_display_extended, try_parse},
+    utils::get_token_type_display_extended,
 };
 
 impl Parse for FunctionCallInvoked {
@@ -29,12 +30,21 @@ impl Parse for FunctionCallInvoked {
         })
     }
 }
+impl TryParse for FunctionCallInvoked {}
 
 impl Parse for FunctionCall {
     fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
         Some(Self {
-            invoked: try_parse(lexer.save_state(), token, lexer, errors)?,
-            arguments: try_parse(lexer.save_state(), lexer.next_token(), lexer, errors)?,
+            invoked: FunctionCallInvoked::parse(token, lexer, errors)?,
+            arguments: FunctionArguments::try_parse(lexer, errors)?,
+        })
+    }
+}
+impl TryParse for FunctionCall {
+    fn try_parse(lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
+        Some(Self {
+            invoked: FunctionCallInvoked::try_parse(lexer, errors)?,
+            arguments: FunctionArguments::try_parse(lexer, errors)?,
         })
     }
 }
@@ -50,9 +60,7 @@ impl Parse<TableAccessPrefix> for FunctionCall {
         lexer: &mut Lexer,
         errors: &mut Vec<ParseError>,
     ) -> Option<TableAccessPrefix> {
-        Self::parse(token, lexer, errors)
-            .map(Pointer::new)
-            .map(TableAccessPrefix::FunctionCall)
+        Pointer::<Self>::parse(token, lexer, errors).map(TableAccessPrefix::FunctionCall)
     }
 }
 
@@ -74,6 +82,7 @@ impl Parse for FunctionArguments {
         Table::parse(token.clone(), lexer, errors)
     }
 }
+impl TryParse for FunctionArguments {}
 
 impl Parse for Closure {
     fn parse(
@@ -108,18 +117,13 @@ impl Parse for Closure {
 
         maybe_next_token!(lexer, maybe_colon, TokenType::Symbol(Symbol::Colon));
         let return_type = if maybe_colon.is_some() {
-            TypeValue::parse(lexer.next_token(), lexer, errors).map(Pointer::new)
+            Pointer::<TypeValue>::try_parse(lexer, errors)
         } else {
             None
         };
 
-        let body = Block::parse_with(
-            lexer.next_token(),
-            lexer,
-            errors,
-            TokenType::Keyword(Keyword::End),
-        )
-        .unwrap_or_default(); // `Block::parse` never fails.
+        let body = Block::try_parse_with(lexer, errors, TokenType::Keyword(Keyword::End))
+            .unwrap_or_default();
 
         next_token_recoverable!(
             lexer,

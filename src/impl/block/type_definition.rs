@@ -5,9 +5,7 @@ use luau_lexer::prelude::{
 use crate::{
     force_parse_bracketed, handle_error_token, parse_bracketed, safe_unwrap,
     types::{
-        Bracketed, BracketedList, GenericDeclarationParameter, GenericParameterInfo,
-        GenericParameterInfoDefault, GenericParameters, Parse, ParseWithArgs, Pointer, Table,
-        TypeDefinition, TypeValue,
+        Bracketed, BracketedList, GenericDeclarationParameter, GenericParameterInfo, GenericParameterInfoDefault, GenericParameters, Parse, ParseWithArgs, Pointer, Table, TryParse, TypeDefinition, TypeValue
     },
     utils::get_token_type_display,
 };
@@ -136,7 +134,7 @@ impl Parse for TypeValue {
                     lexer,
                     errors,
                     "Expected <type>",
-                    Self::parse(lexer.next_token(), lexer, errors).map(Pointer::new)
+                    Self::try_parse(lexer, errors).map(Pointer::new)
                 ),
             }),
             TokenType::Operator(Operator::Union) => Some(Self::Union {
@@ -146,7 +144,7 @@ impl Parse for TypeValue {
                     lexer,
                     errors,
                     "Expected <type>",
-                    Self::parse(lexer.next_token(), lexer, errors).map(Pointer::new)
+                    Self::try_parse(lexer, errors).map(Pointer::new)
                 ),
             }),
             _ => {
@@ -156,6 +154,7 @@ impl Parse for TypeValue {
         }
     }
 }
+impl TryParse for TypeValue {}
 
 impl Parse for TypeDefinition {
     fn parse(mut token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
@@ -201,7 +200,7 @@ impl Parse for TypeDefinition {
             lexer,
             errors,
             "Expected <type>",
-            TypeValue::parse(lexer.next_token(), lexer, errors).map(Pointer::new)
+            TypeValue::try_parse(lexer, errors).map(Pointer::new)
         );
 
         Some(Self {
@@ -214,27 +213,33 @@ impl Parse for TypeDefinition {
         })
     }
 }
+impl TryParse for TypeDefinition {}
 
 impl Parse for GenericParameters {
     fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
         todo!()
     }
 }
+impl TryParse for GenericParameters {}
 
 impl Parse for GenericParameterInfo {
     fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
         todo!()
     }
 }
+impl TryParse for GenericParameterInfo {}
 
 impl Parse for GenericDeclarationParameter {
     fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
         todo!()
     }
 }
+impl TryParse for GenericDeclarationParameter {}
 
 impl Parse for GenericParameterInfoDefault {
     fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
         todo!()
     }
 }
+impl TryParse for GenericParameterInfoDefault {}
+

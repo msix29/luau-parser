@@ -1,10 +1,7 @@
 use luau_lexer::prelude::{Lexer, ParseError, Symbol, Token, TokenType};
-use std::{
-    fmt::Debug,
-    ops::{Deref, DerefMut},
-};
+use std::ops::{Deref, DerefMut};
 
-use crate::types::{List, ListItem, Parse, ParseWithArgs};
+use crate::types::{List, ListItem, Parse, ParseWithArgs, TryParse};
 
 impl<T> List<T> {
     #[inline]
@@ -51,12 +48,13 @@ impl<T> Default for List<T> {
     }
 }
 
-impl<T: Debug + Parse> Parse for List<T> {
+impl<T: Parse> Parse for List<T> {
     #[inline]
     fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
         Self::parse(token, lexer, |token, lexer| T::parse(token, lexer, errors))
     }
 }
+impl<T: Parse> TryParse for List<T> {}
 
 impl<A: Clone, T: ParseWithArgs<A>> ParseWithArgs<A> for List<T> {
     #[inline]

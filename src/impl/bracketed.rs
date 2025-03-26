@@ -2,7 +2,7 @@ use luau_lexer::prelude::{Lexer, ParseError, State, Symbol, Token, TokenType};
 use std::ops::{Deref, DerefMut};
 
 use crate::{
-    types::{Bracketed, List, Parse, ParseWithArgs},
+    types::{Bracketed, List, Parse, ParseWithArgs, TryParse, TryParseWithArgs},
     utils::get_token_type_display_extended,
 };
 
@@ -28,7 +28,6 @@ __sealed_impl!(Bracketed<T>, TypeValue, Expression);
 #[allow(private_bounds)]
 impl<T: IsEmpty> Bracketed<T> {
     fn parse(
-        previous_state: State,
         maybe_parsed_item: Option<T>,
         opening_bracket: Token,
         lexer: &mut Lexer,
@@ -45,10 +44,6 @@ impl<T: IsEmpty> Bracketed<T> {
 
             return None;
         };
-
-        if item.is_empty() {
-            lexer.set_state(previous_state);
-        }
 
         next_token_recoverable_with_condition!(
             lexer,
@@ -70,7 +65,7 @@ impl<T: IsEmpty> Bracketed<T> {
     }
 }
 
-impl<T: Parse + IsEmpty> ParseWithArgs<(&str, Symbol)> for Bracketed<T> {
+impl<T: Parse + TryParse + IsEmpty> ParseWithArgs<(&str, Symbol)> for Bracketed<T> {
     #[inline]
     fn parse_with(
         opening_bracket: Token,
@@ -79,8 +74,7 @@ impl<T: Parse + IsEmpty> ParseWithArgs<(&str, Symbol)> for Bracketed<T> {
         (error_message, stop_at): (&str, Symbol),
     ) -> Option<Self> {
         Self::parse(
-            lexer.save_state(),
-            T::parse(lexer.next_token(), lexer, errors),
+            T::try_parse(lexer, errors),
             opening_bracket,
             lexer,
             errors,
@@ -88,7 +82,10 @@ impl<T: Parse + IsEmpty> ParseWithArgs<(&str, Symbol)> for Bracketed<T> {
         )
     }
 }
-impl<A, T: ParseWithArgs<A> + IsEmpty> ParseWithArgs<(&str, Symbol, A)> for Bracketed<T> {
+impl<A, T> ParseWithArgs<(&str, Symbol, A)> for Bracketed<T>
+where
+    T: ParseWithArgs<A> + TryParseWithArgs<A> + IsEmpty,
+{
     #[inline]
     fn parse_with(
         opening_bracket: Token,
@@ -97,8 +94,7 @@ impl<A, T: ParseWithArgs<A> + IsEmpty> ParseWithArgs<(&str, Symbol, A)> for Brac
         (error_message, stop_at, args): (&str, Symbol, A),
     ) -> Option<Self> {
         Self::parse(
-            lexer.save_state(),
-            T::parse_with(lexer.next_token(), lexer, errors, args),
+            T::try_parse_with(lexer, errors, args),
             opening_bracket,
             lexer,
             errors,

@@ -4,9 +4,8 @@ use crate::{
     handle_error_token,
     types::{
         ExpressionWrap, FunctionCall, Parse, ParseWithArgs, Pointer, TableAccess, TableAccessKey,
-        TableAccessPrefix, TableKey,
+        TableAccessPrefix, TableKey, TryParse,
     },
-    utils::try_parse,
 };
 
 impl Parse for TableAccessPrefix {
@@ -28,6 +27,7 @@ impl Parse for TableAccessPrefix {
         }
     }
 }
+impl TryParse for TableAccessPrefix {}
 
 impl Parse for TableAccessKey {
     fn parse(maybe_dot: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
@@ -54,12 +54,21 @@ impl Parse for TableAccessKey {
         }
     }
 }
+impl TryParse for TableAccessKey {}
 
 impl Parse for TableAccess {
     fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
         Some(Self {
-            prefix: try_parse(lexer.save_state(), token, lexer, errors)?,
-            accessed_keys: try_parse(lexer.save_state(), lexer.next_token(), lexer, errors)?,
+            prefix: TableAccessPrefix::parse(token, lexer, errors)?,
+            accessed_keys: Vec::<TableAccessKey>::try_parse(lexer, errors)?,
+        })
+    }
+}
+impl TryParse for TableAccess {
+    fn try_parse(lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
+        Some(Self {
+            prefix: TableAccessPrefix::try_parse(lexer, errors)?,
+            accessed_keys: Vec::<TableAccessKey>::try_parse(lexer, errors)?,
         })
     }
 }

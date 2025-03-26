@@ -2,7 +2,7 @@ use luau_lexer::prelude::{Keyword, Lexer, ParseError, PartialKeyword, Token, Tok
 
 use crate::{
     handle_error_token,
-    types::{Expression, List, Parse, Pointer, Statement, TerminationStatement},
+    types::{Expression, List, Parse, Pointer, Statement, TerminationStatement, TryParse},
 };
 
 impl Parse for Statement {
@@ -39,7 +39,7 @@ impl Parse for TerminationStatement {
         if matches!(keyword.token_type, TokenType::Keyword(Keyword::Return)) {
             return Some(Self::Return {
                 return_keyword: keyword,
-                expressions: List::<Pointer<Expression>>::parse(lexer.next_token(), lexer, errors),
+                expressions: List::<Pointer<Expression>>::try_parse(lexer, errors),
             });
         }
 

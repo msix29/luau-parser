@@ -1,12 +1,15 @@
 use luau_lexer::prelude::{Lexer, ParseError, Token, TokenType};
 
-use crate::types::{Expression, Parse, ParseWithArgs, PrefixExp, TableAccess, Var};
+use crate::types::{
+    Expression, Parse, ParseWithArgs, PrefixExp, TableAccess, TryParse, TryParseWithArgs, Var,
+};
 
 impl Parse for Var {
     fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
         Self::parse_with(token, lexer, errors, false)
     }
 }
+impl TryParse for Var {}
 
 impl ParseWithArgs<bool> for Var {
     fn parse_with(
@@ -43,6 +46,8 @@ impl Parse<PrefixExp> for Var {
         Self::parse(token, lexer, errors).map(PrefixExp::Var)
     }
 }
+impl TryParse<PrefixExp> for Var {}
+
 impl ParseWithArgs<bool, PrefixExp> for Var {
     #[inline]
     fn parse_with(
@@ -54,6 +59,7 @@ impl ParseWithArgs<bool, PrefixExp> for Var {
         Self::parse_with(token, lexer, errors, is_recursion).map(PrefixExp::Var)
     }
 }
+impl TryParseWithArgs<bool, PrefixExp> for Var {}
 
 impl Parse<Expression> for Var {
     #[inline]
@@ -61,6 +67,8 @@ impl Parse<Expression> for Var {
         Self::parse(token, lexer, errors).map(Expression::Var)
     }
 }
+impl TryParse<Expression> for Var {}
+
 impl ParseWithArgs<bool, Expression> for Var {
     #[inline]
     fn parse_with(
@@ -72,3 +80,4 @@ impl ParseWithArgs<bool, Expression> for Var {
         Self::parse_with(token, lexer, errors, is_recursion).map(Expression::Var)
     }
 }
+impl TryParseWithArgs<bool, Expression, Var> for Var {}

@@ -1,7 +1,7 @@
 use luau_lexer::prelude::{Keyword, Lexer, ParseError, Token, TokenType};
 
 use crate::{
-    types::{Block, DoBlock, Parse, ParseWithArgs},
+    types::{Block, DoBlock, Parse, TryParse, TryParseWithArgs},
     utils::get_token_type_display_extended,
 };
 
@@ -11,13 +11,8 @@ impl Parse for DoBlock {
             return None;
         }
 
-        let body = Block::parse_with(
-            lexer.next_token(),
-            lexer,
-            errors,
-            TokenType::Keyword(Keyword::End),
-        )
-        .unwrap_or_default();
+        let body = Block::try_parse_with(lexer, errors, TokenType::Keyword(Keyword::End))
+            .unwrap_or_default();
 
         next_token_recoverable!(
             lexer,
@@ -36,3 +31,4 @@ impl Parse for DoBlock {
         })
     }
 }
+impl TryParse for DoBlock {}

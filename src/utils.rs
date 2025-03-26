@@ -113,20 +113,3 @@ pub(crate) fn get_token_type_display_extended(token_type: &TokenType) -> &str {
         TokenType::Comment(_) => "<comment>",
     }
 }
-
-#[inline]
-pub(crate) fn try_parse<T: Parse>(
-    original_state: State,
-    token: Token,
-    lexer: &mut Lexer,
-    errors: &mut Vec<ParseError>,
-) -> Option<T> {
-    match T::parse(token, lexer, errors) {
-        value @ Some(_) => value,
-        None => {
-            lexer.set_state(original_state);
-
-            None
-        }
-    }
-}

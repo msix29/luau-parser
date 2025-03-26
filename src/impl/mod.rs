@@ -21,10 +21,23 @@ impl<T: Parse> Parse for Pointer<T> {
         T::parse(token, lexer, errors).map(Self::new)
     }
 }
+impl<T: TryParse + Parse> TryParse for Pointer<T> {
+    #[inline]
+    fn try_parse(lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
+        T::try_parse(lexer, errors).map(Self::new)
+    }
+}
+
 impl<T: Parse> Parse for Box<T> {
     #[inline]
     fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
         T::parse(token, lexer, errors).map(Self::new)
+    }
+}
+impl<T: TryParse + Parse> TryParse for Box<T> {
+    #[inline]
+    fn try_parse(lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
+        T::try_parse(lexer, errors).map(Self::new)
     }
 }
 
@@ -45,6 +58,7 @@ impl<T: Parse> Parse for Vec<T> {
         (!values.is_empty()).then_some(values)
     }
 }
+impl<T: TryParse + Parse> TryParse for Vec<T> {}
 
 impl<T: ParseWithArgs<A>, A: Clone> ParseWithArgs<A> for Vec<T> {
     #[inline]
@@ -68,6 +82,4 @@ impl<T: ParseWithArgs<A>, A: Clone> ParseWithArgs<A> for Vec<T> {
         (!values.is_empty()).then_some(values)
     }
 }
-
-impl<T: Parse, U> TryParse<T> for U {}
 impl<T: ParseWithArgs<A>, A: Clone> TryParseWithArgs<A> for T {}

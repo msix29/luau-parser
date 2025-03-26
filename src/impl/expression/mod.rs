@@ -10,9 +10,8 @@ use crate::{
     handle_error_token, safe_unwrap,
     types::{
         Closure, ElseIfExpression, Expression, ExpressionWrap, FunctionCall, IfExpression, Parse,
-        ParseWithArgs, Pointer, PrefixExp, Table, TypeValue, Var,
+        ParseWithArgs, Pointer, PrefixExp, Table, TryParse, TypeValue, Var,
     },
-    utils::try_parse,
 };
 
 impl Parse for PrefixExp {
@@ -21,6 +20,7 @@ impl Parse for PrefixExp {
         Self::parse_with(token, lexer, errors, false)
     }
 }
+impl TryParse for PrefixExp {}
 
 impl ParseWithArgs<bool> for PrefixExp {
     fn parse_with(
@@ -120,7 +120,7 @@ impl Parse for Expression {
                         lexer,
                         errors,
                         "Expected <expr>",
-                        Self::parse(lexer.next_token(), lexer, errors).map(Pointer::new)
+                        Self::try_parse(lexer, errors).map(Pointer::new)
                     ),
                 })
             }
@@ -131,7 +131,7 @@ impl Parse for Expression {
                     lexer,
                     errors,
                     "Expected <type>",
-                    TypeValue::parse(lexer.next_token(), lexer, errors).map(Pointer::new)
+                    TypeValue::try_parse(lexer, errors).map(Pointer::new)
                 ),
             }),
             _ => {
@@ -141,6 +141,7 @@ impl Parse for Expression {
         }
     }
 }
+impl TryParse for Expression {}
 
 impl Parse for IfExpression {
     fn parse(if_keyword: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
@@ -152,8 +153,7 @@ impl Parse for IfExpression {
             lexer,
             errors,
             "Expected <expr>",
-            try_parse::<Expression>(lexer.save_state(), lexer.next_token(), lexer, errors)
-                .map(Pointer::new)
+            Pointer::<Expression>::try_parse(lexer, errors)
         );
 
         next_token_recoverable!(
@@ -169,14 +169,11 @@ impl Parse for IfExpression {
             lexer,
             errors,
             "Expected <expr>",
-            try_parse::<Expression>(lexer.save_state(), lexer.next_token(), lexer, errors)
-                .map(Pointer::new)
+            Pointer::<Expression>::try_parse(lexer, errors)
         );
 
         let else_if_expressions =
-            try_parse::<Vec<_>>(lexer.save_state(), lexer.next_token(), lexer, errors)
-                .map(Pointer::new)
-                .unwrap_or_default();
+            Pointer::<Vec<ElseIfExpression>>::try_parse(lexer, errors).unwrap_or_default();
 
         next_token_recoverable!(
             lexer,
@@ -190,7 +187,7 @@ impl Parse for IfExpression {
             lexer,
             errors,
             "Expected <expr>",
-            Expression::parse(lexer.next_token(), lexer, errors).map(Pointer::new)
+            Expression::try_parse(lexer, errors).map(Pointer::new)
         );
 
         Some(Self {
@@ -204,6 +201,7 @@ impl Parse for IfExpression {
         })
     }
 }
+impl TryParse for IfExpression {}
 
 impl Parse for ElseIfExpression {
     fn parse(
@@ -219,8 +217,7 @@ impl Parse for ElseIfExpression {
             lexer,
             errors,
             "Expected <expr>",
-            try_parse::<Expression>(lexer.save_state(), lexer.next_token(), lexer, errors)
-                .map(Pointer::new)
+            Pointer::<Expression>::try_parse(lexer, errors)
         );
 
         next_token_recoverable!(
@@ -236,8 +233,7 @@ impl Parse for ElseIfExpression {
             lexer,
             errors,
             "Expected <expr>",
-            try_parse::<Expression>(lexer.save_state(), lexer.next_token(), lexer, errors)
-                .map(Pointer::new)
+            Pointer::<Expression>::try_parse(lexer, errors)
         );
 
         Some(Self {
@@ -248,3 +244,4 @@ impl Parse for ElseIfExpression {
         })
     }
 }
+impl TryParse for ElseIfExpression {}
