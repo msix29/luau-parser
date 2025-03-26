@@ -28,6 +28,7 @@ __sealed_impl!(Bracketed<T>, TypeValue, Expression);
 #[allow(private_bounds)]
 impl<T: IsEmpty> Bracketed<T> {
     fn parse(
+        previous_state: State,
         maybe_parsed_item: Option<T>,
         opening_bracket: Token,
         lexer: &mut Lexer,
@@ -44,6 +45,10 @@ impl<T: IsEmpty> Bracketed<T> {
 
             return None;
         };
+
+        if item.is_empty() {
+            lexer.set_state(previous_state);
+        }
 
         next_token_recoverable_with_condition!(
             lexer,
@@ -74,7 +79,8 @@ impl<T: Parse + TryParse + IsEmpty> ParseWithArgs<(&str, Symbol)> for Bracketed<
         (error_message, stop_at): (&str, Symbol),
     ) -> Option<Self> {
         Self::parse(
-            T::try_parse(lexer, errors),
+            lexer.save_state(),
+            T::parse(lexer.next_token(), lexer, errors),
             opening_bracket,
             lexer,
             errors,
@@ -94,7 +100,8 @@ where
         (error_message, stop_at, args): (&str, Symbol, A),
     ) -> Option<Self> {
         Self::parse(
-            T::try_parse_with(lexer, errors, args),
+            lexer.save_state(),
+            T::parse_with(lexer.next_token(), lexer, errors, args),
             opening_bracket,
             lexer,
             errors,
