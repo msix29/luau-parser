@@ -69,8 +69,14 @@ where
     }
 }
 
+#[derive(Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+pub enum GetRangeError {
+    ErrorVariant,
+}
+
 /// A trait for getting the range for this specific item.
-pub trait HasRange {
+pub trait GetRange {
     /// Get the range of the node.
-    fn get_range(&self) -> Range;
+    fn get_range(&self) -> Result<Range, GetRangeError>;
 }

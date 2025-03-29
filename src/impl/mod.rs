@@ -13,7 +13,7 @@ mod value;
 
 use luau_lexer::prelude::{Lexer, ParseError, Token};
 
-use crate::types::{Parse, ParseWithArgs, Pointer, TryParse, TryParseWithArgs};
+use crate::types::{GetRange, GetRangeError, Parse, ParseWithArgs, Pointer, Range, TryParse, TryParseWithArgs};
 
 impl<T: Parse> Parse for Pointer<T> {
     #[inline]
@@ -70,3 +70,10 @@ impl<T: ParseWithArgs<A>, A: Clone> ParseWithArgs<A> for Vec<T> {
     }
 }
 impl<T: ParseWithArgs<A>, A: Clone> TryParseWithArgs<A> for T {}
+
+impl GetRange for Token {
+    #[inline]
+    fn get_range(&self) -> Result<Range, GetRangeError> {
+        Ok(Range::new(self.start, self.end))
+    }
+}
