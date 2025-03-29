@@ -1,6 +1,15 @@
 use luau_lexer::prelude::{Lexer, ParseError, Symbol, Token, TokenType};
+use smol_str::SmolStr;
 
 use crate::types::{Name, Parse, Pointer, TryParse, TypeValue};
+
+impl Name {
+    pub const ERROR: Self = Self {
+        name: Token::empty(TokenType::Identifier(SmolStr::new_inline("*error*"))),
+        colon: None,
+        r#type: None,
+    };
+}
 
 impl Parse for Name {
     fn parse(name: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
@@ -26,3 +35,4 @@ impl Parse for Name {
         })
     }
 }
+impl TryParse for Name {}
