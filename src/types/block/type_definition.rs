@@ -284,26 +284,26 @@ pub struct GenericDeclarationParameter {
     /// The parameter passed as a generic type, can be a simple name or a generic pack.
     pub parameter: GenericParameterInfo,
 
+    /// The equal symbol.
+    pub equal: Option<Token>,
+
     /// The default type.
     pub default: Option<GenericParameterInfoDefault>,
 }
 
 /// Struct holding **default** values for generic arguments.
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum GenericParameterInfoDefault {
+    #[default]
+    ERROR,
+
     /// A simple name.
     ///
     /// ```lua
     /// type Foo<T = string> = "Foo"
     /// ```
-    Name {
-        /// The `=` character.
-        equal_sign: Token,
-
-        /// The name of the type.
-        name: Token,
-    },
+    Name(Token),
 
     /// A generic pack.
     ///
@@ -312,13 +312,7 @@ pub enum GenericParameterInfoDefault {
     /// type Bar<T... = ...string> = "Bar"
     /// type Qux<T... = (string, number)> = "Qux"
     /// ```
-    Pack {
-        /// The `=` character.
-        equal_sign: Token,
-
-        /// The type itself..
-        r#type: TypeValue,
-    },
+    Pack(TypeValue),
 }
 
 /// The generics used in a [`type definition`](TypeDefinition).

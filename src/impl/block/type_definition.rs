@@ -6,8 +6,8 @@ use crate::{
     force_parse_bracketed, handle_error_token, parse_bracketed, safe_unwrap,
     types::{
         Bracketed, BracketedList, GenericDeclarationParameter, GenericParameterInfo,
-        GenericParameterInfoDefault, GenericParameters, Parse, ParseWithArgs, Pointer, Table,
-        TryParse, TypeDefinition, TypeValue,
+        GenericParameterInfoDefault, Parse, ParseWithArgs, Pointer, Table, TryParse,
+        TypeDefinition, TypeValue,
     },
     utils::get_token_type_display,
 };
@@ -43,7 +43,8 @@ impl TypeValue {
             "Expected <generic declaration>",
             TokenType::Symbol(Symbol::OpeningAngleBrackets),
             Symbol::ClosingAngleBrackets,
-        ).map(Pointer::new);
+        )
+        .map(Pointer::new);
 
         if let Some((dot, name)) = actual_type {
             Some(Self::Module {
@@ -216,30 +217,64 @@ impl Parse for TypeDefinition {
 }
 impl TryParse for TypeDefinition {}
 
-impl Parse for GenericParameters {
-    fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
-        todo!()
-    }
-}
-impl TryParse for GenericParameters {}
-
 impl Parse for GenericParameterInfo {
-    fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
-        todo!()
+    fn parse(name: Token, lexer: &mut Lexer, _: &mut Vec<ParseError>) -> Option<Self> {
+        if !matches!(
+            name.token_type,
+            TokenType::Identifier(_) | TokenType::PartialKeyword(_)
+        ) {
+            return None;
+        }
+
+        maybe_next_token!(lexer, ellipsis, TokenType::Symbol(Symbol::Ellipses));
+
+        if let Some(ellipsis) = ellipsis {
+            Some(Self::Pack { name, ellipsis })
+        } else {
+            Some(Self::Name(name))
+        }
     }
 }
 impl TryParse for GenericParameterInfo {}
 
 impl Parse for GenericDeclarationParameter {
     fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
-        todo!()
+        let parameter = GenericParameterInfo::parse(token, lexer, errors)?;
+
+        let (equal, default);
+        maybe_next_token!(lexer, maybe_equal, TokenType::Symbol(Symbol::Equal));
+
+        if maybe_equal.is_some() {
+            equal = maybe_equal;
+            default =
+                Some(GenericParameterInfoDefault::try_parse(lexer, errors).unwrap_or_default());
+            // We use `unwrap_or_default` and `Some` to ensure it actually exists.
+        } else {
+            (equal, default) = (None, None);
+        }
+
+        Some(Self {
+            parameter,
+            equal,
+            default,
+        })
     }
 }
 impl TryParse for GenericDeclarationParameter {}
 
 impl Parse for GenericParameterInfoDefault {
     fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
-        todo!()
+        match token.token_type {
+            TokenType::PartialKeyword(_) | TokenType::Identifier(_) => Some(Self::Name(token)),
+            _ => match TypeValue::parse(token, lexer, errors) {
+                type_value @ Some(
+                    TypeValue::GenericPack { .. }
+                    | TypeValue::VariadicPack { .. }
+                    | TypeValue::Tuple { .. },
+                ) => type_value.map(Self::Pack),
+                _ => None,
+            },
+        }
     }
 }
 impl TryParse for GenericParameterInfoDefault {}
