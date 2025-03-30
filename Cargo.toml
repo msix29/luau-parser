@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 luau-lexer = { path = "../lexer" }
+luau-parser-derive = { path = "../parser-derive" }
 serde = { version = "1.0.219", features = ["derive", "rc"], optional = true }
 smol_str = { version = "0.3.2" }
 
