@@ -47,6 +47,14 @@ macro_rules! generate_statement {
 }
 
 generate_statement! {
+    /// A local function.
+    ///
+    /// ```lua
+    /// local function foo(bar: string): Qux
+    /// end
+    /// ```
+    LocalFunction(LocalFunction),
+
     /// A variable declaration.
     ///
     /// ```lua
@@ -156,14 +164,6 @@ generate_statement! {
     /// local _ = foo(1, 2, 3)
     /// ```
     FunctionCall(FunctionCall),
-
-    /// A local function.
-    ///
-    /// ```lua
-    /// local function foo(bar: string): Qux
-    /// end
-    /// ```
-    LocalFunction(LocalFunction),
 
     /// A global function.
     ///

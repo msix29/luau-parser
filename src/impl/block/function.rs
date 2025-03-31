@@ -18,8 +18,11 @@ macro_rules! parse {
         $name: block
         $(, { $($extra_field:ident),* $(,)?})?
     ) => {{
+        let state = $lexer.save_state();
         let function_keyword = $function_keyword;
         if function_keyword != TokenType::Keyword(Keyword::Function) {
+            $lexer.set_state(state);
+
             return None;
         }
 
