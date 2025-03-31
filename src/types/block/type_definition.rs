@@ -3,11 +3,12 @@
 //! Module containg definition for type definitions.
 
 use luau_lexer::prelude::Token;
+use luau_parser_derive::Range;
 
 use crate::types::{Bracketed, BracketedList, Expression, FunctionCall, Name, Pointer, Table, Var};
 
 /// Possible values for a type.
-#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum TypeValue {
     /// This [`TypeValue`] had a syntax error.
@@ -49,6 +50,7 @@ pub enum TypeValue {
         /// ```lua
         /// type Foo = <P, R>(paramter: P) -> R
         /// ```
+        #[range_or = "parameters"]
         generics: Option<Pointer<GenericDeclaration>>,
 
         /// The parameters this function accepts.
@@ -72,6 +74,7 @@ pub enum TypeValue {
         base: Token,
 
         /// Optional generics.
+        #[range_or = "base"]
         generics: Option<Pointer<BracketedList<Pointer<TypeValue>>>>,
     },
 
@@ -132,6 +135,7 @@ pub enum TypeValue {
         name: Token,
 
         /// Optional generics.
+        #[range_or = "name"]
         generics: Option<Pointer<BracketedList<Pointer<TypeValue>>>>,
     },
 
@@ -228,10 +232,11 @@ pub enum TypeValue {
 
 /// A struct for a type definition. Holds needed data to be able to write it back as valid
 /// luau.
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct TypeDefinition {
     /// The `export` keyword.
+    #[range_or = "type_keyword"]
     pub export_keyword: Option<Token>,
 
     /// The `type` keyword.
@@ -257,7 +262,7 @@ pub type GenericParameters = BracketedList<GenericParameterInfo>;
 
 /// A generic declaration parameter used in [`generics declarations`](GenericDeclaration).
 /// Can either be a name or a variadic pack.
-#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum GenericParameterInfo {
     /// This [`GenericParameterInfo`] had a syntax error.
@@ -278,7 +283,7 @@ pub enum GenericParameterInfo {
 
 /// A generic declaration parameter used in [`generic declarations`](GenericDeclaration).
 /// Consists of a [`parameter info`](GenericParameterInfo) and an optional default type.
-#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct GenericDeclarationParameter {
     /// The parameter passed as a generic type, can be a simple name or a generic pack.
@@ -288,11 +293,12 @@ pub struct GenericDeclarationParameter {
     pub equal: Option<Token>,
 
     /// The default type.
+    #[range_or = "parameter"]
     pub default: Option<GenericParameterInfoDefault>,
 }
 
 /// Struct holding **default** values for generic arguments.
-#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum GenericParameterInfoDefault {
     #[default]
@@ -319,7 +325,7 @@ pub enum GenericParameterInfoDefault {
 pub type GenericDeclaration = BracketedList<GenericDeclarationParameter>;
 
 /// Possible errors converting from an expression to a type definition.
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum ConversionError {
     /// Function calls can't be converted to types since the parser won't look for the

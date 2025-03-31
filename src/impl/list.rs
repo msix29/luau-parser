@@ -1,7 +1,9 @@
 use luau_lexer::prelude::{Lexer, ParseError, Symbol, Token, TokenType};
 use std::ops::{Deref, DerefMut};
 
-use crate::types::{List, ListItem, Parse, ParseWithArgs, TryParse};
+use crate::types::{
+    GetRange, GetRangeError, List, ListItem, Parse, ParseWithArgs, Range, TryParse,
+};
 
 impl<T> List<T> {
     #[inline]
@@ -98,6 +100,24 @@ impl<T> DerefMut for ListItem<T> {
         match self {
             ListItem::Trailing { item, .. } => item,
             ListItem::NonTrailing(item) => item,
+        }
+    }
+}
+
+impl<T: GetRange> GetRange for List<T> {
+    fn get_range(&self) -> Result<Range, GetRangeError> {
+        (**self).get_range()
+    }
+}
+
+impl<T: GetRange> GetRange for ListItem<T> {
+    fn get_range(&self) -> Result<Range, GetRangeError> {
+        match self {
+            ListItem::Trailing { item, separator } => Ok(Range::new(
+                item.get_range()?.start,
+                separator.get_range()?.end,
+            )),
+            ListItem::NonTrailing(item) => item.get_range(),
         }
     }
 }

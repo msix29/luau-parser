@@ -1,11 +1,12 @@
 use luau_lexer::prelude::Token;
+use luau_parser_derive::Range;
 
 use crate::types::Pointer;
 
 use crate::types::{ExpressionWrap, FunctionCall, TableKey};
 
 /// An enum representing different ways in which a table value can be returned from.
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum TableAccessPrefix {
     /// Just a simple access.
@@ -32,7 +33,7 @@ pub enum TableAccessPrefix {
 }
 
 /// Represents an access to a table index.
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct TableAccess {
     /// The actual table being indexed
@@ -49,7 +50,7 @@ pub struct TableAccess {
 }
 
 /// Enum representing different ways in which a table's index can be accessed.
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum TableAccessKey {
     /// An expression, this'll only have the enum [`TableKey::Expression`].

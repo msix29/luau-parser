@@ -1,11 +1,12 @@
 //! Module holding if statements and all related items.
 
 use luau_lexer::prelude::Token;
+use luau_parser_derive::Range;
 
 use crate::types::{Block, Expression, Pointer};
 
 /// A struct representing an `if` statement
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct IfStatement {
     /// The `if` keyword.
@@ -31,7 +32,7 @@ pub struct IfStatement {
 }
 
 /// A struct representing an `elseif` statement
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct ElseIfStatement {
     /// The `elseif` keyword.
@@ -48,7 +49,7 @@ pub struct ElseIfStatement {
 }
 
 /// A struct representing an `else` statement
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct ElseStatement {
     /// The `else` keyword.

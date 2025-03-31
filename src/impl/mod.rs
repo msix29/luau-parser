@@ -77,3 +77,20 @@ impl GetRange for Token {
         Ok(Range::new(self.start, self.end))
     }
 }
+
+impl<T: GetRange> GetRange for Pointer<T> {
+    #[inline]
+    fn get_range(&self) -> Result<Range, GetRangeError> {
+        (**self).get_range()
+    }
+}
+
+impl<T: GetRange> GetRange for Vec<T> {
+    #[inline]
+    fn get_range(&self) -> Result<Range, GetRangeError> {
+        match self.last() {
+            Some(item) => item.get_range(),
+            None => Err(GetRangeError::EmptyList),
+        }
+    }
+}

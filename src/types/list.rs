@@ -6,8 +6,8 @@ use luau_lexer::prelude::Token;
 use crate::types::Bracketed;
 
 /// A possible list item of type `T`.
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum ListItem<T> {
     /// A trailing one.
     ///
@@ -35,8 +35,8 @@ pub enum ListItem<T> {
 }
 
 /// A list holding [`list items`](ListItem) of type `T`.
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 #[derive(Clone, Debug, Hash, PartialEq, PartialOrd, Eq, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct List<T> {
     /// The actual items being stored.
     pub items: Vec<ListItem<T>>,

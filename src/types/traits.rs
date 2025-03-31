@@ -73,6 +73,9 @@ where
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum GetRangeError {
     ErrorVariant,
+    EmptyList,
+    EmptyBlock,
+    UndefinedKey,
 }
 
 /// A trait for getting the range for this specific item.

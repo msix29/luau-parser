@@ -1,4 +1,5 @@
 use luau_lexer::prelude::Token;
+use luau_parser_derive::Range;
 
 use crate::types::{
     Block, BracketedList, Expression, GenericDeclaration, Name, Pointer, PrefixExp, Table,
@@ -6,7 +7,7 @@ use crate::types::{
 };
 
 /// Different ways a function can be called.
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum FunctionCallInvoked {
     /// A standalone function call or one in a table.
@@ -39,7 +40,7 @@ pub enum FunctionCallInvoked {
 /// ```lua
 /// local _ = foo(1, 2, 3)
 /// ```
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct FunctionCall {
     /// The function being called.
@@ -50,7 +51,7 @@ pub struct FunctionCall {
 }
 
 /// All possible arguments that can be passed to a function.
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum FunctionArguments {
     /// A standalone string.
@@ -76,7 +77,7 @@ pub enum FunctionArguments {
 }
 
 /// All possible arguments that can be passed to a function.
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Closure {
     /// The `function` keyword at the start

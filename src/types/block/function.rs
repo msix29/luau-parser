@@ -1,13 +1,14 @@
 //! Local and global functions.
 
 use luau_lexer::prelude::Token;
+use luau_parser_derive::Range;
 
 use crate::types::{BracketedList, GenericDeclaration, Name, Pointer, TableAccessKey, TypeValue};
 
 use super::Block;
 
 /// A struct representing a local function.
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct LocalFunction {
     /// The `local` keyword.
@@ -108,7 +109,7 @@ pub enum GlobalFunctionName {
 }
 
 /// A struct representing a local function.
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct GlobalFunction {
     /// The `function` keyword.

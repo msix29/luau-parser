@@ -1,11 +1,12 @@
 //! For in struct.
 
 use luau_lexer::prelude::Token;
+use luau_parser_derive::Range;
 
 use crate::types::{DoBlock, Expression, List, Name, Pointer};
 
 /// A struct representing a for-in loop.
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct GenericFor {
     /// The `for` keyword.

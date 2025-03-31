@@ -1,10 +1,11 @@
 //! Set expressions.
 
 use luau_lexer::prelude::Token;
+use luau_parser_derive::Range;
 
 use crate::types::{Expression, List, Pointer, Var};
 
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 /// A struct representing a set expression.
 pub struct SetExpression {
@@ -19,7 +20,7 @@ pub struct SetExpression {
     pub values: List<Pointer<Expression>>,
 }
 
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 /// A struct representing a set expression.
 pub struct CompoundSetExpression {

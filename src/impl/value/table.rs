@@ -3,9 +3,9 @@ use std::cell::Cell;
 
 use crate::{
     types::{
-        Bracketed, BracketedList, Expression, FunctionArguments, Parse, ParseWithArgs, Pointer,
-        Table, TableAccessKey, TableField, TableFieldValue, TableKey, TryParse, TryParseWithArgs,
-        TypeValue,
+        Bracketed, BracketedList, Expression, FunctionArguments, GetRange, GetRangeError, Parse,
+        ParseWithArgs, Pointer, Range, Table, TableAccessKey, TableField, TableFieldValue,
+        TableKey, TryParse, TryParseWithArgs, TypeValue,
     },
     utils::get_token_type_display_extended,
 };
@@ -214,3 +214,31 @@ impl Parse<TableAccessKey> for TableKey {
     }
 }
 impl TryParse<TableAccessKey> for TableKey {}
+
+impl GetRange for TableKey {
+    #[inline]
+    fn get_range(&self) -> Result<Range, GetRangeError> {
+        match self {
+            TableKey::ERROR => Err(GetRangeError::ErrorVariant),
+            TableKey::UndefinedNumber(_) | TableKey::UndefinedString(_) => {
+                Err(GetRangeError::UndefinedKey)
+            }
+            TableKey::Simple(token) => token.get_range(),
+            TableKey::Expression(bracketed) => bracketed.get_range(),
+            TableKey::Type(bracketed) => bracketed.get_range(),
+        }
+    }
+}
+
+impl GetRange for TableField {
+    #[inline]
+    fn get_range(&self) -> Result<Range, GetRangeError> {
+        let value_range = self.value.get_range();
+
+        if let Ok(key_range) = self.key.get_range() {
+            Ok(Range::new(key_range.start, value_range?.end))
+        } else {
+            value_range
+        }
+    }
+}

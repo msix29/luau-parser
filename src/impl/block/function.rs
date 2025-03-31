@@ -2,9 +2,10 @@ use luau_lexer::prelude::{Keyword, Lexer, ParseError, Symbol, Token, TokenType};
 
 use crate::{
     force_parse_bracketed, parse_bracketed,
+    prelude::{GetRangeError, Range},
     types::{
-        Block, GlobalFunction, GlobalFunctionName, LocalFunction, Parse, ParseWithArgs, Pointer,
-        TableAccessKey, TryParse, TryParseWithArgs, TypeValue,
+        Block, GetRange, GlobalFunction, GlobalFunctionName, LocalFunction, Parse, ParseWithArgs,
+        Pointer, TableAccessKey, TryParse, TryParseWithArgs, TypeValue,
     },
     utils::{get_token_type_display, get_token_type_display_extended},
 };
@@ -175,3 +176,28 @@ impl Parse for GlobalFunction {
     }
 }
 impl TryParse for GlobalFunction {}
+
+impl GetRange for GlobalFunctionName {
+    fn get_range(&self) -> Result<Range, GetRangeError> {
+        match self {
+            GlobalFunctionName::SimpleName(token) => token.get_range(),
+            GlobalFunctionName::Table {
+                table,
+                keys,
+                method,
+            } => {
+                let table_range = table.get_range();
+                let last_range = match method {
+                    Some(method) => method.1.get_range(),
+                    None => keys.get_range(),
+                };
+
+                if let Ok(last_range) = last_range {
+                    Ok(Range::new(table_range?.start, last_range.end))
+                } else {
+                    table_range
+                }
+            }
+        }
+    }
+}

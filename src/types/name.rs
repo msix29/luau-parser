@@ -5,11 +5,12 @@
 //!
 
 use luau_lexer::prelude::Token;
+use luau_parser_derive::Range;
 
-use crate::types::{TypeValue, Pointer};
+use crate::types::{Pointer, TypeValue};
 
 /// A variable name.
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Name {
     /// The actual name.
@@ -19,5 +20,6 @@ pub struct Name {
     pub colon: Option<Token>,
 
     /// The type that was with this name, defined with the `: type` syntax.
+    #[range_or = "name"]
     pub r#type: Option<Pointer<TypeValue>>,
 }

@@ -1,6 +1,7 @@
 //! Types representing all valid Luau expressions.
 
 use luau_lexer::prelude::Token;
+use luau_parser_derive::Range;
 
 use crate::types::{Bracketed, Pointer, Table, TypeValue};
 
@@ -16,7 +17,7 @@ pub type ExpressionWrap = Bracketed<Pointer<Expression>>;
 /// local _ = foo()
 /// local _ = (foo)
 /// ```
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum PrefixExp {
     /// A normal variable reference.
@@ -41,7 +42,7 @@ pub enum PrefixExp {
 }
 
 /// An enum representing all possible values for an expression.
-#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum Expression {
     /// This [`Expression`] had a syntax error.
@@ -155,7 +156,7 @@ pub enum Expression {
 }
 
 /// A struct representing an elseif **expression**, only exists in variable declarations.
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct IfExpression {
     /// The `if` keyword.
@@ -182,7 +183,7 @@ pub struct IfExpression {
 }
 
 /// A struct representing an elseif **expression**, only exists in expressions.
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct ElseIfExpression {
     /// The `elseif` keyword.

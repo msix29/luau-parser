@@ -1,7 +1,8 @@
 use luau_lexer::prelude::{Lexer, ParseError, Symbol, Token, TokenType};
 
 use crate::{
-    types::{Block, Parse, ParseWithArgs, Pointer, Statement, TerminationStatement},
+    prelude::{GetRangeError, Range},
+    types::{Block, GetRange, Parse, ParseWithArgs, Pointer, Statement, TerminationStatement},
     utils::get_token_type_display_extended,
 };
 
@@ -142,5 +143,50 @@ impl<T: MatchesToken> ParseWithArgs<T> for Block {
 impl Block {
     pub fn is_empty(&self) -> bool {
         self.statements.is_empty() && self.last_statement.is_none()
+    }
+}
+
+fn get_range<T: GetRange>(
+    statement: &T,
+    semi_colon: &Option<Token>,
+) -> Result<Range, GetRangeError> {
+    let statement_range = statement.get_range();
+
+    if let Some(seme_colon) = semi_colon {
+        Ok(Range::new(
+            statement_range?.start,
+            seme_colon.get_range()?.end,
+        ))
+    } else {
+        statement_range
+    }
+}
+
+impl GetRange for Block {
+    fn get_range(&self) -> Result<Range, GetRangeError> {
+        if self.is_empty() {
+            return Err(GetRangeError::EmptyBlock);
+        }
+        if let Some((first_statement, semi_colon)) = self.statements.first() {
+            let last_statement_range = match &self.last_statement {
+                Some((statement, semi_colon)) => get_range(statement, semi_colon),
+                None => self
+                    .statements
+                    .first()
+                    .map(|(statement, semi_colon)| get_range(statement, semi_colon))
+                    .unwrap(), // We're sure that at least one statement exists.
+            };
+
+            return Ok(Range::new(
+                get_range(first_statement, semi_colon)?.start,
+                last_statement_range?.end,
+            ));
+        }
+
+        match &self.last_statement {
+            Some((statement, semi_colon)) => get_range(statement, semi_colon),
+            None => Err(GetRangeError::EmptyBlock),
+            // `None` should be `unreachable!()`.
+        }
     }
 }
