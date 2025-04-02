@@ -4,8 +4,8 @@ use crate::{
     force_parse_bracketed, parse_bracketed,
     prelude::{GetRangeError, Range},
     types::{
-        Block, GetRange, GlobalFunction, GlobalFunctionName, LocalFunction, Parse, ParseWithArgs,
-        Pointer, TableAccessKey, TryParse, TryParseWithArgs, TypeValue,
+        Block, GetRange, GlobalFunction, GlobalFunctionName, LocalFunction, Parameter, Parse,
+        ParseWithArgs, Pointer, TableAccessKey, TryParse, TryParseWithArgs, TypeValue,
     },
     utils::{get_token_type_display, get_token_type_display_extended},
 };
@@ -113,6 +113,33 @@ impl Parse for GlobalFunction {
     }
 }
 impl TryParse for GlobalFunction {}
+
+impl Parse for Parameter {
+    fn parse(name: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
+        if !matches!(
+            name.token_type,
+            TokenType::Identifier(_)
+                | TokenType::PartialKeyword(_)
+                | TokenType::Symbol(Symbol::Ellipses)
+        ) {
+            return None;
+        }
+
+        maybe_next_token!(lexer, colon, TokenType::Symbol(Symbol::Colon));
+
+        let r#type = if colon.is_some() {
+            Pointer::<TypeValue>::try_parse(lexer, errors)
+        } else {
+            None
+        };
+
+        Some(Self {
+            name,
+            colon,
+            r#type,
+        })
+    }
+}
 
 impl GetRange for GlobalFunctionName {
     fn get_range(&self) -> Result<Range, GetRangeError> {
