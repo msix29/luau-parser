@@ -9,7 +9,7 @@ macro_rules! parse_bracketed {
         $opening: pat,
         $closing: expr,
     ) => {{
-        $crate::maybe_next_token!($lexer, __opening_bracket, $opening);
+        maybe_next_token!($lexer, __opening_bracket, $opening);
 
         if let Some(__opening_bracket) = __opening_bracket {
             $crate::types::Bracketed::<_>::parse_with(
@@ -33,7 +33,7 @@ macro_rules! force_parse_bracketed {
         ($opening: pat, $opening_replacement: expr),
         $closing: expr,
     ) => {{
-        $crate::next_token_recoverable!(
+        next_token_recoverable!(
             $lexer,
             __opening_bracket,
             $opening,

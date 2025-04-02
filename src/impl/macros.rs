@@ -1,4 +1,3 @@
-#[macro_export]
 macro_rules! next_token {
     ($lexer: ident, $name: ident, $pattern: pat, $errors: ident, $error_message: expr) => {
         next_token_with_condition!(
@@ -11,7 +10,6 @@ macro_rules! next_token {
     };
 }
 
-#[macro_export]
 macro_rules! next_token_with_condition {
     ($lexer: ident, $name: ident, $condition: expr, $errors: ident, $error_message: expr) => {
         let state = $lexer.save_state();
@@ -36,7 +34,6 @@ macro_rules! next_token_with_condition {
     };
 }
 
-#[macro_export]
 macro_rules! next_token_recoverable {
     (
         $lexer: ident,
@@ -57,7 +54,6 @@ macro_rules! next_token_recoverable {
     };
 }
 
-#[macro_export]
 macro_rules! next_token_recoverable_with_condition {
     (
         $lexer: ident,
@@ -95,14 +91,12 @@ macro_rules! next_token_recoverable_with_condition {
     };
 }
 
-#[macro_export]
 macro_rules! maybe_next_token {
     ($lexer: ident, $name: ident, $pattern: pat) => {
         maybe_next_token_with_condition!($lexer, $name, matches!($name.token_type, $pattern))
     };
 }
 
-#[macro_export]
 macro_rules! maybe_next_token_with_condition {
     ($lexer: ident, $name: ident, $condition: expr) => {
         let state = $lexer.save_state();
@@ -122,8 +116,8 @@ macro_rules! parse_function {
     (
         $function_keyword: expr,
         $lexer: ident,
-        $errors: ident,
-        $( let $fn_name: ident = $name: block )?
+        $errors: ident
+        $(, let $fn_name: ident = $name: block )?
         $(, { $($extra_field:ident),* $(,)?})?
     ) => {{
         let state = $lexer.save_state();
