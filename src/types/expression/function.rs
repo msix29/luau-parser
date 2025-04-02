@@ -99,5 +99,5 @@ pub struct Closure {
     pub body: Block,
 
     /// The `end` keyword.
-    pub end_keyword: Pointer<Token>,
+    pub end_keyword: Token,
 }

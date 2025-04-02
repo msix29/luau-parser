@@ -90,59 +90,6 @@ impl Parse for Closure {
         lexer: &mut Lexer,
         errors: &mut Vec<ParseError>,
     ) -> Option<Self> {
-        // It's only called when it matches, but the check must still be here.
-        if function_keyword != TokenType::Keyword(Keyword::Function) {
-            return None;
-        }
-
-        let generics = parse_bracketed!(
-            lexer,
-            errors,
-            "Expected <generic declaration>",
-            TokenType::Symbol(Symbol::OpeningAngleBrackets),
-            Symbol::ClosingAngleBrackets,
-        )
-        .map(Pointer::new);
-
-        let parameters = force_parse_bracketed!(
-            lexer,
-            errors,
-            "Expected <parameter>",
-            (
-                TokenType::Symbol(Symbol::OpeningParenthesis),
-                TokenType::Symbol(Symbol::OpeningParenthesis)
-            ),
-            Symbol::ClosingParenthesis,
-        );
-
-        maybe_next_token!(lexer, maybe_colon, TokenType::Symbol(Symbol::Colon));
-        let return_type = if maybe_colon.is_some() {
-            Pointer::<TypeValue>::try_parse(lexer, errors)
-        } else {
-            None
-        };
-
-        let body = Block::try_parse_with(lexer, errors, TokenType::Keyword(Keyword::End))
-            .unwrap_or_default();
-
-        next_token_recoverable!(
-            lexer,
-            end_keyword,
-            TokenType::Keyword(Keyword::End),
-            TokenType::Keyword(Keyword::End),
-            errors,
-            "Expected ".to_string()
-                + get_token_type_display_extended(&TokenType::Keyword(Keyword::End))
-        );
-
-        Some(Self {
-            function_keyword,
-            generics,
-            parameters,
-            colon: maybe_colon.map(Pointer::new),
-            return_type,
-            body,
-            end_keyword: Pointer::new(end_keyword),
-        })
+        parse_function!(function_keyword, lexer, errors)
     }
 }
