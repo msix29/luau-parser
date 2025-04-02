@@ -2,7 +2,7 @@ use luau_lexer::prelude::Token;
 use luau_parser_derive::Range;
 
 use crate::types::{
-    Block, BracketedList, Expression, GenericDeclaration, Name, Pointer, PrefixExp, Table,
+    Block, BracketedList, Expression, GenericDeclaration, Parameter, Pointer, PrefixExp, Table,
     TypeValue,
 };
 
@@ -87,7 +87,7 @@ pub struct Closure {
     pub generics: Option<Pointer<GenericDeclaration>>,
 
     /// All [`parameters`](Name) of the function.
-    pub parameters: BracketedList<Name>,
+    pub parameters: BracketedList<Parameter>,
 
     /// The `:` character between closing parenthesis and returns.
     pub colon: Option<Pointer<Token>>,

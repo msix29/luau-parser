@@ -3,9 +3,7 @@
 use luau_lexer::prelude::Token;
 use luau_parser_derive::Range;
 
-use crate::types::{BracketedList, GenericDeclaration, Name, Pointer, TableAccessKey, TypeValue};
-
-use super::Block;
+use crate::types::{Block, BracketedList, GenericDeclaration, Pointer, TableAccessKey, TypeValue};
 
 /// A struct representing a local function.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
@@ -24,7 +22,7 @@ pub struct LocalFunction {
     pub generics: Option<Pointer<GenericDeclaration>>,
 
     /// The parameters that this function accepts.
-    pub parameters: BracketedList<Name>,
+    pub parameters: BracketedList<Parameter>,
 
     /// The `:` character between closing parenthesis and returns.
     pub colon: Option<Pointer<Token>>,
@@ -37,6 +35,20 @@ pub struct LocalFunction {
 
     /// The `end` keyword.
     pub end_keyword: Token,
+}
+
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+pub struct Parameter {
+    /// The actual name.
+    pub name: Token,
+
+    /// `:` character.
+    pub colon: Option<Token>,
+
+    /// The type that was with this name, defined with the `: type` syntax.
+    #[range_or = "name"]
+    pub r#type: Option<Pointer<TypeValue>>,
 }
 
 /// An enum representing possible ways in which a global function's name can be.
@@ -122,7 +134,7 @@ pub struct GlobalFunction {
     pub generics: Option<Pointer<GenericDeclaration>>,
 
     /// The parameters that this function accepts.
-    pub parameters: BracketedList<Name>,
+    pub parameters: BracketedList<Parameter>,
 
     /// The `:` character between closing parenthesis and returns.
     pub colon: Option<Pointer<Token>>,
