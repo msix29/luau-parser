@@ -50,7 +50,7 @@ impl ParseWithArgs<bool> for TableKey {
     ) -> Option<Self> {
         match token.token_type {
             TokenType::Identifier(_) | TokenType::PartialKeyword(_) => Some(Self::Simple(token)),
-            _ if lexer.next_token() == TokenType::Symbol(Symbol::OpeningBrackets) => {
+            TokenType::Symbol(Symbol::OpeningBrackets) => {
                 if is_type {
                     Bracketed::<_>::parse_with(
                         token,
