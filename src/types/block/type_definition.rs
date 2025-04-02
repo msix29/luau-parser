@@ -54,7 +54,7 @@ pub enum TypeValue {
         generics: Option<Pointer<GenericDeclaration>>,
 
         /// The parameters this function accepts.
-        parameters: BracketedList<Name>,
+        parameters: BracketedList<ParameterTypeName>,
 
         /// The `->` character.
         arrow: Token,
@@ -228,6 +228,13 @@ pub enum TypeValue {
         /// The name
         name: Token,
     },
+}
+
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+pub enum ParameterTypeName {
+    Normal(Name),
+    Type(TypeValue),
 }
 
 /// A struct for a type definition. Holds needed data to be able to write it back as valid

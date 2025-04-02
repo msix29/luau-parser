@@ -5,9 +5,7 @@ use luau_lexer::prelude::{
 use crate::{
     force_parse_bracketed, handle_error_token, parse_bracketed, safe_unwrap,
     types::{
-        Bracketed, BracketedList, GenericDeclaration, GenericDeclarationParameter,
-        GenericParameterInfo, GenericParameterInfoDefault, List, Name, Parse, ParseWithArgs,
-        Pointer, Table, TryParse, TypeDefinition, TypeValue,
+        Bracketed, BracketedList, GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo, GenericParameterInfoDefault, List, Name, ParameterTypeName, Parse, ParseWithArgs, Pointer, Table, TryParse, TypeDefinition, TypeValue
     },
     utils::get_token_type_display,
 };
@@ -71,7 +69,7 @@ impl TypeValue {
         lexer: &mut Lexer,
         errors: &mut Vec<ParseError>,
         generics: Option<Pointer<GenericDeclaration>>,
-        parameters: BracketedList<Name>,
+        parameters: BracketedList<ParameterTypeName>,
         add_fake_arrow: bool,
     ) -> Option<Self> {
         let arrow;
@@ -149,7 +147,7 @@ impl TypeValue {
         let state = lexer.save_state();
         let errors_len = errors.len();
 
-        if let Some(parameters) = BracketedList::<Name>::parse_with(
+        if let Some(parameters) = BracketedList::<ParameterTypeName>::parse_with(
             token.clone(),
             lexer,
             errors,
@@ -304,6 +302,21 @@ impl Parse for TypeValue {
     }
 }
 impl TryParse for TypeValue {}
+
+impl Parse for ParameterTypeName {
+    fn parse(name_or_type: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
+        let state = lexer.save_state();
+        maybe_next_token!(lexer, maybe_colon, TokenType::Symbol(Symbol::Colon));
+        lexer.set_state(state);
+
+        if maybe_colon.is_some() {
+            Name::parse(name_or_type, lexer, errors).map(Self::Normal)
+        } else {
+            TypeValue::parse(name_or_type, lexer, errors).map(Self::Type)
+        }
+    }
+}
+impl TryParse for ParameterTypeName {}
 
 impl Parse for TypeDefinition {
     fn parse(mut token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
