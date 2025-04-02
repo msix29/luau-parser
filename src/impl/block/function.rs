@@ -28,7 +28,7 @@ impl Parse for LocalFunction {
                 next_token_recoverable!(
                     lexer,
                     name,
-                    TokenType::Identifier(_),
+                    TokenType::Identifier(_) | TokenType::PartialKeyword(_),
                     TokenType::Identifier("*error*".into(),),
                     errors,
                     "Expected ".to_string()
@@ -45,7 +45,10 @@ impl TryParse for LocalFunction {}
 
 impl Parse for GlobalFunctionName {
     fn parse(name: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
-        if !matches!(name.token_type, TokenType::Identifier(_)) {
+        if !matches!(
+            name.token_type,
+            TokenType::Identifier(_) | TokenType::PartialKeyword(_)
+        ) {
             return None;
         }
 
