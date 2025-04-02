@@ -114,21 +114,23 @@ impl ParseWithArgs<&ParseArgs> for TableField {
 
             (Pointer::new(key), Some(equal_or_colon))
         } else {
+            let key = if parse_args.is_type {
+                Pointer::new(TableKey::undefined_string())
+            } else {
+                Pointer::new(TableKey::undefined_number(parse_args))
+            };
+
             if let Some(value) =
                 TableFieldValue::parse_with(token.clone(), lexer, errors, parse_args.is_type)
             {
                 return Some(Self {
-                    key: if parse_args.is_type {
-                        Pointer::new(TableKey::undefined_string())
-                    } else {
-                        Pointer::new(TableKey::undefined_number(parse_args))
-                    },
+                    key,
                     equal_or_colon: None,
                     value: Pointer::new(value),
                 });
             }
 
-            (Pointer::new(TableKey::undefined_number(parse_args)), None)
+            (key, None)
         };
 
         let value = Pointer::new(TableFieldValue::try_parse_with(
