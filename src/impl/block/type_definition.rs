@@ -1,6 +1,6 @@
-use luau_lexer::prelude::{
+use luau_lexer::{prelude::{
     Lexer, Literal, Operator, ParseError, PartialKeyword, Symbol, Token, TokenType,
-};
+}, token::Keyword};
 
 use crate::{
     force_parse_bracketed, handle_error_token, parse_bracketed, safe_unwrap,
@@ -208,6 +208,7 @@ impl TypeValue {
                 Literal::String(_) => Some(Self::String(token)),
                 Literal::Boolean(_) => Some(Self::Boolean(token)),
             },
+            TokenType::Keyword(Keyword::Nil) => Some(Self::Nil(token)),
             TokenType::Identifier(_) => Self::parse_from_name(token, lexer, errors),
             TokenType::PartialKeyword(PartialKeyword::TypeOf) => Some(Self::Typeof {
                 typeof_token: token,

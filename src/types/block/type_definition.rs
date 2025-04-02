@@ -30,6 +30,13 @@ pub enum TypeValue {
     /// ```
     Boolean(Token),
 
+    /// `nil`
+    ///
+    /// ```lua
+    /// type Foo = nil
+    /// ```
+    Nil(Token),
+
     /// A wrape of another type, the difference between this and a
     /// [`tuple`](TypeValue::Tuple) is that this item always have one type and only one
     /// type in it, while a [`tuple`](TypeValue::Tuple) can have any, even 0.
