@@ -5,9 +5,9 @@ use luau_lexer::prelude::{
 use crate::{
     force_parse_bracketed, handle_error_token, parse_bracketed, safe_unwrap,
     types::{
-        Bracketed, BracketedList, GenericDeclarationParameter, GenericParameterInfo,
-        GenericParameterInfoDefault, Parse, ParseWithArgs, Pointer, Table, TryParse,
-        TypeDefinition, TypeValue,
+        Bracketed, BracketedList, GenericDeclaration, GenericDeclarationParameter,
+        GenericParameterInfo, GenericParameterInfoDefault, List, Name, Parse, ParseWithArgs,
+        Pointer, Table, TryParse, TypeDefinition, TypeValue,
     },
     utils::get_token_type_display,
 };
@@ -67,6 +67,141 @@ impl TypeValue {
         }
     }
 
+    fn parse_function(
+        lexer: &mut Lexer,
+        errors: &mut Vec<ParseError>,
+        generics: Option<Pointer<GenericDeclaration>>,
+        parameters: BracketedList<Name>,
+        add_fake_arrow: bool,
+    ) -> Option<Self> {
+        let arrow;
+        if add_fake_arrow {
+            next_token_recoverable!(
+                lexer,
+                fake_arrow,
+                TokenType::Symbol(Symbol::Arrow),
+                TokenType::Symbol(Symbol::Arrow),
+                errors,
+                "Expected ".to_string() + get_token_type_display(&TokenType::Symbol(Symbol::Arrow))
+            );
+            arrow = fake_arrow;
+        } else {
+            maybe_next_token!(lexer, maybe_arrow, TokenType::Symbol(Symbol::Arrow));
+            if let Some(actual_arrow) = maybe_arrow {
+                arrow = actual_arrow;
+            } else {
+                return None;
+            }
+        }
+
+        let return_type = safe_unwrap!(
+            lexer,
+            errors,
+            "Expected <type>",
+            Pointer::<TypeValue>::try_parse(lexer, errors)
+        );
+
+        Some(Self::Function {
+            generics,
+            parameters,
+            arrow,
+            return_type,
+        })
+    }
+
+    fn parse_bracketed(
+        token: Token,
+        lexer: &mut Lexer,
+        errors: &mut Vec<ParseError>,
+    ) -> Option<Self> {
+        maybe_next_token!(
+            lexer,
+            closing_parenthesis,
+            TokenType::Symbol(Symbol::ClosingParenthesis)
+        );
+        if let Some(closing_parenthesis) = closing_parenthesis {
+            let state = lexer.save_state();
+            maybe_next_token!(lexer, maybe_arrow, TokenType::Symbol(Symbol::Arrow));
+
+            if maybe_arrow.is_some() {
+                lexer.set_state(state);
+
+                return Self::parse_function(
+                    lexer,
+                    errors,
+                    None,
+                    Bracketed {
+                        opening_bracket: token,
+                        item: List::new(),
+                        closing_bracket: closing_parenthesis,
+                    },
+                    false,
+                );
+            }
+
+            return Some(Self::Tuple(Bracketed {
+                opening_bracket: token,
+                item: List::new(),
+                closing_bracket: closing_parenthesis,
+            }));
+        }
+
+        let state = lexer.save_state();
+        let errors_len = errors.len();
+
+        if let Some(parameters) = BracketedList::<Name>::parse_with(
+            token.clone(),
+            lexer,
+            errors,
+            ("Expected <parameter>", Symbol::ClosingParenthesis),
+        ) {
+            if let type_value @ Some(_) =
+                Self::parse_function(lexer, errors, None, parameters, false)
+            {
+                return type_value;
+            };
+        }
+
+        /*
+            In some cases where we have:
+            ```lua
+            type name = ((string))
+            ```
+            It would try to parse the name but meet `(` causing it to parse an
+            empty list, then trying to parse a `)` which it ofc fails at, sending
+            a wrong error. We can fix this by replacing the order (parse `TypeValue`
+            before `Name`) but that means `Name` would actually never pe parsed
+            (it would be `TypeValue::Basic`). The only fix is to just remove those
+            wrong errors (if they're true errors, the next `:parse` will add them.)
+        */
+        if errors.len() != errors_len {
+            for _ in errors_len..errors.len() {
+                errors.pop();
+            }
+        }
+
+        lexer.set_state(state);
+
+        if let Some(bracketed) = BracketedList::<Pointer<TypeValue>>::parse_with(
+            token,
+            lexer,
+            errors,
+            ("Expected <type>", Symbol::ClosingParenthesis),
+        ) {
+            if bracketed.items.len() == 1 {
+                Some(Self::Wrap(Bracketed {
+                    item: (*bracketed.items[0]).clone(), // different order to fix deref issues.
+                    opening_bracket: bracketed.opening_bracket,
+                    closing_bracket: bracketed.closing_bracket,
+                }))
+            } else {
+                Some(Self::Tuple(bracketed))
+            }
+        } else {
+            None
+        }
+    }
+
     fn parse_inner(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
         match token.token_type {
             TokenType::Error(error) => handle_error_token!(errors, error),
@@ -93,25 +228,37 @@ impl TypeValue {
             TokenType::Symbol(Symbol::OpeningCurlyBrackets) => {
                 Table::parse_with(token, lexer, errors, true).map(Self::Table)
             }
-            TokenType::Symbol(Symbol::OpeningParenthesis) => {
-                if let Some(bracketed) = BracketedList::<Pointer<TypeValue>>::parse_with(
+            TokenType::Symbol(Symbol::Ellipses) => {
+                //TODO:
+                Some(Self::VariadicPack {
+                    ellipsis: token,
+                    name: lexer.next_token(),
+                })
+            }
+            TokenType::Symbol(Symbol::OpeningAngleBrackets) => {
+                let generics = GenericDeclaration::parse_with(
                     token,
                     lexer,
                     errors,
-                    ("Expected <type>", Symbol::ClosingParenthesis),
-                ) {
-                    if bracketed.items.len() == 1 {
-                        Some(Self::Wrap(Bracketed {
-                            item: (*bracketed.items[0]).clone(), // different order to fix deref issues.
-                            opening_bracket: bracketed.opening_bracket,
-                            closing_bracket: bracketed.closing_bracket,
-                        }))
-                    } else {
-                        Some(Self::Tuple(bracketed))
-                    }
-                } else {
-                    None
-                }
+                    ("Expected <generic parameter>", Symbol::ClosingAngleBrackets),
+                )
+                .map(Pointer::new);
+
+                let parameters = force_parse_bracketed!(
+                    lexer,
+                    errors,
+                    "Expected <parameter>",
+                    (
+                        TokenType::Symbol(Symbol::OpeningParenthesis),
+                        TokenType::Symbol(Symbol::OpeningParenthesis)
+                    ),
+                    Symbol::ClosingParenthesis,
+                );
+
+                Self::parse_function(lexer, errors, generics, parameters, true)
+            }
+            TokenType::Symbol(Symbol::OpeningParenthesis) => {
+                Self::parse_bracketed(token, lexer, errors)
             }
             _ => None,
         }
