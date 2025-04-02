@@ -2,12 +2,12 @@ use luau_lexer::prelude::{Lexer, ParseError, Symbol, Token, TokenType};
 use std::cell::Cell;
 
 use crate::{
+    safe_unwrap,
     types::{
         Bracketed, BracketedList, Expression, FunctionArguments, GetRange, GetRangeError, Parse,
         ParseWithArgs, Pointer, Range, Table, TableAccessKey, TableField, TableFieldValue,
         TableKey, TryParse, TryParseWithArgs, TypeValue,
     },
-    utils::get_token_type_display_extended,
 };
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
@@ -87,57 +87,47 @@ impl ParseWithArgs<&ParseArgs> for TableField {
             return None;
         }
 
+        let state = lexer.save_state();
+
         let (key, equal_or_colon) = if let Some(key) =
             TableKey::parse_with(token.clone(), lexer, errors, parse_args.is_type)
         {
-            let equal_or_colon;
+            let equal_or_colon = if parse_args.is_type {
+                maybe_next_token!(lexer, temp, TokenType::Symbol(Symbol::Colon));
 
-            if parse_args.is_type {
-                next_token_recoverable!(
-                    lexer,
-                    temp,
-                    TokenType::Symbol(Symbol::Colon),
-                    TokenType::Symbol(Symbol::Colon),
-                    errors,
-                    "Expected ".to_string()
-                        + get_token_type_display_extended(&TokenType::Symbol(Symbol::Colon))
-                );
-
-                equal_or_colon = temp;
+                temp
             } else {
-                next_token_recoverable!(
-                    lexer,
-                    temp,
-                    TokenType::Symbol(Symbol::Equal),
-                    TokenType::Symbol(Symbol::Equal),
-                    errors,
-                    "Expected ".to_string()
-                        + get_token_type_display_extended(&TokenType::Symbol(Symbol::Equal))
-                );
+                maybe_next_token!(lexer, temp, TokenType::Symbol(Symbol::Equal));
 
-                equal_or_colon = temp;
-            }
-
-            (Pointer::new(key), Some(equal_or_colon))
-        } else {
-            let key = if parse_args.is_type {
-                Pointer::new(TableKey::undefined_string())
-            } else {
-                Pointer::new(TableKey::undefined_number(parse_args))
+                temp
             };
 
-            if let Some(value) =
-                TableFieldValue::parse_with(token.clone(), lexer, errors, parse_args.is_type)
-            {
-                return Some(Self {
-                    key,
-                    equal_or_colon: None,
-                    value: Pointer::new(value),
-                });
-            }
-
-            (key, None)
+            (Some(Pointer::new(key)), equal_or_colon)
+        } else {
+            (None, None)
         };
+
+        if key.is_none() || equal_or_colon.is_none() {
+            lexer.set_state(state);
+
+            return Some(Self {
+                key: if parse_args.is_type {
+                    Pointer::new(TableKey::undefined_string())
+                } else {
+                    Pointer::new(TableKey::undefined_number(parse_args))
+                },
+                equal_or_colon: None,
+                value: safe_unwrap!(
+                    lexer,
+                    errors,
+                    "Expected <type>",
+                    TableFieldValue::parse_with(token.clone(), lexer, errors, parse_args.is_type)
+                        .map(Pointer::new)
+                ),
+            });
+        }
+
+        let key = key.unwrap();
 
         let value = Pointer::new(TableFieldValue::try_parse_with(
             lexer,
