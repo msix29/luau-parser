@@ -15,7 +15,7 @@ macro_rules! parse {
         $function_keyword: expr,
         $lexer: ident,
         $errors: ident,
-        $name: block
+        $( let $fn_name: ident = $name: block )?
         $(, { $($extra_field:ident),* $(,)?})?
     ) => {{
         let state = $lexer.save_state();
@@ -26,7 +26,7 @@ macro_rules! parse {
             return None;
         }
 
-        let function_name = $name;
+        $( let $fn_name = $name; )?
 
         let generics = parse_bracketed!(
             $lexer,
@@ -71,7 +71,6 @@ macro_rules! parse {
         Some(Self {
             $($($extra_field,)*)?
             function_keyword,
-            function_name,
             generics,
             parameters,
             colon: maybe_colon.map(Pointer::new),
@@ -96,7 +95,7 @@ impl Parse for LocalFunction {
             lexer.next_token(),
             lexer,
             errors,
-            {
+            let function_name = {
                 next_token_recoverable!(
                     lexer,
                     name,
@@ -109,7 +108,7 @@ impl Parse for LocalFunction {
 
                 name
             },
-            { local_keyword }
+            { local_keyword, function_name }
         )
     }
 }
@@ -169,13 +168,19 @@ impl Parse for GlobalFunction {
         lexer: &mut Lexer,
         errors: &mut Vec<ParseError>,
     ) -> Option<Self> {
-        parse!(function_keyword, lexer, errors, {
-            GlobalFunctionName::try_parse(lexer, errors).unwrap_or_else(|| {
-                GlobalFunctionName::SimpleName(Token::empty(TokenType::Identifier(
-                    "*error*".into(),
-                )))
-            })
-        })
+        parse!(
+            function_keyword,
+            lexer,
+            errors,
+            let function_name = {
+                GlobalFunctionName::try_parse(lexer, errors).unwrap_or_else(|| {
+                    GlobalFunctionName::SimpleName(Token::empty(TokenType::Identifier(
+                        "*error*".into(),
+                    )))
+                })
+            },
+            { function_name }
+        )
     }
 }
 impl TryParse for GlobalFunction {}
