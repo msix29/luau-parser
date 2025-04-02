@@ -81,6 +81,12 @@ impl ParseWithArgs<&ParseArgs> for TableField {
         errors: &mut Vec<ParseError>,
         parse_args: &ParseArgs,
     ) -> Option<Self> {
+        if token == TokenType::Symbol(Symbol::ClosingCurlyBrackets) {
+            // Sometimes causes issues when the last item in the table is trailing
+            // this just ensures it never happens.
+            return None;
+        }
+
         let (key, equal_or_colon) = if let Some(key) =
             TableKey::parse_with(token.clone(), lexer, errors, parse_args.is_type)
         {
