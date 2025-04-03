@@ -7,26 +7,31 @@ use crate::{
         ParseWithArgs, Pointer, PrefixExp, Table, TableAccessPrefix, TryParse, TryParseWithArgs,
         TypeValue,
     },
-    utils::get_token_type_display_extended,
+    utils::{get_token_type_display, get_token_type_display_extended},
 };
 
 impl Parse for FunctionCallInvoked {
     fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
         let prefix_exp = Pointer::new(PrefixExp::parse(token, lexer, errors)?);
-        let state = lexer.save_state();
 
-        let maybe_colon = lexer.next_token();
-
-        if maybe_colon != TokenType::Symbol(Symbol::Colon) {
-            lexer.set_state(state);
-
+        maybe_next_token!(lexer, colon, TokenType::Symbol(Symbol::Colon));
+        let Some(colon) = colon else {
             return Some(Self::Function(prefix_exp));
-        }
+        };
+
+        next_token_recoverable!(
+            lexer,
+            method,
+            TokenType::Identifier(_) | TokenType::PartialKeyword(_),
+            TokenType::Identifier("*error*".into(),),
+            errors,
+            "Expected ".to_string() + get_token_type_display(&TokenType::Identifier("".into(),))
+        );
 
         Some(Self::TableMethod {
             table: prefix_exp,
-            colon: Pointer::new(maybe_colon),
-            method: Pointer::new(lexer.next_token()),
+            colon: Pointer::new(colon),
+            method: Pointer::new(method),
         })
     }
 }

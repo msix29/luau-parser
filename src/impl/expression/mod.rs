@@ -13,20 +13,39 @@ use crate::{
         FunctionCallInvoked, IfExpression, Parse, ParseWithArgs, Pointer, PrefixExp, Table,
         TryParse, TypeValue, Var,
     },
+    utils::get_token_type_display,
 };
 
 impl Parse for PrefixExp {
     fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
-        let var: Option<Self> = Var::parse(token.clone(), lexer, errors);
+        let var: Option<Var> = Var::parse(token.clone(), lexer, errors);
         if let Some(var) = var {
+            maybe_next_token!(lexer, colon, TokenType::Symbol(Symbol::Colon));
+            let invoked = if let Some(colon) = colon {
+                next_token_recoverable!(
+                    lexer,
+                    method,
+                    TokenType::Identifier(_) | TokenType::PartialKeyword(_),
+                    TokenType::Identifier("*error*".into(),),
+                    errors,
+                    "Expected ".to_string()
+                        + get_token_type_display(&TokenType::Identifier("".into(),))
+                );
+
+                FunctionCallInvoked::TableMethod {
+                    table: Pointer::new(PrefixExp::Var(var.clone())),
+                    colon: Pointer::new(colon),
+                    method: Pointer::new(method),
+                }
+            } else {
+                FunctionCallInvoked::Function(Pointer::new(PrefixExp::Var(var.clone())))
+            };
+
             if let Some(arguments) = FunctionArguments::try_parse(lexer, errors) {
-                return Some(Self::FunctionCall(FunctionCall {
-                    invoked: FunctionCallInvoked::Function(Pointer::new(var)),
-                    arguments,
-                }));
+                return Some(Self::FunctionCall(FunctionCall { invoked, arguments }));
             }
 
-            return Some(var);
+            return Some(Self::Var(var));
         }
 
         parse_bracketed!(
