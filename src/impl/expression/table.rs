@@ -38,12 +38,12 @@ impl TryParse for TableAccessKey {}
 
 impl ParseWithArgs<bool> for TableAccessKey {
     fn parse_with(
-        maybe_dot: Token,
+        token: Token,
         lexer: &mut Lexer,
         errors: &mut Vec<ParseError>,
         accept_expression: bool,
     ) -> Option<Self> {
-        match maybe_dot.token_type {
+        match token.token_type {
             TokenType::Error(error) => handle_error_token!(errors, error),
             TokenType::Symbol(Symbol::Dot) => {
                 next_token_recoverable!(
@@ -56,13 +56,15 @@ impl ParseWithArgs<bool> for TableAccessKey {
                 );
 
                 Some(Self::Name {
-                    dot: Pointer::new(maybe_dot),
+                    dot: Pointer::new(token),
                     name: Pointer::new(name),
                 })
             }
-            _ if accept_expression => TableKey::parse_with(maybe_dot, lexer, errors, false)
-                .map(Pointer::new)
-                .map(Self::Expression),
+            _ if accept_expression && token == TokenType::Symbol(Symbol::OpeningBrackets) => {
+                TableKey::parse_with(token, lexer, errors, false)
+                    .map(Pointer::new)
+                    .map(Self::Expression)
+            }
             _ => None,
         }
     }
