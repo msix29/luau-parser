@@ -61,7 +61,7 @@ impl Parse for GlobalFunctionName {
             let is_dot = dot_or_colon == TokenType::Symbol(Symbol::Dot);
 
             let keys = if is_dot {
-                Vec::<TableAccessKey>::try_parse_with(lexer, errors, false).unwrap_or_default()
+                Vec::<TableAccessKey>::parse_with(dot_or_colon.clone(), lexer, errors, false).unwrap_or_default()
             } else {
                 Vec::new()
             };
