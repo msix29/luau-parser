@@ -34,10 +34,19 @@ impl TryParse for FunctionCallInvoked {}
 
 impl Parse for FunctionCall {
     fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
-        Some(Self {
-            invoked: FunctionCallInvoked::parse(token, lexer, errors)?,
-            arguments: FunctionArguments::try_parse(lexer, errors)?,
-        })
+        let invoked = FunctionCallInvoked::parse(token, lexer, errors)?;
+        let arguments = FunctionArguments::try_parse(lexer, errors);
+
+        if let Some(arguments) = arguments {
+            return Some(FunctionCall { invoked, arguments });
+        }
+        if let FunctionCallInvoked::Function(pointer) = invoked {
+            if let PrefixExp::FunctionCall(call) = (*pointer).clone() {
+                return Some(call);
+            }
+        }
+
+        None
     }
 }
 impl TryParse for FunctionCall {
