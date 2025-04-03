@@ -9,42 +9,41 @@ use luau_lexer::prelude::{
 use crate::{
     handle_error_token, parse_bracketed, safe_unwrap,
     types::{
-        Closure, ElseIfExpression, Expression, ExpressionWrap, FunctionCall, IfExpression, Parse,
-        ParseWithArgs, Pointer, PrefixExp, Table, TryParse, TypeValue, Var,
+        Closure, ElseIfExpression, Expression, ExpressionWrap, FunctionArguments, FunctionCall,
+        FunctionCallInvoked, IfExpression, Parse, ParseWithArgs, Pointer, PrefixExp, Table,
+        TryParse, TypeValue, Var,
     },
 };
 
 impl Parse for PrefixExp {
-    #[inline]
-    fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
-        Self::parse_with(token, lexer, errors, false)
-    }
-}
-impl TryParse for PrefixExp {}
-
-impl ParseWithArgs<bool> for PrefixExp {
-    fn parse_with(
+    fn parse(
         token: Token,
         lexer: &mut Lexer,
         errors: &mut Vec<ParseError>,
-        is_recursion: bool,
     ) -> Option<Self> {
-        (!is_recursion)
-            .then(|| FunctionCall::parse(token.clone(), lexer, errors))
-            .unwrap_or(None)
-            .or_else(|| Var::parse_with(token.clone(), lexer, errors, is_recursion))
-            .or_else(|| {
-                parse_bracketed!(
-                    lexer,
-                    errors,
-                    "Expected <expr>",
-                    TokenType::Symbol(Symbol::OpeningParenthesis),
-                    Symbol::ClosingParenthesis,
-                )
-                .map(Self::ExpressionWrap)
-            })
+        let var: Option<Self> = Var::parse(token.clone(), lexer, errors);
+        if let Some(var) = var {
+            if let Some(arguments) = FunctionArguments::try_parse(lexer, errors) {
+                return Some(Self::FunctionCall(FunctionCall {
+                    invoked: FunctionCallInvoked::Function(Pointer::new(var)),
+                    arguments,
+                }));
+            }
+
+            return Some(var);
+        }
+
+        parse_bracketed!(
+            lexer,
+            errors,
+            "Expected <expr>",
+            TokenType::Symbol(Symbol::OpeningParenthesis),
+            Symbol::ClosingParenthesis,
+        )
+        .map(Self::ExpressionWrap)
     }
 }
+impl TryParse for PrefixExp {}
 
 impl Expression {
     pub fn parse_from_literal(token: Token) -> Option<Self> {

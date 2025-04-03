@@ -12,7 +12,7 @@ use crate::{
 
 impl Parse for FunctionCallInvoked {
     fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
-        let prefix_exp = Pointer::new(PrefixExp::parse_with(token, lexer, errors, true)?);
+        let prefix_exp = Pointer::new(PrefixExp::parse(token, lexer, errors)?);
         let state = lexer.save_state();
 
         let maybe_colon = lexer.next_token();
