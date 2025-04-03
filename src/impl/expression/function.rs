@@ -3,9 +3,7 @@ use luau_lexer::prelude::{Keyword, Lexer, Literal, ParseError, Symbol, Token, To
 use crate::{
     force_parse_bracketed, parse_bracketed,
     types::{
-        Block, BracketedList, Closure, FunctionArguments, FunctionCall, FunctionCallInvoked, Parse,
-        ParseWithArgs, Pointer, PrefixExp, Table, TableAccessPrefix, TryParse, TryParseWithArgs,
-        TypeValue,
+        Block, BracketedList, Closure, Expression, FunctionArgument, FunctionArguments, FunctionCall, FunctionCallInvoked, Parse, ParseWithArgs, Pointer, PrefixExp, Table, TableAccessPrefix, TryParse, TryParseWithArgs, TypeValue
     },
     utils::{get_token_type_display, get_token_type_display_extended},
 };
@@ -83,6 +81,9 @@ impl Parse for FunctionArguments {
         if matches!(token.token_type, TokenType::Literal(Literal::String(_))) {
             return Some(Self::String(token));
         }
+        if matches!(token.token_type, TokenType::Symbol(Symbol::Ellipses)) {
+            return Some(Self::VariadicValues(token));
+        }
         if token.token_type == TokenType::Symbol(Symbol::OpeningParenthesis) {
             return BracketedList::parse_with(
                 token,
@@ -97,6 +98,17 @@ impl Parse for FunctionArguments {
     }
 }
 impl TryParse for FunctionArguments {}
+
+impl Parse for FunctionArgument {
+    fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
+        if matches!(token.token_type, TokenType::Symbol(Symbol::Ellipses)) {
+            Some(Self::VariadicValues(token))
+        } else {
+            Expression::parse(token, lexer, errors).map(Self::Expression)
+        }
+    }
+}
+impl TryParse for FunctionArgument {}
 
 impl Parse for Closure {
     fn parse(

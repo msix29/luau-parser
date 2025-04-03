@@ -73,7 +73,16 @@ pub enum FunctionArguments {
     /// ```lua
     /// local _ = foo(1, 2, 3)
     /// ```
-    List(BracketedList<Pointer<Expression>>),
+    List(BracketedList<Pointer<FunctionArgument>>),
+
+    VariadicValues(Token),
+}
+
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+pub enum FunctionArgument {
+    Expression(Expression),
+    VariadicValues(Token),
 }
 
 /// All possible arguments that can be passed to a function.
