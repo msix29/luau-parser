@@ -1,7 +1,10 @@
-use luau_lexer::prelude::{Lexer, ParseError, Token, TokenType};
+use luau_lexer::{
+    prelude::{Lexer, ParseError, Token, TokenType},
+    token::Symbol,
+};
 
 use crate::types::{
-    Expression, Parse, ParseWithArgs, PrefixExp, TableAccess, TryParse, TryParseWithArgs, Var,
+    Expression, Parse, ParseWithArgs, PrefixExp, TableAccess, TableAccessKey, TableAccessPrefix, TryParse, TryParseWithArgs, Var
 };
 
 impl Parse for Var {
@@ -34,6 +37,14 @@ impl ParseWithArgs<bool> for Var {
             // `TableAccess::parse` might match the prefix but not the accessed keys
             // so we need to return the state back to it's original.
             lexer.set_state(state);
+        }
+
+        maybe_next_token!(lexer, maybe_dot, TokenType::Symbol(Symbol::Dot));
+        if let Some(dot) = maybe_dot {
+            return Some(Self::TableAccess(TableAccess {
+                prefix: TableAccessPrefix::Name(token),
+                accessed_keys: Vec::<TableAccessKey>::parse(dot, lexer, errors)?,
+            }));
         }
 
         Some(Self::Name(token))
