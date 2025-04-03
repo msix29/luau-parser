@@ -63,7 +63,15 @@ impl Expression {
             TokenType::Error(error) => handle_error_token!(errors, error),
             TokenType::Literal(_) => Self::parse_from_literal(token),
             TokenType::Identifier(_) | TokenType::PartialKeyword(_) => {
-                Var::parse(token, lexer, errors)
+                match PrefixExp::parse(token, lexer, errors) {
+                    // this should never match, but might as well have it, lol.
+                    Some(PrefixExp::ExpressionWrap(wrap)) => Some(Self::ExpressionWrap(wrap)),
+                    Some(PrefixExp::FunctionCall(function_call)) => {
+                        Some(Self::FunctionCall(function_call))
+                    }
+                    Some(PrefixExp::Var(var)) => Some(Self::Var(var)),
+                    None => None,
+                }
             }
             TokenType::Symbol(Symbol::OpeningParenthesis) => ExpressionWrap::parse_with(
                 token,
