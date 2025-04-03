@@ -16,11 +16,7 @@ use crate::{
 };
 
 impl Parse for PrefixExp {
-    fn parse(
-        token: Token,
-        lexer: &mut Lexer,
-        errors: &mut Vec<ParseError>,
-    ) -> Option<Self> {
+    fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
         let var: Option<Self> = Var::parse(token.clone(), lexer, errors);
         if let Some(var) = var {
             if let Some(arguments) = FunctionArguments::try_parse(lexer, errors) {
@@ -120,18 +116,18 @@ impl Parse for Expression {
         let next_token = lexer.next_token();
 
         match next_token.token_type {
-            TokenType::Operator(_) | TokenType::CompoundOperator(_) => {
-                Some(Self::BinaryExpression {
-                    left: Pointer::new(left),
-                    operator: next_token,
-                    right: safe_unwrap!(
-                        lexer,
-                        errors,
-                        "Expected <expr>",
-                        Self::try_parse(lexer, errors).map(Pointer::new)
-                    ),
-                })
-            }
+            TokenType::Operator(_)
+            | TokenType::Symbol(Symbol::OpeningAngleBrackets)
+            | TokenType::Symbol(Symbol::ClosingAngleBrackets) => Some(Self::BinaryExpression {
+                left: Pointer::new(left),
+                operator: next_token,
+                right: safe_unwrap!(
+                    lexer,
+                    errors,
+                    "Expected <expr>",
+                    Self::try_parse(lexer, errors).map(Pointer::new)
+                ),
+            }),
             TokenType::Symbol(Symbol::Typecast) => Some(Self::TypeCast {
                 expression: Pointer::new(left),
                 operator: next_token,
