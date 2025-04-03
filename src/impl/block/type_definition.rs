@@ -333,6 +333,15 @@ impl Parse for TypeDefinition {
             return None;
         }
 
+        next_token_recoverable!(
+            lexer,
+            type_name,
+            TokenType::Identifier(_) | TokenType::PartialKeyword(_),
+            TokenType::Identifier("*error*".into()),
+            errors,
+            "Expected ".to_string() + get_token_type_display(&TokenType::Identifier("".into()))
+        );
+
         let generics = parse_bracketed!(
             lexer,
             errors,
@@ -342,14 +351,6 @@ impl Parse for TypeDefinition {
         )
         .map(Pointer::new);
 
-        next_token_recoverable!(
-            lexer,
-            type_name,
-            TokenType::Identifier(_) | TokenType::PartialKeyword(_),
-            TokenType::Identifier("*error*".into()),
-            errors,
-            "Expected ".to_string() + get_token_type_display(&TokenType::Identifier("".into()))
-        );
         next_token_recoverable!(
             lexer,
             equal_sign,
