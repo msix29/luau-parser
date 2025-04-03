@@ -117,6 +117,7 @@ impl Parse for Expression {
 
         match next_token.token_type {
             TokenType::Operator(_)
+            | TokenType::CompoundOperator(_)
             | TokenType::Symbol(Symbol::OpeningAngleBrackets)
             | TokenType::Symbol(Symbol::ClosingAngleBrackets) => Some(Self::BinaryExpression {
                 left: Pointer::new(left),
