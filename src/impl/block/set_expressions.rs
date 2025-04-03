@@ -5,11 +5,12 @@ use crate::{
     types::{
         CompoundSetExpression, Expression, List, Parse, Pointer, SetExpression, TryParse, Var,
     },
-    utils::{get_token_type_display, get_token_type_display_extended},
 };
 
 impl Parse for SetExpression {
     fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
+        let state = lexer.save_state();
+
         if !matches!(
             token.token_type,
             TokenType::PartialKeyword(_) | TokenType::Identifier(_)
@@ -23,15 +24,13 @@ impl Parse for SetExpression {
             "Expected <name>",
             List::parse(token, lexer, errors)
         );
-        next_token_recoverable!(
-            lexer,
-            equal,
-            TokenType::Symbol(Symbol::Equal),
-            TokenType::Symbol(Symbol::Equal),
-            errors,
-            "Expected ".to_string()
-                + get_token_type_display_extended(&TokenType::Symbol(Symbol::Equal))
-        );
+        maybe_next_token!(lexer, equal, TokenType::Symbol(Symbol::Equal));
+        let Some(equal) = equal else {
+            lexer.set_state(state);
+
+            return None;
+        };
+
         let values = safe_unwrap!(
             lexer,
             errors,
@@ -49,6 +48,7 @@ impl Parse for SetExpression {
 
 impl Parse for CompoundSetExpression {
     fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
+        let state = lexer.save_state();
         if !matches!(
             token.token_type,
             TokenType::PartialKeyword(_) | TokenType::Identifier(_)
@@ -62,15 +62,17 @@ impl Parse for CompoundSetExpression {
             "Expected <name>",
             Var::parse(token, lexer, errors)
         );
-        next_token_recoverable!(
+        maybe_next_token!(
             lexer,
             operation,
-            TokenType::CompoundOperator(CompoundOperator::PlusEqual),
-            TokenType::CompoundOperator(CompoundOperator::PlusEqual),
-            errors,
-            "Expected ".to_string()
-                + get_token_type_display(&TokenType::CompoundOperator(CompoundOperator::PlusEqual))
+            TokenType::CompoundOperator(CompoundOperator::PlusEqual)
         );
+        let Some(operation) = operation else {
+            lexer.set_state(state);
+
+            return None;
+        };
+
         let value = safe_unwrap!(
             lexer,
             errors,

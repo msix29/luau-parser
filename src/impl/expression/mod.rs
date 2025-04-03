@@ -3,7 +3,7 @@ mod table;
 mod var;
 
 use luau_lexer::prelude::{
-    CompoundOperator, Keyword, Lexer, Literal, Operator, ParseError, Symbol, Token, TokenType,
+    Keyword, Lexer, Literal, Operator, ParseError, Symbol, Token, TokenType,
 };
 
 use crate::{
@@ -121,7 +121,7 @@ impl Parse for Expression {
         let next_token = lexer.next_token();
 
         match next_token.token_type {
-            TokenType::Operator(_) | TokenType::CompoundOperator(CompoundOperator::EqualEqual) => {
+            TokenType::Operator(_) | TokenType::CompoundOperator(_) => {
                 Some(Self::BinaryExpression {
                     left: Pointer::new(left),
                     operator: next_token,
