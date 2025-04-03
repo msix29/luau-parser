@@ -153,6 +153,8 @@ impl ParseWithArgs<bool> for TableFieldValue {
     ) -> Option<Self> {
         if is_type {
             TypeValue::parse(token, lexer, errors).map(Self::Type)
+        } else if token == TokenType::Symbol(Symbol::Ellipses) {
+            Some(Self::VariadicValues(token))
         } else {
             Expression::parse(token, lexer, errors).map(Self::Expression)
         }

@@ -84,6 +84,9 @@ pub enum TableFieldValue {
 
     /// A [`type`](TypeValue), can be found in type definitions only.
     Type(TypeValue),
+
+    // only in expressions
+    VariadicValues(Token),
 }
 
 /// Struct representing a luau table.
