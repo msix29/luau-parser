@@ -1,4 +1,4 @@
-use luau_lexer::prelude::{CompoundOperator, Lexer, ParseError, Symbol, Token, TokenType};
+use luau_lexer::prelude::{Lexer, ParseError, Symbol, Token, TokenType};
 
 use crate::{
     safe_unwrap,
@@ -62,11 +62,7 @@ impl Parse for CompoundSetExpression {
             "Expected <name>",
             Var::parse(token, lexer, errors)
         );
-        maybe_next_token!(
-            lexer,
-            operation,
-            TokenType::CompoundOperator(CompoundOperator::PlusEqual)
-        );
+        maybe_next_token!(lexer, operation, TokenType::CompoundOperator(_));
         let Some(operation) = operation else {
             lexer.set_state(state);
 
