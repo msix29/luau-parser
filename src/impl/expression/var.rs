@@ -16,11 +16,15 @@ impl Parse for Var {
             return None;
         }
 
-        maybe_next_token!(lexer, maybe_dot, TokenType::Symbol(Symbol::Dot));
-        if let Some(dot) = maybe_dot {
+        maybe_next_token!(
+            lexer,
+            maybe_dot_or_bracket,
+            TokenType::Symbol(Symbol::Dot) | TokenType::Symbol(Symbol::OpeningBrackets)
+        );
+        if let Some(dot_or_bracket) = maybe_dot_or_bracket {
             return Some(Self::TableAccess(TableAccess {
                 prefix: TableAccessPrefix::Name(token),
-                accessed_keys: Vec::<TableAccessKey>::parse(dot, lexer, errors)?,
+                accessed_keys: Vec::<TableAccessKey>::parse(dot_or_bracket, lexer, errors)?,
             }));
         }
 
