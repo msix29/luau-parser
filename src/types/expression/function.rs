@@ -74,8 +74,6 @@ pub enum FunctionArguments {
     /// local _ = foo(1, 2, 3)
     /// ```
     List(BracketedList<Pointer<FunctionArgument>>),
-
-    VariadicValues(Token),
 }
 
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]

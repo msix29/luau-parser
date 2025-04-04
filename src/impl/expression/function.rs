@@ -81,9 +81,6 @@ impl Parse for FunctionArguments {
         if matches!(token.token_type, TokenType::Literal(Literal::String(_))) {
             return Some(Self::String(token));
         }
-        if matches!(token.token_type, TokenType::Symbol(Symbol::Ellipses)) {
-            return Some(Self::VariadicValues(token));
-        }
         if token.token_type == TokenType::Symbol(Symbol::OpeningParenthesis) {
             return BracketedList::parse_with(
                 token,
