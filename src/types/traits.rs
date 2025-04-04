@@ -15,8 +15,12 @@ pub trait HasRawValue {
 
 /// A trait to print the token as-is, while preserving all user spaces and styling.
 pub trait Print {
+    fn print_with_leading(&self) -> String;
+
     /// Prints the whole token including all surrounding spaces.
     fn print(&self) -> String;
+
+    fn print_with_trailing(&self) -> String;
 }
 
 /// A trait that indicates that this struct can be parsed from a [`lexer`](Lexer)
