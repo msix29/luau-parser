@@ -1,4 +1,4 @@
-//! The main item of this crate, the actual [`parser`](LuauParser).
+//! The main item of this crate, the actual [`parser`](Parser).
 
 use luau_lexer::lexer::Lexer;
 #[cfg(feature = "cache")]
@@ -7,7 +7,7 @@ use std::collections::HashMap;
 use crate::types::Cst;
 
 /// A Luau parser.
-pub struct LuauParser<'a> {
+pub struct Parser<'a> {
     /// Cache, only works with the `cache` feature, this is useful when you need
     /// to use the [`CST`](Cst) more than once in 2 different places without
     /// reparsing or with the `uri` only.
@@ -18,11 +18,11 @@ pub struct LuauParser<'a> {
     lexer: Lexer<'a>,
 }
 
-impl<'a> LuauParser<'a> {
-    /// Create a new [`parser`](LuauParser).
+impl<'a> Parser<'a> {
+    /// Create a new [`parser`](Parser).
     #[inline]
     pub fn new(input: &'a str) -> Self {
-        LuauParser {
+        Self {
             #[cfg(feature = "cache")]
             cache: HashMap::new(),
             lexer: Lexer::new(input),

@@ -7,14 +7,14 @@
 //!
 //! # Usage:
 //!
-//! ```no_run
-//! use luau_parser::parser::LuauParser;
+//! ```rust
+//! use luau_parser::prelude::Parser;
 //!
 //! let code = r#"local foo = "Hello, World!""#;
 //! let uri = ""; // This should be the path of the file being parsed
 //!               // (Used for the `cache` feature).
 //!
-//! let mut parser = LuauParser::new(code);
+//! let mut parser = Parser::new(code);
 //! let cst = parser.parse(uri);
 //!
 //! println!("{:#?}", cst);
@@ -38,10 +38,10 @@
 // #![allow(unused)]
 #![warn(clippy::absolute_paths)]
 
-mod r#impl;
-// mod display;
 #[macro_use]
 mod macros;
+
+mod r#impl;
 pub mod parser;
 pub mod types;
 mod utils;

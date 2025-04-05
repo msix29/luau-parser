@@ -1,9 +1,9 @@
 use luau_lexer::token::{Keyword, TokenType};
-use luau_parser::{parser::LuauParser, types::{AstStatus, Statement}};
+use luau_parser::{parser::Parser, types::{AstStatus, Statement}};
 
 #[test]
 fn only_name() {
-    let mut parser = LuauParser::new("local foo");
+    let mut parser = Parser::new("local foo");
     let cst = parser.parse(file!());
 
     assert!(!cst.block.is_empty());
