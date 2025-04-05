@@ -5,8 +5,8 @@ use crate::{
     safe_unwrap,
     types::{
         Bracketed, BracketedList, Expression, FunctionArguments, GetRange, GetRangeError, Parse,
-        ParseWithArgs, Pointer, Range, Table, TableAccessKey, TableField, TableFieldValue,
-        TableKey, TryParse, TryParseWithArgs, TypeValue,
+        ParseWithArgs, Pointer, Print, PrintError, Range, Table, TableAccessKey, TableField,
+        TableFieldValue, TableKey, TryParse, TryParseWithArgs, TypeValue,
     },
 };
 
@@ -240,5 +240,57 @@ impl GetRange for TableField {
         } else {
             value_range
         }
+    }
+}
+
+macro_rules! __table_key_print {
+    ($self: ident, $fn: ident) => {
+        match $self {
+            Self::Simple(item) => item.$fn(),
+            Self::Expression(item) => item.$fn(),
+            Self::Type(item) => item.$fn(),
+            _ => Err(PrintError::ErrorVariant),
+        }
+    };
+}
+
+impl Print for TableKey {
+    fn print_with_leading(&self) -> Result<String, PrintError> {
+        __table_key_print!(self, print_with_leading)
+    }
+
+    fn print(&self) -> Result<String, PrintError> {
+        __table_key_print!(self, print)
+    }
+
+    fn print_with_trailing(&self) -> Result<String, PrintError> {
+        __table_key_print!(self, print_with_trailing)
+    }
+}
+
+macro_rules! __table_field_print {
+    ($self: ident, $fn1: ident, $fn2: ident) => {
+        if let Ok(str) = $self.key.$fn1() {
+            Ok(str + &$self.equal_or_colon.$fn1()? + &$self.value.$fn2()?)
+        } else {
+            $self.value.$fn2()
+        }
+    };
+    ($self: ident, $fn1: ident) => {
+        __table_field_print!($self, $fn1, $fn1)
+    };
+}
+
+impl Print for TableField {
+    fn print_with_leading(&self) -> Result<String, PrintError> {
+        __table_field_print!(self, print_with_leading)
+    }
+
+    fn print(&self) -> Result<String, PrintError> {
+        __table_field_print!(self, print_with_leading, print)
+    }
+
+    fn print_with_trailing(&self) -> Result<String, PrintError> {
+        __table_field_print!(self, print_with_trailing)
     }
 }

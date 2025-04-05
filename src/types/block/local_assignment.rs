@@ -1,12 +1,12 @@
 //! Holding all needed information for local assignments.
 
 use luau_lexer::prelude::Token;
-use luau_parser_derive::Range;
+use luau_parser_derive::{Print, Range};
 
 use crate::types::{Expression, List, Name, Pointer};
 
 /// A struct holding data for local assignments.
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range, Print)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct LocalAssignment {
     /// The `local` keyword.

@@ -17,6 +17,7 @@ pub trait HasRawValue {
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum PrintError {
     ErrorVariant,
+    NoneValue,
 }
 
 /// A trait to print the token as-is, while preserving all user spaces and styling.

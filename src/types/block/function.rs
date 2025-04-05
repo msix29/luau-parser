@@ -1,12 +1,12 @@
 //! Local and global functions.
 
 use luau_lexer::prelude::Token;
-use luau_parser_derive::Range;
+use luau_parser_derive::{Print, Range};
 
 use crate::types::{Block, BracketedList, GenericDeclaration, Pointer, TableAccessKey, TypeValue};
 
 /// A struct representing a local function.
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range, Print)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct LocalFunction {
     /// The `local` keyword.
@@ -37,7 +37,7 @@ pub struct LocalFunction {
     pub end_keyword: Token,
 }
 
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range, Print)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Parameter {
     /// The actual name.
@@ -52,7 +52,7 @@ pub struct Parameter {
 }
 
 /// An enum representing possible ways in which a global function's name can be.
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Print)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum GlobalFunctionName {
     /// Just a simple name, this is usually in local functions but some people don't do so.
@@ -121,7 +121,7 @@ pub enum GlobalFunctionName {
 }
 
 /// A struct representing a local function.
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range, Print)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct GlobalFunction {
     /// The `function` keyword.

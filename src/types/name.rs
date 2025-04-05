@@ -5,12 +5,12 @@
 //!
 
 use luau_lexer::prelude::Token;
-use luau_parser_derive::Range;
+use luau_parser_derive::{Print, Range};
 
 use crate::types::{Pointer, TypeValue};
 
 /// A variable name.
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range, Print)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Name {
     /// The actual name.

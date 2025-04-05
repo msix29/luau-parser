@@ -4,7 +4,7 @@
 //! outside it too, like in a formatter or a lsp.
 
 use luau_lexer::prelude::Token;
-use luau_parser_derive::Range;
+use luau_parser_derive::{Range, Print};
 
 use crate::types::{
     Comment, CompoundSetExpression, DoBlock, Expression, FunctionCall, GenericFor, GlobalFunction,
@@ -18,7 +18,7 @@ macro_rules! generate_statement {
         $name:ident($ty:ty)
     ),* $(,)?) => {
         /// All possible tokens in an [`CST`](crate::types::Cst).
-        #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
+        #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord, Range, Print)]
         #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
         pub enum Statement {
             /// This statement had an error and couldn't parse anything.
@@ -181,7 +181,7 @@ generate_statement! {
 
 /// An enum representing different types of statements that can end a block of code.
 /// These statements may or may not be present.
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range, Print)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum TerminationStatement {
     /// The `break` keyword.

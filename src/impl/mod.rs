@@ -87,23 +87,23 @@ impl Print for Token {
     #[inline]
     fn print_with_leading(&self) -> Result<String, PrintError> {
         self.token_type
-            .try_to_string()
+            .try_as_string()
             .ok_or(PrintError::ErrorVariant)
-            .map(|token_type| self.spaces_before.to_string() + token_type)
+            .map(|token_type| self.spaces_before.to_string() + &token_type)
     }
 
     #[inline]
     fn print(&self) -> Result<String, PrintError> {
         self.token_type
-            .try_to_string()
+            .try_as_string()
             .ok_or(PrintError::ErrorVariant)
-            .map(|token_type| self.spaces_before.to_string() + token_type + &self.spaces_after)
+            .map(|token_type| self.spaces_before.to_string() + &token_type + &self.spaces_after)
     }
 
     #[inline]
     fn print_with_trailing(&self) -> Result<String, PrintError> {
         self.token_type
-            .try_to_string()
+            .try_as_string()
             .ok_or(PrintError::ErrorVariant)
             .map(|token_type| token_type.to_string() + &self.spaces_after)
     }
@@ -137,7 +137,7 @@ impl<T: Print> Print for Option<T> {
     fn print_with_leading(&self) -> Result<String, PrintError> {
         match self {
             Some(item) => item.print_with_leading(),
-            None => Err(PrintError::ErrorVariant),
+            None => Err(PrintError::NoneValue),
         }
     }
 
@@ -145,7 +145,7 @@ impl<T: Print> Print for Option<T> {
     fn print(&self) -> Result<String, PrintError> {
         match self {
             Some(item) => item.print(),
-            None => Err(PrintError::ErrorVariant),
+            None => Err(PrintError::NoneValue),
         }
     }
 
@@ -153,7 +153,7 @@ impl<T: Print> Print for Option<T> {
     fn print_with_trailing(&self) -> Result<String, PrintError> {
         match self {
             Some(item) => item.print_with_trailing(),
-            None => Err(PrintError::ErrorVariant),
+            None => Err(PrintError::NoneValue),
         }
     }
 }
@@ -170,6 +170,68 @@ impl<T: GetRange> GetRange for Vec<T> {
                 self[0].get_range()?.start,
                 self.last().unwrap().get_range()?.end,
             ))
+        }
+    }
+}
+impl<T: Print> Print for Vec<T> {
+    fn print_with_leading(&self) -> Result<String, PrintError> {
+        let mut str = String::new();
+
+        for item in self.iter() {
+            str += &item.print_with_leading()?;
+        }
+
+        Ok(str)
+    }
+
+    fn print(&self) -> Result<String, PrintError> {
+        let mut str = String::new();
+        let last_index = self.len() - 1;
+
+        for (i, item) in self.iter().enumerate() {
+            if i == last_index {
+                str += &item.print()?;
+            } else {
+                str += &item.print_with_leading()?;
+            }
+        }
+
+        Ok(str)
+    }
+
+    fn print_with_trailing(&self) -> Result<String, PrintError> {
+        let mut str = String::new();
+
+        for item in self.iter() {
+            str += &item.print_with_trailing()?;
+        }
+
+        Ok(str)
+    }
+}
+
+impl<T: Print, U: Print> Print for (T, U) {
+    fn print_with_leading(&self) -> Result<String, PrintError> {
+        if let Ok(item) = self.1.print_with_leading() {
+            Ok(self.0.print_with_leading()? + &item)
+        } else {
+            self.0.print_with_leading()
+        }
+    }
+
+    fn print(&self) -> Result<String, PrintError> {
+        if let Ok(item) = self.1.print() {
+            Ok(self.0.print_with_leading()? + &item)
+        } else {
+            self.0.print()
+        }
+    }
+
+    fn print_with_trailing(&self) -> Result<String, PrintError> {
+        if let Ok(item) = self.1.print_with_trailing() {
+            Ok(self.0.print_with_trailing()? + &item)
+        } else {
+            self.0.print_with_trailing()
         }
     }
 }

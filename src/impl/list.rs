@@ -1,9 +1,9 @@
 use luau_lexer::prelude::{Lexer, ParseError, Symbol, Token, TokenType};
 use std::ops::{Deref, DerefMut};
 
-use crate::types::{
-    GetRange, GetRangeError, List, ListItem, Parse, ParseWithArgs, Range, TryParse,
-};
+use crate::{prelude::PrintError, types::{
+    GetRange, GetRangeError, List, ListItem, Parse, ParseWithArgs, Print, Range, TryParse,
+}};
 
 impl<T> List<T> {
     #[inline]
@@ -118,6 +118,46 @@ impl<T: GetRange> GetRange for ListItem<T> {
                 separator.get_range()?.end,
             )),
             ListItem::NonTrailing(item) => item.get_range(),
+        }
+    }
+}
+
+impl<T: Print> Print for List<T> {
+    #[inline]
+    fn print_with_leading(&self) -> Result<String, PrintError> {
+        self.items.print_with_leading()
+    }
+
+    #[inline]
+    fn print(&self) -> Result<String, PrintError> {
+        self.items.print()
+    }
+
+    #[inline]
+    fn print_with_trailing(&self) -> Result<String, PrintError> {
+        self.items.print_with_trailing()
+    }
+}
+
+impl<T: Print> Print for ListItem<T> {
+    #[inline]
+    fn print_with_leading(&self) -> Result<String, PrintError> {
+        match self {
+            Self::Trailing { item, .. } | Self::NonTrailing(item) => item.print_with_leading(),
+        }
+    }
+
+    #[inline]
+    fn print(&self) -> Result<String, PrintError> {
+        match self {
+            Self::Trailing { item, .. } | Self::NonTrailing(item) => item.print(),
+        }
+    }
+
+    #[inline]
+    fn print_with_trailing(&self) -> Result<String, PrintError> {
+        match self {
+            Self::Trailing { item, .. } | Self::NonTrailing(item) => item.print_with_trailing(),
         }
     }
 }
