@@ -13,7 +13,13 @@ mod value;
 
 use luau_lexer::prelude::{Lexer, ParseError, Token};
 
-use crate::types::{GetRange, GetRangeError, Parse, ParseWithArgs, Pointer, Range, TryParse, TryParseWithArgs};
+use crate::{
+    prelude::PrintError,
+    types::{
+        GetRange, GetRangeError, Parse, ParseWithArgs, Pointer, Print, Range, TryParse,
+        TryParseWithArgs,
+    },
+};
 
 impl<T: Parse> Parse for Pointer<T> {
     #[inline]
@@ -77,11 +83,78 @@ impl GetRange for Token {
         Ok(Range::new(self.start, self.end))
     }
 }
+impl Print for Token {
+    #[inline]
+    fn print_with_leading(&self) -> Result<String, PrintError> {
+        self.token_type
+            .try_to_string()
+            .ok_or(PrintError::ErrorVariant)
+            .map(|token_type| self.spaces_before.to_string() + token_type)
+    }
+
+    #[inline]
+    fn print(&self) -> Result<String, PrintError> {
+        self.token_type
+            .try_to_string()
+            .ok_or(PrintError::ErrorVariant)
+            .map(|token_type| self.spaces_before.to_string() + token_type + &self.spaces_after)
+    }
+
+    #[inline]
+    fn print_with_trailing(&self) -> Result<String, PrintError> {
+        self.token_type
+            .try_to_string()
+            .ok_or(PrintError::ErrorVariant)
+            .map(|token_type| token_type.to_string() + &self.spaces_after)
+    }
+}
 
 impl<T: GetRange> GetRange for Pointer<T> {
     #[inline]
     fn get_range(&self) -> Result<Range, GetRangeError> {
         (**self).get_range()
+    }
+}
+impl<T: Print> Print for Pointer<T> {
+    #[inline]
+    fn print_with_leading(&self) -> Result<String, PrintError> {
+        (**self).print_with_leading()
+    }
+
+    #[inline]
+    fn print(&self) -> Result<String, PrintError> {
+        (**self).print()
+    }
+
+    #[inline]
+    fn print_with_trailing(&self) -> Result<String, PrintError> {
+        (**self).print_with_trailing()
+    }
+}
+
+impl<T: Print> Print for Option<T> {
+    #[inline]
+    fn print_with_leading(&self) -> Result<String, PrintError> {
+        match self {
+            Some(item) => item.print_with_leading(),
+            None => Err(PrintError::ErrorVariant)
+        }
+    }
+
+    #[inline]
+    fn print(&self) -> Result<String, PrintError> {
+        match self {
+            Some(item) => item.print(),
+            None => Err(PrintError::ErrorVariant)
+        }
+    }
+
+    #[inline]
+    fn print_with_trailing(&self) -> Result<String, PrintError> {
+        match self {
+            Some(item) => item.print_with_trailing(),
+            None => Err(PrintError::ErrorVariant)
+        }
     }
 }
 
