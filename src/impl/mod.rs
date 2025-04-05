@@ -137,7 +137,7 @@ impl<T: Print> Print for Option<T> {
     fn print_with_leading(&self) -> Result<String, PrintError> {
         match self {
             Some(item) => item.print_with_leading(),
-            None => Err(PrintError::ErrorVariant)
+            None => Err(PrintError::ErrorVariant),
         }
     }
 
@@ -145,7 +145,7 @@ impl<T: Print> Print for Option<T> {
     fn print(&self) -> Result<String, PrintError> {
         match self {
             Some(item) => item.print(),
-            None => Err(PrintError::ErrorVariant)
+            None => Err(PrintError::ErrorVariant),
         }
     }
 
@@ -153,7 +153,7 @@ impl<T: Print> Print for Option<T> {
     fn print_with_trailing(&self) -> Result<String, PrintError> {
         match self {
             Some(item) => item.print_with_trailing(),
-            None => Err(PrintError::ErrorVariant)
+            None => Err(PrintError::ErrorVariant),
         }
     }
 }
@@ -161,9 +161,15 @@ impl<T: Print> Print for Option<T> {
 impl<T: GetRange> GetRange for Vec<T> {
     #[inline]
     fn get_range(&self) -> Result<Range, GetRangeError> {
-        match self.last() {
-            Some(item) => item.get_range(),
-            None => Err(GetRangeError::EmptyList),
+        if self.is_empty() {
+            Err(GetRangeError::EmptyList)
+        } else if self.len() == 1 {
+            self[0].get_range()
+        } else {
+            Ok(Range::new(
+                self[0].get_range()?.start,
+                self.last().unwrap().get_range()?.end,
+            ))
         }
     }
 }
