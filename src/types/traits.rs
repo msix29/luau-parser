@@ -13,21 +13,10 @@ pub trait HasRawValue {
     fn get_raw_value(&self) -> String;
 }
 
-#[derive(Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub enum PrintError {
-    ErrorVariant,
-    NoneValue,
-}
-
 /// A trait to print the token as-is, while preserving all user spaces and styling.
 pub trait Print {
-    fn print_with_leading(&self) -> Result<String, PrintError>;
-
     /// Prints the whole token including all surrounding spaces.
-    fn print(&self) -> Result<String, PrintError>;
-
-    fn print_with_trailing(&self) -> Result<String, PrintError>;
+    fn print(&self) -> String;
 }
 
 /// A trait that indicates that this struct can be parsed from a [`lexer`](Lexer)

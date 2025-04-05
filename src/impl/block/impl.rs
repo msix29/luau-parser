@@ -1,9 +1,9 @@
 use luau_lexer::prelude::{Lexer, ParseError, Symbol, Token, TokenType};
 
 use crate::{
-    prelude::{GetRangeError, PrintError, Range},
     types::{
-        Block, GetRange, Parse, ParseWithArgs, Pointer, Print, Statement, TerminationStatement,
+        Block, GetRange, GetRangeError, Parse, ParseWithArgs, Pointer, Print, Range, Statement,
+        TerminationStatement,
     },
     utils::get_token_type_display_extended,
 };
@@ -193,109 +193,17 @@ impl GetRange for Block {
     }
 }
 
-fn print_statement_leading<T: Print>(
-    (statement, semicolon): &(T, Option<Token>),
-) -> Result<String, PrintError> {
-    if let Some(Ok(semicolon)) = semicolon
-        .as_ref()
-        .map(|semiclon| semiclon.print_with_leading())
-    {
-        statement.print_with_leading().map(|str| str + &semicolon)
-    } else {
-        statement.print_with_leading()
-    }
-}
-
-fn print_statement<T: Print>(
-    (statement, semicolon): &(T, Option<Token>),
-) -> Result<String, PrintError> {
-    if let Some(Ok(semicolon)) = semicolon.as_ref().map(|semiclon| semiclon.print()) {
-        statement.print_with_leading().map(|str| str + &semicolon)
-    } else {
-        statement.print()
-    }
-}
-
-fn print_statement_trailing<T: Print>(
-    (statement, semicolon): &(T, Option<Token>),
-) -> Result<String, PrintError> {
-    if let Some(Ok(semicolon)) = semicolon
-        .as_ref()
-        .map(|semiclon| semiclon.print_with_trailing())
-    {
-        statement.print_with_trailing().map(|str| str + &semicolon)
-    } else {
-        statement.print_with_trailing()
-    }
-}
-
-// impl<T: Print> Print for (T, Option<Token>) {
-//     fn print_with_leading(&self) -> Result<String, PrintError> {
-//         if let Some(item) = self.1.as_ref() {
-//             Ok(self.0.print_with_leading()? + &item.print_with_leading()?)
-//         } else {
-//             self.0.print_with_leading()
-//         }
-//     }
-
-//     fn print(&self) -> Result<String, PrintError> {
-//         if let Some(item) = self.1.as_ref() {
-//             Ok(self.0.print_with_leading()? + &item.print()?)
-//         } else {
-//             self.0.print()
-//         }
-//     }
-
-//     fn print_with_trailing(&self) -> Result<String, PrintError> {
-//         if let Some(item) = self.1.as_ref() {
-//             Ok(self.0.print_with_trailing()? + &item.print_with_trailing()?)
-//         } else {
-//             self.0.print_with_trailing()
-//         }
-//     }
-// }
-
 impl Print for Block {
-    fn print_with_leading(&self) -> Result<String, PrintError> {
+    fn print(&self) -> String {
         if self.is_empty() {
-            Ok(String::new())
-        } else if self.statements.is_empty() {
-            self.last_statement.as_ref().unwrap().print_with_leading()
-        } else if self.last_statement.is_none() {
-            self.statements.print_with_leading()
-        } else {
-            Ok(self.statements.print_with_leading()?
-                + &self.last_statement.as_ref().unwrap().print_with_leading()?)
-        }
-    }
-
-    fn print(&self) -> Result<String, PrintError> {
-        if self.is_empty() {
-            Ok(String::new())
+            String::new()
         } else if self.statements.is_empty() {
             self.last_statement.as_ref().unwrap().print()
         } else if self.last_statement.is_none() {
             self.statements.print()
         } else {
-            Ok(self.statements.print_with_leading()?
-                + &self.last_statement.as_ref().unwrap().print()?)
-        }
-    }
-
-    fn print_with_trailing(&self) -> Result<String, PrintError> {
-        if self.is_empty() {
-            Ok(String::new())
-        } else if self.statements.is_empty() {
-            self.last_statement.as_ref().unwrap().print_with_trailing()
-        } else if self.last_statement.is_none() {
-            self.statements.print_with_trailing()
-        } else {
-            Ok(self.statements.print_with_trailing()?
-                + &self
-                    .last_statement
-                    .as_ref()
-                    .unwrap()
-                    .print_with_trailing()?)
+            self.statements.print().trim_end().to_string()
+                + &self.last_statement.as_ref().unwrap().print()
         }
     }
 }

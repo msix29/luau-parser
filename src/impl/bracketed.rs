@@ -2,7 +2,6 @@ use luau_lexer::prelude::{Lexer, ParseError, State, Symbol, Token, TokenType};
 use std::ops::{Deref, DerefMut};
 
 use crate::{
-    prelude::PrintError,
     types::{Bracketed, List, Parse, ParseWithArgs, Print, TryParse, TryParseWithArgs},
     utils::get_token_type_display_extended,
 };
@@ -126,21 +125,9 @@ impl<T> DerefMut for Bracketed<T> {
 }
 
 impl<T: Print> Print for Bracketed<T> {
-    fn print_with_leading(&self) -> Result<String, PrintError> {
-        Ok(self.opening_bracket.print_with_leading()?
-            + &self.item.print_with_leading()?
-            + &self.closing_bracket.print_with_leading()?)
-    }
-
-    fn print(&self) -> Result<String, PrintError> {
-        Ok(self.opening_bracket.print_with_leading()?
-            + &self.item.print_with_leading()?
-            + &self.closing_bracket.print()?)
-    }
-
-    fn print_with_trailing(&self) -> Result<String, PrintError> {
-        Ok(self.opening_bracket.print_with_trailing()?
-            + &self.item.print_with_trailing()?
-            + &self.closing_bracket.print_with_trailing()?)
+    fn print(&self) -> String {
+        self.opening_bracket.print().trim_end().to_string()
+            + self.item.print().trim_end()
+            + &self.closing_bracket.print()
     }
 }
