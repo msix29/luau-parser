@@ -139,6 +139,12 @@ impl<T: Print> Print for Vec<T> {
 impl<T: Print, U: Print> Print for (T, U) {
     #[inline]
     fn print(&self) -> String {
-        self.0.print().trim_end().to_string() + &self.1.print()
+        let end = self.1.print();
+
+        if end.is_empty() {
+            self.0.print()
+        } else {
+            self.0.print().trim_end().to_string() + &end
+        }
     }
 }
