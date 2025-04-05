@@ -133,7 +133,10 @@ impl<T: Print> Print for ListItem<T> {
     #[inline]
     fn print(&self) -> String {
         match self {
-            Self::Trailing { item, .. } | Self::NonTrailing(item) => item.print(),
+            Self::Trailing { item, separator } => {
+                item.print().trim_end().to_string() + &separator.print()
+            }
+            Self::NonTrailing(item) => item.print(),
         }
     }
 }
