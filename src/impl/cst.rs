@@ -1,7 +1,7 @@
 use luau_lexer::prelude::{Lexer, Token, TokenType};
 use smol_str::SmolStr;
 
-use crate::types::{AstStatus, Block, Cst, ParseWithArgs};
+use crate::types::{AstStatus, Block, Cst, ParseWithArgs, Print, PrintingError};
 
 impl Cst {
     pub(crate) fn parse<T: Into<SmolStr>>(token: Token, lexer: &mut Lexer, uri: T) -> Self {
@@ -28,6 +28,22 @@ impl Cst {
             block: block.unwrap_or_default(),
             errors,
             status,
+        }
+    }
+
+    #[inline]
+    pub fn has_errors(&self) -> bool {
+        //FIXME:
+        // Check this or `self.errors`? The result will be the same as long
+        // as the users don't edit the CST themselves.
+        self.status == AstStatus::HasErrors
+    }
+
+    pub fn try_print(&self) -> Result<String, PrintingError> {
+        if self.has_errors() {
+            Err(PrintingError::ErroneousCst)
+        } else {
+            Ok(self.block.print())
         }
     }
 }

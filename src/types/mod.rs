@@ -33,5 +33,5 @@ pub type Pointer<T> = Rc<T>;
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum PrintingError {
     /// The [`CST`](Cst) has syntax errors.
-    IncompleteAst,
+    ErroneousCst,
 }
