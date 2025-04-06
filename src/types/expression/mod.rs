@@ -59,7 +59,6 @@ pub enum Expression {
     Number(Token),
 
     /// A string, be it double quotes, single quotes, interpolated string, or multi-line.
-    //TODO: Support interpolated string as a type by itself for better diagnostics?
     String(Token),
 
     /// An **anonymous** function.
