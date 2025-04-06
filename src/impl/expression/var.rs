@@ -1,7 +1,4 @@
-use luau_lexer::{
-    prelude::{Lexer, ParseError, Token, TokenType},
-    token::Symbol,
-};
+use luau_lexer::prelude::{Lexer, ParseError, Symbol, Token, TokenType};
 
 use crate::types::{
     Expression, Parse, PrefixExp, TableAccess, TableAccessKey, TableAccessPrefix, TryParse, Var,

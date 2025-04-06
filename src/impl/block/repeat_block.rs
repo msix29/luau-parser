@@ -1,7 +1,4 @@
-use luau_lexer::{
-    prelude::{Lexer, ParseError, Token},
-    token::{Keyword, TokenType},
-};
+use luau_lexer::prelude::{Keyword, Lexer, ParseError, Token, TokenType};
 
 use crate::{
     safe_unwrap,

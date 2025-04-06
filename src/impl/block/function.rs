@@ -2,10 +2,10 @@ use luau_lexer::prelude::{Keyword, Lexer, ParseError, Symbol, Token, TokenType};
 
 use crate::{
     force_parse_bracketed, parse_bracketed,
-    prelude::{GetRangeError, Range},
     types::{
-        Block, GetRange, GlobalFunction, GlobalFunctionName, LocalFunction, Parameter, Parse,
-        ParseWithArgs, Pointer, TableAccessKey, TryParse, TryParseWithArgs, TypeValue,
+        Block, GetRange, GetRangeError, GlobalFunction, GlobalFunctionName, LocalFunction,
+        Parameter, Parse, ParseWithArgs, Pointer, Range, TableAccessKey, TryParse,
+        TryParseWithArgs, TypeValue,
     },
     utils::{get_token_type_display, get_token_type_display_extended},
 };
@@ -61,7 +61,8 @@ impl Parse for GlobalFunctionName {
             let is_dot = dot_or_colon == TokenType::Symbol(Symbol::Dot);
 
             let keys = if is_dot {
-                Vec::<TableAccessKey>::parse_with(dot_or_colon.clone(), lexer, errors, false).unwrap_or_default()
+                Vec::<TableAccessKey>::parse_with(dot_or_colon.clone(), lexer, errors, false)
+                    .unwrap_or_default()
             } else {
                 Vec::new()
             };
