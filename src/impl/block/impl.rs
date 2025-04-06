@@ -89,18 +89,16 @@ impl<T: MatchesToken> ParseWithArgs<T> for Block {
                     // We will still continue parsing so LSPs, formatters, etc.
                     // can still produce "correct" outputs.
 
-                    //TODO:
-                    // if let Some(location) = statement.get_location() {
-                    //     errors.push(
-                    //         ParseError::new(
-                    //             location.start,
-                    //             "Statements after a termination statement are not allowed."
-                    //                 .to_string(),
-                    //             Some(location.end),
-                    //         )
-                    //         .into(),
-                    //     );
-                    // }
+                    if let Ok(range) = statement.get_range() {
+                        errors.push(
+                            ParseError::new(
+                                range.start,
+                                "Statements after a termination statement are not allowed."
+                                    .to_string(),
+                                Some(range.end),
+                            ),
+                        );
+                    }
                 }
 
                 maybe_next_token!(lexer, maybe_semicolon, TokenType::Symbol(Symbol::Semicolon));
