@@ -1,11 +1,13 @@
-use luau_lexer::{prelude::{
-    Lexer, Literal, Operator, ParseError, PartialKeyword, Symbol, Token, TokenType,
-}, token::Keyword};
+use luau_lexer::prelude::{
+    Keyword, Lexer, Literal, Operator, ParseError, PartialKeyword, Symbol, Token, TokenType,
+};
 
 use crate::{
     force_parse_bracketed, handle_error_token, parse_bracketed, safe_unwrap,
     types::{
-        Bracketed, BracketedList, GenericDeclaration, GenericDeclarationParameter, GenericParameterInfo, GenericParameterInfoDefault, List, Name, ParameterTypeName, Parse, ParseWithArgs, Pointer, Table, TryParse, TypeDefinition, TypeValue
+        Bracketed, BracketedList, GenericDeclaration, GenericDeclarationParameter,
+        GenericParameterInfo, GenericParameterInfoDefault, List, Name, ParameterTypeName, Parse,
+        ParseWithArgs, Pointer, Table, TryParse, TypeDefinition, TypeValue,
     },
     utils::get_token_type_display,
 };
@@ -228,11 +230,41 @@ impl TypeValue {
                 Table::parse_with(token, lexer, errors, true).map(Self::Table)
             }
             TokenType::Symbol(Symbol::Ellipses) => {
-                //TODO:
-                Some(Self::VariadicPack {
-                    ellipsis: token,
-                    name: lexer.next_token(),
-                })
+                // FIXME:
+                // Do we use `Self::try_parse` instead? The only difference
+                // being that `try_parse` would handle intersections and
+                // unions.. But should it? Does `...Foo & Bar` count as
+                // `(...Foo) & Bar` or `...(Foo & Bar)`? The first, which
+                // I think is right, is the current method, switching to
+                // `try_parse` would cause the second.
+                let state = lexer.save_state();
+                let type_value = if let Some(type_value) =
+                    Self::parse_inner(lexer.next_token(), lexer, errors)
+                {
+                    type_value
+                } else {
+                    errors.push(ParseError::new(
+                        state.lexer_position(),
+                        "Expected <type>",
+                        Some(state.lexer_position()),
+                    ));
+                    lexer.set_state(state);
+
+                    TypeValue::ERROR
+                };
+
+                match type_value {
+                    TypeValue::Basic { base, generics } if generics.is_none() => {
+                        Some(Self::VariadicPack {
+                            ellipsis: token,
+                            name: base,
+                        })
+                    }
+                    _ => Some(Self::Variadic {
+                        ellipsis: token,
+                        type_value: Pointer::new(type_value),
+                    }),
+                }
             }
             TokenType::Symbol(Symbol::OpeningAngleBrackets) => {
                 let generics = GenericDeclaration::parse_with(

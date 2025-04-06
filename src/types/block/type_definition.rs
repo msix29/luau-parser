@@ -216,7 +216,7 @@ pub enum TypeValue {
         ellipsis: Token,
 
         /// The actual type.
-        type_info: Pointer<TypeValue>,
+        type_value: Pointer<TypeValue>,
     },
 
     /// A variadic pack.
