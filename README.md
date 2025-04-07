@@ -37,8 +37,7 @@ assert!(!cst.block.is_empty());
 * This parser does not stop parsing when it finds an error
 * This parser only parses the code into an understandable syntax tree, it does not
     guarantee that the code itself is error free. Usage of undefined items will not
-    produce wrong results. Statements with syntax errors in them will not be parsed
-    though.
+    produce wrong results.
 * This parser only works for luau, although for lua versions compatible with luau, it
     can still be used, for example, lua 5.1, but features limited to a version of lua
     won't work, for example attributes in lua 5.3.
