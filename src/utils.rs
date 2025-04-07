@@ -1,8 +1,7 @@
 //! Utility functions for this crate.
 
 use luau_lexer::prelude::{
-    CompoundOperator,  Keyword, Literal, Operator, PartialKeyword,
-    Symbol, TokenType,
+    CompoundOperator, Keyword, Literal, Operator, PartialKeyword, Symbol, TokenType,
 };
 
 // Optimization trick

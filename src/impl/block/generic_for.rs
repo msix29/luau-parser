@@ -15,7 +15,7 @@ impl Parse for GenericFor {
         let names = List::try_parse(lexer, errors)?;
 
         maybe_next_token!(lexer, in_keyword, TokenType::Keyword(Keyword::In));
-        let Some(in_keyword) = in_keyword else{
+        let Some(in_keyword) = in_keyword else {
             lexer.set_state(state);
 
             return None;

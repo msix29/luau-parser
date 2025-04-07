@@ -94,14 +94,11 @@ impl<T: MatchesToken> ParseWithArgs<T> for Block {
                     // can still produce "correct" outputs.
 
                     if let Ok(range) = statement.get_range() {
-                        errors.push(
-                            ParseError::new(
-                                range.start,
-                                "Statements after a termination statement are not allowed."
-                                    .to_string(),
-                                Some(range.end),
-                            ),
-                        );
+                        errors.push(ParseError::new(
+                            range.start,
+                            "Statements after a termination statement are not allowed.".to_string(),
+                            Some(range.end),
+                        ));
                     }
                 }
 
