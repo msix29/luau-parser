@@ -1,3 +1,5 @@
+//! All `impl` blocks for [`List`].
+
 use luau_lexer::prelude::{Lexer, ParseError, Symbol, Token, TokenType};
 use std::ops::{Deref, DerefMut};
 
@@ -6,11 +8,13 @@ use crate::types::{
 };
 
 impl<T> List<T> {
+    /// Create a new empty list.
     #[inline]
     pub const fn new() -> Self {
         Self { items: Vec::new() }
     }
 
+    /// The main parsing logic.
     fn parse<C: FnMut(Token, &mut Lexer) -> Option<T>>(
         mut token: Token,
         lexer: &mut Lexer,

@@ -1,3 +1,10 @@
+//! All `impl` blocks for table access-related types:
+//!
+//! * [`TableAccessPrefix`]
+//! * [`TableAccessKey`]
+//! * [`TableAccessKey`]
+//! * [`TableAccess`]
+
 use luau_lexer::prelude::{Lexer, ParseError, Symbol, Token, TokenType};
 
 use crate::{

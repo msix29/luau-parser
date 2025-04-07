@@ -1,6 +1,20 @@
-//! The `parse_bracketed` macro.
+//! Helper parsing macros.
 
+/// Parse a [`Bracketed`](crate::types::Bracketed).
+///
+/// # Usage
+///
+/// ```ignore
+///  parse_bracketed!(
+///     lexer,
+///     errors,
+///     "<error message>",
+///     TokenType::Symbol(Symbol::OpeningParenthesis), // opening token
+///     Symbol::ClosingParenthesis, // closing token
+/// )
+/// ```
 #[macro_export]
+#[doc(hidden)]
 macro_rules! parse_bracketed {
     (
         $lexer: ident,
@@ -24,7 +38,24 @@ macro_rules! parse_bracketed {
     }};
 }
 
+/// Force parse a [`Bracketed`](crate::types::Bracketed) by putting fake tokens
+/// if it failed to actually parse it.
+///
+/// # Usage
+///
+/// ```ignore
+///  parse_bracketed!(
+///     lexer,
+///     errors,
+///     "<error message>",
+///     (
+///         TokenType::Symbol(Symbol::OpeningParenthesis), // opening token
+///         TokenType::Symbol(Symbol::OpeningParenthesis), // replacement in case of failure
+///     )
+///     Symbol::ClosingParenthesis, // closing token
+/// )
 #[macro_export]
+#[doc(hidden)]
 macro_rules! force_parse_bracketed {
     (
         $lexer: ident,
@@ -52,22 +83,6 @@ macro_rules! force_parse_bracketed {
             opening_bracket: Token::empty($opening_replacement),
             item: Default::default(),
             closing_bracket: Token::empty($closing.into()),
-        })
-    }};
-}
-
-#[macro_export]
-macro_rules! safe_unwrap {
-    ($lexer: ident, $errors: ident, $error_message: expr, $expr: expr) => {{
-        $expr.unwrap_or_else(|| {
-            let state = $lexer.save_state();
-            $errors.push(ParseError::new(
-                state.lexer_position(),
-                $error_message,
-                Some(state.lexer_position()),
-            ));
-
-            Default::default()
         })
     }};
 }

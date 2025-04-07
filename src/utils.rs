@@ -1,3 +1,5 @@
+//! Utility functions for this crate.
+
 use luau_lexer::prelude::{
     CompoundOperator,  Keyword, Literal, Operator, PartialKeyword,
     Symbol, TokenType,
@@ -10,6 +12,10 @@ use luau_lexer::prelude::{
 // And since the functions are only used internally (in `format!`, for errors),
 // this edit has no side effects.
 
+/// Display a high-level overview of the passed [`token type`](TokenType) as a
+/// string. Unlike [`get_token_type_display_extended`], this doesn't differentiate
+/// between items of the same enum, ie. all items in [`Symbol`] will have the same
+/// output.
 pub(crate) fn get_token_type_display(token_type: &TokenType) -> &str {
     match token_type {
         TokenType::Keyword(_) => "<keyword>",
@@ -25,6 +31,9 @@ pub(crate) fn get_token_type_display(token_type: &TokenType) -> &str {
     }
 }
 
+/// Display the passed [`token type`](TokenType) as a string. Unlike
+/// [`get_token_type_display`], this differentiates between items of the same enum,
+/// ie. [`Symbol::Colon`] and [`Symbol::Equal`] will have different outputs.
 pub(crate) fn get_token_type_display_extended(token_type: &TokenType) -> &str {
     match token_type {
         TokenType::Keyword(keyword) => match keyword {

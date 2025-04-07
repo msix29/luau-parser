@@ -1,3 +1,5 @@
+//! All `impl` blocks for CST-related types.
+
 #[macro_use]
 mod macros;
 

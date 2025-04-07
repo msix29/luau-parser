@@ -37,6 +37,9 @@ pub struct LocalFunction {
     pub end_keyword: Token,
 }
 
+/// Parameter that a function can have. The difference between this and
+/// [`Name`](crate::types::Name) is the fact that [`Parameter.name`](Parameter::name)
+/// can match variadic values (`...`) while `Name` can't.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range, Print)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Parameter {

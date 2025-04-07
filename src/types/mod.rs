@@ -1,19 +1,19 @@
 //! # Types module
 //!
-//! This just rexports the struct and traits for easier importing.
+//! This just reexports the struct and traits for easier importing.
 //!
 //! ## Note
 //!
 //! This file only contains the definitions for items, for actual implementations,
 //! check the files under `src/impl`. Each type will have it's implementation in
 //! the same place, ex. types in `types/value/function.rs` will have
-//! their implementations in `impl/value/function.rs`, same thing for display
-//! implementations but they'll be in `src/display` instead. The only `impl`
+//! their implementations in `impl/value/function.rs`. The only `impl`
 //! here is for `Statement`, and it isn't exposed directly to consumers of this
-//! crate but rather through other functions.
+//! crate, but rather through other functions.
 
 use std::rc::Rc;
 
+/// A helper macro to reexport modules.
 macro_rules! reexport {
     ($($name: ident),* $(,)?) => {
         $( mod $name; )*

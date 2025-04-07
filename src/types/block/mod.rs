@@ -19,6 +19,7 @@ reexport!(
     comment,
 );
 
+/// A block of code that represents a single scope (and nested ones).
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Block {

@@ -1,3 +1,5 @@
+//! All `impl` blocks for [`Block`].
+
 use luau_lexer::prelude::{Lexer, ParseError, Symbol, Token, TokenType};
 
 use crate::{
@@ -8,7 +10,9 @@ use crate::{
     utils::get_token_type_display_extended,
 };
 
+/// A private helper trait for [`Block::parse_with`].
 trait MatchesToken {
+    /// Whether or not the current item matches the passed [`token`](Token).
     fn matches(&self, token: &Token) -> bool;
 }
 
@@ -141,21 +145,24 @@ impl<T: MatchesToken> ParseWithArgs<T> for Block {
 }
 
 impl Block {
+    /// Whether or not this block is empty.
     pub fn is_empty(&self) -> bool {
         self.statements.is_empty() && self.last_statement.is_none()
     }
 }
 
+/// A helper function to get the range of a [`Statement`] or [`TerminationStatement`]
+/// which accounts for the optional [`;`](Symbol::Semicolon) at the end.
 fn get_range<T: GetRange>(
     statement: &T,
     semi_colon: &Option<Token>,
 ) -> Result<Range, GetRangeError> {
     let statement_range = statement.get_range();
 
-    if let Some(seme_colon) = semi_colon {
+    if let Some(semicolon) = semi_colon {
         Ok(Range::new(
             statement_range?.start,
-            seme_colon.get_range()?.end,
+            semicolon.get_range()?.end,
         ))
     } else {
         statement_range

@@ -76,10 +76,18 @@ pub enum FunctionArguments {
     List(BracketedList<Pointer<FunctionArgument>>),
 }
 
+/// Arguments that can be passed in a [`FunctionCall`].
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range, Print)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum FunctionArgument {
+    /// A normal [`expression`](Expression).
     Expression(Expression),
+
+    /// A variadic value
+    ///
+    /// ```lua
+    /// fn(...)
+    /// ```
     VariadicValues(Token),
 }
 

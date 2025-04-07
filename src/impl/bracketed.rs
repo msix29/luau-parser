@@ -1,3 +1,5 @@
+//! All `impl` blocks for [`Bracketed`].
+
 use luau_lexer::prelude::{Lexer, ParseError, State, Symbol, Token, TokenType};
 use std::ops::{Deref, DerefMut};
 
@@ -6,7 +8,10 @@ use crate::{
     utils::get_token_type_display_extended,
 };
 
+/// A private trait that indicates whether or not the current item is empty.
+/// It's only implemented for a limited set of types.
 trait IsEmpty {
+    /// Whether or not this item is empty.
     fn is_empty(&self) -> bool {
         false
     }
@@ -17,6 +22,8 @@ impl<T> IsEmpty for List<T> {
     }
 }
 
+/// Implements [`IsEmpty`] for the passed type and for
+/// [`Pointer`](crate::types::Pointer) of that type
 macro_rules! __sealed_impl {
     ($($ty:ident $(<$generic:ident>)?),* $(,)?) => {
         $( impl $(<$generic>)? IsEmpty for $crate::types::$ty $(<$generic>)? {})*
@@ -27,6 +34,7 @@ __sealed_impl!(Bracketed<T>, TypeValue, Expression);
 
 #[allow(private_bounds)]
 impl<T: IsEmpty> Bracketed<T> {
+    /// The actual parsing logic.
     fn parse(
         previous_state: State,
         maybe_parsed_item: Option<T>,

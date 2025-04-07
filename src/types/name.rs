@@ -1,8 +1,4 @@
-//! # Name
-//!
-//! Module holding type definition for any grammar item related to names. Ex. variable
-//! names.
-//!
+//! The [`Name`] struct
 
 use luau_lexer::prelude::Token;
 use luau_parser_derive::{Print, Range};
@@ -16,7 +12,7 @@ pub struct Name {
     /// The actual name.
     pub name: Token,
 
-    /// `:` character.
+    /// The optional `:` character.
     pub colon: Option<Token>,
 
     /// The type that was with this name, defined with the `: type` syntax.

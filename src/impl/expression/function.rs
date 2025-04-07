@@ -1,9 +1,19 @@
+//! All `impl` blocks for function call-related types:
+//!
+//! * [`FunctionCallInvoked`]
+//! * [`FunctionCall`]
+//! * [`FunctionArguments`]
+//! * [`FunctionArgument`]
+//! * [`Closure`]
+
 use luau_lexer::prelude::{Keyword, Lexer, Literal, ParseError, Symbol, Token, TokenType};
 
 use crate::{
     force_parse_bracketed, parse_bracketed,
     types::{
-        Block, BracketedList, Closure, Expression, FunctionArgument, FunctionArguments, FunctionCall, FunctionCallInvoked, Parse, ParseWithArgs, Pointer, PrefixExp, Table, TableAccessPrefix, TryParse, TryParseWithArgs, TypeValue
+        Block, BracketedList, Closure, Expression, FunctionArgument, FunctionArguments,
+        FunctionCall, FunctionCallInvoked, Parse, ParseWithArgs, Pointer, PrefixExp, Table,
+        TableAccessPrefix, TryParse, TryParseWithArgs, TypeValue,
     },
     utils::{get_token_type_display, get_token_type_display_extended},
 };

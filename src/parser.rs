@@ -10,7 +10,7 @@ use crate::types::Cst;
 pub struct Parser<'a> {
     /// Cache, only works with the `cache` feature, this is useful when you need
     /// to use the [`CST`](Cst) more than once in 2 different places without
-    /// reparsing or with the `uri` only.
+    /// re-parsing.
     #[cfg(feature = "cache")]
     cache: HashMap<String, Cst>,
 

@@ -1,4 +1,4 @@
-//! Range-related items.
+//! The [`Range`] struct.
 
 use luau_lexer::prelude::Position;
 

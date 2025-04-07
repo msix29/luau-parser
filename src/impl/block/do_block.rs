@@ -1,3 +1,5 @@
+//! All `impl` blocks for [`DoBlock`].
+
 use luau_lexer::prelude::{Keyword, Lexer, ParseError, Token, TokenType};
 
 use crate::{

@@ -1,3 +1,5 @@
+//! All `impl` blocks for [`NumericalFor`].
+
 use luau_lexer::prelude::{Keyword, Lexer, ParseError, Symbol, Token, TokenType};
 
 use crate::{

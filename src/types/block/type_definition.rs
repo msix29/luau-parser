@@ -1,6 +1,6 @@
 //! # Type Definition
 //!
-//! Module containg definition for type definitions.
+//! Module containing definition for type definitions.
 
 use luau_lexer::prelude::Token;
 use luau_parser_derive::{Print, Range};
@@ -15,7 +15,7 @@ pub enum TypeValue {
     #[default]
     ERROR,
 
-    /// A singletone string.
+    /// A singleton string.
     ///
     /// ```lua
     /// type Foo = "Bar"
@@ -37,7 +37,7 @@ pub enum TypeValue {
     /// ```
     Nil(Token),
 
-    /// A wrape of another type, the difference between this and a
+    /// A wrap of another type, the difference between this and a
     /// [`tuple`](TypeValue::Tuple) is that this item always have one type and only one
     /// type in it, while a [`tuple`](TypeValue::Tuple) can have any, even 0.
     ///
@@ -55,7 +55,7 @@ pub enum TypeValue {
         /// Optional generics provided for the function.
         ///
         /// ```lua
-        /// type Foo = <P, R>(paramter: P) -> R
+        /// type Foo = <P, R>(parameter: P) -> R
         /// ```
         #[range_or = "parameters"]
         generics: Option<Pointer<GenericDeclaration>>,
@@ -209,7 +209,7 @@ pub enum TypeValue {
     /// ...{ Foo: "Bar" }
     /// ```
     ///
-    /// And is that variadic types are used in function paramterers and returns, while
+    /// And is that variadic types are used in function parameters and returns, while
     /// variadic packs are used for generics.
     Variadic {
         /// The `...` characters.
@@ -237,10 +237,14 @@ pub enum TypeValue {
     },
 }
 
+/// Parameters of a [`TypeValue::Function`].
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range, Print)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum ParameterTypeName {
+    /// A normal `name: type` syntax.
     Normal(Name),
+
+    /// A type only, in this case, the name is just anonymous.
     Type(TypeValue),
 }
 
@@ -315,6 +319,7 @@ pub struct GenericDeclarationParameter {
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord, Range, Print)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum GenericParameterInfoDefault {
+    /// There was an error parsing.
     #[default]
     ERROR,
 

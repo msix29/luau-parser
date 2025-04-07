@@ -25,7 +25,7 @@
 //!
 //! * This parser does not stop parsing when it finds an error
 //! * This parser only parses the code into an understandable syntax tree, it does not
-//!     garuntee that the code itself is error free. Usage of undefined items will not
+//!     guarantee that the code itself is error free. Usage of undefined items will not
 //!     produce wrong results. Statements with syntax errors in them will not be parsed
 //!     though.
 //! * This parser only works for luau, although for lua versions compatible with luau, it
@@ -33,9 +33,9 @@
 //!     won't work, for example attributes in lua 5.3.
 
 #![deny(unsafe_code)]
-// #![warn(clippy::missing_docs_in_private_items)]
-// #![warn(missing_docs)]
-// #![allow(unused)]
+#![warn(clippy::missing_docs_in_private_items)]
+#![warn(missing_docs)]
+#![allow(unused)]
 #![warn(clippy::absolute_paths)]
 
 #[macro_use]

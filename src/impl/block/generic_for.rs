@@ -1,3 +1,5 @@
+//! All `impl` blocks for [`GenericFor`].
+
 use luau_lexer::prelude::{Keyword, Lexer, ParseError, Token, TokenType};
 
 use crate::types::{DoBlock, GenericFor, List, Parse, TryParse};

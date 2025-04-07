@@ -1,3 +1,11 @@
+//! All `impl` blocks for type-related types:
+//!
+//! * [`TableKey`]
+//! * [`TableField`]
+//! * [`TableFieldValue`]
+//! * [`Table`]
+
+
 use luau_lexer::prelude::{Lexer, ParseError, Symbol, Token, TokenType};
 use std::cell::Cell;
 
@@ -10,12 +18,17 @@ use crate::{
     },
 };
 
+/// A simple struct holding arguments needed for parsing tables.
 #[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
 struct ParseArgs {
+    /// Whether or not it's currently parsing a type.
     is_type: bool,
+
+    /// The number of keys it inferred. Only for expressions.
     inferred_keys: Cell<u32>,
 }
 impl ParseArgs {
+    /// Create new [`ParseArgs`].
     #[inline]
     fn new(is_type: bool, inferred_keys: u32) -> Self {
         Self {
@@ -26,6 +39,7 @@ impl ParseArgs {
 }
 
 impl TableKey {
+    /// Crate a new [`TableKey::UndefinedNumber`] from the passed [`ParseArgs`].
     #[inline]
     fn undefined_number(parse_args: &ParseArgs) -> Self {
         Self::UndefinedNumber(
@@ -35,6 +49,7 @@ impl TableKey {
         )
     }
 
+    /// Crate a new [`TableKey::UndefinedString`] from the passed [`ParseArgs`].
     #[inline]
     fn undefined_string() -> Self {
         Self::UndefinedString("number".into())

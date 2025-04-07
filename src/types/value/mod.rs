@@ -1,6 +1,6 @@
 //! # Value
 //!
-//! Possible values to hold Luau datatypes.
+//! Module for complex values in Luau.
 //!
 
 mod table;

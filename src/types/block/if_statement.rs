@@ -18,7 +18,7 @@ pub struct IfStatement {
     /// The `then` keyword.
     pub then_keyword: Token,
 
-    /// The body that'll be excuted if condition is truthy.
+    /// The body that'll be executed if condition is truthy.
     pub body: Block,
 
     /// Elseif branches.
@@ -44,7 +44,7 @@ pub struct ElseIfStatement {
     /// The `then` keyword.
     pub then_keyword: Token,
 
-    /// The body that'll be excuted if condition is truthy.
+    /// The body that'll be executed if condition is truthy.
     pub body: Block,
 }
 

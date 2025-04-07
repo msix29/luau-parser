@@ -1,3 +1,8 @@
+//! All `impl` blocks for:
+//!
+//! * [`SetExpression`]
+//! * [`CompoundSetExpression`]
+
 use luau_lexer::prelude::{Lexer, ParseError, Symbol, Token, TokenType};
 
 use crate::{

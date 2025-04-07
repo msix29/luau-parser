@@ -65,7 +65,7 @@ pub struct TableField {
     /// The `=` or `:` tokens, it's `=` in variables and `:` in types.
     pub equal_or_colon: Option<Token>,
 
-    /// The value of theis field. An expression in variables and a type in type
+    /// The value of this field. An expression in variables and a type in type
     /// definitions.
     pub value: Pointer<TableFieldValue>,
 }
@@ -85,6 +85,9 @@ pub enum TableFieldValue {
     /// A [`type`](TypeValue), can be found in type definitions only.
     Type(TypeValue),
 
+    ///```lua
+    /// {...}
+    /// ```
     // only in expressions
     VariadicValues(Token),
 }

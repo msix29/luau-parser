@@ -1,3 +1,20 @@
+//! Helper parsing macros.
+
+/// Attempt to get the next token and put a fake token if it failed.
+///
+/// # Usage
+///
+/// ```ignore
+/// next_token_recoverable!(
+///     lexer,
+///     name,
+///     pattern, // Must be `TokenType`
+///     replacement, // Must be `TokenType`
+///     errors,
+///     "error_message",
+/// )
+/// ```
+#[doc(hidden)]
 macro_rules! next_token_recoverable {
     (
         $lexer: ident,
@@ -18,6 +35,8 @@ macro_rules! next_token_recoverable {
     };
 }
 
+/// Inner macro for [`next_token_recoverable!`].
+#[doc(hidden)]
 macro_rules! next_token_recoverable_with_condition {
     (
         $lexer: ident,
@@ -55,12 +74,26 @@ macro_rules! next_token_recoverable_with_condition {
     };
 }
 
+/// Tries to get the next token without recovery.
+///
+/// # Usage
+///
+/// ```ignore
+/// next_token_recoverable!(
+///     lexer,
+///     name,
+///     pattern // Must be `TokenType`
+/// )
+/// ```
+#[doc(hidden)]
 macro_rules! maybe_next_token {
     ($lexer: ident, $name: ident, $pattern: pat) => {
         maybe_next_token_with_condition!($lexer, $name, matches!($name.token_type, $pattern))
     };
 }
 
+/// Inner macro for [`maybe_next_token!`].
+#[doc(hidden)]
 macro_rules! maybe_next_token_with_condition {
     ($lexer: ident, $name: ident, $condition: expr) => {
         let state = $lexer.save_state();
@@ -76,6 +109,30 @@ macro_rules! maybe_next_token_with_condition {
     };
 }
 
+/// Helper macro to parse functions.
+///
+/// # Usage
+///
+/// The simplest usage (when the function has no name) is:
+///
+/// ```ignore
+/// parse_function!(function_keyword, lexer, errors)
+/// ```
+///
+/// If a name exists:
+///
+/// ```ignore
+/// parse_function!(
+///     lexer.next_token(),
+///     lexer,
+///     errors,
+///     let function_name = { ... }, // a block that returns the name
+///     { function_name } // extra field that matches that in the struct
+/// )
+/// ```
+///
+/// If more fields exist, they can be specified in the last `{ ... }`.
+#[doc(hidden)]
 macro_rules! parse_function {
     (
         $function_keyword: expr,

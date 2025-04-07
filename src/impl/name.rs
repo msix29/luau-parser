@@ -1,9 +1,12 @@
+//! All `impl` blocks for [`Name`].
+
 use luau_lexer::prelude::{Lexer, ParseError, Symbol, Token, TokenType};
 use smol_str::SmolStr;
 
 use crate::types::{Name, Parse, Pointer, TryParse, TypeValue};
 
 impl Name {
+    /// An error name that should be used when a name failed to parse but must exist.
     pub const ERROR: Self = Self {
         name: Token::empty(TokenType::Identifier(SmolStr::new_inline("*error*"))),
         colon: None,

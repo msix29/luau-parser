@@ -1,3 +1,12 @@
+//! All `impl` blocks for:
+//!
+//! * [`TypeValue`]
+//! * [`ParameterTypeName`]
+//! * [`TypeDefinition`]
+//! * [`GenericParameterInfo`]
+//! * [`GenericDeclarationParameter`]
+//! * [`GenericParameterInfoDefault`]
+
 use luau_lexer::prelude::{
     Keyword, Lexer, Literal, Operator, ParseError, PartialKeyword, Symbol, Token, TokenType,
 };
@@ -13,6 +22,7 @@ use crate::{
 };
 
 impl TypeValue {
+    /// Parses a [`TypeValue`] from a name.
     fn parse_from_name(
         base: Token,
         lexer: &mut Lexer,
@@ -67,6 +77,7 @@ impl TypeValue {
         }
     }
 
+    /// Parses a [`TypeValue::Function`]
     fn parse_function(
         lexer: &mut Lexer,
         errors: &mut Vec<ParseError>,
@@ -109,6 +120,11 @@ impl TypeValue {
         })
     }
 
+    /// Parse [`TypeValue`]s that start with a `(`:
+    ///
+    /// * [`TypeValue::Wrap`]
+    /// * [`TypeValue::Tuple`]
+    /// * [`TypeValue::Function`]
     fn parse_bracketed(
         token: Token,
         lexer: &mut Lexer,
@@ -202,6 +218,9 @@ impl TypeValue {
         }
     }
 
+    /// Inner function for [`TypeValue::parse`]. This doesn't account for union
+    /// nor intersection operations after the type, which [`TypeValue::parse`]
+    /// handles.
     fn parse_inner(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
         match token.token_type {
             TokenType::Error(error) => handle_error_token!(errors, error),

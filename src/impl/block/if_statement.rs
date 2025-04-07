@@ -1,3 +1,9 @@
+//! All `impl` blocks for:
+//!
+//! * [`IfStatement`]
+//! * [`ElseStatement`]
+//! * [`ElseIfStatement`]
+
 use luau_lexer::prelude::{Keyword, Lexer, ParseError, Token, TokenType};
 
 use crate::{
@@ -8,6 +14,7 @@ use crate::{
     },
 };
 
+/// All type of tokens that can end if/else/elseif blocks.
 const END_TOKENS: [TokenType; 3] = [
     TokenType::Keyword(Keyword::End),
     TokenType::Keyword(Keyword::Elseif),

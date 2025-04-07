@@ -1,3 +1,5 @@
+//! All `impl` blocks for [`Comment`].
+
 use luau_lexer::prelude::{Lexer, ParseError, Token, TokenType};
 
 use crate::types::{Comment, Parse};

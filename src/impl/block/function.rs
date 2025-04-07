@@ -1,3 +1,9 @@
+//! All `impl` blocks for:
+//!
+//! * [`LocalFunction`]
+//! * [`GlobalFunction`]
+//! * [`GlobalFunctionName`]
+
 use luau_lexer::prelude::{Keyword, Lexer, ParseError, Symbol, Token, TokenType};
 
 use crate::{

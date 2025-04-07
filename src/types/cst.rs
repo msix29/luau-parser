@@ -3,15 +3,17 @@ use smol_str::SmolStr;
 
 use crate::types::Block;
 
-/// An enum representing different states of an CST.
+/// An enum representing different states of a CST.
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum AstStatus {
-    /// Indicates that the parsed CST is a perfect clone of the code passed to it and that no errors has occurred.
+    /// Indicates that the parsed CST is a perfect clone of the code
+    /// passed to it and that no errors has occurred.
     #[default]
     Complete,
 
-    /// Indicates that the parsed CST is incomplete because the code had syntax errors.
+    /// Indicates that the parsed CST is incomplete because the code had
+    /// syntax errors.
     HasErrors,
 }
 

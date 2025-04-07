@@ -1,3 +1,5 @@
+//! All `impl` blocks for [`Statement`] and [`TerminationStatement`].
+
 use luau_lexer::prelude::{Keyword, Lexer, ParseError, PartialKeyword, Token, TokenType};
 
 use crate::{

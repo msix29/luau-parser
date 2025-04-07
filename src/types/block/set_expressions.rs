@@ -9,7 +9,7 @@ use crate::types::{Expression, List, Pointer, Var};
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 /// A struct representing a set expression.
 pub struct SetExpression {
-    /// The variables whome values are being set.
+    /// The variables whom values are being set.
     pub variables: List<Var>,
 
     /// The `=` character.
@@ -24,7 +24,7 @@ pub struct SetExpression {
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 /// A struct representing a set expression.
 pub struct CompoundSetExpression {
-    /// The variables whome values are being set.
+    /// The variables whom values are being set.
     pub variable: Var,
 
     /// The compound operation like `+=`, `//=`, etc.

@@ -12,7 +12,7 @@ pub struct NumericalFor {
     /// The `for` keyword.
     pub for_keyword: Token,
 
-    /// The name afer the `for` keyword.
+    /// The name after the `for` keyword.
     pub variable: Name,
 
     /// The `=` character.

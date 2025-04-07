@@ -1,4 +1,4 @@
-//! Module holding types for literals.
+//! Helper types for literal values.
 
 use std::num::{ParseFloatError, ParseIntError};
 

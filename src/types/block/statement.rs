@@ -12,12 +12,14 @@ use crate::types::{
     SetExpression, TypeDefinition, WhileLoop,
 };
 
+/// Helper macro to generate the [`Statement`] enum.
 macro_rules! generate_statement {
     ($(
         $( #[$meta:meta] )*
         $name:ident($ty:ty)
     ),* $(,)?) => {
-        /// All possible tokens in an [`CST`](crate::types::Cst).
+        /// All possible statements in a [`CST`](crate::types::Cst), excluding
+        /// [ending ones](TerminationStatement).
         #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord, Range, Print)]
         #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
         pub enum Statement {

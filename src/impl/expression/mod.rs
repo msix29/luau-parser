@@ -1,3 +1,5 @@
+//! All `impl` blocks for expression-related types
+
 mod function;
 mod table;
 mod var;
@@ -61,6 +63,7 @@ impl Parse for PrefixExp {
 impl TryParse for PrefixExp {}
 
 impl Expression {
+    /// Parses an [`Expression`] from a literal [`TokenType::Literal`]
     pub fn parse_from_literal(token: Token) -> Option<Self> {
         match &token.token_type {
             TokenType::Literal(literal) => match literal {
@@ -72,6 +75,8 @@ impl Expression {
         }
     }
 
+    /// Inner function for [`Expression::parse`]. This function doesn't check for
+    /// operators before nor after the expression, which [`Expression::parse`] does.
     fn parse_inner(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
         match token.token_type {
             TokenType::Error(error) => handle_error_token!(errors, error),
