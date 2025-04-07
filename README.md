@@ -1,6 +1,6 @@
 # Luau Parser
 
-A lossless parser for the luau programming language, lossless means that none of the details of the code is lost, it's all stored in the returned syntax tree, and thus, the source code can be printed back by using the `Cst::print` function.
+A lossless parser for the Luau programming language; lossless, meaning that none of the details of the code are lost, and that all of it is stored in the returned syntax tree, and thus, the original source code can be printed back by using the `Cst::print` function.
 
 ## Usage
 
