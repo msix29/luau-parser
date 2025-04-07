@@ -260,11 +260,11 @@ pub struct TypeDefinition {
     /// The `type` keyword.
     pub type_keyword: Token,
 
-    /// The generics for this type.
-    pub generics: Option<Pointer<GenericDeclaration>>,
-
     /// The name of the type.
     pub type_name: Token,
+
+    /// The generics for this type.
+    pub generics: Option<Pointer<GenericDeclaration>>,
 
     /// The `=` sign between the name and the actual value of the type.
     /// This will be `None` if this isn't it's own statement but rather
