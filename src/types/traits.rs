@@ -4,15 +4,6 @@ use luau_lexer::prelude::{Lexer, ParseError, Token};
 
 use crate::types::Range;
 
-/// A trait for a token that can be represented in a more abstract form for the user to see,
-/// without maintaining original styling. This is mainly for LSPs so it's LSP-ready and can
-/// be used for things like hover.
-#[cfg(feature = "raw-values")]
-pub trait HasRawValue {
-    /// Get the lossy _raw value_ of this token. For lossless, see [`print`](Print).
-    fn get_raw_value(&self) -> String;
-}
-
 /// A trait to print the token as-is, while preserving all user spaces and styling.
 pub trait Print {
     /// Prints the whole token including all surrounding spaces.
