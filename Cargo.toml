@@ -3,7 +3,7 @@ name = "luau-parser"
 version = "0.1.0"
 description = "A parser for the luau language."
 edition = "2021"
-license = "Apache-2.0"
+license = "MIT"
 readme = "README.md"
 keywords = ["luau", "parser"]
 
