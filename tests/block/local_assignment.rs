@@ -1,5 +1,5 @@
 use luau_lexer::token::{Keyword, TokenType};
-use luau_parser::{parser::Parser, types::{AstStatus, Statement}};
+use luau_parser::prelude::{AstStatus, Parser, Statement};
 
 #[test]
 fn only_name() {
@@ -14,7 +14,10 @@ fn only_name() {
 
     get_from_enum!(Statement::LocalAssignment(local_assignment) = &*cst.block.statements[0].0);
 
-    assert_matches!(local_assignment.local_token.token_type, TokenType::Keyword(Keyword::Local));
+    assert_matches!(
+        local_assignment.local_token.token_type,
+        TokenType::Keyword(Keyword::Local)
+    );
     assert!(local_assignment.name_list.len() == 1);
 
     let name = &local_assignment.name_list[0];
