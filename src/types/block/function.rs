@@ -9,6 +9,9 @@ use crate::types::{Block, BracketedList, GenericDeclaration, Pointer, TableAcces
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range, Print)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct LocalFunction {
+    /// Attributes before the function.
+    pub attributes: Vec<Attribute>,
+
     /// The `local` keyword.
     pub local_keyword: Token,
 
@@ -52,6 +55,17 @@ pub struct Parameter {
     /// The type that was with this name, defined with the `: type` syntax.
     #[range_or = "name"]
     pub r#type: Option<Pointer<TypeValue>>,
+}
+
+/// An attribute that can be placed before a function.
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range, Print)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+pub struct Attribute {
+    /// `@` character.
+    pub at: Token,
+
+    /// The actual attribute.
+    pub attribute: Token,
 }
 
 /// An enum representing possible ways in which a global function's name can be.
@@ -127,6 +141,9 @@ pub enum GlobalFunctionName {
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range, Print)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct GlobalFunction {
+    /// Attributes before the function.
+    pub attributes: Vec<Attribute>,
+
     /// The `function` keyword.
     pub function_keyword: Token,
 

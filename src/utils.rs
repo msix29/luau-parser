@@ -82,6 +82,7 @@ pub(crate) fn get_token_type_display_extended(token_type: &TokenType) -> &str {
             Symbol::Arrow => "<arrow>",
             Symbol::Typecast => "<typecast>",
             Symbol::Equal => "`=`",
+            Symbol::At => "`@`",
         },
         TokenType::Operator(operator) => match operator {
             Operator::Plus => "`+`",

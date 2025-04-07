@@ -2,8 +2,7 @@ use luau_lexer::prelude::Token;
 use luau_parser_derive::{Print, Range};
 
 use crate::types::{
-    Block, BracketedList, Expression, GenericDeclaration, Parameter, Pointer, PrefixExp, Table,
-    TypeValue,
+    Attribute, Block, BracketedList, Expression, GenericDeclaration, Parameter, Pointer, PrefixExp, Table, TypeValue
 };
 
 /// Different ways a function can be called.
@@ -95,6 +94,9 @@ pub enum FunctionArgument {
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range, Print)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Closure {
+    /// Attributes before the function.
+    pub attributes: Vec<Attribute>,
+
     /// The `function` keyword at the start
     pub function_keyword: Token,
 

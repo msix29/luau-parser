@@ -118,11 +118,27 @@ impl Parse for FunctionArgument {
 impl TryParse for FunctionArgument {}
 
 impl Parse for Closure {
-    fn parse(
-        function_keyword: Token,
-        lexer: &mut Lexer,
-        errors: &mut Vec<ParseError>,
-    ) -> Option<Self> {
-        parse_function!(function_keyword, lexer, errors)
+    fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
+        let attributes;
+        let function_keyword;
+
+        match token.token_type {
+            TokenType::Keyword(Keyword::Function) => {
+                attributes = Vec::new();
+                function_keyword = token;
+            }
+            TokenType::Symbol(Symbol::At) => {
+                attributes = safe_unwrap!(
+                    lexer,
+                    errors,
+                    "Expected <attribute>",
+                    Vec::parse(token, lexer, errors)
+                );
+                function_keyword = lexer.next_token();
+            }
+            _ => return None,
+        }
+
+        parse_function!(attributes, function_keyword, lexer, errors)
     }
 }

@@ -102,7 +102,7 @@ impl Expression {
             TokenType::Symbol(Symbol::OpeningCurlyBrackets) => {
                 Table::parse_with(token, lexer, errors, false).map(Self::Table)
             }
-            TokenType::Keyword(Keyword::Function) => {
+            TokenType::Keyword(Keyword::Function) | TokenType::Symbol(Symbol::At) => {
                 Closure::parse(token, lexer, errors).map(Self::Closure)
             }
             TokenType::Keyword(Keyword::Nil) => Some(Self::Nil(token)),

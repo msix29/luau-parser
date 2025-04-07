@@ -9,24 +9,43 @@ use luau_lexer::prelude::{Keyword, Lexer, ParseError, Symbol, Token, TokenType};
 use crate::{
     force_parse_bracketed, parse_bracketed,
     types::{
-        Block, GetRange, GetRangeError, GlobalFunction, GlobalFunctionName, LocalFunction,
-        Parameter, Parse, ParseWithArgs, Pointer, Range, TableAccessKey, TryParse,
+        Attribute, Block, GetRange, GetRangeError, GlobalFunction, GlobalFunctionName,
+        LocalFunction, Parameter, Parse, ParseWithArgs, Pointer, Range, TableAccessKey, TryParse,
         TryParseWithArgs, TypeValue,
     },
     utils::{get_token_type_display, get_token_type_display_extended},
 };
 
 impl Parse for LocalFunction {
-    fn parse(
-        local_keyword: Token,
-        lexer: &mut Lexer,
-        errors: &mut Vec<ParseError>,
-    ) -> Option<Self> {
+    fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
+        let state = lexer.save_state();
+        let attributes;
+        let local_keyword;
+
+        match token.token_type {
+            TokenType::Keyword(Keyword::Local) => {
+                attributes = Vec::new();
+                local_keyword = token;
+            }
+            TokenType::Symbol(Symbol::At) => {
+                attributes = safe_unwrap!(
+                    lexer,
+                    errors,
+                    "Expected <attribute>",
+                    Vec::parse(token, lexer, errors)
+                );
+                local_keyword = lexer.next_token();
+            }
+            _ => return None,
+        }
         if local_keyword != TokenType::Keyword(Keyword::Local) {
+            lexer.set_state(state);
+
             return None;
         }
 
         parse_function!(
+            attributes,
             lexer.next_token(),
             lexer,
             errors,
@@ -102,12 +121,29 @@ impl Parse for GlobalFunctionName {
 impl TryParse for GlobalFunctionName {}
 
 impl Parse for GlobalFunction {
-    fn parse(
-        function_keyword: Token,
-        lexer: &mut Lexer,
-        errors: &mut Vec<ParseError>,
-    ) -> Option<Self> {
+    fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
+        let attributes;
+        let function_keyword;
+
+        match token.token_type {
+            TokenType::Keyword(Keyword::Function) => {
+                attributes = Vec::new();
+                function_keyword = token;
+            }
+            TokenType::Symbol(Symbol::At) => {
+                attributes = safe_unwrap!(
+                    lexer,
+                    errors,
+                    "Expected <attribute>",
+                    Vec::parse(token, lexer, errors)
+                );
+                function_keyword = lexer.next_token();
+            }
+            _ => return None,
+        }
+
         parse_function!(
+            attributes,
             function_keyword,
             lexer,
             errors,
@@ -150,6 +186,26 @@ impl Parse for Parameter {
         })
     }
 }
+
+impl Parse for Attribute {
+    fn parse(at: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
+        if at != TokenType::Symbol(Symbol::At) {
+            return None;
+        }
+
+        next_token_recoverable!(
+            lexer,
+            attribute,
+            TokenType::Identifier(_) | TokenType::PartialKeyword(_),
+            TokenType::Identifier("*error*".into()),
+            errors,
+            "Expected ".to_string() + get_token_type_display(&TokenType::Identifier("".into()))
+        );
+
+        Some(Self { at, attribute })
+    }
+}
+impl TryParse for Attribute {}
 
 impl GetRange for GlobalFunctionName {
     fn get_range(&self) -> Result<Range, GetRangeError> {
