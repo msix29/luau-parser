@@ -1,7 +1,15 @@
 [package]
 name = "luau-parser"
 version = "0.1.0"
+description = "A parser for the luau language."
 edition = "2021"
+license = "Apache-2.0"
+readme = "README.md"
+keywords = ["luau", "parser"]
+
+documentation = "https://docs.rs/luau-parser"
+repository = "https://github.com/msix29/luau-parser"
+homepage = "https://github.com/msix29/luau-parser"
 
 [dependencies]
 luau-lexer = { path = "../lexer" }
