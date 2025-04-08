@@ -51,13 +51,27 @@ impl Parse for PrefixExp {
         }
 
         if token == TokenType::Symbol(Symbol::OpeningParenthesis) {
-            Bracketed::<_>::parse_with(
+            let expression_wrap = Bracketed::<_>::parse_with(
                 token,
                 lexer,
                 errors,
                 ("Expected <expr>", Symbol::ClosingParenthesis),
-            )
-            .map(Self::ExpressionWrap)
+            );
+
+            if let Some(expression_wrap) = expression_wrap {
+                if let Some(arguments) = FunctionArguments::try_parse(lexer, errors) {
+                    return Some(Self::FunctionCall(FunctionCall {
+                        invoked: FunctionCallInvoked::Function(Pointer::new(
+                            PrefixExp::ExpressionWrap(expression_wrap),
+                        )),
+                        arguments,
+                    }));
+                }
+
+                Some(Self::ExpressionWrap(expression_wrap))
+            } else {
+                None
+            }
         } else {
             None
         }
@@ -84,9 +98,10 @@ impl Expression {
         match token.token_type {
             TokenType::Error(error) => handle_error_token!(errors, error),
             TokenType::Literal(_) => Self::parse_from_literal(token),
-            TokenType::Identifier(_) | TokenType::PartialKeyword(_) => {
+            TokenType::Identifier(_)
+            | TokenType::PartialKeyword(_)
+            | TokenType::Symbol(Symbol::OpeningParenthesis) => {
                 match PrefixExp::parse(token, lexer, errors) {
-                    // this should never match, but might as well have it, lol.
                     Some(PrefixExp::ExpressionWrap(wrap)) => Some(Self::ExpressionWrap(wrap)),
                     Some(PrefixExp::FunctionCall(function_call)) => {
                         Some(Self::FunctionCall(function_call))
@@ -95,13 +110,6 @@ impl Expression {
                     None => None,
                 }
             }
-            TokenType::Symbol(Symbol::OpeningParenthesis) => ExpressionWrap::parse_with(
-                token,
-                lexer,
-                errors,
-                ("Expected <expr>", Symbol::ClosingParenthesis),
-            )
-            .map(Self::ExpressionWrap),
             TokenType::Symbol(Symbol::OpeningCurlyBrackets) => {
                 Table::parse_with(token, lexer, errors, false).map(Self::Table)
             }
