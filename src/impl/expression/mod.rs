@@ -11,9 +11,9 @@ use luau_lexer::prelude::{
 use crate::{
     handle_error_token, parse_bracketed, safe_unwrap,
     types::{
-        Closure, ElseIfExpression, Expression, ExpressionWrap, FunctionArguments, FunctionCall,
-        FunctionCallInvoked, IfExpression, Parse, ParseWithArgs, Pointer, PrefixExp, Table,
-        TryParse, TypeValue, Var,
+        Bracketed, Closure, ElseIfExpression, Expression, ExpressionWrap, FunctionArguments,
+        FunctionCall, FunctionCallInvoked, IfExpression, Parse, ParseWithArgs, Pointer, PrefixExp,
+        Table, TryParse, TypeValue, Var,
     },
     utils::get_token_type_display,
 };
@@ -50,14 +50,17 @@ impl Parse for PrefixExp {
             return Some(Self::Var(var));
         }
 
-        parse_bracketed!(
-            lexer,
-            errors,
-            "Expected <expr>",
-            TokenType::Symbol(Symbol::OpeningParenthesis),
-            Symbol::ClosingParenthesis,
-        )
-        .map(Self::ExpressionWrap)
+        if token == TokenType::Symbol(Symbol::OpeningParenthesis) {
+            Bracketed::<_>::parse_with(
+                token,
+                lexer,
+                errors,
+                ("Expected <expr>", Symbol::ClosingParenthesis),
+            )
+            .map(Self::ExpressionWrap)
+        } else {
+            None
+        }
     }
 }
 impl TryParse for PrefixExp {}
