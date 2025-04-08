@@ -14,3 +14,9 @@ local _ = {
     [(function() return 2 end)()] = "bar",
     _ = "qux",
 }
+local foo = 2
+local _ = foo
+local _ = 10 // foo
+
+-- What am I looking at... Perfectly valid luau, btw.
+local _ = fn""''``[[]][==[]==](){}{}()
