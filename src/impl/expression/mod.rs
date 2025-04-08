@@ -43,15 +43,13 @@ impl Parse for PrefixExp {
                 FunctionCallInvoked::Function(Pointer::new(PrefixExp::Var(var.clone())))
             };
 
-            if let Some(arguments) = FunctionArguments::try_parse(lexer, errors) {
-                return Some(Self::FunctionCall(FunctionCall { invoked, arguments }));
-            }
-
-            return Some(Self::Var(var));
+            return FunctionCall::try_parse_with_invoked(lexer, errors, invoked)
+                .map(Self::FunctionCall)
+                .or(Some(Self::Var(var)));
         }
 
         if token == TokenType::Symbol(Symbol::OpeningParenthesis) {
-            let expression_wrap = Bracketed::<_>::parse_with(
+            let expression_wrap = Bracketed::<Pointer<Expression>>::parse_with(
                 token,
                 lexer,
                 errors,
@@ -59,16 +57,15 @@ impl Parse for PrefixExp {
             );
 
             if let Some(expression_wrap) = expression_wrap {
-                if let Some(arguments) = FunctionArguments::try_parse(lexer, errors) {
-                    return Some(Self::FunctionCall(FunctionCall {
-                        invoked: FunctionCallInvoked::Function(Pointer::new(
-                            PrefixExp::ExpressionWrap(expression_wrap),
-                        )),
-                        arguments,
-                    }));
-                }
-
-                Some(Self::ExpressionWrap(expression_wrap))
+                FunctionCall::try_parse_with_invoked(
+                    lexer,
+                    errors,
+                    FunctionCallInvoked::Function(Pointer::new(PrefixExp::ExpressionWrap(
+                        expression_wrap.clone(),
+                    ))),
+                )
+                .map(Self::FunctionCall)
+                .or(Some(Self::ExpressionWrap(expression_wrap)))
             } else {
                 None
             }

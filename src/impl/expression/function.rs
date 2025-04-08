@@ -45,6 +45,35 @@ impl Parse for FunctionCallInvoked {
 }
 impl TryParse for FunctionCallInvoked {}
 
+impl FunctionCall {
+    /// Parse a [`FunctionCall`] with the passed [`FunctionCallInvoked`]. This
+    /// method keeps parsing repeatedly to allow for chained of functions calls:
+    ///
+    /// ```lua
+    /// foo()()()
+    /// ```
+    pub fn try_parse_with_invoked(
+        lexer: &mut Lexer,
+        errors: &mut Vec<ParseError>,
+        mut invoked: FunctionCallInvoked,
+    ) -> Option<Self> {
+        while let Some(arguments) = FunctionArguments::try_parse(lexer, errors) {
+            invoked = FunctionCallInvoked::Function(Pointer::new(PrefixExp::FunctionCall(Self {
+                invoked,
+                arguments,
+            })));
+        }
+
+        if let FunctionCallInvoked::Function(pointer) = invoked {
+            if let PrefixExp::FunctionCall(function_call) = (*pointer).clone() {
+                return Some(function_call);
+            }
+        }
+
+        None
+    }
+}
+
 impl Parse for FunctionCall {
     fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
         let invoked = FunctionCallInvoked::parse(token, lexer, errors)?;
