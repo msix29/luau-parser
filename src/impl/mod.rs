@@ -93,6 +93,13 @@ impl Print for Comment {
             Comment::SingleLine(smol_str) | Comment::MultiLine(smol_str) => smol_str.to_string(),
         }
     }
+
+    fn print_final_trivia(&self) -> String {
+        unreachable!()
+    }
+    fn print_without_final_trivia(&self) -> String {
+        unreachable!()
+    }
 }
 impl Print for Trivia {
     #[inline]
@@ -121,9 +128,7 @@ impl Print for Token {
     fn print_without_final_trivia(&self) -> String {
         self.token_type
             .try_as_string()
-            .map(|token_type| {
-                self.leading_trivia.print() + &token_type
-            })
+            .map(|token_type| self.leading_trivia.print() + &token_type)
             .unwrap_or_default()
     }
 
