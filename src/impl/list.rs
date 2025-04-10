@@ -138,9 +138,27 @@ impl<T: Print> Print for ListItem<T> {
     fn print(&self) -> String {
         match self {
             Self::Trailing { item, separator } => {
-                item.print().trim_end().to_string() + &separator.print()
+                item.print_without_final_trivia() + &separator.print()
             }
             Self::NonTrailing(item) => item.print(),
+        }
+    }
+
+    #[inline]
+    fn print_final_trivia(&self) -> String {
+        match self {
+            ListItem::Trailing { separator, .. } => separator.print_final_trivia(),
+            ListItem::NonTrailing(item) => item.print_final_trivia(),
+        }
+    }
+
+    #[inline]
+    fn print_without_final_trivia(&self) -> String {
+        match self {
+            ListItem::Trailing { item, separator } => {
+                item.print_without_final_trivia() + &separator.print_without_final_trivia()
+            }
+            ListItem::NonTrailing(item) => item.print_without_final_trivia(),
         }
     }
 }
