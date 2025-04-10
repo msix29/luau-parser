@@ -133,9 +133,13 @@ impl<T> DerefMut for Bracketed<T> {
 }
 
 impl<T: Print> Print for Bracketed<T> {
-    fn print(&self) -> String {
-        self.opening_bracket.print().trim_end().to_string()
-            + self.item.print().trim_end()
-            + &self.closing_bracket.print()
+    fn print_final_trivia(&self) -> String {
+        self.closing_bracket.print_without_final_trivia()
+    }
+
+    fn print_without_final_trivia(&self) -> String {
+        self.opening_bracket.print_without_final_trivia()
+            + &self.item.print_without_final_trivia()
+            + &self.closing_bracket.print_without_final_trivia()
     }
 }
