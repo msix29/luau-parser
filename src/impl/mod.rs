@@ -174,6 +174,20 @@ impl<T: Print> Print for Option<T> {
             None => "".to_string(),
         }
     }
+
+    fn print_final_trivia(&self) -> String {
+        match self {
+            Some(item) => item.print_final_trivia(),
+            None => "".to_string(),
+        }
+    }
+
+    fn print_without_final_trivia(&self) -> String {
+        match self {
+            Some(item) => item.print_without_final_trivia(),
+            None => "".to_string(),
+        }
+    }
 }
 
 impl<T: GetRange> GetRange for Vec<T> {
