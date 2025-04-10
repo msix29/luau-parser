@@ -229,7 +229,22 @@ impl<T: Print, U: Print> Print for (T, U) {
         if end.is_empty() {
             self.0.print()
         } else {
-            self.0.print().trim_end().to_string() + &end
+            self.0.print_without_final_trivia() + &end
         }
+    }
+
+    #[inline]
+    fn print_final_trivia(&self) -> String {
+        let maybe_final_trivia = self.1.print_final_trivia();
+        if maybe_final_trivia.is_empty() {
+            self.0.print_final_trivia()
+        } else {
+            maybe_final_trivia
+        }
+    }
+
+    #[inline]
+    fn print_without_final_trivia(&self) -> String {
+        self.0.print_without_final_trivia() + &self.1.print_without_final_trivia()
     }
 }
