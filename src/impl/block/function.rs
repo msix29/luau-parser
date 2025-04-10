@@ -4,14 +4,14 @@
 //! * [`GlobalFunction`]
 //! * [`GlobalFunctionName`]
 
-use luau_lexer::prelude::{Keyword, Lexer, ParseError, Symbol, Token, TokenType};
+use luau_lexer::prelude::{Keyword, Lexer, ParseError, PartialKeyword, Symbol, Token, TokenType};
 
 use crate::{
     force_parse_bracketed, parse_bracketed,
     types::{
         Attribute, Block, GetRange, GetRangeError, GlobalFunction, GlobalFunctionName,
         LocalFunction, Parameter, Parse, ParseWithArgs, Pointer, Range, TableAccessKey, TryParse,
-        TryParseWithArgs, TypeValue,
+        TryParseWithArgs, TypeFunction, TypeValue,
     },
     utils::{get_token_type_display, get_token_type_display_extended},
 };
@@ -231,3 +231,53 @@ impl GetRange for GlobalFunctionName {
         }
     }
 }
+
+impl Parse for TypeFunction {
+    fn parse(
+        token_keyword: Token,
+        lexer: &mut Lexer,
+        errors: &mut Vec<ParseError>,
+    ) -> Option<Self> {
+        let state = lexer.save_state();
+
+        let export_keyword = if token_keyword == TokenType::PartialKeyword(PartialKeyword::Export) {
+            let temp = token_keyword;
+            token_keyword = lexer.next_token();
+
+            Some(temp)
+        } else {
+            None
+        };
+
+        let function_keyword = lexer.next_token();
+
+        if token_keyword != TokenType::PartialKeyword(PartialKeyword::Type)
+            || function_keyword != TokenType::Keyword(Keyword::Function)
+        {
+            lexer.set_state(state);
+
+            return None;
+        }
+
+        parse_function!(
+            function_keyword,
+            lexer,
+            errors,
+            let function_name = {
+                next_token_recoverable!(
+                    lexer,
+                    name,
+                    TokenType::Identifier(_) | TokenType::PartialKeyword(_),
+                    TokenType::Identifier("*error*".into(),),
+                    errors,
+                    "Expected ".to_string()
+                        + get_token_type_display(&TokenType::Identifier("".into(),))
+                );
+
+                name
+            },
+            { export_keyword, type_keyword, function_name }
+        )
+    }
+}
+impl TryParse for TypeFunction {}

@@ -168,3 +168,39 @@ pub struct GlobalFunction {
     /// The `end` keyword.
     pub end_keyword: Token,
 }
+
+/// Type functions (LuauSolver V2).
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range, Print)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+pub struct TypeFunction {
+    /// The `export` keyword.
+    #[range_or = "type_keyword"]
+    pub export_keyword: Option<Token>,
+
+    /// The `type` keyword.
+    pub type_keyword: Token,
+
+    /// The `function` keyword.
+    pub function_keyword: Token,
+
+    /// The name of the function.
+    pub function_name: Token,
+
+    /// The generics of the function.
+    pub generics: Option<Pointer<GenericDeclaration>>,
+
+    /// The parameters that this function accepts.
+    pub parameters: BracketedList<Parameter>,
+
+    /// The `:` character between closing parenthesis and returns.
+    pub colon: Option<Pointer<Token>>,
+
+    /// The return type of the function
+    pub return_type: Option<Pointer<TypeValue>>,
+
+    /// The body of the function.
+    pub body: Block,
+
+    /// The `end` keyword.
+    pub end_keyword: Token,
+}
