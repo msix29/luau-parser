@@ -18,8 +18,5 @@ pub use luau_lexer;
 pub mod prelude {
     pub use crate::parser::*;
     pub use crate::types::*;
-    pub use luau_lexer::prelude::{Comment as LexerComment, *};
-
-    // Shadow the one exported from the lexer.
-    pub use crate::types::Comment;
+    pub use luau_lexer::prelude::{Comment, *};
 }

@@ -7,7 +7,7 @@ use luau_lexer::prelude::Token;
 use luau_parser_derive::{Range, Print};
 
 use crate::types::{
-    Comment, CompoundSetExpression, DoBlock, Expression, FunctionCall, GenericFor, GlobalFunction,
+    CompoundSetExpression, DoBlock, Expression, FunctionCall, GenericFor, GlobalFunction,
     IfStatement, List, LocalAssignment, LocalFunction, NumericalFor, Pointer, RepeatBlock,
     SetExpression, TypeDefinition, WhileLoop,
 };
@@ -176,9 +176,6 @@ generate_statement! {
     /// end
     /// ```
     GlobalFunction(GlobalFunction),
-
-    /// A comment.
-    Comment(Comment),
 }
 
 /// An enum representing different types of statements that can end a block of code.

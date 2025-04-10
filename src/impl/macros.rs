@@ -64,9 +64,9 @@ macro_rules! next_token_recoverable_with_condition {
 
             $name = luau_lexer::prelude::Token {
                 start: state.lexer_position(),
-                spaces_before: smol_str::SmolStr::new(""),
+                leading_trivia: Vec::new(),
                 token_type: $replacement,
-                spaces_after: smol_str::SmolStr::new(""),
+                trailing_trivia: Vec::new(),
                 end: state.lexer_position(),
             };
             $lexer.set_state(state);

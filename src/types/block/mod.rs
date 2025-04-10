@@ -16,7 +16,6 @@ reexport!(
     statement,
     type_definition,
     while_loop,
-    comment,
 );
 
 /// A block of code that represents a single scope (and nested ones).

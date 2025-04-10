@@ -13,7 +13,10 @@ mod name;
 mod range;
 mod value;
 
-use luau_lexer::prelude::{Lexer, ParseError, Token};
+use luau_lexer::{
+    prelude::{Lexer, ParseError, Token},
+    token::{Comment, Trivia},
+};
 
 use crate::types::{
     GetRange, GetRangeError, Parse, ParseWithArgs, Pointer, Print, Range, TryParse,
@@ -82,12 +85,34 @@ impl GetRange for Token {
         Ok(Range::new(self.start, self.end))
     }
 }
+
+impl Print for Comment {
+    #[inline]
+    fn print(&self) -> String {
+        match self {
+            Comment::SingleLine(smol_str) | Comment::MultiLine(smol_str) => smol_str.to_string(),
+        }
+    }
+}
+impl Print for Trivia {
+    #[inline]
+    fn print(&self) -> String {
+        match self {
+            Trivia::Spaces(smol_str) => smol_str.to_string(),
+            Trivia::Comment(comment) => comment.print(),
+        }
+    }
+}
+
 impl Print for Token {
     #[inline]
     fn print(&self) -> String {
+        println!("{self:?}");
         self.token_type
             .try_as_string()
-            .map(|token_type| self.spaces_before.to_string() + &token_type + &self.spaces_after)
+            .map(|token_type| {
+                self.leading_trivia.print() + &token_type + &self.trailing_trivia.print()
+            })
             .unwrap_or_default()
     }
 }
