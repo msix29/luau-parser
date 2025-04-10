@@ -115,17 +115,25 @@ impl Print for Trivia {
     }
 }
 
+/// [`Print`] implementation for [`Vec<Trivia>`] as the default one won't work.
+/// It takes `&[Trivia]` so we don't need to `.clone()`.
+fn print_trivia(trivia: &[Trivia]) -> String {
+    trivia
+        .iter()
+        .fold("".to_string(), |str, item| str + &item.print())
+}
+
 impl Print for Token {
     #[inline]
     fn print_final_trivia(&self) -> String {
-        self.trailing_trivia.print()
+        print_trivia(&self.trailing_trivia)
     }
 
     #[inline]
     fn print_without_final_trivia(&self) -> String {
         self.token_type
             .try_as_string()
-            .map(|token_type| self.leading_trivia.print() + &token_type)
+            .map(|token_type| print_trivia(&self.leading_trivia) + &token_type)
             .unwrap_or_default()
     }
 
@@ -134,7 +142,9 @@ impl Print for Token {
         self.token_type
             .try_as_string()
             .map(|token_type| {
-                self.leading_trivia.print() + &token_type + &self.trailing_trivia.print()
+                print_trivia(&self.leading_trivia)
+                    + &token_type
+                    + &print_trivia(&self.trailing_trivia)
             })
             .unwrap_or_default()
     }
