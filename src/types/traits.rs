@@ -4,10 +4,23 @@ use luau_lexer::prelude::{Lexer, ParseError, Token};
 
 use crate::types::Range;
 
-/// A trait to print the token as-is, while preserving all user spaces and styling.
+/// A trait to print the token as-is, while preserving all user spaces, comments
+/// and styling.
 pub trait Print {
-    /// Prints the whole token including all surrounding spaces.
-    fn print(&self) -> String;
+    /// Prints only the very final trivia. Used for the default implementation of
+    /// [`Print::print`], which just joins [`Print::print_without_final_trivia`]
+    /// and this function.
+    fn print_final_trivia(&self) -> String;
+
+    /// Prints the whole token including all surrounding trivia, excluding the
+    /// very last trailing trivia.
+    fn print_without_final_trivia(&self) -> String;
+
+    /// Prints the whole token including all surrounding trivia.
+    #[inline]
+    fn print(&self) -> String {
+        self.print_without_final_trivia() + &self.print_final_trivia()
+    }
 }
 
 /// A trait that to parse this struct from a [`lexer`](Lexer) and starting with
