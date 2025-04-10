@@ -1,4 +1,4 @@
-//! All `impl` blocks for type-related types:
+//! All `impl` blocks for table-related types:
 //!
 //! * [`TableKey`]
 //! * [`TableField`]
