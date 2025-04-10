@@ -13,10 +13,7 @@ mod name;
 mod range;
 mod value;
 
-use luau_lexer::{
-    prelude::{Lexer, ParseError, Token},
-    token::{Comment, Trivia},
-};
+use luau_lexer::prelude::{Comment, Lexer, ParseError, Token, Trivia};
 
 use crate::types::{
     GetRange, GetRangeError, Parse, ParseWithArgs, Pointer, Print, Range, TryParse,
