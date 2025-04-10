@@ -199,13 +199,10 @@ impl Print for Block {
     fn print_final_trivia(&self) -> String {
         if self.is_empty() {
             String::new()
-        } else if self.statements.is_empty() {
-            self.last_statement.as_ref().unwrap().print()
-        } else if self.last_statement.is_none() {
-            self.statements.print()
+        } else if let Some(last_statement) = self.last_statement.as_ref() {
+            last_statement.print_final_trivia()
         } else {
-            self.statements.print().trim_end().to_string()
-                + &self.last_statement.as_ref().unwrap().print()
+            self.statements.print_final_trivia()
         }
     }
 
@@ -226,15 +223,6 @@ impl Print for Block {
                     .as_ref()
                     .unwrap()
                     .print_without_final_trivia()
-        }
-    }
-
-    #[inline]
-    fn print(&self) -> String {
-        if self.is_empty() {
-            String::new()
-        } else {
-            self.print_without_final_trivia() + &self.print_final_trivia()
         }
     }
 }
