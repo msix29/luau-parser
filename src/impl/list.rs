@@ -131,6 +131,16 @@ impl<T: Print> Print for List<T> {
     fn print(&self) -> String {
         self.items.print()
     }
+
+    #[inline]
+    fn print_final_trivia(&self) -> String {
+        self.items.print_final_trivia()
+    }
+
+    #[inline]
+    fn print_without_final_trivia(&self) -> String {
+        self.items.print_without_final_trivia()
+    }
 }
 
 impl<T: Print> Print for ListItem<T> {
