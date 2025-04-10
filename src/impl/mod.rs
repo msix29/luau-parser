@@ -154,6 +154,16 @@ impl<T: Print> Print for Pointer<T> {
     fn print(&self) -> String {
         (**self).print()
     }
+
+    #[inline]
+    fn print_final_trivia(&self) -> String {
+        (**self).print_final_trivia()
+    }
+
+    #[inline]
+    fn print_without_final_trivia(&self) -> String {
+        (**self).print_without_final_trivia()
+    }
 }
 
 impl<T: Print> Print for Option<T> {
