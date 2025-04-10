@@ -29,9 +29,8 @@ fn process_files(src_dir: &Path) -> io::Result<()> {
 
 
             if cst.try_print().unwrap() != content {
-                println!("File at '{}' failed. CST:\n", path.display());
                 println!("{:#?}\n", cst);
-                panic!("Test failed.")
+                panic!("File at '{}' failed. CST:\n", path.display());
             }
         }
     }
