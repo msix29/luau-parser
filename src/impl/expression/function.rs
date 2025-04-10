@@ -168,6 +168,12 @@ impl Parse for Closure {
             _ => return None,
         }
 
-        parse_function!(attributes, function_keyword, lexer, errors)
+        parse_function!(
+            let attributes = attributes;
+            function_keyword,
+            lexer,
+            errors,
+            { attributes }
+        )
     }
 }

@@ -135,14 +135,15 @@ macro_rules! maybe_next_token_with_condition {
 #[doc(hidden)]
 macro_rules! parse_function {
     (
-        $attributes: expr,
+        $(let $attributes_name: ident = $attributes: expr;)?
         $function_keyword: expr,
         $lexer: ident,
         $errors: ident
         $(, let $fn_name: ident = $name: block )?
         $(, { $($extra_field:ident),* $(,)?})?
     ) => {{
-        let attributes = $attributes;
+        #[allow(clippy::redundant_locals)] // just here
+        $(let $attributes_name = $attributes;)?
         let state = $lexer.save_state();
         let function_keyword = $function_keyword;
         if function_keyword != TokenType::Keyword(Keyword::Function) {
@@ -194,7 +195,6 @@ macro_rules! parse_function {
         );
 
         Some(Self {
-            attributes,
             $($($extra_field,)*)?
             function_keyword,
             generics,

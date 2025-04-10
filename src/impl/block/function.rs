@@ -45,7 +45,7 @@ impl Parse for LocalFunction {
         }
 
         parse_function!(
-            attributes,
+            let attributes = attributes;
             lexer.next_token(),
             lexer,
             errors,
@@ -62,7 +62,7 @@ impl Parse for LocalFunction {
 
                 name
             },
-            { local_keyword, function_name }
+            { attributes, local_keyword, function_name }
         )
     }
 }
@@ -143,7 +143,7 @@ impl Parse for GlobalFunction {
         }
 
         parse_function!(
-            attributes,
+            let attributes = attributes;
             function_keyword,
             lexer,
             errors,
@@ -154,7 +154,7 @@ impl Parse for GlobalFunction {
                     )))
                 })
             },
-            { function_name }
+            { attributes, function_name }
         )
     }
 }
@@ -234,15 +234,15 @@ impl GetRange for GlobalFunctionName {
 
 impl Parse for TypeFunction {
     fn parse(
-        token_keyword: Token,
+        mut type_keyword: Token,
         lexer: &mut Lexer,
         errors: &mut Vec<ParseError>,
     ) -> Option<Self> {
         let state = lexer.save_state();
 
-        let export_keyword = if token_keyword == TokenType::PartialKeyword(PartialKeyword::Export) {
-            let temp = token_keyword;
-            token_keyword = lexer.next_token();
+        let export_keyword = if type_keyword == TokenType::PartialKeyword(PartialKeyword::Export) {
+            let temp = type_keyword;
+            type_keyword = lexer.next_token();
 
             Some(temp)
         } else {
@@ -251,7 +251,7 @@ impl Parse for TypeFunction {
 
         let function_keyword = lexer.next_token();
 
-        if token_keyword != TokenType::PartialKeyword(PartialKeyword::Type)
+        if type_keyword != TokenType::PartialKeyword(PartialKeyword::Type)
             || function_keyword != TokenType::Keyword(Keyword::Function)
         {
             lexer.set_state(state);
