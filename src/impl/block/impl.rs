@@ -196,7 +196,7 @@ impl GetRange for Block {
 }
 
 impl Print for Block {
-    fn print(&self) -> String {
+    fn print_final_trivia(&self) -> String {
         if self.is_empty() {
             String::new()
         } else if self.statements.is_empty() {
@@ -206,6 +206,35 @@ impl Print for Block {
         } else {
             self.statements.print().trim_end().to_string()
                 + &self.last_statement.as_ref().unwrap().print()
+        }
+    }
+
+    fn print_without_final_trivia(&self) -> String {
+        if self.is_empty() {
+            String::new()
+        } else if self.statements.is_empty() {
+            self.last_statement
+                .as_ref()
+                .unwrap()
+                .print_without_final_trivia()
+        } else if self.last_statement.is_none() {
+            self.statements.print_without_final_trivia()
+        } else {
+            self.statements.print_without_final_trivia()
+                + &self
+                    .last_statement
+                    .as_ref()
+                    .unwrap()
+                    .print_without_final_trivia()
+        }
+    }
+
+    #[inline]
+    fn print(&self) -> String {
+        if self.is_empty() {
+            String::new()
+        } else {
+            self.print_without_final_trivia() + &self.print_final_trivia()
         }
     }
 }
