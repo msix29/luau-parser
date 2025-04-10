@@ -206,9 +206,17 @@ impl<T: GetRange> GetRange for Vec<T> {
     }
 }
 impl<T: Print> Print for Vec<T> {
-    fn print(&self) -> String {
+    #[inline]
+    fn print_final_trivia(&self) -> String {
+        self.last()
+            .map(|item| item.print_final_trivia())
+            .unwrap_or_default()
+    }
+
+    #[inline]
+    fn print_without_final_trivia(&self) -> String {
         self.iter().fold("".to_string(), |str, item| {
-            str.trim_end().to_string() + &item.print()
+            str + &item.print_without_final_trivia()
         })
     }
 }
