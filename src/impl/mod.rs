@@ -102,12 +102,33 @@ impl Print for Trivia {
             Trivia::Comment(comment) => comment.print(),
         }
     }
+
+    fn print_final_trivia(&self) -> String {
+        unreachable!()
+    }
+    fn print_without_final_trivia(&self) -> String {
+        unreachable!()
+    }
 }
 
 impl Print for Token {
     #[inline]
+    fn print_final_trivia(&self) -> String {
+        self.trailing_trivia.print()
+    }
+
+    #[inline]
+    fn print_without_final_trivia(&self) -> String {
+        self.token_type
+            .try_as_string()
+            .map(|token_type| {
+                self.leading_trivia.print() + &token_type
+            })
+            .unwrap_or_default()
+    }
+
+    #[inline]
     fn print(&self) -> String {
-        println!("{self:?}");
         self.token_type
             .try_as_string()
             .map(|token_type| {
