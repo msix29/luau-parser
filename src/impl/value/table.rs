@@ -269,9 +269,15 @@ impl Print for TableKey {
 }
 
 impl Print for TableField {
-    fn print(&self) -> String {
-        self.key.print().trim_end().to_string()
-            + self.equal_or_colon.print().trim_end()
-            + &self.value.print()
+    #[inline]
+    fn print_without_final_trivia(&self) -> String {
+        self.key.print_without_final_trivia()
+            + &self.equal_or_colon.print_without_final_trivia()
+            + &self.value.print_without_final_trivia()
+    }
+
+    #[inline]
+    fn print_final_trivia(&self) -> String {
+        self.value.print_final_trivia()
     }
 }
