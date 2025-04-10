@@ -258,11 +258,32 @@ impl GetRange for TableField {
 }
 
 impl Print for TableKey {
+    #[inline]
     fn print(&self) -> String {
         match self {
-            Self::Simple(item) => item.print(),
-            Self::Expression(item) => item.print(),
-            Self::Type(item) => item.print(),
+            TableKey::Simple(token) => token.print(),
+            TableKey::Expression(bracketed) => bracketed.print(),
+            TableKey::Type(bracketed) => bracketed.print(),
+            _ => "".to_string(),
+        }
+    }
+
+    #[inline]
+    fn print_final_trivia(&self) -> String {
+        match self {
+            TableKey::Simple(token) => token.print_final_trivia(),
+            TableKey::Expression(bracketed) => bracketed.print_final_trivia(),
+            TableKey::Type(bracketed) => bracketed.print_final_trivia(),
+            _ => "".to_string(),
+        }
+    }
+
+    #[inline]
+    fn print_without_final_trivia(&self) -> String {
+        match self {
+            TableKey::Simple(token) => token.print_without_final_trivia(),
+            TableKey::Expression(bracketed) => bracketed.print_without_final_trivia(),
+            TableKey::Type(bracketed) => bracketed.print_without_final_trivia(),
             _ => "".to_string(),
         }
     }
