@@ -123,11 +123,23 @@ macro_rules! maybe_next_token_with_condition {
 ///
 /// ```ignore
 /// parse_function!(
-///     lexer.next_token(),
+///     function_keyword,
 ///     lexer,
 ///     errors,
 ///     let function_name = { ... }, // a block that returns the name
 ///     { function_name } // extra field that matches that in the struct
+/// )
+/// ```
+///
+/// To include attributes
+///
+/// ```ignore
+/// parse_function!(
+///     let attributes = <expr>; // Type must be `Vec<Attribute>`.
+///     lexer.next_token(),
+///     lexer,
+///     errors,
+///     { attributes } // extra field that matches that in the struct
 /// )
 /// ```
 ///
