@@ -4,12 +4,12 @@
 //! outside it too, like in a formatter or a lsp.
 
 use luau_lexer::prelude::Token;
-use luau_parser_derive::{Range, Print};
+use luau_parser_derive::{Print, Range};
 
 use crate::types::{
     CompoundSetExpression, DoBlock, Expression, FunctionCall, GenericFor, GlobalFunction,
     IfStatement, List, LocalAssignment, LocalFunction, NumericalFor, Pointer, RepeatBlock,
-    SetExpression, TypeDefinition, WhileLoop,
+    SetExpression, TypeDefinition, TypeFunction, WhileLoop,
 };
 
 /// Helper macro to generate the [`Statement`] enum.
@@ -176,6 +176,21 @@ generate_statement! {
     /// end
     /// ```
     GlobalFunction(GlobalFunction),
+
+    /// A type function
+    ///
+    /// ```lua
+    /// type function Foo(ty)
+    ///     return types.unionof(types.string, ty)
+    /// end
+    ///
+    /// export type function Bar(ty)
+    ///     return types.unionof(types.number, ty)
+    /// end
+    ///
+    /// type qux = Bar<Foo<boolean>> -- number | string | boolean
+    /// ```
+    TypeFunction(TypeFunction),
 }
 
 /// An enum representing different types of statements that can end a block of code.

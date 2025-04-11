@@ -27,7 +27,6 @@ fn process_files(src_dir: &Path) -> io::Result<()> {
             let mut parser = Parser::new(&content);
             let cst = parser.parse(path.to_string_lossy().as_ref());
 
-
             if cst.try_print().unwrap() != content {
                 println!("{:#?}\n", cst);
                 panic!("File at '{}' failed.", path.display());
