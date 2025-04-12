@@ -29,6 +29,17 @@ impl<'a> Parser<'a> {
         }
     }
 
+    /// Set the parser's input. Meant to be chained.
+    pub fn with_input(mut self, input: &'a str) -> Self {
+        self.lexer = self.lexer.with_input(input);
+        self
+    }
+
+    /// Set the parser's input.
+    pub fn set_input(&mut self, input: &'a str) {
+        self.lexer.set_input(input);
+    }
+
     /// Parse Luau code into an [`CST`](Cst).
     pub fn parse(&mut self, uri: &str) -> Cst {
         let cst = Cst::parse(self.lexer.next_token(), &mut self.lexer, uri);
