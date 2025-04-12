@@ -1,3 +1,13 @@
+//! This code will show statistics for all files in the `test-code` directory,
+//! and show percentage differences compared to the previous run (if it exists).
+//! For the highest and lowest runs this change may vary significantly..
+//! like 1000% faster/slower, so the main comparison is the total and average
+//! times.
+//!
+//! To ensure consistent results, make sure to give your machine some time
+//! after editing the Rust code; as compiling Rust is a pretty expensive
+//! process, which will more than likely affect the benchmark results.
+
 mod benchmark_results;
 
 use benchmark_results::{BenchMarkResult, BenchMarkResults};
