@@ -24,3 +24,8 @@ serde = ["dep:serde", "smol_str/serde", "luau-lexer/serde"]
 
 [dev-dependencies]
 criterion = { version = "0.5.1", features = ["html_reports"] }
+
+[[bench]]
+name = "main"
+path = "benches/main.rs"
+harness = false
