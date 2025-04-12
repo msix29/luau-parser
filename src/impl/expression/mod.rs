@@ -13,39 +13,70 @@ use crate::{
     types::{
         Bracketed, Closure, ElseIfExpression, Expression, ExpressionWrap, FunctionArguments,
         FunctionCall, FunctionCallInvoked, IfExpression, Parse, ParseWithArgs, Pointer, PrefixExp,
-        Table, TryParse, TypeValue, Var,
+        Table, TableAccess, TableAccessPrefix, TryParse, TypeValue, Var,
     },
     utils::get_token_type_display,
 };
 
+impl PrefixExp {
+    /// Tries parsing more [`PrefixExp`]s starting with this one.
+    fn parse_more(&self, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
+        maybe_next_token!(lexer, colon, TokenType::Symbol(Symbol::Colon));
+
+        let invoked = if let Some(colon) = colon {
+            next_token_recoverable!(
+                lexer,
+                method,
+                TokenType::Identifier(_) | TokenType::PartialKeyword(_),
+                TokenType::Identifier("*error*".into(),),
+                errors,
+                "Expected ".to_string()
+                    + get_token_type_display(&TokenType::Identifier("".into(),))
+            );
+
+            FunctionCallInvoked::TableMethod {
+                table: Pointer::new(self.clone()),
+                colon: Pointer::new(colon),
+                method: Pointer::new(method),
+            }
+        } else {
+            FunctionCallInvoked::Function(Pointer::new(self.clone()))
+        };
+
+        if let Some(call) = FunctionCall::try_parse_with_invoked(lexer, errors, invoked) {
+            let prefix_exp = Self::FunctionCall(call);
+
+            return prefix_exp.parse_more(lexer, errors).or(Some(prefix_exp));
+        }
+
+        if let Some(accessed_keys) = Vec::try_parse(lexer, errors) {
+            let prefix_exp = Self::Var(Var::TableAccess(TableAccess {
+                prefix: match self {
+                    PrefixExp::FunctionCall(function_call) => {
+                        TableAccessPrefix::FunctionCall(Pointer::new(function_call.clone()))
+                    }
+                    PrefixExp::ExpressionWrap(bracketed) => {
+                        TableAccessPrefix::ExpressionWrap(Pointer::new(bracketed.clone()))
+                    }
+                    _ => unreachable!(),
+                },
+                accessed_keys,
+            }));
+
+            return prefix_exp.parse_more(lexer, errors).or(Some(prefix_exp));
+        }
+
+        None
+    }
+}
+
 impl Parse for PrefixExp {
     fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
-        let var: Option<Var> = Var::parse(token.clone(), lexer, errors);
+        let var = Var::parse(token.clone(), lexer, errors);
         if let Some(var) = var {
-            maybe_next_token!(lexer, colon, TokenType::Symbol(Symbol::Colon));
-            let invoked = if let Some(colon) = colon {
-                next_token_recoverable!(
-                    lexer,
-                    method,
-                    TokenType::Identifier(_) | TokenType::PartialKeyword(_),
-                    TokenType::Identifier("*error*".into(),),
-                    errors,
-                    "Expected ".to_string()
-                        + get_token_type_display(&TokenType::Identifier("".into(),))
-                );
+            let prefix_exp = Self::Var(var);
 
-                FunctionCallInvoked::TableMethod {
-                    table: Pointer::new(PrefixExp::Var(var.clone())),
-                    colon: Pointer::new(colon),
-                    method: Pointer::new(method),
-                }
-            } else {
-                FunctionCallInvoked::Function(Pointer::new(PrefixExp::Var(var.clone())))
-            };
-
-            return FunctionCall::try_parse_with_invoked(lexer, errors, invoked)
-                .map(Self::FunctionCall)
-                .or(Some(Self::Var(var)));
+            return prefix_exp.parse_more(lexer, errors).or(Some(prefix_exp));
         }
 
         if token == TokenType::Symbol(Symbol::OpeningParenthesis) {

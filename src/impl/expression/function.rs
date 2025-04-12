@@ -57,11 +57,18 @@ impl FunctionCall {
         errors: &mut Vec<ParseError>,
         mut invoked: FunctionCallInvoked,
     ) -> Option<Self> {
+        let mut found_arguments = false;
         while let Some(arguments) = FunctionArguments::try_parse(lexer, errors) {
+            found_arguments = true;
             invoked = FunctionCallInvoked::Function(Pointer::new(PrefixExp::FunctionCall(Self {
                 invoked,
                 arguments,
             })));
+        }
+
+        // Avoid infinite recursions.
+        if !found_arguments {
+            return None;
         }
 
         if let FunctionCallInvoked::Function(pointer) = invoked {
