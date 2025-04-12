@@ -81,6 +81,7 @@ impl BenchMarkResults {
             str.push_str(&path.to_string_lossy());
             str.push('=');
             str.push_str(&result.serialize());
+            str.push('\n');
         }
 
         fs::write(SAVE_PATH, str)
