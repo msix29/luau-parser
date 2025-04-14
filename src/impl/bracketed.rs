@@ -8,42 +8,29 @@ use crate::{
     utils::get_token_type_display_extended,
 };
 
-/// A private trait that indicates whether or not the current item is empty.
-/// It's only implemented for a limited set of types.
-trait IsEmpty {
-    /// Whether or not this item is empty.
-    fn is_empty(&self) -> bool {
-        false
-    }
-}
-impl<T> IsEmpty for List<T> {
-    fn is_empty(&self) -> bool {
-        (**self).is_empty()
-    }
-}
-
-/// Implements [`IsEmpty`] for the passed type and for
-/// [`Pointer`](crate::types::Pointer) of that type
-macro_rules! __sealed_impl {
-    ($($ty:ident $(<$generic:ident>)?),* $(,)?) => {
-        $( impl $(<$generic>)? IsEmpty for $crate::types::$ty $(<$generic>)? {})*
-        $( impl $(<$generic>)? IsEmpty for $crate::types::Pointer<$crate::types::$ty $(<$generic>)?> {})*
-    };
-}
-__sealed_impl!(Bracketed<T>, TypeValue, Expression);
-
-#[allow(private_bounds)]
-impl<T: IsEmpty> Bracketed<T> {
+impl<T: Default> Bracketed<T> {
     /// The actual parsing logic.
-    fn parse(
+    fn parse<F>(
         previous_state: State,
-        maybe_parsed_item: Option<T>,
+        parse: F,
         opening_bracket: Token,
         lexer: &mut Lexer,
         errors: &mut Vec<ParseError>,
         (error_message, stop_at): (&str, Symbol),
-    ) -> Option<Self> {
-        let Some(item) = maybe_parsed_item else {
+    ) -> Option<Self>
+    where
+        F: FnOnce(Token, &mut Lexer, &mut Vec<ParseError>) -> Option<T>,
+    {
+        let token = lexer.next_token();
+        if token == TokenType::Symbol(stop_at) {
+            return Some(Self {
+                opening_bracket,
+                item: T::default(),
+                closing_bracket: token,
+            });
+        }
+
+        let Some(item) = parse(token, lexer, errors) else {
             let state = lexer.save_state();
             errors.push(ParseError::new(
                 state.lexer_position(),
@@ -53,10 +40,6 @@ impl<T: IsEmpty> Bracketed<T> {
 
             return None;
         };
-
-        if item.is_empty() {
-            lexer.set_state(previous_state);
-        }
 
         next_token_recoverable_with_condition!(
             lexer,
@@ -78,7 +61,7 @@ impl<T: IsEmpty> Bracketed<T> {
     }
 }
 
-impl<T: Parse + TryParse + IsEmpty> ParseWithArgs<(&str, Symbol)> for Bracketed<T> {
+impl<T: Parse + Default> ParseWithArgs<(&str, Symbol)> for Bracketed<T> {
     #[inline]
     fn parse_with(
         opening_bracket: Token,
@@ -88,7 +71,9 @@ impl<T: Parse + TryParse + IsEmpty> ParseWithArgs<(&str, Symbol)> for Bracketed<
     ) -> Option<Self> {
         Self::parse(
             lexer.save_state(),
-            T::parse(lexer.next_token(), lexer, errors),
+            |token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>| {
+                T::parse(token, lexer, errors)
+            },
             opening_bracket,
             lexer,
             errors,
@@ -98,7 +83,7 @@ impl<T: Parse + TryParse + IsEmpty> ParseWithArgs<(&str, Symbol)> for Bracketed<
 }
 impl<A, T> ParseWithArgs<(&str, Symbol, A)> for Bracketed<T>
 where
-    T: ParseWithArgs<A> + TryParseWithArgs<A> + IsEmpty,
+    T: ParseWithArgs<A> + Default,
 {
     #[inline]
     fn parse_with(
@@ -109,7 +94,9 @@ where
     ) -> Option<Self> {
         Self::parse(
             lexer.save_state(),
-            T::parse_with(lexer.next_token(), lexer, errors, args),
+            |token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>| {
+                T::parse_with(token, lexer, errors, args)
+            },
             opening_bracket,
             lexer,
             errors,
