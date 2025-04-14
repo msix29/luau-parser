@@ -1,6 +1,6 @@
 [package]
 name = "luau-parser"
-version = "0.2.4"
+version = "0.2.5"
 description = "A blazingly fast Luau parser with robust error recovery."
 edition = "2021"
 license = "MIT"
