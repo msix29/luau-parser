@@ -88,15 +88,9 @@ impl Parse for PrefixExp {
             );
 
             if let Some(expression_wrap) = expression_wrap {
-                FunctionCall::try_parse_with_invoked(
-                    lexer,
-                    errors,
-                    FunctionCallInvoked::Function(Pointer::new(PrefixExp::ExpressionWrap(
-                        expression_wrap.clone(),
-                    ))),
-                )
-                .map(Self::FunctionCall)
-                .or(Some(Self::ExpressionWrap(expression_wrap)))
+                let prefix_exp = Self::ExpressionWrap(expression_wrap);
+
+                prefix_exp.parse_more(lexer, errors).or(Some(prefix_exp))
             } else {
                 None
             }
