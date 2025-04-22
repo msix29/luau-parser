@@ -40,12 +40,13 @@ impl Parse for TerminationStatement {
 
         if matches!(keyword.token_type, TokenType::Keyword(Keyword::Return)) {
             let state = lexer.save_state();
-            let expressions = List::<Pointer<Expression>>::try_parse(lexer, errors);
+            let mut expressions = List::<Pointer<Expression>>::try_parse(lexer, errors);
             if expressions
                 .as_ref()
                 .map(|expressions| expressions.is_empty())
                 .unwrap_or(false)
             {
+                expressions = None;
                 lexer.set_state(state);
             }
 
