@@ -18,7 +18,7 @@ impl Parse for RepeatBlock {
             return None;
         }
 
-        let body = Block::try_parse_with(lexer, errors, TokenType::Keyword(Keyword::End))
+        let body = Block::try_parse_with(lexer, errors, TokenType::Keyword(Keyword::Until))
             .unwrap_or_default();
 
         next_token_recoverable!(
