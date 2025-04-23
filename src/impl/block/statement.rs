@@ -4,7 +4,7 @@ use luau_lexer::prelude::{Keyword, Lexer, ParseError, PartialKeyword, Token, Tok
 
 use crate::{
     handle_error_token,
-    types::{Expression, List, Parse, Pointer, Statement, TerminationStatement, TryParse},
+    types::{Expression, List, Parse, Pointer, Print, Statement, TerminationStatement, TryParse},
 };
 
 impl Parse for Statement {
@@ -57,5 +57,40 @@ impl Parse for TerminationStatement {
         }
 
         None
+    }
+}
+
+impl Print for TerminationStatement {
+    fn print_final_trivia(&self) -> String {
+        match self {
+            TerminationStatement::Break(token) | TerminationStatement::Continue(token) => {
+                token.print_final_trivia()
+            }
+            TerminationStatement::Return {
+                return_keyword,
+                expressions,
+            } => {
+                if let Some(expressions) = expressions {
+                    expressions.print_final_trivia()
+                } else {
+                    return_keyword.print_final_trivia()
+                }
+            }
+        }
+    }
+
+    fn print_without_final_trivia(&self) -> String {
+        match self {
+            TerminationStatement::Break(token) | TerminationStatement::Continue(token) => {
+                token.print_without_final_trivia()
+            }
+            TerminationStatement::Return {
+                return_keyword,
+                expressions,
+            } => {
+                return_keyword.print_without_final_trivia()
+                    + &expressions.print_without_final_trivia()
+            }
+        }
     }
 }

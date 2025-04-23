@@ -195,7 +195,7 @@ generate_statement! {
 
 /// An enum representing different types of statements that can end a block of code.
 /// These statements may or may not be present.
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range, Print)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Range)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum TerminationStatement {
     /// The `break` keyword.
