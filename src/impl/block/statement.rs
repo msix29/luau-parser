@@ -11,7 +11,6 @@ impl Parse for Statement {
     fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
         match token.token_type {
             TokenType::Error(error) => handle_error_token!(errors, error),
-            TokenType::EndOfFile => None,
             _ => Self::__parse(token, lexer, errors),
         }
     }

@@ -7,9 +7,9 @@ use luau_lexer::prelude::Token;
 use luau_parser_derive::{Print, Range};
 
 use crate::types::{
-    CompoundSetExpression, DoBlock, Expression, FunctionCall, GenericFor, GlobalFunction,
-    IfStatement, List, LocalAssignment, LocalFunction, NumericalFor, Pointer, RepeatBlock,
-    SetExpression, TypeDefinition, TypeFunction, WhileLoop,
+    CompoundSetExpression, DoBlock, EndOfFile, Expression, FunctionCall, GenericFor,
+    GlobalFunction, IfStatement, List, LocalAssignment, LocalFunction, NumericalFor, Pointer,
+    RepeatBlock, SetExpression, TypeDefinition, TypeFunction, WhileLoop,
 };
 
 /// Helper macro to generate the [`Statement`] enum.
@@ -191,6 +191,9 @@ generate_statement! {
     /// type qux = Bar<Foo<boolean>> -- number | string | boolean
     /// ```
     TypeFunction(TypeFunction),
+
+    /// The [`EndOfFile`] token. Read it's documentation for it's uses.
+    EndOfFile(EndOfFile),
 }
 
 /// An enum representing different types of statements that can end a block of code.

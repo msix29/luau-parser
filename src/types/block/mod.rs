@@ -6,6 +6,7 @@ use crate::types::Pointer;
 
 reexport!(
     do_block,
+    end_of_file,
     generic_for,
     if_statement,
     local_assignment,

@@ -74,6 +74,7 @@ impl<T: MatchesToken> ParseWithArgs<T> for Block {
     ) -> Option<Self> {
         let mut statements = Vec::new();
         let mut last_statement = None;
+        let mut is_done = false;
 
         if stop_at.matches(&token) {
             return (!statements.is_empty() || last_statement.is_some()).then_some(Self {
@@ -84,7 +85,7 @@ impl<T: MatchesToken> ParseWithArgs<T> for Block {
 
         loop {
             if token.token_type == TokenType::EndOfFile {
-                break;
+                is_done = true;
             }
             let mut failed_parsing = false;
 
@@ -113,6 +114,10 @@ impl<T: MatchesToken> ParseWithArgs<T> for Block {
                 failed_parsing = true;
             }
 
+            if is_done {
+                break;
+            }
+
             let state = lexer.save_state();
             let next_token = lexer.next_token();
 
@@ -120,7 +125,7 @@ impl<T: MatchesToken> ParseWithArgs<T> for Block {
                 lexer.set_state(state);
 
                 break;
-            } else if token.token_type != TokenType::EndOfFile && failed_parsing {
+            } else if failed_parsing {
                 errors.push(ParseError::new(
                     state.lexer_position(),
                     format!(

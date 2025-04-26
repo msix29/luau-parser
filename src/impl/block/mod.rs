@@ -1,6 +1,7 @@
 //! All `impl` blocks for the main statements in a [`Cst`](crate::types::Cst).
 
 mod do_block;
+mod end_of_file;
 mod function;
 mod generic_for;
 mod if_statement;
