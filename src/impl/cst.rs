@@ -1,6 +1,6 @@
 //! All `impl` blocks for [`Cst`].
 
-use luau_lexer::prelude::{Lexer, Token, TokenType};
+use luau_lexer::prelude::{Lexer, Token};
 use smol_str::SmolStr;
 
 use crate::types::{AstStatus, Block, Cst, ParseWithArgs, Print, PrintingError};

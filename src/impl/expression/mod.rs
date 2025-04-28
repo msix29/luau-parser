@@ -9,11 +9,11 @@ use luau_lexer::prelude::{
 };
 
 use crate::{
-    handle_error_token, parse_bracketed, safe_unwrap,
+    handle_error_token, safe_unwrap,
     types::{
-        Bracketed, Closure, ElseIfExpression, Expression, ExpressionWrap, FunctionArguments,
-        FunctionCall, FunctionCallInvoked, IfExpression, Parse, ParseWithArgs, Pointer, PrefixExp,
-        Table, TableAccess, TableAccessPrefix, TryParse, TypeValue, Var,
+        Bracketed, Closure, ElseIfExpression, Expression, FunctionCall, FunctionCallInvoked,
+        IfExpression, Parse, ParseWithArgs, Pointer, PrefixExp, Table, TableAccess,
+        TableAccessPrefix, TryParse, TypeValue, Var,
     },
     utils::get_token_type_display,
 };

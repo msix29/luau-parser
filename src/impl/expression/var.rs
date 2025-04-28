@@ -2,13 +2,7 @@
 
 use luau_lexer::prelude::{Lexer, ParseError, Symbol, Token, TokenType};
 
-use crate::{
-    types::{
-        Expression, FunctionCall, FunctionCallInvoked, Parse, Pointer, PrefixExp, TableAccess,
-        TableAccessKey, TableAccessPrefix, TryParse, Var,
-    },
-    utils::get_token_type_display,
-};
+use crate::types::{Parse, TableAccess, TableAccessKey, TableAccessPrefix, TryParse, Var};
 
 impl Parse for Var {
     fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {

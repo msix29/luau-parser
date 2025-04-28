@@ -1,17 +1,16 @@
 //! All `impl` blocks for [`Bracketed`].
 
-use luau_lexer::prelude::{Lexer, ParseError, State, Symbol, Token, TokenType};
+use luau_lexer::prelude::{Lexer, ParseError, Symbol, Token, TokenType};
 use std::ops::{Deref, DerefMut};
 
 use crate::{
-    types::{Bracketed, List, Parse, ParseWithArgs, Print, TryParse, TryParseWithArgs},
+    types::{Bracketed, Parse, ParseWithArgs, Print},
     utils::get_token_type_display_extended,
 };
 
 impl<T: Default> Bracketed<T> {
     /// The actual parsing logic.
     fn parse<F>(
-        previous_state: State,
         parse: F,
         opening_bracket: Token,
         lexer: &mut Lexer,
@@ -70,7 +69,6 @@ impl<T: Parse + Default> ParseWithArgs<(&str, Symbol)> for Bracketed<T> {
         (error_message, stop_at): (&str, Symbol),
     ) -> Option<Self> {
         Self::parse(
-            lexer.save_state(),
             |token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>| {
                 T::parse(token, lexer, errors)
             },
@@ -93,7 +91,6 @@ where
         (error_message, stop_at, args): (&str, Symbol, A),
     ) -> Option<Self> {
         Self::parse(
-            lexer.save_state(),
             |token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>| {
                 T::parse_with(token, lexer, errors, args)
             },

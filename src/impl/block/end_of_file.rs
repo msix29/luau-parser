@@ -6,7 +6,7 @@ use crate::types::{EndOfFile, Parse};
 
 impl Parse for EndOfFile {
     #[inline]
-    fn parse(token: Token, lexer: &mut Lexer, errors: &mut Vec<ParseError>) -> Option<Self> {
+    fn parse(token: Token, _: &mut Lexer, _: &mut Vec<ParseError>) -> Option<Self> {
         (token == TokenType::EndOfFile).then(|| EndOfFile::new(token))
     }
 }
