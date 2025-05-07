@@ -1,10 +1,11 @@
 //! All `impl` blocks for [`Block`].
 
+use lsp_types::Range;
 use luau_lexer::prelude::{Lexer, ParseError, Symbol, Token, TokenType};
 
 use crate::{
     types::{
-        Block, GetRange, GetRangeError, Parse, ParseWithArgs, Pointer, Print, Range, Statement,
+        Block, GetRange, GetRangeError, Parse, ParseWithArgs, Pointer, Print, Statement,
         TerminationStatement,
     },
     utils::get_token_type_display_extended,

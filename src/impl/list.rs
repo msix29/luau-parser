@@ -1,10 +1,11 @@
 //! All `impl` blocks for [`List`].
 
+use lsp_types::Range;
 use luau_lexer::prelude::{Lexer, ParseError, Symbol, Token, TokenType};
 use std::ops::{Deref, DerefMut};
 
 use crate::types::{
-    GetRange, GetRangeError, List, ListItem, Parse, ParseWithArgs, Print, Range, TryParse,
+    GetRange, GetRangeError, List, ListItem, Parse, ParseWithArgs, Print, TryParse,
 };
 
 impl<T> List<T> {

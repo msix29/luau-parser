@@ -5,6 +5,7 @@
 //! * [`TableFieldValue`]
 //! * [`Table`]
 
+use lsp_types::Range;
 use luau_lexer::prelude::{Lexer, ParseError, Symbol, Token, TokenType};
 use std::cell::Cell;
 
@@ -12,7 +13,7 @@ use crate::{
     safe_unwrap,
     types::{
         Bracketed, BracketedList, Expression, FunctionArguments, GetRange, GetRangeError, Parse,
-        ParseWithArgs, Pointer, Print, Range, Table, TableAccessKey, TableField, TableFieldValue,
+        ParseWithArgs, Pointer, Print, Table, TableAccessKey, TableField, TableFieldValue,
         TableKey, TryParse, TryParseWithArgs, TypeValue,
     },
 };

@@ -1,8 +1,7 @@
 //! Module holding all trait definitions in this crate.
 
 use luau_lexer::prelude::{Lexer, ParseError, Token};
-
-use crate::types::Range;
+use lsp_types::Range;
 
 /// A trait to print the token as-is, while preserving all user spaces, comments
 /// and styling.

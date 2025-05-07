@@ -8,16 +8,17 @@ mod bracketed;
 mod cst;
 mod expression;
 mod list;
-mod literals;
 mod name;
-mod range;
 mod value;
 
-use luau_lexer::prelude::{Comment, Lexer, ParseError, Token, Trivia};
+use lsp_types::Range;
+use luau_lexer::{
+    prelude::{Comment, Lexer, ParseError, Token, Trivia},
+    token::TokenType,
+};
 
 use crate::types::{
-    GetRange, GetRangeError, Parse, ParseWithArgs, Pointer, Print, Range, TryParse,
-    TryParseWithArgs,
+    GetRange, GetRangeError, Parse, ParseWithArgs, Pointer, Print, TryParse, TryParseWithArgs,
 };
 
 impl<T: Parse> Parse for Pointer<T> {
@@ -126,7 +127,11 @@ fn print_trivia(trivia: &[Trivia]) -> String {
 impl Print for Token {
     #[inline]
     fn print_final_trivia(&self) -> String {
-        print_trivia(&self.trailing_trivia)
+        if self.token_type == TokenType::EndOfFile {
+            print_trivia(&self.leading_trivia)
+        } else {
+            print_trivia(&self.trailing_trivia)
+        }
     }
 
     #[inline]

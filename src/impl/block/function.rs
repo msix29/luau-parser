@@ -4,13 +4,14 @@
 //! * [`GlobalFunction`]
 //! * [`GlobalFunctionName`]
 
+use lsp_types::Range;
 use luau_lexer::prelude::{Keyword, Lexer, ParseError, PartialKeyword, Symbol, Token, TokenType};
 
 use crate::{
     force_parse_bracketed, parse_bracketed,
     types::{
         Attribute, Block, GetRange, GetRangeError, GlobalFunction, GlobalFunctionName,
-        LocalFunction, Parameter, Parse, ParseWithArgs, Pointer, Range, TableAccessKey, TryParse,
+        LocalFunction, Parameter, Parse, ParseWithArgs, Pointer, TableAccessKey, TryParse,
         TryParseWithArgs, TypeFunction, TypeValue,
     },
     utils::{get_token_type_display, get_token_type_display_extended},
