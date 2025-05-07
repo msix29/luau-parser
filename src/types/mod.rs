@@ -25,8 +25,6 @@ reexport!(
     block, bracketed, cst, expression, list, literals, name, traits, value
 );
 
-pub use lsp_types::*;
-
 /// The main pointer used in the [`Cst`]. It's just [`Rc`]. The only reason
 /// this type exists is to allow easily switching to others, like [`Box`] or
 /// [`Arc`](std::sync::Arc) by only editing one line instead of mass refactoring.
