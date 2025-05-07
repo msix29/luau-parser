@@ -17,5 +17,5 @@ pub use luau_lexer;
 pub mod prelude {
     pub use crate::parser::*;
     pub use crate::types::*;
-    pub use luau_lexer::prelude::{Comment, *};
+    pub use luau_lexer::prelude::*;
 }
