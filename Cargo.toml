@@ -12,6 +12,7 @@ repository = "https://github.com/msix29/luau-parser"
 homepage = "https://github.com/msix29/luau-parser"
 
 [dependencies]
+lsp-types = "0.97.0"
 luau-lexer = { version = "0.2.91" }
 luau-parser-derive = { version = "0.2.21" }
 serde = { version = "1.0.219", features = ["derive", "rc"], optional = true }
