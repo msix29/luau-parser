@@ -1,9 +1,7 @@
 $features = @(
     "default",
     "cache",
-    "lsp-ready",
-    "raw-values",
-    "regex",
+    "async",
     "serde"
 )
 function Get-Combinations {
