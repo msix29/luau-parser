@@ -4,7 +4,11 @@ use luau_lexer::lexer::Lexer;
 #[cfg(feature = "cache")]
 use std::collections::HashMap;
 
-use crate::types::Cst;
+use crate::types::{Cst, Pointer};
+
+/// The cache used in [`Parser`] when `cache` feature is enabled.
+#[cfg(feature = "cache")]
+pub type ParserCache = HashMap<String, Pointer<Cst>>;
 
 /// A Luau parser.
 pub struct Parser<'a> {
@@ -12,7 +16,7 @@ pub struct Parser<'a> {
     /// to use the [`CST`](Cst) more than once in 2 different places without
     /// re-parsing.
     #[cfg(feature = "cache")]
-    cache: HashMap<String, Cst>,
+    cache: ParserCache,
 
     /// The `tree-sitter` parser.
     lexer: Lexer<'a>,
@@ -41,8 +45,8 @@ impl<'a> Parser<'a> {
     }
 
     /// Parse Luau code into an [`CST`](Cst).
-    pub fn parse(&mut self, uri: &str) -> Cst {
-        let cst = Cst::parse(self.lexer.next_token(), &mut self.lexer, uri);
+    pub fn parse(&mut self, uri: &str) -> Pointer<Cst> {
+        let cst = Pointer::new(Cst::parse(self.lexer.next_token(), &mut self.lexer, uri));
 
         #[cfg(feature = "cache")]
         {
@@ -64,15 +68,16 @@ impl<'a> Parser<'a> {
         self.cache.get(uri).unwrap()
     }
 
-    /// Get a specific [`CST`](Cst) from the cache, or parse `code` and return the
+    /// Get a specific [`CST`](Cst) from the cache (if `cache` feature is enabled),
+    /// or parse `code` and return the produced [`CST`](Cst)
     #[inline]
-    pub fn get_or_create(&mut self, uri: &str, code: &'a str) -> Cst {
+    pub fn get_or_create(&mut self, uri: &str, code: &'a str) -> Pointer<Cst> {
         #[cfg(feature = "cache")]
         if let Some(cst) = self.maybe_get_ast(uri) {
-            return cst.to_owned();
+            return cst;
         }
 
-        self.lexer.set_input(code);
+        self.set_input(code);
         self.parse(uri)
     }
 
@@ -81,14 +86,14 @@ impl<'a> Parser<'a> {
     /// there.
     #[cfg(feature = "cache")]
     #[inline]
-    pub fn maybe_get_ast(&self, uri: &str) -> Option<&Cst> {
-        self.cache.get(uri)
+    pub fn maybe_get_ast(&self, uri: &str) -> Option<Pointer<Cst>> {
+        self.cache.get(uri).cloned()
     }
 
     /// Get all cached [`CST`](Cst)s.
     #[cfg(feature = "cache")]
     #[inline]
-    pub fn get_all_asts(&self) -> &HashMap<String, Cst> {
+    pub fn get_all_asts(&self) -> &ParserCache {
         &self.cache
     }
 
