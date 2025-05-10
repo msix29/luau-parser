@@ -22,7 +22,7 @@ use std::{
 const ITERATIONS: usize = 1000;
 const WARM_UP_ITERATIONS: usize = 50;
 
-fn bench<'a>(parser: &mut Parser<'a>, uri: &str, content: &'a str) -> BenchMarkResult {
+fn bench(parser: &mut Parser, uri: &str, content: &str) -> BenchMarkResult {
     parser.set_input(content);
 
     for _ in 0..WARM_UP_ITERATIONS {
