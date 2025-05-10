@@ -21,7 +21,7 @@ pub struct Parser {
     #[cfg(feature = "cache")]
     cache: ParserCache,
 
-    /// The `tree-sitter` parser.
+    /// The lexer.
     lexer: Lexer,
 }
 
