@@ -1,6 +1,7 @@
 //! The main item of this crate, the actual [`parser`](Parser).
 
 use luau_lexer::lexer::Lexer;
+use std::borrow::Cow;
 #[cfg(feature = "cache")]
 use std::collections::HashMap;
 
@@ -25,7 +26,7 @@ pub struct Parser<'a> {
 impl<'a> Parser<'a> {
     /// Create a new [`parser`](Parser).
     #[inline]
-    pub fn new(input: &'a str) -> Self {
+    pub fn new(input: impl Into<Cow<'a, str>>) -> Self {
         Self {
             #[cfg(feature = "cache")]
             cache: HashMap::new(),
@@ -34,13 +35,13 @@ impl<'a> Parser<'a> {
     }
 
     /// Set the parser's input. Meant to be chained.
-    pub fn with_input(mut self, input: &'a str) -> Self {
+    pub fn with_input(mut self, input: impl Into<Cow<'a, str>>) -> Self {
         self.lexer = self.lexer.with_input(input);
         self
     }
 
     /// Set the parser's input.
-    pub fn set_input(&mut self, input: &'a str) {
+    pub fn set_input(&mut self, input: impl Into<Cow<'a, str>>) {
         self.lexer.set_input(input);
     }
 
@@ -71,7 +72,7 @@ impl<'a> Parser<'a> {
     /// Get a specific [`CST`](Cst) from the cache (if `cache` feature is enabled),
     /// or parse `code` and return the produced [`CST`](Cst)
     #[inline]
-    pub fn get_or_create(&mut self, uri: &str, code: &'a str) -> Pointer<Cst> {
+    pub fn get_or_create(&mut self, uri: &str, code: impl Into<Cow<'a, str>>) -> Pointer<Cst> {
         #[cfg(feature = "cache")]
         if let Some(cst) = self.maybe_get_ast(uri) {
             return cst;
