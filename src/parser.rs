@@ -1,7 +1,6 @@
 //! The main item of this crate, the actual [`parser`](Parser).
 
 use luau_lexer::lexer::Lexer;
-use std::borrow::Cow;
 #[cfg(feature = "cache")]
 use std::collections::HashMap;
 
@@ -15,7 +14,7 @@ pub type ParserCache = HashMap<String, Pointer<Cst>>;
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 #[cfg_attr(not(feature = "cache"), derive(Copy, Hash, PartialOrd, Ord))]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub struct Parser<'a> {
+pub struct Parser {
     /// Cache, only works with the `cache` feature, this is useful when you need
     /// to use the [`CST`](Cst) more than once in 2 different places without
     /// re-parsing.
@@ -23,13 +22,13 @@ pub struct Parser<'a> {
     cache: ParserCache,
 
     /// The `tree-sitter` parser.
-    lexer: Lexer<'a>,
+    lexer: Lexer,
 }
 
-impl<'a> Parser<'a> {
+impl Parser {
     /// Create a new [`parser`](Parser).
     #[inline]
-    pub fn new(input: impl Into<Cow<'a, str>>) -> Self {
+    pub fn new(input: &str) -> Self {
         Self {
             #[cfg(feature = "cache")]
             cache: HashMap::new(),
@@ -38,13 +37,13 @@ impl<'a> Parser<'a> {
     }
 
     /// Set the parser's input. Meant to be chained.
-    pub fn with_input(mut self, input: impl Into<Cow<'a, str>>) -> Self {
+    pub fn with_input(mut self, input: &str) -> Self {
         self.lexer = self.lexer.with_input(input);
         self
     }
 
     /// Set the parser's input.
-    pub fn set_input(&mut self, input: impl Into<Cow<'a, str>>) {
+    pub fn set_input(&mut self, input: &str) {
         self.lexer.set_input(input);
     }
 
@@ -75,7 +74,7 @@ impl<'a> Parser<'a> {
     /// Get a specific [`CST`](Cst) from the cache (if `cache` feature is enabled),
     /// or parse `code` and return the produced [`CST`](Cst)
     #[inline]
-    pub fn get_or_create(&mut self, uri: &str, code: impl Into<Cow<'a, str>>) -> Pointer<Cst> {
+    pub fn get_or_create(&mut self, uri: &str, code: &str) -> Pointer<Cst> {
         #[cfg(feature = "cache")]
         if let Some(cst) = self.maybe_get_ast(uri) {
             return cst;
