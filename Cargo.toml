@@ -13,7 +13,7 @@ homepage = "https://github.com/msix29/luau-parser"
 
 [dependencies]
 lsp-types = "0.97.0"
-luau-lexer = { version = "0.2.93" }
+luau-lexer = { version = "0.2.94" }
 luau-parser-derive = { version = "0.2.22" }
 serde = { version = "1.0.219", features = ["derive", "rc"], optional = true }
 smol_str = { version = "0.3.2" }
