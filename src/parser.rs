@@ -12,6 +12,9 @@ use crate::types::{Cst, Pointer};
 pub type ParserCache = HashMap<String, Pointer<Cst>>;
 
 /// A Luau parser.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+#[cfg_attr(not(feature = "cache"), derive(Copy, Hash, PartialOrd, Ord))]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Parser<'a> {
     /// Cache, only works with the `cache` feature, this is useful when you need
     /// to use the [`CST`](Cst) more than once in 2 different places without
