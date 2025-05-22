@@ -74,7 +74,7 @@ impl BenchMarkResults {
         Self::default()
     }
 
-    pub fn save(&self) -> io::Result<()>  {
+    pub fn save(&self) -> io::Result<()> {
         let mut str = String::new();
 
         for (path, result) in self.iter() {

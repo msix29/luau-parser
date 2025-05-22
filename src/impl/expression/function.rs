@@ -147,7 +147,9 @@ impl Parse for FunctionArgument {
         if matches!(token.token_type, TokenType::Symbol(Symbol::Ellipses)) {
             Some(Self::VariadicValues(token))
         } else {
-            Expression::parse(token, lexer, errors).map(Self::Expression)
+            Expression::parse(token, lexer, errors)
+                .map(Pointer::new)
+                .map(Self::Expression)
         }
     }
 }

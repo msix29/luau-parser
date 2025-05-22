@@ -136,7 +136,9 @@ impl Expression {
                 Table::parse_with(token, lexer, errors, false).map(Self::Table)
             }
             TokenType::Keyword(Keyword::Function) | TokenType::Symbol(Symbol::At) => {
-                Closure::parse(token, lexer, errors).map(Self::Closure)
+                Closure::parse(token, lexer, errors)
+                    .map(Pointer::new)
+                    .map(Self::Closure)
             }
             TokenType::Keyword(Keyword::Nil) => Some(Self::Nil(token)),
             TokenType::Keyword(Keyword::If) => {

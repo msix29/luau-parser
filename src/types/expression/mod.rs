@@ -67,7 +67,7 @@ pub enum Expression {
     /// local foo = function(arg1: number): boolean
     /// end
     /// ```
-    Closure(Closure),
+    Closure(Pointer<Closure>),
 
     /// A function call.
     ///

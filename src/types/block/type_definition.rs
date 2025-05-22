@@ -337,7 +337,7 @@ pub enum GenericParameterInfoDefault {
     /// type Bar<T... = ...string> = "Bar"
     /// type Qux<T... = (string, number)> = "Qux"
     /// ```
-    Pack(TypeValue),
+    Pack(Pointer<TypeValue>),
 }
 
 /// The generics used in a [`type definition`](TypeDefinition).

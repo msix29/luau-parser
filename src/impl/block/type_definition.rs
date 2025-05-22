@@ -484,7 +484,7 @@ impl Parse for GenericParameterInfoDefault {
                     TypeValue::GenericPack { .. }
                     | TypeValue::VariadicPack { .. }
                     | TypeValue::Tuple { .. },
-                ) => type_value.map(Self::Pack),
+                ) => type_value.map(Pointer::new).map(Self::Pack),
                 _ => None,
             },
         }

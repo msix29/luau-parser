@@ -80,7 +80,7 @@ pub enum FunctionArguments {
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum FunctionArgument {
     /// A normal [`expression`](Expression).
-    Expression(Expression),
+    Expression(Pointer<Expression>),
 
     /// A variadic value
     ///
